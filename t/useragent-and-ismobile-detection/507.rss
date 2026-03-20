@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>UserAgent and isMobile detection</title>
+    <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507</link>
+    <description>Hello!
+
+I need to detect if the request is a mobile request or not. Does Frontity have something like isMobile function? Or how can I access to the userAgent request?
+
+Thanks!!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 01 Feb 2022 10:38:17 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[murphybeck]]></dc:creator>
+        <description><![CDATA[
+            <p>User Agent detection is not a recommended technique for modern web apps. You can use JavaScript window.matchMedia() method to <a href="http://net-informations.com/js/progs/mobile.htm" rel="noopener nofollow ugc">detect a mobile device</a> based on the CSS media query.</p>
+<pre><code class="lang-javascript">if (window.matchMedia("(max-width: 767px)").matches)
+{
+// The viewport is less than 768 pixels wide
+document.write("This is a mobile device.");
+}
+</code></pre>
+<p>Another approach would be a responsive media query. You could presume that a mobile phone has a screen size greater than x and less than y.</p>
+<p>For example:</p>
+<p><code>@media only screen and (min-width: 320px) and (max-width: 600px) {}</code></p>
+<p>You may also use navigator.userAgentData.mobile .</p>
+<p><code>const isMobile = navigator.userAgentData.mobile;</code></p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/12</link>
+        <pubDate>Tue, 01 Feb 2022 10:38:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-12</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You can use <code>beforeSSR</code> to get the Koa <code>ctx</code> and inspect the <code>User-Agent</code> header.</p>
+<pre><code class="lang-js">const beforeSSR = ({ state, actions }) =&gt; ({ ctx }) =&gt; {
+  const ua = ctx.get("user-agent");
+  // ...
+}
+</code></pre>
+<p>but if you do that you cannot cache the response, so I don’t recommend you to do so unless your cache layer also supports it, like this: <a href="https://www.keycdn.com/support/user-device-based-caching" class="inline-onebox">User Device-Based Caching - KeyCDN Support</a>.</p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/11</link>
+        <pubDate>Mon, 22 Feb 2021 08:45:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-11</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="2" data-topic="507">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>It’s one of the next steps as we need it to make AMP work as well so it shouldn’t take long.</p>
+</blockquote>
+</aside>
+<p>Hey <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>, how is this going? Is it done already?<br>
+Whats the simpliest way to know if it’s mobile at the moment?</p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/10</link>
+        <pubDate>Thu, 18 Feb 2021 17:29:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-10</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Have you thought about using <code>window.matchMedia()</code>?</p>
+<p>Maybe something like this:</p>
+<pre><code class="lang-javascript">const getType = () =&gt; {
+  const mq = window.matchMedia( "(max-width: 570px)" );
+  if (mq.matches) {
+    // window width is at less than 570px
+    return "mobile";
+  } else {
+    // window width is greater than 570px
+    return "desktop";
+  }
+}
+
+const SmartAd = ({ someAdParams, type }) =&gt; {
+  useEffect(() =&gt; {
+     // Only initialize this Ad if type matches.
+     if (type === getType)
+       initializeAd(someAdParams);
+  }, []);
+
+  return (
+    &lt;div
+      id={someAdParams.tagId}
+      width={someAdParams.width}
+      height={someAdParams.height}
+    /&gt;
+  );
+};
+</code></pre>
+<p>Then use <code>type="mobile"</code> or <code>type="desktop"</code> in your components:</p>
+<pre><code class="lang-auto">&lt;!-- in the places where it should show an ad in mobile --&gt;
+&lt;SmartAd someAdParams={someAdParams} type="mobile" /&gt;
+
+&lt;!-- in the places where it should show an ad in desktop --&gt;
+&lt;SmartAd someAdParams={someAdParams} type="desktop" /&gt;
+</code></pre>
+<hr>
+<p>I wonder if you need to use the same <code>tagId</code>s and that could cause problems with the initiliazation?</p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/9</link>
+        <pubDate>Fri, 23 Aug 2019 09:27:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-9</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>That is the problem, I don’t know how to make it work using only CSS. On our actual website is generated by PHP and we have two versions (mobile and desktop). The only solution I can imagine is create ads divs duplicated and before load the smartadserver script execute a javascript logic to determine which div is visible and set it a ID attribute (wich it will be used by smartadserver script).</p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/8</link>
+        <pubDate>Fri, 23 Aug 2019 08:44:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-8</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>How are you positioning the ads after the fourth paragraph?</p>
+<p>We used to do it with Html2React but I wonder what’s your solution.</p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/7</link>
+        <pubDate>Fri, 23 Aug 2019 06:09:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-7</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>In fact, I have problems on the next scenario: Inside a post I have the main content with paragraphs and a sidebar with ads (ad1, ad2 and ad3) and related posts divs. I have no problem on show or hide the divs with <span class="mention">@media</span> query. But I can’t do that with ads.</p>
+<p>I am trying to use CSS grid (each </p><p> is a row) but is complicated calculate the height that I need for the sidebar content.</p>
+<p>On mobile version I need to position a ad after the fourth </p><p> (for example). I can’t see how can I do this only using CSS.</p>
+<p>If you have any idea how to solve this jus tell me! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/6</link>
+        <pubDate>Thu, 22 Aug 2019 08:58:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-6</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the replay! Initially I will try to avoid to have two versions. But I needed to know if it is possible do it on some way. <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/5</link>
+        <pubDate>Wed, 21 Aug 2019 09:51:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-5</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m glad it works <img src="https://community.frontity.org/images/emoji/apple/relaxed.png?v=9" title=":relaxed:" class="emoji" alt=":relaxed:"></p>
+<hr>
+<aside class="quote no-group" data-post="3" data-topic="507">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/javier/40/105_2.png" class="avatar"> javier:</div>
+<blockquote>
+<p>If the website is behind on a CDN it must have the capability of make user-agent detection, to check if there is a mobile/tablet/desktop request. I think nowadays that is not a problem.</p>
+</blockquote>
+</aside>
+<p>Yes, but you’d have to make sure you are using <strong>the exact same regular expression</strong> than your CDN is using or you may get into trouble with edge cases.</p>
+<p>They usually publish the regular expressions in the docs. For example, these are the <a href="https://www.keycdn.com/support/user-device-based-caching" rel="nofollow noopener">regular expressions used by KeyCDN</a> (Nginx syntax):</p>
+<pre><code class="lang-auto">map $http_user_agent $ua_device {
+    default "desktop";
+    "~*(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge\ |maemo|midp|mmp|mobile.+firefox|netfront|opera\ m(ob|in)i|palm(\ os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows\ ce|xda|xiino/i" "mobile";
+    "~*android|ipad|playbook|silk/i" "tablet";
+}
+</code></pre>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/javier">@javier</a>, you know more SEO than we do but I’d like to state a couple of things here for other people that may read this in the future:</p>
+<ul>
+<li>The relevant content included on the three versions (desktop, tablet, mobile) should be the same or Google may penalize your site.</li>
+<li>To avoid the burden of having to configure the CDN to do “user-agent caching”, you can always do the things the old, responsive way, using media queries. Thanks to React, that could be as simple as:</li>
+</ul>
+<pre><code class="lang-javascript">// Hidden on desktop.
+const Mobile = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+// Hidden on mobile.
+const Desktop = styled.div`
+  display: block;
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const MyComponent = () =&gt; (
+  &lt;&gt;
+    &lt;Mobile&gt;
+      Content that only shows in mobile.
+    &lt;/Mobile&gt;
+    &lt;Desktop&gt;
+      Content that only shows in desktop.
+    &lt;/Desktop&gt;
+  &lt;/&gt;
+);
+</code></pre>
+<p>Of course, there are more ways to achieve that in React <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/4</link>
+        <pubDate>Mon, 19 Aug 2019 14:28:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-4</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>That looks great! Until that is done on production I made a hack on <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/core/server/index.tsx file:</p>
+<p>I added the</p>
+<pre><code>import userAgent from "koa-useragent";
+</code></pre>
+<p>After the line:</p>
+<pre><code>app.use(get("/favicon.ico", serve("./")));
+</code></pre>
+<p>I added:</p>
+<pre><code>app.use(userAgent);
+</code></pre>
+<p>And after the line:</p>
+<pre><code>const settings = await getSettings({ url: ctx.href, name: ctx.query.name });
+</code></pre>
+<p>Added:</p>
+<pre><code>settings.state.frontity.isMobile = ctx.userAgent.isMobile;
+</code></pre>
+<p>After that I ran the following commands:</p>
+<pre><code>sudo rm -R node_modules
+npm install koa-useragent@2.0.0
+npm install @types/koa-useragent
+npx frontity dev
+</code></pre>
+<p>Now I can use the state.frontity.isMobile <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+<blockquote>
+<p>Are you going to use the user-agent to cache different HTML for mobile/tablet/desktop?</p>
+</blockquote>
+<p>Yes, I think I can not create the exactly the same code for mobile and desktop as there is some widgets that only needed to be loaded on mobile or desktop. If the website is behind on a CDN it must have the capability of make user-agent detection, to check if there is a mobile/tablet/desktop request. I think nowadays that is not a problem.</p>
+<p>Thank you! <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/3</link>
+        <pubDate>Mon, 19 Aug 2019 12:36:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-3</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, you will be able to access any header, including ‘user-agent’, as soon as we add server extensibility. It’s one of the next steps as we need it to make AMP work as well so it shouldn’t take long.</p>
+<p>We use <a href="https://koajs.com/" rel="nofollow noopener">Koa</a> in the server because it’s way smaller than Express and works great with async/await. You can use this Koa functions to extend Frontity’s server at your will.</p>
+<p>It’s going to be very similar to this:</p>
+<pre><code class="lang-javascript">// packages/your-package/src/index.js
+
+// Default export, with React app.
+export default {
+  roots: { ... },
+  state: { ... },
+  actions: { ... },
+  libraries: { ... }
+};
+
+// server export, to extend the server.
+export const server = app =&gt; {
+  app.use(ctx =&gt; {
+    ctx.headers['user-agent'];
+  });
+};
+</code></pre>
+<p>If you want to include server-only code or a library that is big and don’t want to include in the client bundle, you’d need to delete <code>index.js</code> and create a <code>client.js</code> and a <code>server.js</code> file.</p>
+<p>For example, you may want to use this: <a href="https://github.com/rvboris/koa-useragent" rel="nofollow noopener">https://github.com/rvboris/koa-useragent</a> (~15kbs):</p>
+<pre><code class="lang-javascript">// packages/your-package/src/client.js
+export default {
+  state: { ... },
+  actions: { ... },
+  libraries: { ... }
+};
+</code></pre>
+<pre><code class="lang-javascript">// packages/your-package/src/server.js
+import userAgent from 'koa-useragent';  // import it only in the server
+
+export default {
+  state: { ... },
+  actions: { ... },
+  libraries: { ... }
+};
+
+export const server = app =&gt; {
+  app.use(userAgent);
+  app.use(ctx =&gt; {
+    ctx.userAgent; // do something with this
+  });
+};
+</code></pre>
+<p>You can use the server function to modify the <code>state</code> of your site. The current settings are exposed in <code>ctx.settings</code>:</p>
+<pre><code class="lang-javascript">export const server = app =&gt; {
+  app.use(ctx =&gt; {
+    // Change the state of the settings.
+    ctx.settings.state.frontity.isMobile = ctx.userAgent.isMobile;
+  });
+};
+</code></pre>
+<p>Finally, you can consume that <code>state</code> in React:</p>
+<pre><code class="lang-javascript">const MyComponent = ({ state }) =&gt;  {
+  if (state.frontity.isMobile) return &lt;MobileThing /&gt;;
+  return &lt;NotMobileThing /&gt;;
+}
+</code></pre>
+<hr>
+<p>Are you going to use the <code>user-agent</code> to cache different HTML for mobile/tablet/desktop?</p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/2</link>
+        <pubDate>Mon, 19 Aug 2019 11:26:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-2</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+      <item>
+        <title>UserAgent and isMobile detection</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello!</p>
+<p>I need to detect if the request is a mobile request or not. Does Frontity have something like isMobile function? Or how can I access to the userAgent request?</p>
+<p>Thanks!!</p>
+          <p><a href="https://community.frontity.org/t/useragent-and-ismobile-detection/507/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useragent-and-ismobile-detection/507/1</link>
+        <pubDate>Mon, 19 Aug 2019 10:33:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-507-1</guid>
+        <source url="https://community.frontity.org/t/useragent-and-ismobile-detection/507.rss">UserAgent and isMobile detection</source>
+      </item>
+  </channel>
+</rss>

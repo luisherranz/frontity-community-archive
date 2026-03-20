@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>How to resolve dynamic imports in Webpack - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="This is something we need to solve before we can go on. 
+The problems
+We have packages (Settings and Frontity packages) defined dynamically, not statically: 
+
+
+Dynamically: defined in variables 
+settingsPackage = &amp;quot;my-pkg&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/how-to-resolve-dynamic-imports-in-webpack/59" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;How to resolve dynamic imports in Webpack&#39;" href="/t/how-to-resolve-dynamic-imports-in-webpack/59.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/how-to-resolve-dynamic-imports-in-webpack/59" />
+<meta name="twitter:url" content="/t/how-to-resolve-dynamic-imports-in-webpack/59" />
+<meta property="og:title" content="How to resolve dynamic imports in Webpack" />
+<meta name="twitter:title" content="How to resolve dynamic imports in Webpack" />
+<meta property="og:description" content="This is something we need to solve before we can go on.  The problems We have packages (Settings and Frontity packages) defined dynamically, not statically:    Dynamically: defined in variables  settingsPackage = &quot;my-pkg&quot;   Statically: written in code  require(&quot;my-pkg&quot;)   For example, the Settings Package is defined in frontity.config.js like this:  // frontity.config.js module.exports = {   settingsPackage: &#39;@frontity/file-settings&#39;  }  That means that Frontity has to do something like this to ..." />
+<meta name="twitter:description" content="This is something we need to solve before we can go on.  The problems We have packages (Settings and Frontity packages) defined dynamically, not statically:    Dynamically: defined in variables  settingsPackage = &quot;my-pkg&quot;   Statically: written in code  require(&quot;my-pkg&quot;)   For example, the Settings Package is defined in frontity.config.js like this:  // frontity.config.js module.exports = {   settingsPackage: &#39;@frontity/file-settings&#39;  }  That means that Frontity has to do something like this to ..." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="4 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="2 ❤" />
+<meta property="article:published_time" content="2019-02-28T13:06:38+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"How to resolve dynamic imports in Webpack","mainEntity":{"@type":"Question","name":"How to resolve dynamic imports in Webpack","text":"This is something we need to solve before we can go on.\n\nThe problems\n\nWe have packages (Settings and Frontity packages) defined dynamically, not statically:\n\nDynamically: defined in variables\n\nsettingsPackage = &quot;my-pkg&quot;\n\nStatically: written in code\n\nrequire(&quot;my-pkg&quot;)\n\nFor example, the Settings P&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2019-02-28T13:06:38.239Z","author":{"@type":"Person","name":"Luis Herranz"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/how-to-resolve-dynamic-imports-in-webpack/59">How to resolve dynamic imports in Webpack</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='How to resolve dynamic imports in Webpack'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-02-28T13:06:38Z' class='post-time'>
+                    28 February 2019 13:06
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-03T15:15:44Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>This is something we need to solve before we can go on.</p>
+<h2>The problems</h2>
+<p>We have packages (Settings and Frontity packages) defined dynamically, not statically:</p>
+<ul>
+<li>
+<strong>Dynamically</strong>: defined in variables<br>
+<code>settingsPackage = "my-pkg"</code>
+</li>
+<li>
+<strong>Statically</strong>: written in code<br>
+<code>require("my-pkg")</code>
+</li>
+</ul>
+<p>For example, the Settings Package is defined in <code>frontity.config.js</code> like this:</p>
+<pre><code class="lang-auto">// frontity.config.js
+module.exports = {
+  settingsPackage: '@frontity/file-settings' 
+}
+</code></pre>
+<p>That means that Frontity has to do something like this to import them:</p>
+<pre><code class="lang-auto">// sever.js
+const config = require("./frontity.config.js")
+
+ // ⬇️ this works in Node but not in Webpack
+const getSettings = require(config.settingsPackage)
+
+const { settings, packages } = await getSettings()
+</code></pre>
+<ul>
+<li>
+<strong>Node</strong> runs the code and requires on runtime, so that works.</li>
+<li>
+<strong>Webpack</strong> analyzes the static code to generate the bundle. When it gets to that dynamic import, it doesn’t know what to import and throws an error.</li>
+</ul>
+<p>Webpack has a way to overcome this problem, which is what we used in the past. It accepts a regexp or a string that it later converts to a regexp:</p>
+<pre><code class="lang-auto">const config = require("./frontity.config.js")
+const getSettings = require(`./settings/${config.settingsPackage}/index.js`)
+
+const { settings, packages } = await getSettings()
+package.forEach(pkg =&gt; {
+  require(`./packages/${pkg.name}/index.js`)
+})
+</code></pre>
+<p>If you do that, Webpack is able to analyze <code>./settings/${config.settingsPackage}/index.js</code> and import <strong>all the possibilities</strong> of that regexp, <strong>no matter if they are used or not</strong>. For example:</p>
+<ul>
+<li><code>./settings/file-settings/index.js</code></li>
+<li><code>./settings/wp-org-settings/index.js</code></li>
+</ul>
+<p>There’s a couple of problems with the way we want to do things now:</p>
+<h3>1. Webpack imports all the packages it finds in the regexp</h3>
+<p>If users forget to npm uninstall a package they are not using anymore, it will be included anyway. This is really bad and counterintuitive. In my opinion, unacceptable.</p>
+<p>=&gt; <em>In the past we solved this because each package created its own chunk in the client and we didn’t care about the bundle size in the server.</em></p>
+<h3>2.  It doesn’t work with <code>node_modules</code>
+</h3>
+<p>There’s no way to create a regexp to distinguish between Settings and Frontity packages from the rest in <code>node_modules</code>.</p>
+<p>=&gt; <em>In the past we solved this because all packages were created in the <code>./packages/</code> folder.</em></p>
+<hr>
+<h2>Some possible solutions</h2>
+<h3>1. Force a custom name for Settings or Frontity packages</h3>
+<p>For example:</p>
+<ul>
+<li>
+<code>@frontity/file-frontity-settings</code> (official)</li>
+<li><code>wp-org-frontity-settings</code></li>
+<li>
+<code>@frontity/saturn-frontity-theme</code> (official)</li>
+<li><code>mars-frontity-theme</code></li>
+<li>
+<code>@frontity/wp-org-frontity-extension</code> (official)</li>
+<li><code>graphql-wp-org-frontity-extension</code></li>
+</ul>
+<p>And use a regexp like:</p>
+<pre><code class="lang-auto">const getSettings = require(`./node_modules/${config.settingsPackage}-frontity-settings/index.js`)
+package.forEach(pkg =&gt; {
+  require(`./packages/${pkg.name}-frontity-(theme|extension)/index.js`)
+})
+</code></pre>
+<p>But it’s not ideal because Webpack will include all packages, no matter if they are actually used or not <img src="/images/emoji/apple/-1.png?v=9" title=":-1:" class="emoji" alt=":-1:"></p>
+<h3>2.  Analyze what packages are needed and write a file to disk</h3>
+<p>This must be done in <code>frontity dev</code> or <code>frontity build</code> before Webpack is run:</p>
+<pre><code class="lang-auto">// build.js
+const config = require("./frontity.config.js")
+const settingsContent = `export default from ${config.settingsPackage}`
+writeFile("./dynamic-settings.js", fileContent)
+</code></pre>
+<p>Then, this is what Webpack sees:</p>
+<pre><code class="lang-auto">// server.js
+const getSettings = require("./dynamic-settings.js")
+</code></pre>
+<p>I don’t like having to write a file to disk to solve this, but I guess it’s ok for settings. But for packages, this approach has a new problem.</p>
+<h2>The problem of solution 2</h2>
+<p>A user can have multiple packages for different sites or environments.</p>
+<p>For example, it’s <code>frontity.settings.js</code> could be:</p>
+<pre><code class="lang-auto"> module.exports = {
+    site: "my-blog",
+    matches: {
+      amp: "/amp/$",
+      main: "*"
+    },
+    settings: {
+      url: "https://my-blog.com"
+    },
+    packages: {
+      "@my-org/amp-theme": {
+        matches: "amp",
+        settings: {
+          color: "#AAA"
+        }
+      },
+      "@my-org/main-theme": {
+        matches: "main",
+        settings: {
+          color: "#BBB"
+        }
+      },
+      "@frontity/wp-org-source": {
+        settings: {
+          endpoint: "https://my-blog.com/wp-json/",
+          perPage: 13
+        }
+      }
+    }
+  }
+</code></pre>
+<p>If we extract the packages used here and write them to disk…</p>
+<ul>
+<li><code>@my-org/amp-theme</code></li>
+<li><code>@my-org/main-theme</code></li>
+<li><code>@frontity/wp-org-source</code></li>
+</ul>
+<p>…the client bundle will include both the amp and the main theme. That is bad. It’ll be even worse if the user has different themes for different sites.</p>
+<p>…the server bundle will include both but that is ok because it is responsible for rendering both the amp and the main version.</p>
+<h2>The possible solutions</h2>
+<h3>1. Code split each package</h3>
+<p>If we go back to code splitting each package, the client bundles can import only the bundles they need on runtime.</p>
+<p>There’s a couple of problems with this approach (yes! third generation problems):</p>
+<ul>
+<li>We need to hack <code>loadable-components</code> to load each store before the SSR or go back to <code>react-universal-component</code>. It seems like <code>react-universal-component</code> won’t work with React Concurrent.</li>
+<li>Some Frontity packages are really small (a few kbs) and we will be adding an additional HTTP call for each one, which seems unnecessary.</li>
+</ul>
+<h3>2. Create one entry point for each site/match</h3>
+<p>If we create a bundle for each match (amp vs main) and for each site, we could have different client bundles for each case and those will only contain the packages needed in each case. It’d be like creating a different app for each case.</p>
+<p>It seems like an ideal solution but I don’t know if it has any other drawback.</p>
+<hr>
+<p>Ok, this was longer and more complex than expected <img src="/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p><a class="mention-group" href="/groups/development-team">@development-team</a> If you want to chime in and have more ideas or crazy solutions you’re very welcome!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/the-settings-api/58">The Settings API</a>
+                        <meta itemprop='position' content='2'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-02-28T17:22:48Z' class='post-time'>
+                    28 February 2019 17:22
+                  </time>
+                  <meta itemprop='dateModified' content='2019-02-28T17:22:48Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-developer-team" data-post="1" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<ol start="2">
+<li>Create one entry point for each site/match</li>
+</ol>
+</blockquote>
+</aside>
+<p>Ok, one problem with that approach are the Webpack’s service-workers/offline plugins. They don’t work with multiple entry points. So maybe we need to create one Webpack config per site/match instead of only an entry point.</p>
+<p>Another one is code-splitting which is based on Webpack stats analysis. Quite probably they won’t work with multiple entry-points or Webpack configs.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-02-28T17:29:18Z' class='post-time'>
+                    28 February 2019 17:29
+                  </time>
+                  <meta itemprop='dateModified' content='2019-02-28T17:29:18Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, this is a real stopper. We need to figure out a way to make this work.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-01T11:29:07Z' class='post-time'>
+                    1 March 2019 11:29
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-01T11:29:07Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, I’ve been thinking a lot about this since yesterday. It’s clear that we need to find a compromise, the question is where.</p>
+<p>In my opinion the compromise that leads to simpler code and maintenance of the framework and to an easier to understand concept for the developer is: <strong>all packages are included in the bundles</strong>.</p>
+<p>It’s kind of a pity because it won’t be recommendable to have one project for several sites if those sites are very different, but it simplifies everything else and it’s easy to explain.</p>
+<h3>Main benefits</h3>
+<ul>
+<li>Code splitting with SSR just works, and we won’t create unnecessary chunks for each package.</li>
+<li>Service workers &amp; offline just works without extra effort.</li>
+</ul>
+<h3>Main drawbacks</h3>
+<ul>
+<li>All the packages of the app will be included in both the client and server bundles. For example, if users want to use two different themes for two different sites they need to create two apps.</li>
+</ul>
+<h3>Implementation</h3>
+<ul>
+<li>We have a separate <code>frontity.packages.js</code> file where all the packages are imported.<br>
+<em>=&gt; We could create this file automatically and hide it from the developer as I described in the OP, but then it’s not clear for the developer what packages are included in the bundles.</em><br>
+<em>=&gt; We can update it automatically when users install packages from the Frontity Admin, but I think it’s good that it is visible, editable and goes to the control version.</em>
+</li>
+</ul>
+<pre><code class="lang-auto">// frontity.packages.js
+import saturn from "saturn-theme"
+import wpOrgSource from "wp-org-source"
+
+export default [
+  saturn,
+  wpOrgSource
+]
+</code></pre>
+<ul>
+<li>The default <code>frontity.config.js</code> contains the <code>file-settings</code> package import.<br>
+<em>=&gt; This means the <code>file-settings</code> package will be imported always, no matter if it is used or not. It’s a small price for an easier configuration.</em>
+</li>
+</ul>
+<pre><code class="lang-auto">// default frontity.config.js
+import getFileSettings from "file-settings"
+
+export default {
+  getSettings: getFileSettings 
+}
+
+// user custom frontity.config.js
+import getWpSettings from "wp-org-settings"
+
+export default config =&gt; {
+  config.getSettings = getWpSettings 
+}
+</code></pre>
+<h3>What this means for Frontity hostings</h3>
+<p>Frontity won’t be prepared to be a monolithic app serving many different sites with different themes/packages (like our old version) but hostings can still be viable if they use a serverless approach: one set of theme/packages, one app.</p>
+<h3>What this means for our settings</h3>
+<p>Maybe, we should take this opportunity to simplify our settings because one app is going to related directly to only one site.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-01T13:28:24Z' class='post-time'>
+                    1 March 2019 13:28
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-01T13:28:24Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m ok with the idea of <code>one site » one service</code>. However I don’t understand how everything is connected.</p>
+<ul>
+<li>When are <code>frontity.packages.js</code> and <code>frontity.config.js</code> used?</li>
+<li>Does this mean that developers will have to declare their packages in parallel to having them listed in <code>package.json</code>?</li>
+<li>We will have 3 different files, right? <code>config</code>, <code>packages</code> and <code>settings</code>.</li>
+</ul>
+<p>I think I’m missing something else, maybe I already forgot how this would work, but aren’t we installing all of the packages with npm, but those on development that will be in packages? I don’t know if this is something that already is posted somewhere and I missed or something yet to be done.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-01T16:57:27Z' class='post-time'>
+                    1 March 2019 16:57
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-01T16:57:27Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>but aren’t we installing all of the packages with npm</p>
+</blockquote>
+</aside>
+<p>If you install a package with npm it does nothing until you import them in your code.</p>
+<p>In the past we used a Webpack’s dynamic import using a regexp of <code>packages/</code> but we can’t do that anymore because they come now from <code>node_modules</code>.</p>
+<aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>When are <code>frontity.packages.js</code> and <code>frontity.config.js</code> used?</p>
+</blockquote>
+</aside>
+<p>We can use <code>frontity.packages.js</code> to list the used packages. We could create it automatically but I think it’s not a good idea because it will obscure what packages are in the bundles. With a <code>frontity.packages.js</code>  it’s more clear what’s in it and what’s not. In a hosting this file can be created automatically. You have to create a <code>package.json</code> anyway. And it can be edited automatically by our Frontity Admin as well.</p>
+<p><code>frontity.config.js</code> is similar to <code>next.config.js</code>, for settings in general, webpack overrides, babel overrides…</p>
+<aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Does this mean that developers will have to declare their packages in parallel to having them listed in <code>package.json</code> ?</p>
+</blockquote>
+</aside>
+<p>Yes.</p>
+<aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>We will have 3 different files, right? <code>config</code> , <code>packages</code> and <code>settings</code> .</p>
+</blockquote>
+</aside>
+<p>And yes <img src="/images/emoji/apple/+1.png?v=6" title=":+1:" class="emoji" alt=":+1:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-03T18:10:29Z' class='post-time'>
+                    3 March 2019 18:10
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-03T18:10:29Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>One last thing I’ve just realized: apart from the imports, we need each package name to look for their <code>frontity.config.js</code> files. Only the name is ok because these are needed outside of Webpack, in the build phase.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-03T18:13:57Z' class='post-time'>
+                    3 March 2019 18:13
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-03T18:13:57Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><code>frontity.packages.js</code> could be something like this:</p>
+<pre><code class="lang-auto">import tendencyTheme from "tendency-theme";
+import wpOrgSource from "@frontity/wp-org-source";
+import disqusComments from "@frontity/disqus-comments";
+
+export default {
+  "tendency-theme": tendencyTheme,
+  "@frontity/wp-org-source": wpOrgSource,
+  "@frontity/disqus-comments": disqusComments,
+};
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-08T16:29:20Z' class='post-time'>
+                    8 March 2019 16:29
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-08T16:29:20Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I think <a class="mention" href="/u/orballo">@orballo</a> is right and <code>frontity.package.js</code> is not a good idea (<a href="/t/the-settings-api/58?u=luisherranz">comment here</a>).</p>
+<p>I’ll try to make it work automagically in the bundling step.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-10T12:38:48Z' class='post-time'>
+                    10 March 2019 12:38
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-10T12:38:48Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Right now I’m thinking about these bundles:</p>
+<ul>
+<li>One server bundle (one file), not matter how many modes.</li>
+<li>One client bundle (and its chunks) per mode.</li>
+<li>One inline bundle (one file) per mode.</li>
+</ul>
+<p>If there’s no <code>client.js</code> for a mode in any of the packages, that bundle is skipped.<br>
+If there’s no <code>inline.js</code> for a mode in any of the packages, that bundle is skipped.</p>
+<p>It looks like we are going to need different automatically generated files for the different entry points:</p>
+<ul>
+<li>All the <code>client.js</code> of all packages for each mode.</li>
+<li>All the <code>inline.js</code> of all packages for each mode.</li>
+<li>All the <code>server.js</code> files of all packages. One file is fine for all modes, but it needs the mode info inside the file:</li>
+</ul>
+<pre><code class="lang-auto">import myThemeReact from "my-theme/src/react/server.js"
+import myThemeAmp from "my-theme/src/amp/server.js"
+import wpSourceReact from "@frontity/wp-source/src/react/server.js"
+import wpSourceAmp from "@frontity/wp-source/src/amp/server.js"
+
+export default {
+  react: {
+    "my-theme": myThemeReact,
+    "@frontity/wp-source": wpSourceReact,
+  },
+  amp: {
+    "my-theme": myThemeAmp
+    "@frontity/wp-source": wpSourceAmp,
+  }
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/development-micro-updates-or-whos-working-on-what/45">:white_check_mark: Beta Roadmap &amp; Progress</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-10T12:42:42Z' class='post-time'>
+                    10 March 2019 12:42
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-10T12:42:42Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Uh, with this configuration maybe we can create a client bundle per site and per mode instead of just one per mode. I’m not sure if it’s feasible yet, I’ll think about it!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T11:44:51Z' class='post-time'>
+                    11 March 2019 11:44
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T11:44:51Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, I think I got it!</p>
+<p>I was able to generate two client bundles and switch between them at runtime.</p>
+<p>This means we can create one bundle per site and per mode <img src="/images/emoji/apple/muscle.png?v=6" title=":muscle:" class="emoji" alt=":muscle:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-resolve-dynamic-imports-in-webpack/59">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-24T10:22:08Z' class='post-time'>
+                    24 April 2019 10:22
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-24T10:22:08Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Working perfectly now <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

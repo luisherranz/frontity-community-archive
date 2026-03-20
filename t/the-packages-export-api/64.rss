@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The packages export API</title>
+    <link>https://community.frontity.org/t/the-packages-export-api/64</link>
+    <description>### Entry point names
+Right now we have `pwa`, `amp` and `server`. I don&#39;t quite like `pwa ` anymore. `pwa` means other things in 2019.
+
+I will stick to `client.js` and `server.js` inside `pwa` and `amp` tho. I think it&#39;s clear. But I think `server/index.js` is confusing when compared to `pwa/server.js`.
+
+Both `pwa` and `amp` are dynamic coming from settings &quot;matches&quot;. There&#39;s a default match so maybe it can be `default` and `amp` but I don&#39;t quite like `default` either as it doesn&#39;t mean anything. I think we also need a better name for &quot;matches&quot;.
+
+So right now:
+```
+/my-theme-or-extension
+  /src
+    /pwa (default?)
+      client.js
+      server.js
+    /amp
+      client.js
+      server.js
+    /server
+      index.js
+```
+
+@development-team: I&#39;m sure we can do better! any ideas? 
+
+### Export different namespaces
+We want to incorporate multiple namespaces per package. That means we can&#39;t use the export default for React anymore but we don&#39;t need to code split the packages themselves so we are ok.
+
+We need a name. My first thought is `root` but I don&#39;t like it very much. Ideas welcomed.
+
+###  Fills and Slots
+We also need to make sure that `&lt;Fills /&gt;` are included **after** the `&lt;Slots /&gt;` or they won&#39;t work.
+
+The easiest way to solve it is to have a separate export for them, like `fills`.
+
+@David do you remember which other approaches we discussed about this?  
+
+### Libraries (effects)
+Our old libraries (`env`) now go inside the store, in the Overmind `effects`.
+
+----
+
+Let&#39;s work on our exports!
+```js
+// pwa/client.js
+const theme = {
+  root: Theme, // This is the same than our old default export.
+  fills: Fills, // This are the fills, separated from the root.
+  Store: ThemeStore, // This is the Overmind store, just like our old MST store.
+};
+
+const router = {
+  Store: SimpleRouterStore, // Expose the store of the simple-router.
+};
+
+// This theme has its own comments package.
+const comments = {
+  components: Components, // Components to be used by other extensions
+  Store: CommentsStore,
+}
+
+// Export namespaces
+export default {
+  theme,
+  router,
+  comments,
+}
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 09 May 2019 13:16:44 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/the-packages-export-api/64.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, it is possible because we are generating static files with those imports in the build process and we can check if those files exists.</p>
+<p>The problem with that approach is that sometimes you only need a <code>server.js</code> file, for example for AMP. If Frontity doesn’t find a <code>client.js</code>, it doesn’t generate a client bundle. If people get used to use <code>index.js</code> by default, there’s no way to know which one needs a client bundle and which not.</p>
+<p>Generating extra client bundles that are not going to be used (like in the case of AMP) doesn’t sound so bad by itself, they are not used anyway. The problem is that they will be included by the offline service worker wasting space and bandwidth on the final reader computer.</p>
+<p>So I think it’s either a good idea because it simplifies the most common <code>html</code> case and a bad idea because it can cause problems if devs are used to see an <code>index.js</code> and are not aware that they should use only <code>server.js</code> in AMP.</p>
+<h3>Option 1</h3>
+<p>For the <code>html</code> mode you need a <code>client.js</code> and a <code>server.js</code>. If they are equal, you can create an <code>index.js</code> and use this in both your <code>client.js</code> and <code>server.js</code> files:</p>
+<pre><code class="lang-auto">export { default } from ".";
+</code></pre>
+<p>For the <code>amp</code> mode, you only need a <code>server.js</code>.</p>
+<h3>Option 2</h3>
+<p>For the <code>html</code> mode you need an <code>index.js</code> file. If you want to have separate code for the client and server, create both a <code>client.js</code> and a <code>server.js</code> file.</p>
+<p>For the <code>amp</code> mode, you only need a <code>server.js</code>. <strong>Do not use an <code>index.js</code> here.</strong></p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/18</link>
+        <pubDate>Thu, 09 May 2019 13:16:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-18</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Currently, when I want to create an extension, a need two files for each mode. For <code>html</code> mode for example, I need to create <code>html/client.ts</code> and <code>html/server.ts</code>. That’s cool when I need two different exports, but it’s cumbersome when I want to export the same for both. Currently, we are doing something like:</p>
+<pre><code class="lang-auto">// Files structure
+html/
+|_ client.ts
+|_ server.ts
+|_ index.ts
+
+// client.ts
+export { default } from ".";
+
+// server.ts
+export { default } from ".";
+
+// index.ts
+import theme from './components';
+
+export default {
+  roots: {
+    theme
+  }
+};
+</code></pre>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> do you think we can make <code>@frontity/core</code> to import from <code>index.ts</code> if <code>client.ts</code> or <code>server.ts</code> is missing? I don’t know if this is possible because of webpack.</p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/17</link>
+        <pubDate>Thu, 09 May 2019 12:48:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-17</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh yes, that’s another thing I forgot to mention <img src="https://community.frontity.org/images/emoji/apple/sweat.png?v=9" title=":sweat:" class="emoji" alt=":sweat:"></p>
+<p>There’s a caveat with <code>libraries</code>: packages aren’t guaranteed to be run in any order and therefore the library you may be looking for could not be initializated.</p>
+<p>For that reason, <code>libraries</code> cannot be used on creation. Actually, libraries will be an empty object until the creation has finished.</p>
+<p>This is going to be the initialization flow:</p>
+<h3>Server</h3>
+<ol>
+<li>Create empty object <code>libraries</code>.</li>
+<li>Merge all packages together. If function, pass <code>libraries</code>.
+<ul>
+<li>Packages can initializate their own libraries.</li>
+<li>Packages shouldn’t use any external libraries yet.</li>
+</ul>
+</li>
+<li>Populate <code>libraries</code> with the exported namespaces from all packages.</li>
+<li>Call the <code>init</code> action of each package, wait until they finish.
+<ul>
+<li>At this point, libraries is populated and can be used.</li>
+</ul>
+</li>
+<li>Call the <code>beforeSSR</code> action of each package, wait until they finish.</li>
+<li>Do the server side rendering with the current state.</li>
+<li>Send both the state snapshot and the HTML to the client.</li>
+<li>Call the <code>afterSSR</code> action of each package (not sure about that, we didn’t need it in the past).</li>
+</ol>
+<h3>Client</h3>
+<ol>
+<li>Receive the state and HTML.</li>
+<li>Create empty object <code>libraries</code>.</li>
+<li>Merge all packages together. If function, pass <code>libraries</code>.</li>
+<li>Apply the state snapshot received from the server.</li>
+<li>Populate <code>libraries</code> with the exported namespaces from all packages.</li>
+<li>Call the <code>init</code> action of each package, wait until they finish.</li>
+<li>Call the <code>beforeCSR</code> action of each package, wait until they finish.</li>
+<li>Do the client side rendering. It should match the HTML exactly.</li>
+<li>Call the <code>afterCSR</code> action of each package.</li>
+</ol>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/16</link>
+        <pubDate>Tue, 07 May 2019 15:48:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-16</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I see, thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>!</p>
+<p>Another question…</p>
+<p>For those libraries that are classes and need to be instantiated, what would the best way to handle that case? I mean when you need an instance shared between packages.</p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/15</link>
+        <pubDate>Tue, 07 May 2019 15:12:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-15</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/david">@David</a>, do you need it? I wasn’t planning to have it ready for the beta.</p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/14</link>
+        <pubDate>Tue, 07 May 2019 15:05:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-14</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Sorry David, I forgot to add that information.</p>
+<p>Packages can be either objects like this:</p>
+<pre><code class="lang-javascript">export default {
+  roots...
+  state...
+  actions...
+}
+</code></pre>
+<p>or functions that return the Package object like this:</p>
+<pre><code class="lang-javascript">export default ({ libraries }) =&gt; {
+  return {
+    roots...
+    state...
+    actions...
+  }
+}
+</code></pre>
+<p>In both scenarios, the exported type should be the type of the object, not the function:</p>
+<pre><code class="lang-javascript">interface MyPackage extends Package {
+  roots...
+  state...
+  actions...
+  libraries...
+}
+
+export default (
+  { libraries }: 
+  { libraries: MyPackage["libraries"] }
+): MyPackage =&gt; {
+  return {
+    roots...
+    state...
+    actions...
+  }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/13</link>
+        <pubDate>Tue, 07 May 2019 14:45:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-13</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I have a question about <code>libraries</code>! <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+<p>Libraries are meant to be exposed as shown above, but I don’t know how other packages could use them, particularly if someone wants to use a <code>library</code> inside an <code>action</code> (an <code>action</code> only receive <code>state</code> from args and so it cannot access to <code>libraries</code>).</p>
+<p>Is it supposed that libraries will only be able to be used from the React components (using a hook or something)?</p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/12</link>
+        <pubDate>Tue, 07 May 2019 14:26:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-12</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>For the package export interface we are going to use this:<br>
+</p><aside class="quote quote-modified" data-post="9" data-topic="72">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/typings-and-versions/72/9?u=luisherranz">Typings and Versions</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/framework-design"><span class="badge-category-bg" style="background-color: #0088CC;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Get involved in the framework design and its development.">» Framework Design</span></a>
+  </div>
+  <blockquote>
+    We are going to use this structure for packages: 
+export interface Package {
+  name: string;
+  namespaces: string[];
+  roots?: {
+    [namespace: string]: React.ReactType;
+  };
+  fills?: {
+    [namespace: string]: React.ReactType;
+  };
+  state?: {
+    settings?: {
+      [namespace: string]: {
+        [key: string]: any;
+      };
+    };
+    [namespace: string]: {
+      [key: string]: any;
+    };
+  };
+  actions?: {
+    [namespace: string]: {
+      [action: string]:
+        | ((state: Package["state…
+  </blockquote>
+</aside>
+<p></p>
+<p>Which is basically something like this:</p>
+<pre><code class="lang-javascript">// html/client.js
+export default {
+  roots: {
+    theme: ThemeRoot
+  },
+  fills: {
+    theme: ThemeFills
+  },
+  state: {
+    settings: {
+       theme: themeSettings,
+    },
+    theme: themeState,
+    comments: commentsState
+  },
+  actions: {
+    theme: themeActions,
+    comments: commentsActions,
+  },
+  libraries: {
+    comments: {
+       Comment
+    }
+   }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/11</link>
+        <pubDate>Tue, 07 May 2019 13:29:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-11</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We are finally using <code>html</code> and <code>amp</code> as suggested by <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>.</p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/10</link>
+        <pubDate>Fri, 29 Mar 2019 13:34:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-10</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>What about <code>frontity</code> and <code>amp</code>?</p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/9</link>
+        <pubDate>Mon, 11 Mar 2019 16:37:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-9</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You’re right, both use <code>react</code> so it’s not a good name. But it happens the same with <code>html</code> and <code>web</code> too! Why is this so difficult <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=9" title=":laughing:" class="emoji" alt=":laughing:"></p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/8</link>
+        <pubDate>Mon, 11 Mar 2019 09:36:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-8</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I find the <code>react</code> name confusing. Both are going to be built with <code>react</code>. Maybe it would make more sense to call them <code>html</code> and <code>amp</code>, or <code>web</code> and <code>amp</code>. (As a side note, I think that <code>pwa</code> and <code>amp</code> are good enough)</p>
+<aside class="quote group-development-team" data-post="6" data-topic="64">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>If we export the server middleware in the ssr file maybe we can go back to <code>client.js</code> and <code>server.js</code> :</p>
+</blockquote>
+</aside>
+<p>I like it <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/7</link>
+        <pubDate>Mon, 11 Mar 2019 09:08:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-7</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>If we export the server middleware in the ssr file maybe we can go back to <code>client.js</code> and <code>server.js</code>:</p>
+<pre><code class="lang-auto">// react/server.js
+const theme = {
+  root: ThemeRoot,
+  store: ThemeStore,
+  server: ServerMiddleware,
+};
+
+export default {
+  theme
+}
+</code></pre>
+<pre><code class="lang-bash">/my-theme-or-extension
+  /src
+    /react
+      client.js
+      server.js
+      inline.js
+    /amp
+      server.js
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/6</link>
+        <pubDate>Sun, 10 Mar 2019 12:19:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-6</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>What about this:</p>
+<pre><code class="lang-bash">/my-theme-or-extension
+  /src
+    /react
+      csr.js
+      ssr.js
+      inline.js
+      server.js
+    /amp
+      ssr.js
+      server.js
+</code></pre>
+<p>Instead of <code>pwa</code>, <code>react</code>.</p>
+<p>The first folder is the <strong>mode</strong>. Then four possible entry points:</p>
+<ul>
+<li>
+<strong>csr:</strong> client-side rendering</li>
+<li>
+<strong>ssr:</strong> server-side rendering</li>
+<li>
+<strong>inline:</strong> bundle for inline javascript, i.e: our lazy-image with intersection observer polyfill.</li>
+<li>
+<strong>server:</strong> server middleware (koa)</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/5</link>
+        <pubDate>Sun, 10 Mar 2019 12:15:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-5</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="3" data-topic="64">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>We had different namespaces before, right? why can’t we use <code>default</code> now?</p>
+</blockquote>
+</aside>
+<p>No, we didn’t. Only one namespace was allowed per package.</p>
+<aside class="quote group-development-team" data-post="3" data-topic="64">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I don’t understand what are <code>pwa</code> , <code>amp</code> and <code>server</code> <img src="https://community.frontity.org/images/emoji/apple/confused.png?v=6" title=":confused:" class="emoji" alt=":confused:"></p>
+</blockquote>
+</aside>
+<p>The entry points of the old framework: <code>pwa</code>, <code>amp</code> and a special one for server configuration. For example: <a href="https://github.com/wp-pwa/disqus-comments/tree/dev/src" rel="nofollow noopener">https://github.com/wp-pwa/disqus-comments/tree/dev/src</a></p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/4</link>
+        <pubDate>Tue, 05 Mar 2019 17:13:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-4</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>In order to be able to help:</p>
+<aside class="quote group-development-team" data-post="1" data-topic="64">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Right now we have <code>pwa</code> , <code>amp</code> and <code>server</code> .</p>
+</blockquote>
+</aside>
+<p>I don’t understand what are <code>pwa</code>, <code>amp</code> and <code>server</code> <img src="https://community.frontity.org/images/emoji/apple/confused.png?v=6" title=":confused:" class="emoji" alt=":confused:"></p>
+<aside class="quote group-development-team" data-post="1" data-topic="64">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>We want to incorporate multiple namespaces per package. That means we can’t use the export default for React anymore but we don’t need to code split the packages themselves so we are ok.</p>
+</blockquote>
+</aside>
+<p>We had different namespaces before, right? why can’t we use <code>default</code> now?</p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/3</link>
+        <pubDate>Tue, 05 Mar 2019 14:53:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-3</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By the way, I thought we needed an additional export for the HTML template but I think we can use the <code>server/index.js</code> itself: <a href="https://community.frontity.org/t/the-frontity-server-architecture/52/8?u=luisherranz" class="inline-onebox">The Frontity Server Architecture</a></p>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/2</link>
+        <pubDate>Tue, 05 Mar 2019 11:20:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-2</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+      <item>
+        <title>The packages export API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h3>Entry point names</h3>
+<p>Right now we have <code>pwa</code>, <code>amp</code> and <code>server</code>. I don’t quite like <code>pwa</code> anymore. <code>pwa</code> means other things in 2019.</p>
+<p>I will stick to <code>client.js</code> and <code>server.js</code> inside <code>pwa</code> and <code>amp</code> tho. I think it’s clear. But I think <code>server/index.js</code> is confusing when compared to <code>pwa/server.js</code>.</p>
+<p>Both <code>pwa</code> and <code>amp</code> are dynamic coming from settings “matches”. There’s a default match so maybe it can be <code>default</code> and <code>amp</code> but I don’t quite like <code>default</code> either as it doesn’t mean anything. I think we also need a better name for “matches”.</p>
+<p>So right now:</p>
+<pre><code class="lang-auto">/my-theme-or-extension
+  /src
+    /pwa (default?)
+      client.js
+      server.js
+    /amp
+      client.js
+      server.js
+    /server
+      index.js
+</code></pre>
+<p><a class="mention-group" href="https://community.frontity.org/groups/development-team">@development-team</a>: I’m sure we can do better! any ideas?</p>
+<h3>Export different namespaces</h3>
+<p>We want to incorporate multiple namespaces per package. That means we can’t use the export default for React anymore but we don’t need to code split the packages themselves so we are ok.</p>
+<p>We need a name. My first thought is <code>root</code> but I don’t like it very much. Ideas welcomed.</p>
+<h3>Fills and Slots</h3>
+<p>We also need to make sure that <code>&lt;Fills /&gt;</code> are included <strong>after</strong> the <code>&lt;Slots /&gt;</code> or they won’t work.</p>
+<p>The easiest way to solve it is to have a separate export for them, like <code>fills</code>.</p>
+<p><a class="mention" href="https://community.frontity.org/u/david">@David</a> do you remember which other approaches we discussed about this?</p>
+<h3>Libraries (effects)</h3>
+<p>Our old libraries (<code>env</code>) now go inside the store, in the Overmind <code>effects</code>.</p>
+<hr>
+<p>Let’s work on our exports!</p>
+<pre><code class="lang-auto">// pwa/client.js
+const theme = {
+  root: Theme, // This is the same than our old default export.
+  fills: Fills, // This are the fills, separated from the root.
+  Store: ThemeStore, // This is the Overmind store, just like our old MST store.
+};
+
+const router = {
+  Store: SimpleRouterStore, // Expose the store of the simple-router.
+};
+
+// This theme has its own comments package.
+const comments = {
+  components: Components, // Components to be used by other extensions
+  Store: CommentsStore,
+}
+
+// Export namespaces
+export default {
+  theme,
+  router,
+  comments,
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-packages-export-api/64/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-packages-export-api/64/1</link>
+        <pubDate>Tue, 05 Mar 2019 11:18:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-64-1</guid>
+        <source url="https://community.frontity.org/t/the-packages-export-api/64.rss">The packages export API</source>
+      </item>
+  </channel>
+</rss>

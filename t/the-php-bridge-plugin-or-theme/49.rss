@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The PHP Bridge (plugin or theme?)</title>
+    <link>https://community.frontity.org/t/the-php-bridge-plugin-or-theme/49</link>
+    <description>I&#39;ve been thinking about this and I think maybe a PHP theme is not a good idea for these reasons:
+- We won&#39;t be able to upload the theme to the [WordPress Theme Repository](https://wordpress.org/themes/) because, well... it&#39;s a theme that needs an external server and it will confuse people.
+- People would need to download it from us, then upload it manually adding friction
+- They need the Frontity WP Plugin anyway.
+- We can add all the theme bridge functionality to the Frontity WP Plugin hooking into `template_redirect`. 
+
+This is how the AMP plugin does it and they don&#39;t need a theme (some code removed):
+```php
+/**
+ * Add action to do post template rendering at template_redirect action.
+ */
+function amp_prepare_render() {
+	add_action( &#39;template_redirect&#39;, &#39;amp_render&#39;, 11 );
+}
+
+/**
+ * Render AMP for queried post.
+ */
+function amp_render() {
+	$post = get_queried_object();
+	if ( $post instanceof WP_Post ) {
+		amp_render_post( $post );
+		exit;
+	}
+}
+
+/**
+ * Render AMP post template.
+ */
+function amp_render_post( $post ) {
+	amp_add_post_template_actions();
+	$template = new AMP_Post_Template( $post );
+	$template-&gt;load();
+}
+```
+
+So I think an option in our Frontity WP Plugin is a better idea.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 03 Apr 2019 15:18:20 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/the-php-bridge-plugin-or-theme/49.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>The PHP Bridge (plugin or theme?)</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been thinking about this and I think maybe a PHP theme is not a good idea for these reasons:</p>
+<ul>
+<li>We won’t be able to upload the theme to the <a href="https://wordpress.org/themes/" rel="nofollow noopener">WordPress Theme Repository</a> because, well… it’s a theme that needs an external server and it will confuse people.</li>
+<li>People would need to download it from us, then upload it manually adding friction</li>
+<li>They need the Frontity WP Plugin anyway.</li>
+<li>We can add all the theme bridge functionality to the Frontity WP Plugin hooking into <code>template_redirect</code>.</li>
+</ul>
+<p>This is how the AMP plugin does it and they don’t need a theme (some code removed):</p>
+<pre><code class="lang-php">/**
+ * Add action to do post template rendering at template_redirect action.
+ */
+function amp_prepare_render() {
+	add_action( 'template_redirect', 'amp_render', 11 );
+}
+
+/**
+ * Render AMP for queried post.
+ */
+function amp_render() {
+	$post = get_queried_object();
+	if ( $post instanceof WP_Post ) {
+		amp_render_post( $post );
+		exit;
+	}
+}
+
+/**
+ * Render AMP post template.
+ */
+function amp_render_post( $post ) {
+	amp_add_post_template_actions();
+	$template = new AMP_Post_Template( $post );
+	$template-&gt;load();
+}
+</code></pre>
+<p>So I think an option in our Frontity WP Plugin is a better idea.</p>
+          <p><a href="https://community.frontity.org/t/the-php-bridge-plugin-or-theme/49/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-php-bridge-plugin-or-theme/49/1</link>
+        <pubDate>Mon, 25 Feb 2019 12:02:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-49-1</guid>
+        <source url="https://community.frontity.org/t/the-php-bridge-plugin-or-theme/49.rss">The PHP Bridge (plugin or theme?)</source>
+      </item>
+  </channel>
+</rss>

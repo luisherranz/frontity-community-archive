@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Instagram Feed - How to display your last X Insta Image</title>
+    <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393</link>
+    <description>I recently created an Insta-Feed in my Frontity project, and I&#39;m happy to share my solution.
+I am a beginner with JS and React, so feel free to improve it and share your opinion.
+As Instagram API seemed too complicated for me, and I did not find a simple solution to communicate with it, I used Zapier RSS feed instead. You can set up a Zap-Insta-feed, as described [here](https://jekyllcodex.org/without-plugin/instagram/). 
+I use **[react-fetch-hook](https://github.com/ilyalesik/react-fetch-hook)** to get my Feed. 
+So first, install **[react-fetch-hook](https://github.com/ilyalesik/react-fetch-hook)**:
+    
+    npm i react-fetch-hook --save
+And my `&lt;Instagram/&gt;` component looks like:
+
+    import React from &#39;react&#39;;
+    import useFetch from &quot;react-fetch-hook&quot;;
+    import Image from &#39;@frontity/components/image&#39;;
+    import Link from &#39;./link&#39;;
+
+    const Instagram = () =&gt; {
+      var instaObjects = [];
+      const { isLoading, data } = useFetch(
+        &quot;https://zapier.com/engine/rss/123456789/myZapFeed&quot;,
+        {
+          formatter: response =&gt; response.text()
+        }
+      );
+
+      if (data){
+        let instaObjects = [];
+        const items = data.match(/&lt;item&gt;(.|\n)*?&lt;\/item&gt;/g).map(function(val) {
+          return val.replace(/&lt;\/?b&gt;/g, &quot;&quot;);
+        });
+        items.map((item, index) =&gt; {
+          const title = /&lt;title&gt;(.|\n)*?&lt;\/title&gt;/.exec(item);
+          const link = /&lt;link&gt;(.*?)&lt;\/link&gt;/.exec(item);
+          const enclosure = /&lt;enclosure (.*?)&lt;\/enclosure&gt;/.exec(item);
+          const image = enclosure[1].match(/&quot;((?:\\.|[^&quot;\\])*)&quot;/);
+          const encodedImage = image[1].replace(/&amp;amp;/g, &quot;&amp;&quot;);
+
+          instaObjects.push({
+            title: title[1],
+            link: link[1],
+            image: encodedImage,
+          });
+        });
+        
+        return (
+          &lt;&gt;
+            {instaObjects.map(({ title, link, image }, index) =&gt; {
+              return (
+                &lt;Link key={index} link={link}&gt;
+                  &lt;Image src={image} alt={title} objectFit=&quot;cover&quot; /&gt;
+                &lt;/Link&gt;
+              );
+            })}
+          &lt;/&gt;
+        );
+      }
+     return &quot;Loading&quot;;
+    };
+    export default Instagram;
+I hope it helps some of you! :)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 24 Sep 2021 08:35:57 +0000</lastBuildDate>
+    <category>📖 Documentation</category>
+    <atom:link href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/jeff">@jeff</a>!<br>
+You can use the query hash from above. You just need your Insta ID.<br>
+About query hashs: <a href="https://letmegooglethat.com/?q=Instagram+query_hash" class="inline-onebox" rel="noopener nofollow ugc">Let Me Google That</a></p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/19</link>
+        <pubDate>Fri, 24 Sep 2021 08:35:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-19</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[jeff]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a></p>
+<p>That is great, thank you so much for doing that.</p>
+<p>One thing I can’t figure out is how to get the Instagram query_hash. Would you be able to point me in the right direction please?</p>
+<p>Thanks,<br>
+Jeff</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/18</link>
+        <pubDate>Thu, 23 Sep 2021 06:01:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-18</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>IMORTANT: The method described above does not working anymore (since INSTAGRAM api changes).<br>
+I came up with a new solution, but I don’t find where can I edit my original post, so I write it here:<br>
+Insta has a api like:</p>
+<pre><code>https://www.instagram.com/graphql/query/?query_hash=42323d64886122307be10013ad2dcc44&amp;variables={"id":"YOUR_INSTAGRAM_ID","first":8}
+</code></pre>
+<p>So you can fetch your InstaPosts like:</p>
+<pre><code>import useFetch from 'react-fetch-hook'
+import Loading from './loading'
+import Link from './link'
+import Image from '@frontity/components/image'
+
+const Instagram = ({ hideInsta }) =&gt; {
+  const { data } = useFetch(
+    'https://www.instagram.com/graphql/query/?query_hash=42323d64886122307be10013ad2dcc44&amp;variables={"id":"YOUR_INSTAGRAM_ID","first":8}'
+  )
+
+  if (data) {
+    const instaPosts = slimUpPosts(data)
+    return (
+      &lt;&gt;
+        {instaPosts.map(({ caption, url, thumbnail, mobileDisplay }, index) =&gt; {
+          return (
+            &lt;Link key={index} link={url}&gt;
+              &lt;Image src={thumbnail} alt={caption} objectFit='cover' /&gt;
+            &lt;/Link&gt;
+          )
+        })}
+      &lt;/&gt;
+    )
+  }
+  return &lt;Loading /&gt;
+}
+
+function slimUpPosts (response) {
+  return response.data.user.edge_owner_to_timeline_media.edges.map(({ node }, index) =&gt; {
+    let caption = node.edge_media_to_caption.edges[0].node.text
+    caption = caption.length &gt; 120 ? caption.slice(0, 120) + '...' : caption
+    return {
+      thumbnail: node.thumbnail_src,
+      url: `https://instagram.com/p/${node.shortcode}`,
+      caption,
+      id: node.id
+    }
+  })
+}
+</code></pre>
+<p>is it possible to cache the response from Instagram?</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/17</link>
+        <pubDate>Tue, 09 Feb 2021 14:59:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-17</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I would be also happier if I could get back JSON. It’s definietly not the best solution, but I hope the community will find a better solution soon.</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/16</link>
+        <pubDate>Fri, 03 Apr 2020 09:04:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-16</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Well yes, sadly sometimes that happens <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=9" title=":laughing:" class="emoji" alt=":laughing:"></p>
+<p>It’s just weird to see an XML API nowadays but no problem if it works <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/15</link>
+        <pubDate>Thu, 02 Apr 2020 19:46:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-15</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>. Sadly   <a href="https://www.npmjs.com/package/simple-xml-to-json" rel="nofollow noopener">https://www.npmjs.com/package/simple-xml-to-json</a> is not working correctly. I created an issue about: <a href="https://github.com/nirgit/xml-to-json/issues/2" rel="nofollow noopener">https://github.com/nirgit/xml-to-json/issues/2</a><br>
+Yes, I also checked a lot of xml parser, but I did not found a working one, which was smaller then axios (which includes it).</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/14</link>
+        <pubDate>Wed, 01 Apr 2020 12:08:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-14</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Interesting, thanks.</p>
+<p>Remember that a lot of times you can find an npm package that makes your life easier. For example, in this case, you could use something like this <a href="https://www.npmjs.com/package/simple-xml-to-json">https://www.npmjs.com/package/simple-xml-to-json</a> instead of regexps.</p>
+<p>The only thing you need to make sure is that packages are small enough for client-side usage. A lot of times two package that can look alike can weight a lot more:</p>
+<ul>
+<li>
+<a href="https://bundlephobia.com/result?p=simple-xml-to-json@1.0.2">https://bundlephobia.com/result?p=simple-xml-to-json@1.0.2</a> - 3Kbs</li>
+<li>
+<a href="https://bundlephobia.com/result?p=fast-xml-parser@3.16.0">https://bundlephobia.com/result?p=fast-xml-parser@3.16.0</a> - 16Kbs</li>
+<li>
+<a href="https://bundlephobia.com/result?p=xml2json@0.12.0">https://bundlephobia.com/result?p=xml2json@0.12.0</a> - 133Kbs</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/11</link>
+        <pubDate>Tue, 24 Mar 2020 09:28:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-11</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>No. I do not get the Insta Posts from Instagram but through Zapier RSS feed. Insta API was too complicated for me, and I did not find an easy-to-use and well-documented npm package for it.</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/10</link>
+        <pubDate>Fri, 20 Mar 2020 16:00:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-10</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<aside class="quote no-group" data-username="koli14" data-post="8" data-topic="1393">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/koli14/40/691_2.png" class="avatar"> koli14:</div>
+<blockquote>
+<p>now I use Regexp to parse the XML string returned</p>
+</blockquote>
+</aside>
+<p>Wow, is the Instagram API still using XML instead of JSON?? <img src="https://community.frontity.org/images/emoji/apple/open_mouth.png?v=9" title=":open_mouth:" class="emoji" alt=":open_mouth:"></p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/9</link>
+        <pubDate>Fri, 20 Mar 2020 15:42:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-9</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I edited my original post again, now I use Regexp to parse the XML string returned by react-fetch. I’m not a big regexp master, I hope it will be stable. Now it’s working.</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/8</link>
+        <pubDate>Thu, 19 Mar 2020 10:42:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-8</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>With <code>axios</code> I could do the following:</p>
+<pre><code>const doc = response.request.responseXML;
+const items = doc.getElementsByTagName('item');
+</code></pre>
+<p>But I could not do the same with <code>react-fetch</code>. It does have a <a href="https://github.com/ilyalesik/react-fetch-hook#custom-formatter" rel="nofollow noopener">Custom formatter</a>, but I have no idea how to use it. In the docs it mentions a JSON formatter, and a text. My RSS feed gives back XML. So i choose text, and try to parse it with a parser.<br>
+First I did it like:</p>
+<pre><code>const parser = new DOMParser();
+const doc = parser.parseFromString(data, "text/xml");
+const items = doc.getElementsByTagName('item');
+</code></pre>
+<p>But it does not work on Zeit, only on localhost.</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/7</link>
+        <pubDate>Wed, 18 Mar 2020 19:46:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-7</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="koli14" data-post="3" data-topic="1393">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/koli14/40/691_2.png" class="avatar"> koli14:</div>
+<blockquote>
+<p>I edited my code and my original post, using now <strong><a href="https://github.com/ilyalesik/react-fetch-hook">react-fetch-hook</a></strong> ! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</blockquote>
+</aside>
+<p>That was quick <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote no-group" data-username="koli14" data-post="5" data-topic="1393">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/koli14/40/691_2.png" class="avatar"> koli14:</div>
+<blockquote>
+<p>I have an <code>ReferenceError: DOMParser is not defined</code> at the moment</p>
+</blockquote>
+</aside>
+<p>Where are you using the DOMParser? It’s not in the <code>react-fetch-hook</code> for what I can see, right?(<a href="https://github.com/ilyalesik/react-fetch-hook/search?q=DOMParser&amp;unscoped_q=DOMParser">https://github.com/ilyalesik/react-fetch-hook/search?q=DOMParser&amp;unscoped_q=DOMParser</a>)</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/6</link>
+        <pubDate>Wed, 18 Mar 2020 16:36:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-6</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I have an <code>ReferenceError: DOMParser is not defined</code> at the moment if not running on Localhost but Zeit, but it will be fixed in hours…<img src="https://community.frontity.org/images/emoji/apple/stuck_out_tongue.png?v=9" title=":stuck_out_tongue:" class="emoji" alt=":stuck_out_tongue:"> <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> do you have a Parser suggestion?</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/5</link>
+        <pubDate>Wed, 18 Mar 2020 14:00:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-5</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks a lot for your contribution <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a>!</p>
+<p><a class="mention" href="https://community.frontity.org/u/reyes">@Reyes</a> take a look, I think this could go on our next newsletter <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/4</link>
+        <pubDate>Wed, 18 Mar 2020 13:58:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-4</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the feedback!<br>
+I edited my code and my original post, using now <strong><a href="https://github.com/ilyalesik/react-fetch-hook" rel="nofollow noopener">react-fetch-hook</a></strong>! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/3</link>
+        <pubDate>Wed, 18 Mar 2020 13:18:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-3</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Nice work <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a>! <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Just a quick feedback: you can use a hook for <code>fetch</code> like for example <a href="https://www.npmjs.com/package/react-fetch-hook">react-fetch-hook</a>, because, in contrast to <code>axios</code>, <code>fetch</code> is included in the browser.</p>
+<ul>
+<li>Size of <a href="https://bundlephobia.com/result?p=react-fetch-hook@1.8.2">react-fetch-hook</a>: 1.5Kb</li>
+<li>Size of <a href="https://bundlephobia.com/result?p=axios@0.19.2">axios</a> + size of <a href="https://bundlephobia.com/result?p=axios-hooks@1.9.0">axios-hooks</a>: 30Kbs</li>
+</ul>
+<p><a href="https://bundlephobia.com/">Bundlephobia</a> is a great way to quickly check the size of an npm package.</p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/2</link>
+        <pubDate>Wed, 18 Mar 2020 10:25:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-2</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+      <item>
+        <title>Instagram Feed - How to display your last X Insta Image</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I recently created an Insta-Feed in my Frontity project, and I’m happy to share my solution.<br>
+I am a beginner with JS and React, so feel free to improve it and share your opinion.<br>
+As Instagram API seemed too complicated for me, and I did not find a simple solution to communicate with it, I used Zapier RSS feed instead. You can set up a Zap-Insta-feed, as described <a href="https://jekyllcodex.org/without-plugin/instagram/" rel="nofollow noopener">here</a>.<br>
+I use <strong><a href="https://github.com/ilyalesik/react-fetch-hook" rel="nofollow noopener">react-fetch-hook</a></strong> to get my Feed.<br>
+So first, install <strong><a href="https://github.com/ilyalesik/react-fetch-hook" rel="nofollow noopener">react-fetch-hook</a></strong>:</p>
+<pre><code>npm i react-fetch-hook --save
+</code></pre>
+<p>And my <code>&lt;Instagram/&gt;</code> component looks like:</p>
+<pre><code>import React from 'react';
+import useFetch from "react-fetch-hook";
+import Image from '@frontity/components/image';
+import Link from './link';
+
+const Instagram = () =&gt; {
+  var instaObjects = [];
+  const { isLoading, data } = useFetch(
+    "https://zapier.com/engine/rss/123456789/myZapFeed",
+    {
+      formatter: response =&gt; response.text()
+    }
+  );
+
+  if (data){
+    let instaObjects = [];
+    const items = data.match(/&lt;item&gt;(.|\n)*?&lt;\/item&gt;/g).map(function(val) {
+      return val.replace(/&lt;\/?b&gt;/g, "");
+    });
+    items.map((item, index) =&gt; {
+      const title = /&lt;title&gt;(.|\n)*?&lt;\/title&gt;/.exec(item);
+      const link = /&lt;link&gt;(.*?)&lt;\/link&gt;/.exec(item);
+      const enclosure = /&lt;enclosure (.*?)&lt;\/enclosure&gt;/.exec(item);
+      const image = enclosure[1].match(/"((?:\\.|[^"\\])*)"/);
+      const encodedImage = image[1].replace(/&amp;amp;/g, "&amp;");
+
+      instaObjects.push({
+        title: title[1],
+        link: link[1],
+        image: encodedImage,
+      });
+    });
+    
+    return (
+      &lt;&gt;
+        {instaObjects.map(({ title, link, image }, index) =&gt; {
+          return (
+            &lt;Link key={index} link={link}&gt;
+              &lt;Image src={image} alt={title} objectFit="cover" /&gt;
+            &lt;/Link&gt;
+          );
+        })}
+      &lt;/&gt;
+    );
+  }
+ return "Loading";
+};
+export default Instagram;
+</code></pre>
+<p>I hope it helps some of you! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393/1</link>
+        <pubDate>Wed, 18 Mar 2020 09:26:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1393-1</guid>
+        <source url="https://community.frontity.org/t/instagram-feed-how-to-display-your-last-x-insta-image/1393.rss">Instagram Feed - How to display your last X Insta Image</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>I&#39;m trying to get my posts list to remain in place after clicking on a post title</title>
+    <link>https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814</link>
+    <description>Hi! I&#39;m very new to react and frontity. I&#39;m trying to make a site adapted from the Mars Theme, w/ four different menus, drawing posts from four different categories.
+
+I&#39;ve separated out a div to display my post list, and another div to display the post once it&#39;s been clicked on. The first hurdle I&#39;m trying to jump is to have the list of posts remain visible in its div after clicking on a post link. 
+
+At the moment, I&#39;m not looking for help w/ particular piece of code.
+I&#39;m just looking for to be point me in the direction of what file(s) I should be tinkering with.
+
+Thanks for any orientation you might be able to offer!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 18 Jun 2021 17:18:46 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>I&#39;m trying to get my posts list to remain in place after clicking on a post title</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>one way to look at it is… if you think of a normal wordpress site, your main menu is included on each post.</p>
+<p>so what you could do is include the post list on every post.</p>
+<p>(let’s assume for now post list is on the left, post is on the right… like an email client)</p>
+<p>I would therefore probably use eg a handler or <code>beforeSSR</code> function to get the post list as data that gets pulled into each post.</p>
+<p>if you directly visit <code>mysite.com/some-post</code>  you still want the post list to appear on the left presumably?</p>
+<p>however. i’m guessing you may also want to visit  <code>mysite.com/some-post-type</code> and have the list on the left, and then the right hand side either be blank or default to an initial post?</p>
+<p>I guess you could have one component that covers both types of URL and conditionally check what the initial view is based on either <code>data.isPostType</code> or <code>data.isArchive</code></p>
+<p>note this is a simple example and doesn’t account for pagination or default post on right hand side etc</p>
+<pre><code class="lang-javascript">const Combo = ({ state, actions, libraries }) =&gt; {
+
+  // Get information about the current URL.
+  const data = state.source.get(state.router.link);
+
+  let post_data
+  let list_data
+
+  // if it's a post page
+  if(data.isPostType) {
+
+    post_data = data
+    
+    // get the post list for this post type
+    let list_type_url = "/"
+    
+    // allow for different post types
+    if(data.type !== "post") {
+      list_type_url = "/" + data.type
+    }
+  
+    // get the list
+    list_data = state.source.get(list_type_url)
+  } 
+  
+  // otherwise if it's a list page
+  else if(data.isArchive) {
+    list_data = data
+  }
+
+  return data.isReady &amp;&amp; list_data.isReady &amp;&amp; (
+    &lt;StyledCombo&gt;
+      
+      {
+      &lt;ListHolder&gt;
+        &lt;List data={list_data} /&gt;
+      &lt;/ListHolder&gt;
+      }
+
+      &lt;PostHolder&gt;
+        {post_data &amp;&amp; 
+        &lt;Post data={post_data} /&gt;
+        }
+      &lt;/PostHolder&gt;
+      
+    &lt;/StyledCombo&gt;
+  )
+}
+</code></pre>
+<p>you’d want to pass the data into <code>Post</code> and <code>List</code> components rather than getting it from the router link<br>
+<code>const Post = ({ data, state, libraries, actions }) =&gt; {</code></p>
+<p>also with this example you’d want to prefetch data in <code>beforeSSR</code> (although ideally probably a custom handler)</p>
+<pre><code class="lang-javascript">beforeSSR: async ({state, actions, libraries}) =&gt; {
+  const data = state.source.get(state.router.link);
+        
+  // if post, prefetch list
+  if(data.isPostType) {
+    let list_type_url = "/"
+    if(!data.type === "post") {
+      list_type_url = "/" + data.type
+    } 
+    await actions.source.fetch(list_type_url)
+  }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814/2</link>
+        <pubDate>Fri, 18 Jun 2021 13:25:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4814-2</guid>
+        <source url="https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814.rss">I&#39;m trying to get my posts list to remain in place after clicking on a post title</source>
+      </item>
+      <item>
+        <title>I&#39;m trying to get my posts list to remain in place after clicking on a post title</title>
+        <dc:creator><![CDATA[chrislee.uu]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi! I’m very new to react and frontity. I’m trying to make a site adapted from the Mars Theme, w/ four different menus, drawing posts from four different categories.</p>
+<p>I’ve separated out a div to display my post list, and another div to display the post once it’s been clicked on. The first hurdle I’m trying to jump is to have the list of posts remain visible in its div after clicking on a post link.</p>
+<p>At the moment, I’m not looking for help w/ particular piece of code.<br>
+I’m just looking for to be point me in the direction of what file(s) I should be tinkering with.</p>
+<p>Thanks for any orientation you might be able to offer!</p>
+          <p><a href="https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814/1</link>
+        <pubDate>Fri, 18 Jun 2021 04:30:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4814-1</guid>
+        <source url="https://community.frontity.org/t/im-trying-to-get-my-posts-list-to-remain-in-place-after-clicking-on-a-post-title/4814.rss">I&#39;m trying to get my posts list to remain in place after clicking on a post title</source>
+      </item>
+  </channel>
+</rss>

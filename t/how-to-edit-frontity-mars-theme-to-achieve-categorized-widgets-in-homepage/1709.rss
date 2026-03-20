@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+    <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709</link>
+    <description>How to edit @frontity/mars-theme to achieve  categorized  widgets in Homepage?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 30 Jul 2022 15:19:05 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[brett]]></dc:creator>
+        <description><![CDATA[
+            <p>This is great. The one thing I’m wondering though is how would we get the categories dynamically? I see they are hard coded in categoryWidgets… is there some way to get the category names + IDs dynamically??</p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/23">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/23</link>
+        <pubDate>Sat, 30 Jul 2022 15:19:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-23</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[avishekpandat]]></dc:creator>
+        <description><![CDATA[
+            <p>hey bro, but when you delete any category from the wordpress, it;s show ‘error reading undefined name’ because it’s not able to loop through the deleted category. So how to handle this??</p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/22</link>
+        <pubDate>Mon, 24 Jan 2022 05:47:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-22</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[mymakarim]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> <a class="mention" href="https://community.frontity.org/u/kabeer.shefy">@kabeer.shefy</a></p>
+<p><strong>There is sth I don’t like with this solution</strong><br>
+Juanma’s solution works fine but orders the object keys DESC and you can’t control the order of categorized posts on the homepage.<br>
+So I modified the code as so.</p>
+<p><img src="https://community.frontity.org/images/emoji/apple/zap.png?v=9" title=":zap:" class="emoji" alt=":zap:"> Live Demo<br>
+<a href="https://newschin.mymakarim.vercel.app/" rel="nofollow noopener">https://newschin.mymakarim.vercel.app/</a></p>
+<p><img src="https://community.frontity.org/images/emoji/apple/star.png?v=9" title=":star:" class="emoji" alt=":star:"> Give me a star on GitHub:<br>
+<a href="https://github.com/mymakarim/frontity-codenawis" rel="nofollow noopener">https://github.com/mymakarim/frontity-codenawis</a></p>
+<p>in <strong>index.js</strong></p>
+<pre><code class="lang-jsx">      import {categoryWidgets} from './PATH_TO_homepageSections.js/homepageSections';
+
+
+      beforeSSR: async ({ state, actions }) =&gt; {
+        if (state.router.link === "/") {
+          console.log(state.router.link)
+          console.log('getting data from beforeSSR...')
+          // await actions.source.fetch(`/category/featured/`);
+          await Promise.all(
+              categoryWidgets.map(categoryWidget=&gt;{
+                const category = categoryWidget.slug;
+                return actions.source.fetch(`/category/${category}/`)
+              })
+          )
+        }
+      }
+
+</code></pre>
+<p>and for <strong>getPostsGroupedByCategory</strong> function which I have put inside <strong>functions.js</strong></p>
+<pre><code class="lang-jsx">
+import {categoryWidgets} from '../PATH_TO_homepageSections.js/homepageSections'
+
+// export const getCategoriesIds = categories =&gt; Object.keys(categories)
+// export const getCategoriesValues = categories =&gt; Object.keys(categories)
+
+export const getPostsGroupedByCategory = source =&gt;  {
+
+  return categoryWidgets.map(categoryWidget=&gt;{
+    const posts = getPostsFromCategory(source, categoryWidget.id).reverse().slice(0,3)
+    const category = source.category[categoryWidget.id]
+    return {order: categoryWidget.order, posts, category}
+  });
+
+}
+
+export const getPostsFromCategory = ({ post }, categoryId) =&gt;
+  Object.keys(post)
+    .map(postID =&gt; post[postID])
+    .filter(({categories}) =&gt; categories.includes(+categoryId) )
+
+</code></pre>
+<p>and in <strong>list.js</strong></p>
+<pre><code class="lang-jsx">
+import {getPostsGroupedByCategory} from '../PATH_TO_functions.js/functions';
+
+
+const postsPerCategory = getPostsGroupedByCategory(state.source)
+
+
+      {data.route === '/' 
+          ? postsPerCategory.map((postsCategory, index) =&gt; {
+              if(postsCategory.category){
+                return &lt;CardSection key={postsCategory.category.name} category={postsCategory.category} postsCategory={postsCategory} /&gt;
+              }else{
+                return &lt;p key={index}&gt;&lt;/p&gt;;
+              }
+          })
+          :&lt;Row&gt;
+            {data.items.map(({ type, id }) =&gt; {
+              const item = state.source[type][id];
+              // Render one Item component for each one.
+              return &lt;ListItem key={item.id} item={item} /&gt;
+            })} 
+          &lt;/Row&gt;
+          }
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/19</link>
+        <pubDate>Mon, 06 Jul 2020 13:35:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-19</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s right, thanks <a class="mention" href="https://community.frontity.org/u/mehul">@mehul</a>.</p>
+<p>Please note that if you do so, you also need to take care of those fetches on the client. More information in this post:</p>
+<aside class="quote quote-modified" data-post="22" data-topic="1774">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/22">Source code disappears on using beforeSSR</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Share with the community how are you going to use Frontity!
+Confused? Getting a weird error? Just want to share your progress? Also your place.">🤗 Dev Talk &amp; Questions</span></a>
+  </div>
+  <blockquote>
+    I think it’s because you are fetching all the categories unconditionally in the beforeSSR action, not only for the home: 
+beforeSSR: async ({ state, actions }) =&gt; {
+  await Promise.all(
+    Object.values(beforeSSRCategories).map((category) =&gt; {
+      return actions.source.fetch(`/category/${category.name}/`);
+    })
+  );
+};
+
+Right now, you have to do the conditional logic yourself to avoid that. For example, if you want to do this fetch only on the home, you can: 
+beforeSSR: async ({ state, acti…
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/17</link>
+        <pubDate>Mon, 25 May 2020 11:21:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-17</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[mehul]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/prainua">@prainua</a><br>
+you can use Conditional  statetment to optimize state data in post page</p>
+<pre><code>beforeSSR: async ({ state, actions }) =&gt; {
+        if (state.router.link === "/") {
+          await Promise.all(
+            Object.values(beforeSSRCategories).map((category) =&gt;
+              actions.source.fetch(`/category/${category.name}/`)
+            )
+          );
+        }
+      },</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/16</link>
+        <pubDate>Wed, 20 May 2020 11:15:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-16</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[prainua]]></dc:creator>
+        <description><![CDATA[
+            <p>Do I understand correctly that if I go to the article not through the main page, but simply insert the url into the address bar, then all the pages that on the main page will be loaded into state</p>
+<hr>
+<p>I’m just interested in optimizing such moments. we get by api the data that we don’t need right now.</p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/14</link>
+        <pubDate>Fri, 15 May 2020 16:16:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-14</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[kabeer.shefy]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank You Juanma. you shed some Lights to my darkness! i am a newbie  to web development especially react and that kind of stuff. anyway I will try to build a theme with frontity.</p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/9</link>
+        <pubDate>Tue, 05 May 2020 12:13:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-9</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/kabeer.shefy">@kabeer.shefy</a>,<br>
+As you have in the <code>frontity.source</code> all the info provided from the WP REST API  you can “play” with that data to organize it in any form you need</p>
+<p>Here’s an example of a HomePage with blocks showing 5 articles per category → <a href="https://demo-custom-homepage-categories.now.sh/">https://demo-custom-homepage-categories.now.sh/</a><br>
+And here’s the code → <a href="https://github.com/frontity-demos/demo-custom-homepage-categories">https://github.com/frontity-demos/demo-custom-homepage-categories</a></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/7/79575671c05a633629ec823f9b61248ca7fe3833.png" data-download-href="https://community.frontity.org/uploads/default/79575671c05a633629ec823f9b61248ca7fe3833" title="Captura de pantalla 2020-05-05 a las 11.21.40"><img src="https://community.frontity.org/uploads/default/optimized/2X/7/79575671c05a633629ec823f9b61248ca7fe3833_2_690x482.png" alt="Captura de pantalla 2020-05-05 a las 11.21.40" data-base62-sha1="hjqTqDtsouYwk6zd0DMdsOweUv1" width="690" height="482" srcset="https://community.frontity.org/uploads/default/optimized/2X/7/79575671c05a633629ec823f9b61248ca7fe3833_2_690x482.png, https://community.frontity.org/uploads/default/optimized/2X/7/79575671c05a633629ec823f9b61248ca7fe3833_2_1035x723.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/7/79575671c05a633629ec823f9b61248ca7fe3833_2_1380x964.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/7/79575671c05a633629ec823f9b61248ca7fe3833_2_10x10.png"></a></div><p></p>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/6</link>
+        <pubDate>Tue, 05 May 2020 09:23:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-6</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[kabeer.shefy]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello Pablo , thank you for your response. here, i am sharing news website link. I need to achieve that kind of categorized news listing in home instead of just an archive listing.<br>
+<a href="http://www.expresskerala.com/" rel="nofollow noopener">http://www.expresskerala.com/</a>.</p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/3</link>
+        <pubDate>Mon, 04 May 2020 04:33:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-3</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/kabeer.shefy">@kabeer.shefy</a> , welcome to Frontity</p>
+<p>Could you ellaborate a bit more what do you mean by “achieve categorized widgets in Homepage”?</p>
+<p>Do you have any example that we could take a look at? If you are trying to replicate something from a live WordPress site it would be really helpful if you could share the link and explain how it works now <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/2</link>
+        <pubDate>Sun, 03 May 2020 10:57:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-2</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+      <item>
+        <title>How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</title>
+        <dc:creator><![CDATA[kabeer.shefy]]></dc:creator>
+        <description><![CDATA[
+            <p>How to edit <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/mars-theme to achieve  categorized  widgets in Homepage?</p>
+          <p><a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/1</link>
+        <pubDate>Sat, 02 May 2020 08:48:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1709-1</guid>
+        <source url="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709.rss">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</source>
+      </item>
+  </channel>
+</rss>

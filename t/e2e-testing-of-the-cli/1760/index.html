@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>E2E testing of the CLI - Released - Frontity Community Forum</title>
+    <meta name="description" content="Description
+We want to create E2E test that cover the whole lifecycle of the Frontity CLI. Those tests should be able to: 
+
+launch the CLI on diferent platforms (Win, MacOS) (optional?)
+launch the CLI with any arguments
+&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/e2e-testing-of-the-cli/1760" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;E2E testing of the CLI&#39;" href="/t/e2e-testing-of-the-cli/1760.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/e2e-testing-of-the-cli/1760" />
+<meta name="twitter:url" content="/t/e2e-testing-of-the-cli/1760" />
+<meta property="og:title" content="E2E testing of the CLI" />
+<meta name="twitter:title" content="E2E testing of the CLI" />
+<meta property="og:description" content="Description We want to create E2E test that cover the whole lifecycle of the Frontity CLI. Those tests should be able to:   launch the CLI on diferent platforms (Win, MacOS) (optional?) launch the CLI with any arguments pass interactive arguments to the CLI assert that particular files have been created check that a frontity server has been launched and returns pages (with cypress?)   Existing frameworks  GitHub - emilkarlen/exactly: Exactly - tests a command line program by executing it in a t..." />
+<meta name="twitter:description" content="Description We want to create E2E test that cover the whole lifecycle of the Frontity CLI. Those tests should be able to:   launch the CLI on diferent platforms (Win, MacOS) (optional?) launch the CLI with any arguments pass interactive arguments to the CLI assert that particular files have been created check that a frontity server has been launched and returns pages (with cypress?)   Existing frameworks  GitHub - emilkarlen/exactly: Exactly - tests a command line program by executing it in a t..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Released" />
+<meta property="og:article:section:color" content="D3ABFF" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="1 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="1 ❤" />
+<meta property="article:published_time" content="2020-05-06T13:46:16+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"E2E testing of the CLI","mainEntity":{"@type":"Question","name":"E2E testing of the CLI","text":"<a name=\"description-1\" class=\"anchor\" href=\"#description-1\"><\/a>Description\n\nWe want to create E2E test that cover the whole lifecycle of the Frontity CLI. Those tests should be able to:\n\nlaunch the CLI on diferent platforms (Win, MacOS) (optional?)\n\nlaunch the CLI with any arguments\n\npass interactive arguments to the CLI\n\nassert that particular files have been cr&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2020-05-06T13:46:16.053Z","author":{"@type":"Person","name":"Michal Czaplinski"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/e2e-testing-of-the-cli/1760">E2E testing of the CLI</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/released/40" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #D3ABFF'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Released</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='E2E testing of the CLI'>
+        <meta itemprop='articleSection' content='Released'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-of-the-cli/1760">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-05-06T13:46:16Z' class='post-time'>
+                    6 May 2020 13:46
+                  </time>
+                  <meta itemprop='dateModified' content='2021-07-09T12:31:37Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <h1>
+<a name="description-1" class="anchor" href="#description-1"></a>Description</h1>
+<p>We want to create E2E test that cover the whole lifecycle of the Frontity CLI. Those tests should be able to:</p>
+<ul>
+<li>launch the CLI on diferent platforms (Win, MacOS) (optional?)</li>
+<li>launch the CLI with any arguments</li>
+<li>pass interactive arguments to the CLI</li>
+<li>assert that particular files have been created</li>
+<li>check that a frontity server has been launched and returns pages (with cypress?)</li>
+</ul>
+<h1>
+<a name="existing-frameworks-2" class="anchor" href="#existing-frameworks-2"></a>Existing frameworks</h1>
+<ul>
+<li><a href="https://github.com/emilkarlen/exactly" class="inline-onebox">GitHub - emilkarlen/exactly: Exactly - tests a command line program by executing it in a temporary sandbox directory and inspecting its result.</a></li>
+<li><a href="https://github.com/rylandg/shrun" class="inline-onebox">GitHub - rylandg/shrun: Test CLI commands in isolated containers</a></li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-of-the-cli/1760">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-05-18T02:53:13Z' class='post-time'>
+                    18 May 2021 02:53
+                  </time>
+                  <meta itemprop='dateModified' content='2021-05-18T02:53:13Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This has been implemented in:</p>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/788" target="_blank" rel="noopener">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Pull Request">
+    <svg width="60" height="60" class="github-icon" viewbox="0 0 12 16" aria-hidden="true"><path d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/frontity/pull/788" target="_blank" rel="noopener">Create a git repo when running `frontity create` and add a `--no-git` flag to opt out of this behaviour</a>
+    </h4>
+
+    <div class="branches">
+      <code>frontity:dev</code> ← <code>frontity:cli-git-option</code>
+    </div>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2021-04-15" data-time="04:52:11" data-timezone="UTC">04:52AM - 15 Apr 21 UTC</span>
+      </div>
+
+      <div class="user">
+        <a href="https://github.com/orballo" target="_blank" rel="noopener">
+          <img alt="orballo" src="/uploads/default/original/2X/0/026242ddac9bf493708f0c9418c5736a1a753632.png" class="onebox-avatar-inline" width="20" height="20">
+          orballo
+        </a>
+      </div>
+
+      <div class="lines" title="71 commits changed 33 files with 7387 additions and 4466 deletions">
+        <a href="https://github.com/frontity/frontity/pull/788/files" target="_blank" rel="noopener">
+          <span class="added">+7387</span>
+          <span class="removed">-4466</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="github-row">
+    <p class="github-body-container">**What**:
+
+Automatically initialize a fresh repository when when running `fron<span class="show-more-container"><a href="https://github.com/frontity/frontity/pull/788" target="_blank" rel="noopener" class="show-more">…</a></span><span class="excerpt hidden">tity create`. Also add a `--no-git` flag which opts out of creating the repo.
+
+**Why**:
+
+Because it is annoying to create the git repo manually after creating a project.
+
+**How**:
+
+Creates a `.gitignore` file and runs `git init`, `git add .` and `git commit -m "Initialized with Frontity"`.
+
+**Tasks**:
+
+- [x] Code
+- [x] TSDocs
+- [x] TypeScript
+- [x] Unit tests
+- [x] Update community discussions
+- [x] Add a changeset (with link to its [Feature Discussion](/c/33) if it exists)
+- [x] End to end tests
+- [x] Add README for new cli-e2e tests
+
+**Unrelated Tasks**
+
+- [ ] TypeScript tests
+- [ ] Update starter themes
+- [ ] Update other packages
+
+**Additional Comments**</span></p>
+  </div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>For more details, you can check out the <a href="https://github.com/frontity/frontity/blob/a78ae4fa7be097164c8bcefd427ac222d3a2bf12/packages/frontity/cli-e2e/README.md"><code>packages/frontity/e2e-cli/README.md</code></a>.</p>
+<hr>
+<h3>
+<a name="features-supported-1" class="anchor" href="#features-supported-1"></a>Features supported</h3>
+<aside class="quote no-group" data-username="mmczaplinski" data-post="1" data-topic="1760">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<ul>
+<li>launch the CLI on diferent platforms (Win, MacOS) (optional?)</li>
+</ul>
+</blockquote>
+</aside>
+<p><strong>Yes</strong>. This is possible by running the tests on github actions which support Win, Linux and MacOS containers.</p>
+<aside class="quote no-group" data-username="mmczaplinski" data-post="1" data-topic="1760">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<ul>
+<li>launch the CLI with any arguments</li>
+</ul>
+</blockquote>
+</aside>
+<p><strong>Yes</strong>. Indeed you can launch the CLI with any arguments, the testing “framework”, if you can call it that, provides a helper to run an arbitrary command inside an isolated container.</p>
+<aside class="quote no-group" data-username="mmczaplinski" data-post="1" data-topic="1760">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<ul>
+<li>pass interactive arguments to the CLI</li>
+</ul>
+</blockquote>
+</aside>
+<p><strong>Sort of</strong>. For the moment this is not supported out of the box, but since the tests are built on top of <code>execa</code>, it could be accomplished with something like:</p>
+<pre><code class="lang-js">const execa = require("execa");
+const { Readable } = require("stream");
+
+const subprocess = execa("frontity create --theme @frontity/mars-theme");
+
+// The name of the project that is gonna be passed interactively 
+const readable = Readable.from(["my-awesome-project"]);
+
+// Pass it to std input
+readable.pipe(subprocess.stdin);
+
+// Actually run the `create` command 
+const { stdout } = await subprocess;
+
+console.log(stdout);
+</code></pre>
+<aside class="quote no-group" data-username="mmczaplinski" data-post="1" data-topic="1760">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<ul>
+<li>assert that particular files have been created</li>
+</ul>
+</blockquote>
+</aside>
+<p><strong>Yes</strong>. The framework helpers can run arbitrary unix commands inside the container like <code>ls</code>, <code>cat</code> or <code>tree</code> and capture their output.</p>
+<aside class="quote no-group" data-username="mmczaplinski" data-post="1" data-topic="1760">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<ul>
+<li>check that a frontity server has been launched and returns pages (with cypress?)</li>
+</ul>
+</blockquote>
+</aside>
+<p><strong>Sort of</strong>. At the moment there is no built-in way to do this, but helpers can be created in a similar way as those for passing the interactive CLI arguments.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-of-the-cli/1760">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-07-09T12:32:08Z' class='post-time'>
+                    9 July 2021 12:32
+                  </time>
+                  <meta itemprop='dateModified' content='2021-07-09T12:32:08Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m changing this to “Released”. Thanks a lot <a class="mention" href="/u/mmczaplinski">@mmczaplinski</a> <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"><img src="/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Docs don&#39;t cover WooCommerce</title>
+    <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577</link>
+    <description>There&#39;s no explanation of the most important thing the WooCommerce in the docs. Whether it&#39;s supported or not. If supported how things will work!? If WooCommerce isn&#39;t compatible yet there should be page talking solely about why it&#39;s not yet. When frontity is made for WP only, we shouldn&#39;t forget to mention WooCommerce which is the second important use of WP.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 16 Apr 2021 14:40:38 +0000</lastBuildDate>
+    <category>📖 Documentation</category>
+    <atom:link href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[CoCart]]></dc:creator>
+        <description><![CDATA[
+            <p>I like to correct that CoCart is a Freemium plugin so there is a free version available to get you started.</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/23">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/23</link>
+        <pubDate>Fri, 16 Apr 2021 14:40:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-23</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[kataviqc]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, <a class="mention" href="https://community.frontity.org/u/vscopise">@vscopise</a>, you did not test the variable products, but you know how to do it? If so, can you tell me how?</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/22</link>
+        <pubDate>Mon, 24 Aug 2020 16:32:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-22</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[vscopise]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>, I hope you are well <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>I think the best way to use Woocommerce in Frontity is to keep in mind that the products are custom_ post_type,</p>
+<p>I realized that I need to extend the Woocommerce endpoint with a custom plugin:</p>
+<pre><code>&lt;?php
+/**
+ * Plugin Name:       PXE Extends WC Api Rest
+ * Plugin URI:        
+ * Description:       Extends the Woocommerce Rest Api
+ * Version:           1.0.0
+ * Author:            Pixie
+ * Author URI:        http://www.pixie.com.uy/
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain:       pxe-extend-wc-api-rest
+ * Domain Path:       /languages/
+ */
+
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
+
+if ( ! class_exists( 'PXE_Extend_Api_Rest' ) ) :
+    class PXE_Extend_Api_Rest {
+        
+        protected static $instance = NULL;
+        
+        public static function get_instance() {
+            if ( null === self::$instance ) {
+                self::$instance = new self;
+            }
+            return self::$instance; 
+        }
+         
+        public function __construct() {
+            add_action( 'rest_api_init', __CLASS__ . '::extend_product_endpoint' );
+            add_filter( 'woocommerce_taxonomy_args_product_cat', __CLASS__ . '::extend_product_cat' );
+        }
+        
+        public static function extend_product_endpoint() {
+            $fields = array(
+                'product_image_gallery',
+                'regular_price',
+                'sale_price_dates_from',
+                'sale_price_dates_to',
+                'sale_price',
+                'sku',
+            );
+            
+            foreach( $fields as $field ) {
+                register_rest_field ( 'product', $field, array(
+                    'get_callback' =&gt; function($object, $field) {
+                        return get_post_meta($object['id'], '_' . $field, true);
+                    }
+                ));    
+            }
+            
+            register_rest_field( 'product', 'product_cat', array(
+                'get_callback' =&gt; function( $object ) {
+                    $terms = get_the_terms( $object['id'], 'product_cat' );
+                    foreach( $terms as $term ) {
+                        //$categories[] = $term-&gt;slug;
+                        $categories[] = $term-&gt;term_id;
+                    }
+                    return $categories;
+                }
+            ));
+            
+            register_rest_field( 'product', 'price', array(
+                'get_callback' =&gt; function( $object ) {
+                    $product = wc_get_product( $object['id'] );
+                    
+                    return $product-&gt;get_price();
+                }
+            ));
+            
+            register_rest_field( 'product', 'featured', array(
+                'get_callback' =&gt; function( $object ) {
+                    $product = wc_get_product( $object['id'] );
+                    
+                    return $product-&gt;get_featured();
+                }
+            ));
+            
+            register_rest_field( 'product', 'rating_count', array(
+                'get_callback' =&gt; function( $object ) {
+                    $product = wc_get_product( $object['id'] );
+                    
+                    return $product-&gt;get_rating_counts();
+                }
+            ));
+            
+            register_rest_field( 'product', 'average_rating', array(
+                'get_callback' =&gt; function( $object ) {
+                    $product = wc_get_product( $object['id'] );
+                    
+                    return $product-&gt;get_average_rating();
+                }
+            ));
+        }
+        
+        public static function extend_product_cat( $args ) {
+            $args['show_in_rest'] = true;
+            return $args;
+        }
+        
+    }
+    
+    $PPXE_Extend_Api_Rest = new PXE_Extend_Api_Rest;
+    
+endif;
+</code></pre>
+<p>to drive the cart I can use local storage to have a local car as described <a href="https://www.joshuaiz.com/words/no-woocommerce-cart-api-no-problem" rel="nofollow noopener">in this post</a></p>
+<p>For the payment process you can use Woocommerce’s own endpoints, I did not try them all</p>
+<p>I also didn’t test the variable products, etc.</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/18</link>
+        <pubDate>Sun, 26 Apr 2020 18:24:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-18</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Duly noted.<br>
+Thanks for your feedback. We’ll take into account.</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/17</link>
+        <pubDate>Sat, 25 Apr 2020 08:35:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-17</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[inamkbmail]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes your answer is nice but I added this topic to ask you guys why the official <a href="https://docs.frontity.org/getting-started" rel="nofollow noopener">docs</a> don’t cover WooCommerce. I asked here just to remind you people to improve docs. As people coming to frontity are in suspense if they’d make WooCommerce store. But docs unfortunately, don’t even mention Woocommerce. If you search something like <a href="https://docs.frontity.org/getting-started?q=woo" rel="nofollow noopener">woo</a>, <a href="https://docs.frontity.org/getting-started?q=woocommerce" rel="nofollow noopener">woocommerce</a> nothing match. So, please add a little section in frontity about section – if not a full page yet – to tell people if WooCommerce is supported</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/16</link>
+        <pubDate>Sat, 25 Apr 2020 05:46:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-16</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/inamkbmail">@inamkbmail</a></p>
+<p>Sorry for the delay in the answer.<br>
+I’ve been doing some research to provide a proper answer.</p>
+<p>Frontity provides you a way to create a theme with React that connects easily to your WP REST API. The type of React app you’ll be creating is what is called an <a href="https://www.lullabot.com/articles/what-is-an-isomorphic-application">isomorphic app</a>, this is, a React App that can be used in both the server and the client</p>
+<p>So, when connecting to other API’s you need to take this into account as it has to do with things like authentication.</p>
+<p><a href="https://woocommerce.github.io/woocommerce-rest-api-docs/#introduction">WooCommerce provides its own API</a></p>
+<p>But with this WooCommerce API when you add products to your shopping cart, for a Frontity app (theme) the data should be:</p>
+<ul>
+<li>Exclusive for every user</li>
+<li>Available from the server (load a shopping cart page)</li>
+<li>Available from the client (add a new product and get the current status of the shopping cart page)</li>
+</ul>
+<p>The thing with <a href="https://woocommerce.github.io/woocommerce-rest-api-docs/#introduction">WooCommerce API</a> is that is back-end only (requires auth for everything) and it doesn’t cover things like shopping cart management. So, to work properly with WooCommerce, as far as we know, the only viable options right now are:</p>
+<ul>
+<li>
+<a href="https://wordpress.org/plugins/cart-rest-api-for-woocommerce/">CoCart API</a> (paid plugin).</li>
+<li>
+<a href="https://docs.wpgraphql.com/extensions/wpgraphql-woocommerce/">WPGraphQL-WooCommerce</a> plugin (free plugin but with GraphQL).</li>
+<li>Create a custom front-end API using the current WooCommerce back-end API.</li>
+</ul>
+<p>We have in our Roadmap some tasks to create some projects with WooCommerce and improve our documentation regarding this</p>
+<p>In the meantime, in this post, you may find some clues to start with your WooCommerce project with Frontity → <a href="https://community.frontity.org/t/how-do-i-add-woocommerce-endpoint-to-the-state/1101" class="inline-onebox">How do I add woocommerce endpoint to the state?</a></p>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/15</link>
+        <pubDate>Fri, 24 Apr 2020 07:53:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-15</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>As far as I am aware, Frontity has WooCommerce integration added to their roadmap, but they have prioritized other components. That being said, Frontity is an open source project, so you are free to go ahead and work on integrating Frontity with WooCommerce. The team is great at answering any question you may have and I’m sure would be happy to help in away way possible.</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/12</link>
+        <pubDate>Wed, 22 Apr 2020 17:52:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-12</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+      <item>
+        <title>Docs don&#39;t cover WooCommerce</title>
+        <dc:creator><![CDATA[inamkbmail]]></dc:creator>
+        <description><![CDATA[
+            <p>There’s no explanation of the most important thing the WooCommerce in the docs. Whether it’s supported or not. If supported how things will work!? If WooCommerce isn’t compatible yet there should be page talking solely about why it’s not yet. When frontity is made for WP only, we shouldn’t forget to mention WooCommerce which is the second important use of WP.</p>
+          <p><a href="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/docs-dont-cover-woocommerce/1577/1</link>
+        <pubDate>Mon, 20 Apr 2020 08:03:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1577-1</guid>
+        <source url="https://community.frontity.org/t/docs-dont-cover-woocommerce/1577.rss">Docs don&#39;t cover WooCommerce</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Support for Yoast plugin REST API fields</title>
+    <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626</link>
+    <description># OPENING POST
+---
+
+**— [npm package](https://www.npmjs.com/package/@frontity/yoast)**
+
+# Description
+Since version 14.0, Yoast added a REST API field where it shows the head tags needed for SEO purposes, so it&#39;d be great to have a package similar to [`@frontity/head-tags`](https://docs.frontity.org/api-reference-1/frontity-head-tags) that fetch the head tags from Yoast field instead of from our plugin.
+
+This way, Yoast team would take care of the REST API support (as they are already doing) and we just have to take care of adapting that info for Frontity with this package.
+
+With this solution, if you use Yoast ^14.0 (the version where they added the REST API support), you could use `@frontity/yoast` package and, if you use an older version of the plugin, or any other plugin without API support, you can use the Head Tags plugin &amp; `@frontity/head-tags` solution.
+
+Although the [Head Tags plugin](https://docs.frontity.org/frontity-plugins/rest-api-head-tags) is working great, users have to install another plugin, so this would mean one plugin less, just with Yoast is enough.
+
+# Possible solution
+
+This package could be pretty similar to the [`@frontity/head-tags` package](https://github.com/frontity/frontity/tree/dev/packages/head-tags/src), as it&#39;s going to do the same, but getting the info that the Yoast plugin is showing in the REST API.
+
+We had another conversation about how it works at [this topic](https://community.frontity.org/t/yoast-seo-rest-api-head-tags-compatibilty/1651). The Yoast plugin is adding a new field to the REST API named  `yoast_head` , which is a string of all the meta tags (it’s similar to what we’re doing with the [REST API Head Tags plugin ](https://docs.frontity.org/frontity-plugins/rest-api-head-tags), but we are adding an array instead of a string). This way, if you go to a post, a category, a tag, etc, in the REST API, you can find this new field with all the meta tag of the specific entity. So if I go to  `https://myweb.com/wp-json/wp/v2/posts?slug=my-post` , I can find this string:
+![Screenshot from 2020-04-28 16-53-40|641x313](upload://jfaQ2RVMFV3GGe9TtD6JGMAc2Wi)
+
+Apart from this, in the WordPress side, we would need to add the  `types`  endpoint to  `_links`  with  `embeddable: true`  to make sure that information is retrieved in a single fetch when you request a post-type archive using `?_embed=true` . [This how we do it ](https://github.com/frontity/wp-plugins/blob/83de48788570bfc6e7fc771ee81401b28bbeb96e/plugins/frontity-headtags/includes/hooks/class-frontity-headtags-post-type-hooks.php#L120-L140) in the head-tags plugin. The Yoast team has opened [this ticket](https://core.trac.wordpress.org/ticket/50409) to add it to WordPress core, but we could add it manually meanwhile or in the future Frontity plugin.
+
+---
+# SUMMARY
+---
+&gt; *:warning:  Please, bear in mind that this section wasn&#39;t part of the opening post. It has been added afterwards and its purpose is to keep a quick summary with the most relevant information about this FD at the top of the thread.*
+
+## Final implementation
+https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/13?u=santosguillamot
+
+## Relevant information
+* [Demo](https://www.youtube.com/watch?v=nqXl-2zC9Eo&amp;t=14s).
+* In order to embed the post types – which are the entities that contain the `yoast_meta` field for post type archives (i.e. the homepage or the archive of a custom post type) – in the REST API responses, users should add a PHP Snippet as explained [here](https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/29?u=santosguillamot).
+* This package only applies for Yoast ^14.0.0. For previous version take a look at the [Head Tags plugin](https://api.frontity.org/frontity-plugins/rest-api-head-tags).</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 04 Mar 2021 09:00:43 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="38" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Do you guys think that it makes sense to say in the docs that in the future that snippet will be included in the Frontity WordPress Plugin? Or is it better not to mention the Frontity WordPress Plugin?</p>
+</blockquote>
+</aside>
+<p>I think it’s better not to do references to things that are not available for the user.</p>
+<aside class="quote quote-modified" data-post="8" data-topic="4093">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/documentation-related-to-embedded-mode-or-frontity-php-plugin/4093/8">Documentation related to Embedded Mode (or Frontity PHP plugin)</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/framework-development/docs-and-tutorials/29"><span class="badge-category-parent-bg" style="background-color: #0088CC;"></span><span class="badge-category-bg" style="background-color: #3f3f3f;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Are you missing a topic not covered by the official documentation? Found an error or something is not clear enough? Need a specific demo, guide or tutorial, or want to share your own? This is the place to share you comments!">📖 Documentation</span></a>
+  </div>
+  <blockquote>
+    I’ve opened this issue in the docs → <a href="https://github.com/frontity/api-reference/issues/12" class="inline-onebox">"Embedded Mode" documentation as WordPress plugin · Issue #12 · frontity/api-reference · GitHub</a> to do this documentation 
+I think we should not have references to the Embedded Mode or Frontity plugin in the docs, until a proper documentation about this is added to the docs (so we can link to that page) 
+In the meantime, we can use this issue to add reminders to add references to the Embedded Mode documentation in other sections of the docs once it’s available …
+  </blockquote>
+</aside>
+
+<p>In the meantime, I’ve opened <a href="https://github.com/frontity/api-reference/issues/12">this issue</a> so we can add notes of those things we’d like to add to the documentation referencing to the Embedded Mode (or the Frontity plugin, that I understand it’s the same thing) once that documentation is available</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/42">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/42</link>
+        <pubDate>Thu, 04 Mar 2021 09:00:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-42</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="mburridge" data-post="40" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mburridge/40/1477_2.png" class="avatar"> mburridge:</div>
+<blockquote>
+<p>By “post types” do you mean Custom Post Types? I can’t find any other reference to the <code>yoast_meta</code> field. Can you explain what that is.</p>
+</blockquote>
+</aside>
+<p>By “post types” I mean the entities that represent the types, i.e. those returned by the <code>/wp-json/wp/v2/types</code> endpoint.</p>
+<p>You can see an example here: <a href="https://test.frontity.org/wp-json/wp/v2/types">https://test.frontity.org/wp-json/wp/v2/types</a></p>
+<aside class="quote group-community-team" data-username="mburridge" data-post="40" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mburridge/40/1477_2.png" class="avatar"> mburridge:</div>
+<blockquote>
+<p>When you refer to “the homepage or the archive of a custom post type” are you intending “homepage” and “archive” to mean the same thing, or are they different things?</p>
+</blockquote>
+</aside>
+<p>When I said homepage I was refering to the the archive of posts, which is usually the homepage. It could be rephrased as “<em>the archive of posts</em>, or the archive of a custom post type”.</p>
+<p>Those archives are like categories or tags, but the entity with the name, description, and so on, is returned by the <code>types</code> endpoint (as mentioned before).</p>
+<p>I’m not sure if that way is more clear or not. <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<aside class="quote group-community-team" data-username="mburridge" data-post="40" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mburridge/40/1477_2.png" class="avatar"> mburridge:</div>
+<blockquote>
+<p>I’m also not sure what this means: " That code adds the type inside the <code>_links</code> field of post entities".</p>
+</blockquote>
+</aside>
+<p>In the entities that the WP REST API returns, there is a field called <code>_links</code> that basically links it with other related entities (more info <a href="https://developer.wordpress.org/rest-api/using-the-rest-api/linking-and-embedding/">here</a>). Those links make the linked entity to be included when using the <code>_embed=true</code> query param.</p>
+<p>In this case, when any post is requested using <code>_embed=true</code>, the <code>post</code> type entity is embedded as well and populated in the frontity store. That way, you don’t have to do a different request to get the <code>post</code> type entity. Something similar happens with categories and tags, but those are linked by default.</p>
+<p>By the way, the specific code that adds the link is this one:</p>
+<pre><code class="lang-php">$response-&gt;add_links(
+  array(
+    'type' =&gt; array(
+      'href'       =&gt; $types_url,
+      'embeddable' =&gt; true,
+    ),
+  )
+);
+</code></pre>
+<hr>
+<p>Hope this clarifies your questions! <img src="https://community.frontity.org/images/emoji/apple/raised_hands.png?v=9" title=":raised_hands:" class="emoji" alt=":raised_hands:"></p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/41">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/41</link>
+        <pubDate>Wed, 03 Mar 2021 10:48:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-41</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/david">@David</a></p>
+<p>I don’t completely understand what you’re saying in <a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/29">this post</a>.</p>
+<aside class="quote group-dev-team" data-username="David" data-post="29" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>In order to embed the post types – which are the entities that contain the <code>yoast_meta</code> field for post type archives (i.e. the homepage or the archive of a custom post type) – in the REST API responses, you would need to include some code in your WordPress site similar to the following one:</p>
+</blockquote>
+</aside>
+<aside class="quote group-dev-team" data-username="David" data-post="29" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>That code adds the type inside the <code>_links</code> field of post entities and makes it embeddable so type entities are included when Frontity makes calls to the WordPress REST API.</p>
+</blockquote>
+</aside>
+<p>By “post types” do you mean Custom Post Types? I can’t find any other reference to the <code>yoast_meta</code> field. Can you explain what that is.</p>
+<p>When you refer to “the homepage or the archive of a custom post type” are you intending “homepage” and “archive” to mean the same thing, or are they different things?</p>
+<p>I’m also not sure what this means: " That code adds the type inside the <code>_links</code> field of post entities".</p>
+<p>It would be great if you could provide more clarity here.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/40">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/40</link>
+        <pubDate>Tue, 02 Mar 2021 18:02:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-40</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>I would leave it out of the docs for now. Currently it needs to be added to the WP theme’s functions.php file so I would leave it at that.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/39">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/39</link>
+        <pubDate>Tue, 02 Mar 2021 17:39:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-39</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Perfect, thank you <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Do you guys think that it makes sense to say in the docs that in the future that snippet will be included in the Frontity WordPress Plugin? Or is it better not to mention the Frontity WordPress Plugin?</p>
+<p>cc: <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a></p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/38">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/38</link>
+        <pubDate>Tue, 02 Mar 2021 17:06:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-38</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+<p>The docs for <code>@frontity/yoast</code> are currently being prepared and will cover the PHP snippet.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/37">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/37</link>
+        <pubDate>Tue, 02 Mar 2021 15:53:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-37</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve just noticed that we are not saying anything in the Readme about the snippet that needs to be added in PHP, this one: <a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/29" class="inline-onebox">Support for Yoast plugin REST API fields</a>.</p>
+<p>I think that is misleading because there are no docs yet for <code>@frontity/yoast</code> and all people have is the readme: <a href="https://www.npmjs.com/package/@frontity/yoast">https://www.npmjs.com/package/@frontity/yoast</a></p>
+<p><a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> what do you think? Should we fix this now or should we wait for the official docs?</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/36">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/36</link>
+        <pubDate>Thu, 28 Jan 2021 16:17:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-36</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Glad to hear that. <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/35">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/35</link>
+        <pubDate>Wed, 30 Sep 2020 08:38:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-35</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks! I don’t know exactly what I was doing, I think I forgot to add the <code>base</code> to the slim version of the site, and therefore it wasn’t working <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>But everything works fine now!</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/34">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/34</link>
+        <pubDate>Tue, 29 Sep 2020 14:38:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-34</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>The <code>@frontity/yoast</code> package transforms links inside the <code>useYoastHead</code> hook, defined in <code>/src/hooks/index.ts</code>:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/dev/packages/yoast/src/hooks/index.ts#L67-L70" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/dev/packages/yoast/src/hooks/index.ts#L67-L70" target="_blank" rel="noopener">frontity/frontity/blob/dev/packages/yoast/src/hooks/index.ts#L67-L70</a></h4>
+<pre class="onebox"><code class="lang-ts"><ol class="start lines" start="67" style="counter-reset: li-counter 66 ;">
+<li>if (html &amp;&amp; shouldTransformLinks) {</li>
+<li>  const head = transformAllLinks({ html, ignore, base, newBase });</li>
+<li>  return { head };</li>
+<li>}</li>
+</ol></code></pre>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>The function <code>transformAllLinks()</code> is defined in <code>/src/utils/index.ts</code> and uses <code>transformLink()</code> – defined in the <code>@frontity/head-tags</code> package – under the hood.</p>
+<p>The property <code>state.yoast.transformLinks.base</code> is not documented yet but it is explained in the <a href="https://github.com/frontity/frontity/blob/dev/packages/yoast/types.ts#L91-L96">TSDocs</a>:</p>
+<blockquote>
+<p>WordPress URL base that must be replaced by the Frontity URL base (specified in <code>state.frontity.url</code>). If this value is not set, it is computed from <code>state.source.api</code>.</p>
+</blockquote>
+<hr>
+<p>What’s exactly the problem you have? Is there a way to reproduce it?</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/32">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/32</link>
+        <pubDate>Tue, 29 Sep 2020 10:34:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-32</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m trying to use the <code>transformLinks.base</code> property but it doesn’t seem to work, and when I tried to find in the code how that is working, I couldn’t find where that transformation is being done. Could you help me here?</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/30">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/30</link>
+        <pubDate>Mon, 28 Sep 2020 17:48:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-30</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Revisiting this thread, I think I forgot something important to mention!</p>
+<p>In order to embed the post types – which are the entities that contain the <code>yoast_meta</code> field for post type archives (i.e. the homepage or the archive of a custom post type) – in the REST API responses, you would need to include some code in your WordPress site similar to the following one:</p>
+<pre><code class="lang-php">add_action( 'rest_api_init', function () {
+  foreach ( get_post_types( array( 'show_in_rest' =&gt; true ), 'objects' ) as $post_type ) {
+    if ( 'post' === $post_type-&gt;name || $post_type-&gt;has_archive ) {
+      add_filter( "rest_prepare_{$post_type-&gt;name}", function ( $response ) {
+        $type      = $response-&gt;data['type'];
+        $types_url = rest_url( "wp/v2/types/$type" );
+
+        $response-&gt;add_links(
+          array(
+            'type' =&gt; array(
+              'href'       =&gt; $types_url,
+              'embeddable' =&gt; true,
+            ),
+          )
+        );
+
+        return $response;
+      } );
+    }
+  }
+} );
+</code></pre>
+<p>That code adds the type inside the <code>_links</code> field of post entities and makes it embeddable so type entities are included when Frontity makes calls to the WordPress REST API.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/29">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/29</link>
+        <pubDate>Wed, 23 Sep 2020 09:42:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-29</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>The new implementation has been released <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"> : <a href="https://community.frontity.org/t/frontity-release-wordpress-native-comments-support-and-new-yoast-package/2919">Read the full Release Announcement </a>.</p>
+<p>This means that  <strong>if you are using Yoast ^14.0, you should use this new package</strong> . And, if you’re using a previous version where the REST API is not supported by the Yoast plugin, or you use other SEO plugin, you can use the <a href="https://docs.frontity.org/api-reference-1/frontity-head-tags"> <code>@frontity/head-tags</code>  package</a>.</p>
+<p>A quick demo of it:</p>
+<p><a href="https://www.youtube.com/watch?v=nqXl-2zC9Eo">Frontity Yoast Package Demo</a></p>
+
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/28">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/28</link>
+        <pubDate>Fri, 18 Sep 2020 12:25:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-28</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="26" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>By the way, would it be a good idea to add a warning when the <code>yoast_head</code> tag is not found?</p>
+</blockquote>
+</aside>
+<p>It makes sense to me. Maybe also do the opposite in the head-tags package? If <code>yoast_head</code> is found we could recommend to use this package instead.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/27">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/27</link>
+        <pubDate>Thu, 17 Sep 2020 06:28:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-27</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By the way, would it be a good idea to add a warning when the <code>yoast_head</code> tag is not found?</p>
+<p>In case people have not installed Yoast or the version is lower than 14…</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/26">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/26</link>
+        <pubDate>Wed, 16 Sep 2020 15:49:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-26</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Right, I see your point.</p>
+<p>I implemented <code>state.source.entity()</code> this way because for me it wasn’t clear how to know the type of an entity depending on the given link but I didn’t realize it is the same case as <code>state.source.data</code>!</p>
+<p>Using type guards here it’s a good idea. <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/25">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/25</link>
+        <pubDate>Wed, 16 Sep 2020 09:34:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-25</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="23" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Maybe we can use the very same functions for both cases, to avoid two separate APIs</p>
+</blockquote>
+</aside>
+<p>Oh, my mistake, we can’t use the same functions because we need the <code>arg is Type</code> syntax and the types are different.</p>
+<pre><code class="lang-ts">function isTaxonomy(data: Data): data is TaxonomyData {
+  return (data as TaxonomyData).isTaxonomy === true;
+}
+
+function isTaxonomy(entity: Entity): entity is TaxonomyEntity {
+  return !!(entity as TaxonomyEntity).taxonomy;
+}
+</code></pre>
+<p>Then maybe we need to distinguish between those with different entry points:</p>
+<pre><code class="lang-ts">import { isPostType } from "@frontity/source/data";
+
+const data = state.source.get(state.router.link);
+
+if (isPostType(data)) {
+  //...
+}
+</code></pre>
+<pre><code class="lang-ts">import { isPostType } from "@frontity/source/entity";
+
+const entity = state.source.entity(state.router.link);
+
+if (isPostType(entity)) {
+  //...
+}
+</code></pre>
+<p>Or different namings:</p>
+<pre><code class="lang-ts">import { isPostTypeData } from "@frontity/source";
+
+const data = state.source.get(state.router.link);
+
+if (isPostTypeData(data)) {
+  //...
+}
+</code></pre>
+<pre><code class="lang-ts">import { isPostTypeEntity } from "@frontity/source";
+
+const entity = state.source.entity(state.router.link);
+
+if (isPostTypeEntity(entity)) {
+  //...
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/24">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/24</link>
+        <pubDate>Tue, 15 Sep 2020 20:19:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-24</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="David" data-post="20" data-topic="2626">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>I think it could have a better API, something like <code>state.source.entity(link)</code> .</p>
+</blockquote>
+</aside>
+<p>Unforunately, this is a bad API for TypeScript. We have the same problem than when we do:</p>
+<pre><code class="lang-js">const data = state.source.get(state.router.link);
+
+if (data.isPostType) {
+  //...
+}
+</code></pre>
+<p>So if we want to maintain this API, we are going to need to apply the same APIs than we are going to use for the other case:</p>
+<pre><code class="lang-js">import { isPostType } from "@frontity/source";
+
+const data = state.source.get(state.router.link);
+
+if (isPostType(data)) {
+  //...
+}
+</code></pre>
+<p>Maybe we can use the very same functions for both cases, to avoid two separate APIs:</p>
+<pre><code class="lang-js">import { isPostType } from "@frontity/source";
+
+const entity = state.source.entity(state.router.link);
+
+if (isPostType(entity)) {
+  //...
+}
+</code></pre>
+<p>But we need something. Manual casting is not good enough if our goal is to have good TypeScript support in Frontity.</p>
+<p>I guess we can distinguish between post types, taxonomies, authors and so on just by looking at their props, can’t we?</p>
+<hr>
+<p>I’m thinking about approving the PR now and solve this in this issue, which is also in the current sprint: <a href="https://github.com/frontity/frontity/issues/452">TypeScript 3.9 breaks <code>@frontity/source</code> types</a>.</p>
+<p><a class="mention" href="https://community.frontity.org/u/david">@david</a> we can tomorrow about this.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/23">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/23</link>
+        <pubDate>Tue, 15 Sep 2020 20:02:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-23</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It’s interesting to notice that this is the first non-theme package that also depends on <code>@frontity/html2react</code>.</p>
+<p>And in <code>state.source.api</code> and <code>state.frontity.url</code> being correctly populated. We should start noting those things.</p>
+<p>We should add that to the docs. And maybe we have to start thinking about our dependency system <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/22</link>
+        <pubDate>Tue, 15 Sep 2020 19:13:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-22</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Changes are done. <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>, you can review them whenever you can.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/21</link>
+        <pubDate>Tue, 15 Sep 2020 18:32:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-21</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Working on that.</p>
+<p>By the way, I’m going to try using a derived property instead of a library, I think it could have a better API, something like <code>state.source.entity(link)</code>. It could be overwritten as well.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/20</link>
+        <pubDate>Tue, 15 Sep 2020 10:02:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-20</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We also need to make the <code>getEntity</code> function public, to allow sites that don’t use the normalized structure of Frontity to override it. We’re going to move it to <code>libraries.source.getEntity</code> as this is something related to source and other packages use it as well.</p>
+<p><a class="mention" href="https://community.frontity.org/u/david">@david</a> can you take care of these two changes? <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/19</link>
+        <pubDate>Mon, 14 Sep 2020 15:21:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-19</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>After a quick discussion on the standup today we decided to name it <code>state.yoast.renderTags</code> with the default value of <code>"both"</code> and a possible value of <code>"server"</code> to avoid rendering the tags on the client.</p>
+<p>EDIT: I have updated the implementation proposal.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/18</link>
+        <pubDate>Mon, 14 Sep 2020 15:17:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-18</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hmm… not sure if it’d be confusing because we’re not adding any optimization to the SSR, we are just removing the CSR part to save some CPU cycles in the client hydration.</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/17</link>
+        <pubDate>Mon, 14 Sep 2020 08:16:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-17</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+      <item>
+        <title>Support for Yoast plugin REST API fields</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>How about <code>useSSRoptimisation</code>?</p>
+          <p><a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/16</link>
+        <pubDate>Mon, 14 Sep 2020 08:13:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2626-16</guid>
+        <source url="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626.rss">Support for Yoast plugin REST API fields</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to use TS generics to define a function that returns a value with a type that depends on the param type</title>
+    <link>https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102</link>
+    <description>I have four different types:
+
+```
+type Type1Input = {
+  type1input: string;
+};
+
+type Type2Input = {
+  type2input: string;
+};
+
+type Type1Output = {
+  type1output: string;
+};
+
+type Type2Output = {
+  type2output: string;
+};
+```
+I also have a function that receives one param that can be of any of the two input types, and depending on the type of the param, the type of the return value should be one of the two output types. Something like:
+
+```
+type Final&lt;T extends Type1Input | Type2Input&gt; = (T: T) =&gt; T extends Type1Input ? Type1Output : Type2Output;
+
+const final1: Final&lt;Type1Input&gt; = (obj) =&gt; ({ type1output: &#39;&#39; })
+const final2: Final&lt;Type2Input&gt; = (obj) =&gt; ({ type2output: &#39;&#39; })
+```
+
+This example works, but I want only one function, so I tried:
+
+```
+const final = &lt;T extends Type1Input | Type2Input&gt;(
+  obj: T
+): T extends Type1Input ? Type1Output : Type2Output =&gt; {
+  if (obj.hasOwnProperty(&quot;type1input&quot;))
+    return { type1output: &quot;&quot; };
+
+  return { type2output: &quot;&quot; };
+};
+```
+
+And even though the behaviour of the function is as expected:
+
+```
+// This works!
+const { type1output } = final({ type1input: &quot;&quot; });
+
+// This doesn&#39;t work! &quot;Property &#39;type2output&#39; does not exist on type &#39;Type1Output&#39;&quot;
+const { type1output } = final({ type2input: &quot;&quot; });
+```
+
+When the function is defined it can&#39;t understand that the return value can only be one type in each case, and shows the following errors in the returns:
+```text
+Type &#39;{ type1output: string; }&#39; is not assignable to type &#39;T extends Type1Input ? Type1Output : Type2Output&#39;
+
+Type &#39;{ type2output: string; }&#39; is not assignable to type &#39;T extends Type1Input ? Type1Output : Type2Output&#39;.
+```
+So, I&#39;m looking for a way to implement this function without TypeScript complaining. Any ideas?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 25 Mar 2019 08:32:30 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to use TS generics to define a function that returns a value with a type that depends on the param type</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By the way, the TS playground is quite nice <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"><br>
+<a href="http://www.typescriptlang.org/play/" class="onebox" target="_blank" rel="nofollow noopener">http://www.typescriptlang.org/play/</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/5</link>
+        <pubDate>Mon, 25 Mar 2019 08:32:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-102-5</guid>
+        <source url="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102.rss">How to use TS generics to define a function that returns a value with a type that depends on the param type</source>
+      </item>
+      <item>
+        <title>How to use TS generics to define a function that returns a value with a type that depends on the param type</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe the last one is the default one if TS is not capable of recognizing which one it is?</p>
+          <p><a href="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/4</link>
+        <pubDate>Sun, 24 Mar 2019 11:07:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-102-4</guid>
+        <source url="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102.rss">How to use TS generics to define a function that returns a value with a type that depends on the param type</source>
+      </item>
+      <item>
+        <title>How to use TS generics to define a function that returns a value with a type that depends on the param type</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>It works! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=6" title=":smiley:" class="emoji" alt=":smiley:"> However, it seems that in some cases, the order of the definition can be troublesome.</p>
+<pre><code class="lang-auto">function mergeSettings(s: ImportedMono): NormalizedMono;
+function mergeSettings(s: ImportedMulti): NormalizedMulti;
+
+function mergeSettings({
+  packages,
+  ...settings
+}: ImportedMulti | ImportedMono): NormalizedMulti | NormalizedMono {
+  return merge(
+    {
+      ...defaultSettings,
+      packages: packages.map(pkg =&gt;
+        merge({ active: true }, typeof pkg === "string" ? { name: pkg } : pkg)
+      )
+    },
+    settings
+  );
+}
+
+function normalizeSettings(settings: ImportedSettings): Settings {
+  if (!Array.isArray(settings)) return mergeSettings(settings);
+  return settings.map(s =&gt; mergeSettings(s));
+}
+</code></pre>
+<p>In the code above, TS identifies the type of <code>mergeSettings</code> on the second call as:</p>
+<pre><code class="lang-auto">function mergeSettings(s: ImportedMono&lt;Package&gt;): NormalizedMono&lt;Package&gt; (+1 overload)
+</code></pre>
+<p>when it should be:</p>
+<pre><code class="lang-auto">function mergeSettings(s: ImportedMulti&lt;Package&gt;): NormalizedMulti&lt;Package&gt; (+1 overload)
+</code></pre>
+<p>So in order to fix it I had to change the order of the type definitions:</p>
+<pre><code class="lang-auto">function mergeSettings(s: ImportedMulti): NormalizedMulti;
+function mergeSettings(s: ImportedMono): NormalizedMono;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/3</link>
+        <pubDate>Sun, 24 Mar 2019 11:04:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-102-3</guid>
+        <source url="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102.rss">How to use TS generics to define a function that returns a value with a type that depends on the param type</source>
+      </item>
+      <item>
+        <title>How to use TS generics to define a function that returns a value with a type that depends on the param type</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It looks like there is a way called <strong>function overloads</strong>:<br>
+<a href="https://www.typescriptlang.org/docs/handbook/functions.html#overloads" class="onebox" target="_blank" rel="nofollow noopener">https://www.typescriptlang.org/docs/handbook/functions.html#overloads</a></p>
+<p>It is as simple as declaring two typings for that function:</p>
+<p><a href="http://www.typescriptlang.org/play/#src=type%20Type1Input%20%3D%20%7B%0A%20%20type1input%3A%20string%3B%0A%7D%3B%0A%0Atype%20Type2Input%20%3D%20%7B%0A%20%20type2input%3A%20string%3B%0A%7D%3B%0A%0Atype%20Type1Output%20%3D%20%7B%0A%20%20type1output%3A%20string%3B%0A%7D%3B%0A%0Atype%20Type2Output%20%3D%20%7B%0A%20%20type2output%3A%20string%3B%0A%7D%3B%0A%0Afunction%20final(obj%3A%20Type1Input)%3A%20Type1Output%3B%0Afunction%20final(obj%3A%20Type2Input)%3A%20Type2Output%3B%0A%0Afunction%20final(obj)%20%7B%0A%20%20%20%20if%20(obj.type1input)%20return%20%7B%20type1output%3A%20''%20%7D%3B%0A%20%20%20%20else%20return%20%7B%20type2output%3A%20''%20%7D%3B%0A%7D%0A%0Aconst%20return1%20%3D%20final(%7B%20type1input%3A%20''%20%7D)%20%0Aconst%20return2%20%3D%20final(%7B%20type2input%3A%20''%20%7D)%0A%0Areturn1.type1output%20%20%2F%2F%20%E2%9C%94%20No%20Error%20(as%20expected)%0Areturn1.type2output%20%20%2F%2F%20%E2%9C%94%20Error%20(as%20expected)%0Areturn2.type1output%20%20%2F%2F%20%E2%9C%94%20Error%20(as%20expected)%0Areturn2.type2output%20%20%2F%2F%20%E2%9C%94%20No%20Error%20(as%20expected)" rel="nofollow noopener">TypeScript Playground</a></p>
+<pre><code class="lang-auto">type Type1Input = {
+  type1input: string;
+};
+
+type Type2Input = {
+  type2input: string;
+};
+
+type Type1Output = {
+  type1output: string;
+};
+
+type Type2Output = {
+  type2output: string;
+};
+
+function final(obj: Type1Input): Type1Output;
+function final(obj: Type2Input): Type2Output;
+
+function final(obj) {
+    if (obj.type1input) return { type1output: '' };
+    else return { type2output: '' };
+}
+
+const return1 = final({ type1input: '' }) 
+const return2 = final({ type2input: '' })
+
+return1.type1output  // ✔ No Error (as expected)
+return1.type2output  // ✔ Error (as expected)
+return2.type1output  // ✔ Error (as expected)
+return2.type2output  // ✔ No Error (as expected)
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/2</link>
+        <pubDate>Fri, 22 Mar 2019 23:19:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-102-2</guid>
+        <source url="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102.rss">How to use TS generics to define a function that returns a value with a type that depends on the param type</source>
+      </item>
+      <item>
+        <title>How to use TS generics to define a function that returns a value with a type that depends on the param type</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I have four different types:</p>
+<pre><code class="lang-auto">type Type1Input = {
+  type1input: string;
+};
+
+type Type2Input = {
+  type2input: string;
+};
+
+type Type1Output = {
+  type1output: string;
+};
+
+type Type2Output = {
+  type2output: string;
+};
+</code></pre>
+<p>I also have a function that receives one param that can be of any of the two input types, and depending on the type of the param, the type of the return value should be one of the two output types. Something like:</p>
+<pre><code class="lang-auto">type Final&lt;T extends Type1Input | Type2Input&gt; = (T: T) =&gt; T extends Type1Input ? Type1Output : Type2Output;
+
+const final1: Final&lt;Type1Input&gt; = (obj) =&gt; ({ type1output: '' })
+const final2: Final&lt;Type2Input&gt; = (obj) =&gt; ({ type2output: '' })
+</code></pre>
+<p>This example works, but I want only one function, so I tried:</p>
+<pre><code class="lang-auto">const final = &lt;T extends Type1Input | Type2Input&gt;(
+  obj: T
+): T extends Type1Input ? Type1Output : Type2Output =&gt; {
+  if (obj.hasOwnProperty("type1input"))
+    return { type1output: "" };
+
+  return { type2output: "" };
+};
+</code></pre>
+<p>And even though the behaviour of the function is as expected:</p>
+<pre><code class="lang-auto">// This works!
+const { type1output } = final({ type1input: "" });
+
+// This doesn't work! "Property 'type2output' does not exist on type 'Type1Output'"
+const { type1output } = final({ type2input: "" });
+</code></pre>
+<p>When the function is defined it can’t understand that the return value can only be one type in each case, and shows the following errors in the returns:</p>
+<pre><code class="lang-nohighlight">Type '{ type1output: string; }' is not assignable to type 'T extends Type1Input ? Type1Output : Type2Output'
+
+Type '{ type2output: string; }' is not assignable to type 'T extends Type1Input ? Type1Output : Type2Output'.
+</code></pre>
+<p>So, I’m looking for a way to implement this function without TypeScript complaining. Any ideas?</p>
+          <p><a href="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102/1</link>
+        <pubDate>Fri, 22 Mar 2019 13:45:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-102-1</guid>
+        <source url="https://community.frontity.org/t/how-to-use-ts-generics-to-define-a-function-that-returns-a-value-with-a-type-that-depends-on-the-param-type/102.rss">How to use TS generics to define a function that returns a value with a type that depends on the param type</source>
+      </item>
+  </channel>
+</rss>

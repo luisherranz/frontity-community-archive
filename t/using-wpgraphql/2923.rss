@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Using wpgraphql</title>
+    <link>https://community.frontity.org/t/using-wpgraphql/2923</link>
+    <description>Hello,
+as I come with a strong gatsby experience I&#39;m often really missing wpgraphql, so I&#39;m wondering if, even if actually graphql is not integrated as source in frontity, if it would be possible to use it.
+I imagine that using wpgraphql plugins that create mutations like this one for ex https://github.com/ashhitch/wp-graphql-send-mail or this one for auth https://github.com/wp-graphql/wp-graphql-jwt-authentication would not cause any problem, as they are using mutations.
+But I was also wondering if, when some data is not in frontity if it would be possible to get it with apollo for ex (I&#39;m also using react-query now) trough wpgraphql, instead of creating a handler.
+For me it&#39;s much more intuitive as it is what I use with other frameworks like gatsby and next.
+and perhaps it would solve the problem that I have here https://community.frontity.org/t/bug-on-search-after-having-some-handlers/2921</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 24 Sep 2020 13:35:23 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/using-wpgraphql/2923.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Using wpgraphql</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you Juanma for thorough amazing answer!<br>
+I have lot of experiments to do now!<br>
+about wpgraphql, it’s great for 2 reasons:<br>
+some data that is not in rest is in wpgraphql<br>
+and the second reason is that I prefer graphql to rest (and I’m more used too)<br>
+so when the data is not in wp-source I will use it!<br>
+And about sending mails and authentication, wpgraphql has great plugins for that, so now I  know I can use them!</p>
+          <p><a href="https://community.frontity.org/t/using-wpgraphql/2923/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wpgraphql/2923/9</link>
+        <pubDate>Thu, 24 Sep 2020 13:35:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2923-9</guid>
+        <source url="https://community.frontity.org/t/using-wpgraphql/2923.rss">Using wpgraphql</source>
+      </item>
+      <item>
+        <title>Using wpgraphql</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/alexaspalato">@alexaspalato</a>,</p>
+<p>Short answer is: Yes, you can do requests to any type of server by using any of the methods you would use in any other isomorphic React app.</p>
+<p>In a Frontity app you can fetch data from any type of server by using any of the ways or libraries you would use in any other React App. This includes requests to REST API’s ot GraphQL API’s by using Apollo queries, the native <code>window.fetch</code>, <a href="https://www.axios.com/"><code>axios</code></a> or any other method.</p>
+<p>The thing is, if you use alternative methods to get your data (other than the ones provided by the <a href="https://docs.frontity.org/api-reference-1/wordpress-source"><code>wp-source</code></a> package), you’ll have to manage the results on your own and merge manually the results into the state (in case you need the data to be there)</p>
+<p>Once you have data you can add it to the state. As long as you manipulate the state inside of an action or a handler, you should be fine.</p>
+<p>You could, for example, add the state to some other “namespace” like  <code>state.graphqlState</code>  which frontity does not know about and does not handle in any way.</p>
+<p>You also have to take into account that depending on where you perform the request, that request could be done on the server side or on the client side so the method you use should be “isomorphic” (works the same on the server and on the client) depending on the case</p>
+<p>Let me summarize the places from where you can have communication (get and send data) with a server in a Frontity App:</p>
+<h3>React’s <code>useEffect()</code>
+</h3>
+<p>If you’re fine with just loading data on the client, you can use <code>useEffect()</code> and load it however you like. Of course, the performance and UX will be worse this way because the data will start to load only once all the JS has been fetched and executed. So we would not recommend this way unless necessary.</p>
+<h3>Frontity’s <code>beforeSSR()</code>
+</h3>
+<p>You <strong>could</strong> also write your data fetching logic in <a href="https://docs.frontity.org/learning-frontity/actions#beforessr-server-only-__"><code>beforeSSR()</code></a> and then duplicate it in the <code>useEffect()</code> inside your react component. In this way you assure your data will be fetched in both SSR (Server Side Rendering) and CSR (Client Side Rendering)</p>
+<p>You can use this way by using handlers or not</p>
+<p>More info about this in this answer:</p>
+<aside class="quote quote-modified" data-post="16" data-topic="1495">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/how-to-read-environment-variables/1495/16">How to read Environment Variables</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="This “Dev Talks &amp; Questions” is the place for:">🤗 Dev Talk &amp; Questions</span></a>
+  </div>
+  <blockquote>
+    Hi <a class="mention" href="https://community.frontity.org/u/jeanettepranin">@jeanettepranin</a>, 
+Regarding your question, a few considerations… 
+Isomorphic React apps in Frontity
+When developing a Frontity project or package the React code (used in your custom theme) should be <a href="https://www.smashingmagazine.com/2015/04/react-to-the-future-with-isomorphic-apps/">isomorphic</a> (also called universal) 
+This means that all the code in a Frontity project should be prepared to be executed both on the server-side and in the client-side. 
+Every time we access a page the first load is rendered from the server and from there the navigation is done in the client-side …
+  </blockquote>
+</aside>
+
+<h3>Frontity’s <code>actions</code>
+</h3>
+<p>These <a href="https://docs.frontity.org/learning-frontity/actions">actions</a> have access to the state so this is a goof place to put logic that requires access to the state or to some other actions</p>
+<h3>Frontity’s <code>handlers</code>
+</h3>
+<p>We think in 99% of cases a custom handler should be the way to go, Through a handler you can encapsulate any logic to do requests to any API server. Then, this handler could be called from either <code>useEffect</code> or any <a href="https://docs.frontity.org/learning-frontity/actions">Frontity action</a> by using <a href="https://docs.frontity.org/api-reference-1/wordpress-source#actions-source-fetch"><code>actions.source.fetch(myUrl)</code></a></p>
+<p>Regarding this</p>
+<aside class="quote no-group" data-username="alexaspalato" data-post="3" data-topic="2923">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/alexaspalato/40/636_2.png" class="avatar"> alexaspalato:</div>
+<blockquote>
+<p>if it’s data that we are not going to reuse in other parts of the site, then we don’t need to make a handler.</p>
+</blockquote>
+</aside>
+<p>this shouldn’t be the the reason NOT to use handlers <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> It doesn’t matter if the data is going to be used on just one page or on many. Making a handler will allow you to use <a href="https://docs.frontity.org/api-reference-1/wordpress-source#actions-source-fetch"><code>actions.source.fetch(myUrl)</code></a> and then only write the logic for how this data should be integrated into the frontity state <strong>only once</strong>.</p>
+<hr>
+<p><strong>About sending data</strong></p>
+<p>For this you don’t need any special integration and you can just use the <code>window.fetch</code> API. I don’t think you need graphql to send emails or handle authentication, I imagine that just using REST should actually be simpler</p>
+<p>Is there any other use case you’r thinking of you need graphq to send data?</p>
+          <p><a href="https://community.frontity.org/t/using-wpgraphql/2923/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wpgraphql/2923/8</link>
+        <pubDate>Thu, 24 Sep 2020 10:02:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2923-8</guid>
+        <source url="https://community.frontity.org/t/using-wpgraphql/2923.rss">Using wpgraphql</source>
+      </item>
+      <item>
+        <title>Using wpgraphql</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks, I know that, but my question is different.<br>
+What I mean is that in the same way that we can use fetch to get data that is not by default in the frontity state, could we install wpgraphql on wp, and use apollo (or another library) to query this data, would this have some inconvenience ? if it’s data that we are not going to reuse in other parts of the site, then we don’t need to make a handler.<br>
+the advantages are that some data that is not present in rest is present in wpgraphql.<br>
+Also for me it’s easier than rest, as I am more used too.<br>
+After all we are in react, so the real question, is can we query whatever we want with react (it can also be other apis)</p>
+          <p><a href="https://community.frontity.org/t/using-wpgraphql/2923/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wpgraphql/2923/3</link>
+        <pubDate>Tue, 22 Sep 2020 09:07:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2923-3</guid>
+        <source url="https://community.frontity.org/t/using-wpgraphql/2923.rss">Using wpgraphql</source>
+      </item>
+      <item>
+        <title>Using wpgraphql</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Alexandra!</p>
+<p>One of the foundations of Frontity is that it relies in packages for any logic that is required in a Fronttiy project. In this way, this logic can be shared across projects.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/2/25959dd082ef3e31cba4ebd911dabd6c4d45176d.png" data-download-href="https://community.frontity.org/uploads/default/25959dd082ef3e31cba4ebd911dabd6c4d45176d" title="Packages in Frontity"><img src="https://community.frontity.org/uploads/default/optimized/2X/2/25959dd082ef3e31cba4ebd911dabd6c4d45176d_2_690x495.png" alt="Packages in Frontity" data-base62-sha1="5mudwLa5T4w4UbGaqBMtm3KbTCR" width="690" height="495" srcset="https://community.frontity.org/uploads/default/optimized/2X/2/25959dd082ef3e31cba4ebd911dabd6c4d45176d_2_690x495.png, https://community.frontity.org/uploads/default/optimized/2X/2/25959dd082ef3e31cba4ebd911dabd6c4d45176d_2_1035x742.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/2/25959dd082ef3e31cba4ebd911dabd6c4d45176d_2_1380x990.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/2/25959dd082ef3e31cba4ebd911dabd6c4d45176d_2_10x10.png"></a></div><p></p>
+<p>There are some basic packages like <strong>source packages</strong> that contains the logic to get the data from WordPress and make it available to React Components and <strong>router packages</strong> that contains the logic to manage the routes in a Frontity projects (both server and client side)</p>
+<p>In the case of <strong>source packages</strong>, right now, there’s only one package of this type implemented: <a href="https://docs.frontity.org/api-reference-1/wordpress-source"><code>@frontity/wp-source</code></a></p>
+<p>But there could be easily other packages of this type that manage the retrieving of data and the writing of this data into the Frontity state. For example, <strong>there could be a source package that handles this from a GraphQL API in Wordpress.</strong></p>
+<p>Right now, there’s no such package, but as Frontity is an Open Source project, it could be developed by any member of the community.</p>
+<p>If you consider this package is a feature that should be developed/analyzed by Frontity Team, you can open a <a href="https://community.frontity.org/t/read-before-adding-new-features/853">Feature Discussion</a> to expose why you consider this is an important package to be developed and to open a technical discussion about it</p>
+          <p><a href="https://community.frontity.org/t/using-wpgraphql/2923/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wpgraphql/2923/2</link>
+        <pubDate>Mon, 21 Sep 2020 08:47:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2923-2</guid>
+        <source url="https://community.frontity.org/t/using-wpgraphql/2923.rss">Using wpgraphql</source>
+      </item>
+      <item>
+        <title>Using wpgraphql</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,<br>
+as I come with a strong gatsby experience I’m often really missing wpgraphql, so I’m wondering if, even if actually graphql is not integrated as source in frontity, if it would be possible to use it.<br>
+I imagine that using wpgraphql plugins that create mutations like this one for ex <a href="https://github.com/ashhitch/wp-graphql-send-mail" rel="nofollow noopener">https://github.com/ashhitch/wp-graphql-send-mail</a> or this one for auth <a href="https://github.com/wp-graphql/wp-graphql-jwt-authentication" rel="nofollow noopener">https://github.com/wp-graphql/wp-graphql-jwt-authentication</a> would not cause any problem, as they are using mutations.<br>
+But I was also wondering if, when some data is not in frontity if it would be possible to get it with apollo for ex (I’m also using react-query now) trough wpgraphql, instead of creating a handler.<br>
+For me it’s much more intuitive as it is what I use with other frameworks like gatsby and next.<br>
+and perhaps it would solve the problem that I have here <a href="https://community.frontity.org/t/bug-on-search-after-having-some-handlers/2921" class="inline-onebox">Bug on search after having some handlers</a></p>
+          <p><a href="https://community.frontity.org/t/using-wpgraphql/2923/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wpgraphql/2923/1</link>
+        <pubDate>Fri, 18 Sep 2020 15:50:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2923-1</guid>
+        <source url="https://community.frontity.org/t/using-wpgraphql/2923.rss">Using wpgraphql</source>
+      </item>
+  </channel>
+</rss>

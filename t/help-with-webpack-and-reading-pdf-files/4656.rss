@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Help with webpack and reading PDF files</title>
+    <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656</link>
+    <description>Hey all,
+
+I am trying to use the `react-pdf` package in order to display some PDF files in my frontity project. I have tried service the PDF files both as a URL from my WP media URL (working fine in a browser) and as a static file in the code.
+
+When importing the file `import pdfFile from &quot;./sample-pdf.pdf&quot;;` and passing it to the &lt;Document/&gt; component, webpack does not build and I get this error:
+```
+Error: ./packages/client-name/src/components/flipbook/sample-pdf.pdf 1:0
+Module parse failed: Unexpected token (1:0)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+(Source code omitted for this binary file)
+ @ ./packages/client-name/src/components/flipbook/pdfViewer.js 3:0-38 4:259-266
+ @ ./packages/client-name/src/components/index.js
+ @ ./packages/client-name/src/index.js
+ @ ./build/bundling/entry-points/client-name/client.ts
+ @ multi webpack-hot-middleware/client ./build/bundling/entry-points/client-name/client.ts
+```
+
+And when using the URL from WP Media, I get the following error:
+```
+ModuleParseError: Module parse failed: Unexpected character &#39;&#39; (1:0)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+(Source code omitted for this binary file)
+    at handleParseError (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:469:19)
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:503:5
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:358:12
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:373:3
+    at iterateNormalLoaders (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:214:10)
+    at Array.&lt;anonymous&gt; (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:205:4)
+    at Storage.finished (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:55:16)
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:91:9
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/graceful-fs/graceful-fs.js:123:16
+    at FSReqCallback.readFileAfterClose [as oncomplete] (internal/fs/read_file_context.js:63:3)
+```
+
+This lead me to dive into how I can customize webpack in Frontity to enable the file loader, where I came accross this thread: `https://github.com/frontity/frontity/pull/812`
+
+Here&#39;s what I tried to do so far:
+* I updated frontity and its dependencies to the latest versions.
+* Tried to create the `frontity.config.js` file in my project&#39;s root folder and added the following:
+```
+export const webpack = ({ config, mode, target }) ={
+  // Add support for a new file type.
+  config.modules.rules.push({
+    test: /\.(otf|pdf)$/,
+    loader: &quot;file-loader&quot;,
+  });
+};
+```
+I also tried out a few different variations of the above to no avail.
+
+And if it is of any use, here&#39;s the code where I&#39;m using react-pdf (which might not even by correct, I am using `@frontity/react-easy-state` here, which is the first time I use it and the only place it is used in this project.
+
+Now I might be doing something extremely wrong, or missing a step for the frontity.config.js file to be working, but I couldn&#39;t find a way around this. Any help is greately appreciated!
+
+P.S. I created this project well before the custom webpack config was made, but updated afterwards. The project was creased using npx frontity create project-name command.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 02 Jun 2021 04:30:14 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>I finally managed to solve this. Here are the steps:</p>
+<ul>
+<li>Used the following imports in the file where I am using <code>react-pdf</code>
+</li>
+</ul>
+<pre><code class="lang-javascript">import { Document, Page, pdfjs } from "react-pdf/
+dist/umd/entry.webpack";
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+</code></pre>
+<ul>
+<li>Added <code>node-loader</code> and <code>file-loader</code> in webpack config, here’s the final code:<br>
+<strong>Make sure to use a node-loader version that is compatible with webpack v4, I used node-loader@1.0.3</strong>
+</li>
+</ul>
+<pre><code class="lang-javascript">export const webpack = ({ config, mode, target }) =&gt; {
+  // Add support for a new file type.
+  config.module.rules.push(
+    {
+      test: /\.pdf$/,
+      use: ["file-loader"],
+    },
+    {
+      test: /\.node$/,
+      use: ["node-loader"],
+    }
+  );
+};
+</code></pre>
+<p>And note sure if worker-loader is also required.<br>
+All loaders are devDependencies. Add <code>--save-dev</code> when running <code>npm i</code>.</p>
+<p>This was a fun learning journey!</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/10</link>
+        <pubDate>Wed, 02 Jun 2021 04:30:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-10</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>Just a quick update, reading pdf files is working properly, the issue is happening when I am doing <code>import { Document, Page } from "react-pdf";</code>, which in turn is trying to import stuff from pdfjs-dist (a dependency that is included in the node_modules folder of that package, although it can be downloaded independently). And from what I understood, pdfjs-dist has compiled binaries, and I guess this is what webpack is having trouble loading.</p>
+<p>I tried to do some research about this, but couldn’t come across anything that resolves this issue. Any input is highly appreciated!</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/9</link>
+        <pubDate>Wed, 02 Jun 2021 01:22:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-9</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a> I would appreciate any additional help. Not sure where to look next!</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/8</link>
+        <pubDate>Tue, 01 Jun 2021 01:01:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-8</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a>, I did the above and it worked! Thank you.</p>
+<p>However, I am back to receiving the first error, I tried different loader options and configs that I can find online, but to no avail. Here’s the error:</p>
+<pre><code class="lang-javascript">ModuleParseError: Module parse failed: Unexpected character '' (1:0)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+(Source code omitted for this binary file)
+    at handleParseError (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:469:19)
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:503:5
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:358:12
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:373:3
+    at iterateNormalLoaders (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:214:10)
+    at Array.&lt;anonymous&gt; (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:205:4)
+    at Storage.finished (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:55:16)
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:91:9
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/graceful-fs/graceful-fs.js:123:16
+    at FSReqCallback.readFileAfterClose [as oncomplete] (internal/fs/read_file_context.js:73:3)
+</code></pre>
+<p>I also tried using different PDF files, just in case, but still same error.</p>
+<p>And here are some of the webpack configs that I tried:</p>
+<pre><code class="lang-javascript">test: /\.(otf|pdf)$/,
+loader: "raw-loader",
+</code></pre>
+<pre><code class="lang-javascript">test: /\.(pdf|gif|png|jpe?g|svg)$/,
+use: "file-loader?name=[path][name].[ext]",
+</code></pre>
+<pre><code class="lang-javascript">test: /\.(pdf|png|jpg|gif)$/,
+    use: [
+      {
+        loader: "file-loader",
+        options: {},
+      },
+    ],
+
+</code></pre>
+<p>I have to run now, but will be back for for this tonight. Thanks a lot for your help!</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/7</link>
+        <pubDate>Fri, 28 May 2021 10:36:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-7</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, my bad. Haven’t validated your code, but I am pretty sure there’s no <code>modules</code> but rather <code>module</code> without an <code>s</code>.</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/6</link>
+        <pubDate>Fri, 28 May 2021 10:24:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-6</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a>, I was able to squeeze in a few minutes to do this, still receiving an error.</p>
+<p>The error:<br>
+<code>Error: Cannot read property 'rules' of undefined</code></p>
+<p>I believe this is coming from the <code>config.modules.rules.push({</code> line inside <code>frontity.config.js</code> (Complete code in the initial post). However, I do not understand this enough to figure out what to do next to try to resolve the issue.</p>
+<p>Here’s what I did in full (might also be helpful for others who might run into a similar scenario):</p>
+<ul>
+<li>Created webpack-config folder inside the packages directory.</li>
+<li>Moved <code>frontity.config.js</code> to that folder.</li>
+<li>Created a <code>package.json</code> file in the same folder, similar to the one created inside the theme.</li>
+<li>Added the following to <code>frontity.settings.js</code> under the settings object:</li>
+</ul>
+<pre><code class="lang-javascript">packages: [
+   ......
+   {
+     name: "webpack-config",
+   },
+   .....
+ ],
+</code></pre>
+<ul>
+<li>And finally added <code>"webpack-config": "file:packages/webpack-config",</code> to the dependencies in the main npm <code>package.json</code> file.</li>
+<li>Ran <code>npm i</code> which installed the new dependency successfully.</li>
+<li>Receiving an error when I run <code>npx frontity dev</code>
+</li>
+</ul>
+<p>Thanks again!</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/5</link>
+        <pubDate>Fri, 28 May 2021 10:08:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-5</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a>, thanks a lot for the response! Will try this tonight and get back to you.</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/4</link>
+        <pubDate>Fri, 28 May 2021 09:10:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-4</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/samplep182">@samplep182</a>,</p>
+<p>Thanks for opening this issue. You are almost there! The only problem you are running into is that the <code>fontity.config.js</code> file needs to be scoped to a package and used in your site settings. So, you can keep the config you have, but move it into a local package. For example <code>./packages/webpack-file-loader</code>. And in there move your <code>frontity.config.js</code>. Afterwards use it in your packages list.</p>
+<pre><code class="lang-javascript">root/frontity.settings.js
+[...]
+root/packages/webpack-file-loader
+root/packages/webpack-file-loader/frontity.config.js
+</code></pre>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/3</link>
+        <pubDate>Fri, 28 May 2021 06:32:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-3</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>I really need help with this one, and would appreciate any input or pointing in any direction.</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/2</link>
+        <pubDate>Fri, 28 May 2021 01:11:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-2</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+      <item>
+        <title>Help with webpack and reading PDF files</title>
+        <dc:creator><![CDATA[samplep182]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey all,</p>
+<p>I am trying to use the <code>react-pdf</code> package in order to display some PDF files in my frontity project. I have tried service the PDF files both as a URL from my WP media URL (working fine in a browser) and as a static file in the code.</p>
+<p>When importing the file <code>import pdfFile from "./sample-pdf.pdf";</code> and passing it to the  component, webpack does not build and I get this error:</p>
+<pre><code class="lang-javascript">Error: ./packages/client-name/src/components/flipbook/sample-pdf.pdf 1:0
+Module parse failed: Unexpected token (1:0)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+(Source code omitted for this binary file)
+ @ ./packages/client-name/src/components/flipbook/pdfViewer.js 3:0-38 4:259-266
+ @ ./packages/client-name/src/components/index.js
+ @ ./packages/client-name/src/index.js
+ @ ./build/bundling/entry-points/client-name/client.ts
+ @ multi webpack-hot-middleware/client ./build/bundling/entry-points/client-name/client.ts
+</code></pre>
+<p>And when using the URL from WP Media, I get the following error:</p>
+<pre><code class="lang-javascript">ModuleParseError: Module parse failed: Unexpected character '' (1:0)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+(Source code omitted for this binary file)
+    at handleParseError (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:469:19)
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:503:5
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/webpack/lib/NormalModule.js:358:12
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:373:3
+    at iterateNormalLoaders (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:214:10)
+    at Array.&lt;anonymous&gt; (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/loader-runner/lib/LoaderRunner.js:205:4)
+    at Storage.finished (/home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:55:16)
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:91:9
+    at /home/samplep182/SP/client-name/dev/client-name-front-end-dev-frontity/node_modules/graceful-fs/graceful-fs.js:123:16
+    at FSReqCallback.readFileAfterClose [as oncomplete] (internal/fs/read_file_context.js:63:3)
+</code></pre>
+<p>This lead me to dive into how I can customize webpack in Frontity to enable the file loader, where I came accross this thread: <code>https://github.com/frontity/frontity/pull/812</code></p>
+<p>Here’s what I tried to do so far:</p>
+<ul>
+<li>I updated frontity and its dependencies to the latest versions.</li>
+<li>Tried to create the <code>frontity.config.js</code> file in my project’s root folder and added the following:</li>
+</ul>
+<pre><code class="lang-javascript">export const webpack = ({ config, mode, target }) ={
+  // Add support for a new file type.
+  config.modules.rules.push({
+    test: /\.(otf|pdf)$/,
+    loader: "file-loader",
+  });
+};
+</code></pre>
+<p>I also tried out a few different variations of the above to no avail.</p>
+<p>And if it is of any use, here’s the code where I’m using react-pdf (which might not even by correct, I am using <code>@frontity/react-easy-state</code> here, which is the first time I use it and the only place it is used in this project.</p>
+<p>Now I might be doing something extremely wrong, or missing a step for the frontity.config.js file to be working, but I couldn’t find a way around this. Any help is greately appreciated!</p>
+<p>P.S. I created this project well before the custom webpack config was made, but updated afterwards. The project was creased using npx frontity create project-name command.</p>
+          <p><a href="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656/1</link>
+        <pubDate>Wed, 26 May 2021 19:40:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4656-1</guid>
+        <source url="https://community.frontity.org/t/help-with-webpack-and-reading-pdf-files/4656.rss">Help with webpack and reading PDF files</source>
+      </item>
+  </channel>
+</rss>

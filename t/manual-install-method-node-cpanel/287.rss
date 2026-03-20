@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Manual install method node cpanel?</title>
+    <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287</link>
+    <description>Hello, I&#39;m new and please not looking to get schooled on why this may not be the best idea from cpanel hosting, just playing around to see if it can be done.
+
+Is this even possible? FastComet (https://www.fastcomet.com/tutorials/nodejs)
+
+I sought to get some of my own answers and here is my experience so far...
+
+In cpanel, one must first create a Node application to have access to Node.  Since the npx script does some of the process required by cpanel, I set out to see if I could still get this set up.
+
+First thing, the &quot;Application Path&quot; cpanel asks for, not sure what Frontity will set this to so I left it blank, it resolved to app.js and this was a must before I could create the app (headless).  I think I&#39;ll need to come back to this later.  Also, do I need a custom variable to map PORT 3000?
+
+Next I access the Node environment via the command from cpanel (something like): `source /home/myaccount/nodevenv/headless/10/bin/activate &amp;&amp; cd /home/myaccount/headless`
+
+I noticed my application folder &quot;headless&quot; has an `app.js`, `.htaccess` and `public` and `tmp` folders but no default `package.json`.  I also know your script should do all of this for me so I went up a folder and ran `npx frontity create headless` but it error&#39;d out saying the folder was not empty.
+
+I zipped up the contents just to have a base backup and cleared out the folder, then again from just above the folder ran the command again but it fails missing a `package.json` in the mars theme???
+
+    Error: Command failed: npm install
+    npm ERR! code ENOLOCAL
+    npm ERR! Could not install from &quot;../nodevenv/headless/10/lib/packages/mars-theme&quot; as it does not contain a package.json file.
+
+So next I put the original files back and ran it from within the `/headless/` folder which effectively did successfully complete the npx build but obviously in a nested folder.  I took the folder contents it created and placed them in the root folder but when running `npx frontity dev` it errors out saying `/nodevenv/headless/10/lib/packages/mars-theme` is missing a `package.json` file.  This is because it is indeed not present.
+
+I then notice a `/packages/mars-theme` in my /headless folder and copy this to `/nodevenv/headless/10/lib/` then go back to my cpanel, stop the app and change that Application Path to `frontity.settings.js`, save and then start the app again.
+
+Now back in the root /headless folder I am now able to successfully run npx frontity dev!
+
+Yet, it listens on localhost:3000 of which I am not sure what to do next.
+
+[edit] I think I need to find what flags are available, I found I could change the port with npx frontity dev --port X but when I try 80 it fails since that is being served via apache through the .htacess file which has the following:
+
+    # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+    PassengerAppRoot &quot;/home/myaccount/headless&quot;
+    PassengerBaseURI &quot;/&quot;
+    PassengerNodejs &quot;/home/myaccount/nodevenv/headless/10/bin/node&quot;
+    PassengerAppType node
+    PassengerStartupFile frontity.settings.js
+    # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+
+I then tried npx frontity build &amp;&amp; npx serve which resulted in:
+
+ Serving!
+- Local:            http://localhost:5000      │
+- On Your Network:  http://[IP_ADDRESS]:5000 
+
+Of which I also cannot access =(</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 03 Nov 2021 21:41:03 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[chemezamaro]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello. Thanks in advance for the guide. I can’t find a better guide to create a frontity on cpanel hosting.<br>
+I followed the steps and it works, but I receive a 404 when I hit the URL. I can’t figure out how to solve this.<br>
+Can you give me a hand?<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/2/20cbc7efd03970bef458222dd6c9a99882566608.png" data-download-href="https://community.frontity.org/uploads/default/20cbc7efd03970bef458222dd6c9a99882566608" title="image"><img src="https://community.frontity.org/uploads/default/original/2X/2/20cbc7efd03970bef458222dd6c9a99882566608.png" alt="image" data-base62-sha1="4G7SqpN6vtOE4E8QhyCk875RhwY" width="690" height="386" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/2/20cbc7efd03970bef458222dd6c9a99882566608_2_10x10.png"></a></div><p></p>
+<p>Thanks very much. <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=10" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/34">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/34</link>
+        <pubDate>Wed, 03 Nov 2021 21:41:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-34</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[omaraltaezi]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi the follwing code will help to deploy frontity website over SSL (<a href="https://your-site.com:4000" rel="noopener nofollow ugc">https://your-site.com:4000</a>)</p>
+<pre><code class="lang-javascript">const frontity = require("./build/server").default;
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+  key: fs.readFileSync('your_ssl.key'),
+  cert: fs.readFileSync('your_ssl.cert')
+};
+
+const server = https.createServer(options, frontity);
+server.listen(4000);
+</code></pre>
+<p>the *.key &amp; *.cret file on the same direcory of app.js file</p>
+<p>i hope this will help</p>
+<p>thanks</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/33">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/33</link>
+        <pubDate>Mon, 08 Feb 2021 11:41:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-33</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Cassiano,</p>
+<p>It’s been a while since I have done this so things could have changed but no just copy the command provided (step 5) and then SSH into your hosting environment using your preferred SSH client then paste and execute that command from the command line.</p>
+<p>The SSH generated key is for your SSH client to connect you to your server’s terminal giving you access to the command line interface where you will paste the copied snippet (command) and once executed, it will place you into the /headless folder (if you used same naming as my example).</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/32">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/32</link>
+        <pubDate>Fri, 12 Jun 2020 18:05:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-32</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[cassiano.gobbet]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="pingram3541" data-post="14" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pingram3541/40/219_2.png" class="avatar"> pingram3541:</div>
+<blockquote>
+<p>Copy the highlighted path shown above and ssh to your hosting plan (Fastcomet has a <a href="https://www.fastcomet.com/tutorials/getting-started/ssh-access" rel="nofollow noopener">tutorial on this </a>) and paste the copied snippet which should put your in the folder of your sub-domain (i.e. /headless) which is also the application root path but this will allow /node_modules to install in the proper place (more on that later).</p>
+</blockquote>
+</aside>
+<p><a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a>, amazing tutorial, but I have a small doubt at step 6:  I should get the Node snippet PLUS an SSH generated key and paste it into the subdomain (headless, in your case). How should I paste it there? Is it a txt file? Should I upload the generated key file there? Sorry if I am asking a redundant question, but I have never done that before. Thanks!</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/31">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/31</link>
+        <pubDate>Thu, 04 Jun 2020 11:51:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-31</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>A post was split to a new topic: <a href="https://community.frontity.org/t/slider-component-giving-503-error/1650">Slider component giving 503 error</a></p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/28">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/28</link>
+        <pubDate>Mon, 27 Apr 2020 13:27:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-28</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Well spotted <a class="mention" href="https://community.frontity.org/u/hammad">@hammad</a> <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<p><a class="mention" href="https://community.frontity.org/u/inshaal">@inshaal</a> let us know if this fixes the problem for you.</p>
+<p>Also we’d love to know what you’re building with Frontity. Do you have a link to your site?</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/27">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/27</link>
+        <pubDate>Mon, 27 Apr 2020 08:56:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-27</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[hammad]]></dc:creator>
+        <description><![CDATA[
+            <blockquote>
+<p><strong>Inverted Comma is the issue:</strong></p>
+</blockquote>
+<p>The issue lies here in this line of code as he copied code from <a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a>’s guide and i think he accidentally places inverted commas instead of <strong>single/double</strong> quotes:</p>
+<pre><code>var http = require(‘http’);
+</code></pre>
+<blockquote>
+<p><strong>Replacing this will resolve the issue if 11 steps worked fine:</strong></p>
+</blockquote>
+<pre><code>var http = require('http');
+</code></pre>
+<blockquote>
+<p><strong>OR</strong></p>
+</blockquote>
+<pre><code>    var http = require("http");</code></pre>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/26">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/26</link>
+        <pubDate>Fri, 24 Apr 2020 17:50:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-26</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/inshaal">@inshaal</a></p>
+<p>Apologies for the delay in getting back to you.</p>
+<p>The 503 error might indicate that the web server service has not started. I guess you were following <a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a>’s guide above. Did the previous 11 steps all work ok? Did you get any errors when you ran any of the commands in steps 7, 10, 11? If so, what errors did you get?</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/25">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/25</link>
+        <pubDate>Fri, 24 Apr 2020 15:49:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-25</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[inshaal]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="pingram3541" data-post="14" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pingram3541/40/219_2.png" class="avatar"> pingram3541:</div>
+<blockquote>
+<ul>
+<li>Edit the <strong>/headless/app.js</strong> file to now serve our frontity app:var frontity = require("./build/server").default;<br>
+var http = require(‘http’);<br>
+var server = http.createServer(frontity);<br>
+server.listen();</li>
+</ul>
+</blockquote>
+</aside>
+<p>hy after this i am getting 503 error i stuck in installing frontity in my cpanel please help</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/20</link>
+        <pubDate>Thu, 16 Apr 2020 11:28:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-20</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the awesome feedback!  I’m so excited and can’t wait to see what’s cooked up next!</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/19</link>
+        <pubDate>Tue, 24 Sep 2019 18:53:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-19</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is both amazing (Phillip’s tutorial) and amazingly difficult (the steps involved).</p>
+<p>My take here is that we need to explore alternative ways, like recommending the PHP Theme Bridge and hosting the serverless function elsewhere or providing a one-click-install for cPanel.</p>
+<p>Thanks again <a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a> for the detailed tutorial! Amazing work.</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/17</link>
+        <pubDate>Mon, 26 Aug 2019 16:39:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-17</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <p>Happy to help!</p>
+<p>Yeah I think it all depends on the host and if/how they support Node within their cpanel environment.</p>
+<p>I saw a write up about installing Node @ SiteGround and it looked to be all via terminal commands which I expect to act much differently than via Phusion Passenger.</p>
+<p>If I happen across another cpanel host and see Node.js and have the time, maybe I’ll see if these steps that worked at FastComet work elsewhere too.</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/16</link>
+        <pubDate>Mon, 24 Jun 2019 14:22:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-16</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Wow! Thank you very much <a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a>, the guide is great! I will take a look with more detail. I was trying to do the same with SiteGround cpanel but Node is just available for dedicated servers and I have a shared one. I asked them and they are not planning to include it, so I won’t be able to test it there.</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/15</link>
+        <pubDate>Mon, 24 Jun 2019 10:19:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-15</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="12" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Do you think we could create a guide for cPanel that well… works in most cases?</p>
+</blockquote>
+</aside>
+<p>Let’s give it a shot. <img src="https://community.frontity.org/images/emoji/apple/cowboy_hat_face.png?v=9" title=":cowboy_hat_face:" class="emoji" alt=":cowboy_hat_face:"></p>
+<p>Here’s what seems to work for me w/ Fastcomet hosting…</p>
+<ol>
+<li>
+<p>Create your domain/sub-domain as one normally would with cpanel.  I chose to create a new sub-domain called “headless” in this example with the root folder being <strong>/headless</strong> in my hosting plan.  I verified the DNS cname for headless also points to my Fastcomet server IP.  I test a simple hello world html file to ensure all is good.</p>
+</li>
+<li>
+<p>Back in the cpanel myriad of icons, locate the Node.js icon:</p>
+</li>
+</ol>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/fb63985f4a4f1902717c9276806b8b881cbc319c.jpeg" alt="step_1" width="656" height="165"></p>
+<ol start="3">
+<li>In this menu simply click “create application”</li>
+</ol>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/66c0322458480ba7f0aa0ac8b28c2bf3f92fb2af.jpeg" alt="step_2" width="630" height="333"></p>
+<ol start="4">
+<li>Next…</li>
+</ol>
+<ul>
+<li>choose the latest version offered of Node</li>
+<li>set the environment to Production</li>
+<li>set the application root to domain/sub-domain path, i.e. I chose “headless” and then…</li>
+<li>choose the actual sub-domain from the drop down</li>
+<li>lastly, I show the app.js file in the image below but leave this blank, it will automatically be created for you</li>
+<li>finally, click create!</li>
+</ul>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/266fcdaa64dff94a2fb2467f324acd49ff5855f6.jpeg" data-download-href="https://community.frontity.org/uploads/default/266fcdaa64dff94a2fb2467f324acd49ff5855f6" title="step_3.jpg"><img src="https://community.frontity.org/uploads/default/optimized/1X/266fcdaa64dff94a2fb2467f324acd49ff5855f6_2_690x447.jpeg" alt="step_3" width="690" height="447" srcset="https://community.frontity.org/uploads/default/optimized/1X/266fcdaa64dff94a2fb2467f324acd49ff5855f6_2_690x447.jpeg, https://community.frontity.org/uploads/default/optimized/1X/266fcdaa64dff94a2fb2467f324acd49ff5855f6_2_1035x670.jpeg 1.5x, https://community.frontity.org/uploads/default/original/1X/266fcdaa64dff94a2fb2467f324acd49ff5855f6.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/266fcdaa64dff94a2fb2467f324acd49ff5855f6_2_10x10.png"></a></div><p></p>
+<ol start="5">
+<li>Once this is done, the Node app will be started and the virtual environment path will be shown:<br>
+<div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/77af622984a48bb05699cb90472abda233a47324.jpeg" data-download-href="https://community.frontity.org/uploads/default/77af622984a48bb05699cb90472abda233a47324" title="step_4.jpg"><img src="https://community.frontity.org/uploads/default/optimized/1X/77af622984a48bb05699cb90472abda233a47324_2_548x500.jpeg" alt="step_4" width="548" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/77af622984a48bb05699cb90472abda233a47324_2_548x500.jpeg, https://community.frontity.org/uploads/default/optimized/1X/77af622984a48bb05699cb90472abda233a47324_2_822x750.jpeg 1.5x, https://community.frontity.org/uploads/default/original/1X/77af622984a48bb05699cb90472abda233a47324.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/77af622984a48bb05699cb90472abda233a47324_2_10x10.png"></a></div>
+</li>
+</ol>
+<p>*the site should also be live in your browser now with a basic “it works!” message.</p>
+<ol start="6">
+<li>Copy the highlighted path shown above and ssh to your hosting plan (Fastcomet has a <a href="https://www.fastcomet.com/tutorials/getting-started/ssh-access" rel="nofollow noopener">tutorial on this</a>) and paste the copied snippet which should put your in the folder of your sub-domain (i.e. /headless) which is also the application root path but this will allow /node_modules to install in the proper place (more on that later).</li>
+</ol>
+<p>You should be aware another folder is created in your root hosting path called <strong>/nodevenv/</strong> where another instance of your app/domain/sub-domain name lives as a folder and allows for the Node executables to live (I hope I am saying this correctly):</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/dcdb5e5159a2dbaccb36af01cdec84b6080867f1.jpeg" alt="nodevenv_executables" width="252" height="93"><br>
+The files in the bin folder look like this:</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/49cd06ac3a44126a9c1d68f6f6d3e7f497277d29.jpeg" alt="node_v_env_bin_files" width="152" height="120"></p>
+<ol start="7">
+<li>…back in our Node app/domain-path folder (/headless), execute <code>npx frontity create headless</code> (or your app name/path) doesn’t really matter because the npx runner creates the app folder which in this case will be a sub-folder within our cpanel app folder, again in my case “headless” <strong>within</strong> our original “headless” folder because…</li>
+</ol>
+<ul>
+<li>
+<code>npx frontity create</code> needs the folder of which to be created to be empty or it won’t run</li>
+<li>we want to keep the original cpanel generated files (.htaccess, app.js…)</li>
+<li>we can just move the needed files easily into to our root app folder</li>
+</ul>
+<ol start="8">
+<li>The npx installation script should complete and the new <strong>/headless/headless</strong> folder is created along with <strong>/nodevvenv/headless/10/lib/node_modules/</strong> (which is empty??? more on that in a sec)</li>
+</ol>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/f857c57df605abac2e30f6337e43eda9b2a1818a.jpeg" alt="folder_structure" width="136" height="172"><br>
+*in the main app folder, (/headless), node_modules is sym linked to the virtual path <strong>/nodevenv/headless/10/lib/node_modules/</strong></p>
+<ol start="9">
+<li>Next we fix our installation because if you remember the node_modules directory is still empty.  We will fix this but first, for some reason, the theme installed in our app path <strong>/headless/headless/packages</strong> needs to be moved to the same folder our real node_modules folder lives otherwise future steps won’t work.  Copy the <strong>/headless/headless/packages</strong> folder to <strong>/nodevenv/headless/10/lib/</strong> folder.</li>
+</ol>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/b00319d2d9201be339a42f493115df30a477c955.jpeg" alt="copy%20packages%20from" width="247" height="135"><br>
+(to /lib folder):<br>
+<img src="https://community.frontity.org/uploads/default/original/1X/dcdb5e5159a2dbaccb36af01cdec84b6080867f1.jpeg" alt="nodevenv_executables" width="252" height="93"></p>
+<ol start="10">
+<li>
+<p>Now that the theme is moved, copy all of the remaining files in <strong>/headless/headless/</strong> to the main app <strong>/headless/</strong> folder and back in the ssh terminal, also from the root app /headless folder execute <code>npm install</code> which will install all of the dependencies in <strong>/nodevenv/headless/10/lib/node_modules/</strong></p>
+</li>
+<li>
+<p>Now execute <code>npm run build</code> to create the <strong>/headless/build/</strong> folder to create the final production version we be will serving to the public. (you can copy over this later with your final dev server’s files)</p>
+</li>
+<li>
+<p>Edit the <strong>/headless/app.js</strong> file to now serve our frontity app:</p>
+<p>var frontity = require("./build/server").default;<br>
+var http = require(‘http’);<br>
+var server = http.createServer(frontity);<br>
+server.listen();</p>
+</li>
+<li>
+<p>Back in cpanel Node.js area, restart the application and check the browser, you should now see your frontity app.</p>
+</li>
+</ol>
+<ul>
+<li>fyi - the theme files to edit exist at <strong>/nodevenv/yourapp/10/lib/packages/mars-theme/</strong> and every time a change is made you must run from the /headless folder <code>npm run build</code> and then restart the app from cpanel.</li>
+</ul>
+<p>Best of luck, cheers! <img src="https://community.frontity.org/images/emoji/apple/grinning.png?v=9" title=":grinning:" class="emoji" alt=":grinning:"></p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/14</link>
+        <pubDate>Mon, 24 Jun 2019 02:58:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-14</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="12" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Are all cPanels similar?</p>
+</blockquote>
+</aside>
+<p>Yes, similar but there are differences and it really depends on the host offerings.  Like Wordpress, there are many add-ons both core and 3rd party.  NodeJS Selector is how they reference the Node feature.</p>
+<p>FastComet told me this:</p>
+<blockquote>
+<p>Note that indeed applications that are using in their configuration a hardcoded port it is not compatible with NodeJS Selector as the applications used by it are handled by the Passenger service on the server and no port required for it.</p>
+<p>You can run more about Passenger in the following link:</p>
+<p><a href="https://www.phusionpassenger.com/library/walkthroughs/basics/nodejs/fundamental_concepts.html" rel="nofollow noopener">https://www.phusionpassenger.com/library/walkthroughs/basics/nodejs/fundamental_concepts.html</a></p>
+<p>As such for handling applications you should work with them via SSH using ‘npm, node and pm2’ services.</p>
+</blockquote>
+<p>So this environment can only be used to “serve” the application once ready for production.</p>
+<aside class="quote group-development-team" data-post="12" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Are all Node installation procedure in cPanel similar?</p>
+</blockquote>
+</aside>
+<p>I really don’t know as this is my first but I’ve seen NodeJS as a feature for quite some time across many different hosts that use cpanel.</p>
+<aside class="quote group-development-team" data-post="12" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Do you think we could create a guide for cPanel that well… works in most cases?</p>
+</blockquote>
+</aside>
+<p>Yes I think most will be very similar experiences.  I’m going to retrace my steps and post back.  Cheers!</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/13</link>
+        <pubDate>Wed, 19 Jun 2019 19:05:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-13</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>Thanks to you</strong> <strong>Phillip</strong> <img src="https://community.frontity.org/images/emoji/apple/raised_hands.png?v=9" title=":raised_hands:" class="emoji" alt=":raised_hands:"></p>
+<p>I don’t have much experience with cPanel so I’d like to ask you some questions:</p>
+<ul>
+<li>Are all cPanels similar?</li>
+<li>Are all Node installation procedure in cPanel similar?</li>
+<li>Do you think we could create a guide for cPanel that well… works in most cases?</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/12</link>
+        <pubDate>Wed, 19 Jun 2019 16:21:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-12</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <p>Yay it works</p>
+<p>Ok, so I now know how, if for some reason I ever had the desire, to set up cpanel Node and deploy a Frontity site in production.</p>
+<p>Now I’m going to set up a virtual environment for the dev env to continue playing and learning, thank you so much for your help with this!</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/11</link>
+        <pubDate>Wed, 19 Jun 2019 15:46:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-11</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Do <code>npm run build</code>, modify <code>app.js</code> with this code</p>
+<pre><code class="lang-javascript">var frontity = require("./build/server").default;
+var http = require("http");
+var server = http.createServer(frontity);
+server.listen();
+</code></pre>
+<p>and add <code>app.js</code> back to the “Application Path”.</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/10</link>
+        <pubDate>Wed, 19 Jun 2019 10:28:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-10</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <p>If I use the boiler plate file they provided - app.js and put that as the Application Path, it listens on port 443 - <a href="https://mysite.com/" rel="nofollow noopener">https://mysite.com/</a> and results in “It Works!”</p>
+<p>I’m thinking it will probably require using file to bootstrap to another?</p>
+<p>I saw another example image in their tutorial I linked in the first post where the server port was passed as a const to the server.listen command so I’m curious if I can use app.js cleverly to get this served up.</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/9</link>
+        <pubDate>Tue, 18 Jun 2019 16:25:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-9</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Sure. Ask them please if you can pass args to “Application Path” like these:</p>
+<aside class="quote no-group">
+<blockquote>
+<p>node_modules/frontity/dist/commands.js serve --port 3000</p>
+</blockquote>
+</aside>
+<p>and which port is it or how to find it <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/8</link>
+        <pubDate>Tue, 18 Jun 2019 15:55:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-8</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> for all your help but unfortunately this isn’t working.  I did find in one of their dialog notes that the custom variables when used for PORT are only available from within the server environment and not public.</p>
+<p>Trying to start w/ port 80 or 443 fails as those ports are already bound to Apache which is serving those ports to the application path:  node_modules/frontity/dist/commands.js serve</p>
+<p>I’m going to open a ticket w/ FastComet and see if they are able to provide any input.  Thanks again!</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/7</link>
+        <pubDate>Tue, 18 Jun 2019 15:32:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-7</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="5" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pingram3541/40/219_2.png" class="avatar"> pingram3541:</div>
+<blockquote>
+<p>Reading up on Now to get more familiar with the serverless deployment but any Node environment should do right?</p>
+</blockquote>
+</aside>
+<p>Yes, any node environment should do <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote no-group" data-post="5" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pingram3541/40/219_2.png" class="avatar"> pingram3541:</div>
+<blockquote>
+<p>If I change the Application Path back to this file (placing this file back in my root project folder) it does indeed produce a hello world type template.</p>
+</blockquote>
+</aside>
+<p>Ok, first thing you need is to run <code>npm run build</code> to generate the <code>/build</code> folder.</p>
+<p>The server can be started with a <code>npm run serve</code> but that may not work in the “Application Path” option because it looks like it is waiting for a JavaScript file.</p>
+<p>The equivalent of <code>npm run serve</code> using <code>node</code> and a JavaScript file is:</p>
+<pre><code class="lang-bash">node node_modules/frontity/dist/commands.js serve
+</code></pre>
+<p>The <code>command.js</code> with <code>serve</code> arg is the equivalent to your <code>app.js</code>.</p>
+<p>So maybe you can use this for “Application Path”:</p>
+<pre><code class="lang-bash">node_modules/frontity/dist/commands.js serve
+</code></pre>
+<p>If you need a different port than the default 3000, you can pass it with <code>--port 1234</code>. I don’t know why there’s no port on the <code>app.js</code> file. Maybe it is in an environment variable. If that’s the case, you can use:</p>
+<pre><code class="lang-bash">node_modules/frontity/dist/commands.js serve --port $PORT
+</code></pre>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/6</link>
+        <pubDate>Mon, 17 Jun 2019 13:07:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-6</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[pingram3541]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="4" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Wow, thanks for trying <a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a>. We have almost no experience with cpanel to be honest. I used it years ago but only for PHP.</p>
+</blockquote>
+</aside>
+<p>I figured since many of my clients use cpanel hosting I might as well learn how to set up a Node app in this environment and play around a bit.  The baseline Lighthouse tests against my initial “hello world” w/ (w/ Google’s fake 3g throttling thrown in) deployed on FastComet and all perf marks came back 0.1s.</p>
+<aside class="quote group-development-team" data-post="4" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><code>npx</code> is optional</p>
+</blockquote>
+</aside>
+<p>Thx, this is the noob in me not seeing any write ups or knowing where to look for the: <code>npm i @frontity/[stuff]</code></p>
+<aside class="quote group-development-team" data-post="4" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>You can create your project locally and then upload it to your server, or create a repo<br>
+locally and then clone it.</p>
+</blockquote>
+</aside>
+<p>This is where I need to brush up on how to deploy to different environments.  Reading up on Now to get more familiar with the serverless deployment but any Node environment should do right?</p>
+<aside class="quote group-development-team" data-post="4" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>For the comands like <code>npx frontity dev</code> you can just use <code>npm run dev</code> instead.</p>
+</blockquote>
+</aside>
+<p>Ty!</p>
+<aside class="quote group-development-team" data-post="4" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Is <code>app.js</code> a hello world?</p>
+</blockquote>
+</aside>
+<p>Yes it is.  If I change the Application Path back to this file (placing this file back in my root project folder) it does indeed produce a hello world type template.  Here is the contents:</p>
+<pre><code>var http = require('http');
+var server = http.createServer(function(req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    var message = 'It works!\n',
+        version = 'NodeJS ' + process.versions.node + '\n',
+        response = [message, version].join('\n');
+    res.end(response);
+});
+server.listen();
+</code></pre>
+<aside class="quote group-development-team" data-post="4" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Wouldn’t it be easier to create and modify the project locally and the upload it to cpanel? That’s the usual workflow in the JS/Node world.</p>
+</blockquote>
+</aside>
+<p>I think I’d still be in the same situation no?  Not knowing how to actually serve it from this cpanel environment?</p>
+<p>Do we need to use this app.js template to hook in Frontity somehow?</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/5</link>
+        <pubDate>Fri, 14 Jun 2019 16:36:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-5</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Wow, thanks for trying <a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a>. We have almost no experience with cpanel to be honest. I used it years ago but only for PHP.</p>
+<aside class="quote no-group" data-post="1" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pingram3541/40/219_2.png" class="avatar"> pingram3541:</div>
+<blockquote>
+<p>Since the npx script does some of the process required by cpanel, I set out to see if I could still get this set up.</p>
+</blockquote>
+</aside>
+<p><code>npx</code> is optional. You can create your project locally and then upload it to your server, or create a repo<br>
+locally and then clone it. For the comands like <code>npx frontity dev</code> you can just use <code>npm run dev</code> instead.</p>
+<aside class="quote no-group" data-post="1" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pingram3541/40/219_2.png" class="avatar"> pingram3541:</div>
+<blockquote>
+<p>“Application Path” cpanel asks for, not sure what Frontity will set this to so I left it blank, it resolved to app.js and this was a must before I could create the app (headless).</p>
+</blockquote>
+</aside>
+<p>Maybe this is the server to run something like this?</p>
+<pre><code class="lang-auto">&gt; node server.js
+</code></pre>
+<aside class="quote no-group" data-post="1" data-topic="287">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pingram3541/40/219_2.png" class="avatar"> pingram3541:</div>
+<blockquote>
+<p>I noticed my application folder “headless” has an <code>app.js</code> , <code>.htaccess</code> and <code>public</code> and <code>tmp</code> folders</p>
+</blockquote>
+</aside>
+<p>Ok, yes. It looks like cpanel gives you a regular node app. Is <code>app.js</code> a hello world?</p>
+<hr>
+<p>I see some of your problems are because you are trying to create the project inside cpanel.</p>
+<p>Wouldn’t it be easier to create and modify the project locally and the upload it to cpanel? That’s the usual workflow in the JS/Node world.</p>
+<p>Apart from that, I think you may need a file for the “Application path” so cpanel is able to run <code>node that-file.js</code>. Maybe starting frontity yourself with <code>npx frontity serve</code> is not enough.</p>
+<p>Unfortunately the actual server file <code>build/server.js</code> is prepared for serverless, so it doesn’t listen to any port. It’s when you use <code>frontity serve</code> that it starts listening.</p>
+<p>Check the content of <code>app.js</code> to see if it’s an example and post it here. Maybe that gives us more clues <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/4</link>
+        <pubDate>Fri, 14 Jun 2019 16:02:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-4</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+      <item>
+        <title>Manual install method node cpanel?</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/pingram3541">@pingram3541</a> and welcome to Frontity <img src="https://community.frontity.org/uploads/default/original/1X/0235e9378c758d0786dee43353c9612c9195d6c8.png?v=9" title=":frontity:" class="emoji emoji-custom" alt=":frontity:"></p>
+<p>Thanks for all your research, we are going to take a look and try to emulate your configuration in order to help you, we might need some time as we don’t usually use hostings with cPanel.</p>
+<p>Meanwhile you can follow the <a href="https://docs.frontity.org/installation-and-deploy/deploy-on-now" rel="nofollow noopener">deploy on now guide</a>.</p>
+          <p><a href="https://community.frontity.org/t/manual-install-method-node-cpanel/287/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/manual-install-method-node-cpanel/287/2</link>
+        <pubDate>Fri, 14 Jun 2019 10:22:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-287-2</guid>
+        <source url="https://community.frontity.org/t/manual-install-method-node-cpanel/287.rss">Manual install method node cpanel?</source>
+      </item>
+  </channel>
+</rss>

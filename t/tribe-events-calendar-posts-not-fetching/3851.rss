@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Tribe Events Calendar Posts not fetching</title>
+    <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851</link>
+    <description>I&#39;ve been banging my head against a wall on this one for about 3 hours now.  Basically, I want to access Tribe Events Calendar events posts in my website so I can include &quot;Upcoming Events&quot; and &quot;Current Exhibitions&quot; on the home page, which are in the events calendar, but I am unable to.  Here is what I&#39;ve done so far:
+
+1. I first tried to use the Tribe Events Calendar endpoint [tribe/events/v1/events/](http://staging.mvmuseum.org/wp-json/tribe/events/v1/events/) (the link will go to the endpoint on my WordPress instance) by adding it as a custom post type in my `frontity.settings.js` file as such in `state.source`:
+   ```
+    postTypes: [{
+            type: &#39;tribe_events&#39;,
+            endpoint: &#39;tribe/events/v1/events&#39;,
+            archive: &#39;/events&#39;
+          }]
+   ```
+   Then I added this to my root `index.js`:
+   ```
+   actions: {
+     theme: {
+       beforeSSR: async ({ actions }) =&gt; {
+         await actions.source.fetch(&#39;/tribe/events/v1/events&#39;)
+       }
+     }
+   }
+   ```
+   Then in the necessary component:
+   ```
+   const upcomingEventLink = `/${post.acf.upcoming_event.post_name}/${post.acf.upcoming_event.post_name}`
+  
+   useEffect(() =&gt; {
+     actions.source.fetch(upcomingEventLink)
+   }, [])
+
+   const upcomingEventData = state.source.get(upcomingEventLink)
+   return (&lt;pre&gt;{(upcomingEventData.isReady) ? state.source[post.acf.upcoming_event.post_type][post.acf.upcoming_event.ID].featured_media : &#39;nothing&#39;}&lt;/pre&gt;)
+   ```
+   But that didn&#39;t work, my hunch is it&#39;s because of their custom namespace.  Also, we&#39;ll be coming back to this route later.  Here is the error I get:
+   ```
+      Proxy
+      ​&lt;target&gt;: {…}
+      ​errorStatus: 404
+      ​errorStatusText: &quot;Not Found&quot;
+      ​is404: true
+      ​isError: true
+      ​isFetching: false
+      ​isReady: true
+      ​link: &quot;/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/&quot;
+      ​page: 1
+      ​query: Object {  }
+      ​route: &quot;/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/&quot;
+      ​&lt;prototype&gt;: Object { … }
+      ​&lt;handler&gt;: Object { get: get(target, key, receiver), has: has(target, key), ownKeys: ownKeys(target), … }
+   ```
+
+2. I exposed `tribe_events` post types using the example found [in WordPress documentation](https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-rest-api-support-for-custom-content-types/#adding-rest-api-support-to-existing-content-types) and can now see that at [/wp-json/wp/v2/tribe-events](http://staging.mvmuseum.org/wp-json/wp/v2/tribe-events) (the link will go to the endpoint on my WordPress instance):
+   ```
+   add_filter( &#39;register_post_type_args&#39;, &#39;expose_tribe_events_to_rest&#39;, 10, 2 );
+ 
+   function expose_tribe_events_to_rest( $args, $post_type ) {
+	if (&#39;tribe_events&#39; === $post_type) {
+		$args[&#39;show_in_rest&#39;] = true;
+
+		// Optionally customize the rest_base or rest_controller_class
+		$args[&#39;rest_base&#39;]             = &#39;tribe-events&#39;;
+		$args[&#39;rest_controller_class&#39;] = &#39;WP_REST_Posts_Controller&#39;;
+	}
+
+	return $args;
+   }
+   ```
+   This is also not working even though I can see that the REST route has been added.  This is the error I get from that:
+   ```
+    Proxy
+      &lt;target&gt;: {…}
+      errorStatus: 404
+      errorStatusText: &quot;You have tried to access content at route: /tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/ but it does not exist&quot;
+      is404: true
+      isError: true
+      isFetching: false
+      isReady: true
+      link: &quot;/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/&quot;
+      page: 1
+      query: Object {  }
+      route: &quot;/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/&quot;
+      &lt;prototype&gt;: Object { … }
+      &lt;handler&gt;: Object { get: get(target, key, receiver), has: has(target, key), ownKeys: ownKeys(target), … }
+   ```
+    The other issue with this is that I don&#39;t get any of the metadata associated with the event, such as start time, end time, venue, organizer, etc.  This is probably on the WordPress side and may have to do with the `rest_controller_class` or I may need to manually add the data to the posts via [this method](https://theeventscalendar.com/knowledgebase/k/introduction-to-the-events-calendar-rest-api/#modifying-the-response).
+3. I&#39;ve also tried various incantations of the fetch in the `beforeSSR` and the `useEffect` because I am never sure if I should be fetching the post type, `tribe_events`, or the endpoint, which is either `events` or `tribe-events`.
+
+What might be worth noting is I have another component that requires a custom post referenced in the current post&#39;s advanced custom fields meta data and that is working just fine.  I have registered the custom post type in WordPress, registered it in `frontity.settings.js` just as I did for the `tribe_event`, I fetch the data in `beforeSSR` and in `useEffect`, and I&#39;m able to grab the featured image as well as I don&#39;t get an error returned.
+
+I&#39;m going off of code I found here in the forums.  Namely this [thread contained code regarding using an ACF post object to populate a featured image](https://community.frontity.org/t/acf-post-object-get-post-data/2415/14?u=david1) and [this thread](https://community.frontity.org/t/event-plugins/2450/10?u=david1) where @mburridge suggests using custom post type definitions to add events calendar post types to `state.source` for use later.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 24 Mar 2021 18:44:43 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Tribe Events Calendar Posts not fetching</title>
+        <dc:creator><![CDATA[alex.fernando.801]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/david1">@david1</a> , <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a></p>
+<p>I’ve been following this thread in order to get the data from <code>The Event Calendars</code> plugin. I have this code in my <code>frontity.settings.js</code>:</p>
+<pre><code>{
+    type: 'tribe_events',
+    endpoint: 'tribe/events/v1/events',
+    archive: '/events'
+ }
+</code></pre>
+<p>Then I copied your <code>tribeEventsHandler</code> in a <code>handler.js file</code>. After that, I made an import in the <code>index.js</code> file as follow:</p>
+<p><code>import tribeEventsHandler from './components/handler'</code></p>
+<p>and added it to my <code>libraries.source.handlers</code> array in this way:</p>
+<pre><code>actions: {
+    theme: {
+      init: ({ libraries }) =&gt; {
+        libraries.source.handlers.push(tribeEventsHandler);
+      },
+    }, 
+  }
+</code></pre>
+<p>I was expecting to have some data related when I execute <code>frontity.state.source</code> in the console, But still I can’t see any data related to the events that I created.</p>
+<p>Also I tried to make <code>frontity.state.source.get("/events")</code> or <code>frontity.state.source.get("/tribe/events/v1/events")</code> but seems like there’s no data.</p>
+<p>I guess I’m missing a lot here since I don’t understand completely how the handler works. Hope you guys can give some hints or a solution to this. Thank you in advance.</p>
+          <p><a href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/7</link>
+        <pubDate>Wed, 24 Mar 2021 18:44:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3851-7</guid>
+        <source url="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss">Tribe Events Calendar Posts not fetching</source>
+      </item>
+      <item>
+        <title>Tribe Events Calendar Posts not fetching</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,</p>
+<p>Thanks for taking a look into this.  I was able to get it sorted today, I guess I just needed to step back for a couple days for the clarity to kick in.</p>
+<p>For anyone else wanting to do this, here is how I’ve managed it:</p>
+<p>I added <code>tribeEventsHandler</code> as such and added it to the <code>libraries.source.handlers</code> array:</p>
+<pre><code class="lang-javascript">const tribeEventsHandler = {
+  name: 'tribe-events',
+   priority: 10,
+   pattern: '/tribe-events/:id',
+   func: async ({ route, params, state, libraries }) =&gt; {
+     const { api } = libraries.source
+     const { id } = params
+
+     const response = await api.get({
+       endpoint: `/tribe/events/v1/events/${id}`
+     })
+
+     const data = await response.json()
+     const currentPageData = state.source.data[route]
+
+     Object.assign(currentPageData, {
+       id,
+       data,
+       isEvent: true
+     })
+   }
+}
+</code></pre>
+<p>Then the way that events is fetched is similar to how I was fetching global ACF options pages:</p>
+<pre><code class="lang-javascript">const upcomingEventLink = `/tribe-events/${post.acf.upcoming_event.ID}`
+const upcomingEventData = state.source.get(upcomingEventLink)
+</code></pre>
+<p>However, to get an image attachment, I have to do it differently than I would for a custom post type at the moment because <code>state.source</code> doesn’t find <code>"tribe-events"</code> post types by default (perhaps I need to <code>fetch</code> them in my <code>actions.theme.beforeSSR</code>?).  However, I can get the featured image’s URL from the <code>upcomingEventData.data.image.url</code>.</p>
+          <p><a href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/6</link>
+        <pubDate>Tue, 26 Jan 2021 11:17:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3851-6</guid>
+        <source url="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss">Tribe Events Calendar Posts not fetching</source>
+      </item>
+      <item>
+        <title>Tribe Events Calendar Posts not fetching</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david1">@david1</a></p>
+<p>I’ve cloned your repo and checked out the <code> MVM-203-current-exhibition-01</code> branch. I can’t find the <code>tribeEventsHandler</code>handler in your code.</p>
+<p>Do you want to use the <code>http://staging.mvmuseum.org/wp-json/tribe/events/v1/events/</code> endpoint or the <code>http://staging.mvmuseum.org/wp-json/wp/v2/tribe_events</code> endpoint? I would suggest using the former, but you’ll need a handler for it.</p>
+          <p><a href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/5</link>
+        <pubDate>Mon, 25 Jan 2021 13:22:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3851-5</guid>
+        <source url="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss">Tribe Events Calendar Posts not fetching</source>
+      </item>
+      <item>
+        <title>Tribe Events Calendar Posts not fetching</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,</p>
+<p>Thanks for getting back to me.  The repository is at <a href="https://gitlab.artlyticalmedia.com/artlytical-media/mv-museum-frontity-theme/-/tree/MVM-203-current-exhibition-01" rel="noopener nofollow ugc">https://gitlab.artlyticalmedia.com/artlytical-media/mv-museum-frontity-theme</a> and please check out branch <code>MVM-203-current-exhibition-01</code>.  The WP source data is on the live server <a href="http://staging.mvmuseum.org" rel="noopener nofollow ugc">http://staging.mvmuseum.org</a>.  What I’m trying to get working is in <code>packages/mvmuseum-theme/src/components/home.js</code>.  Right now I have it working for the <code>object_of_the_day</code> ACF custom field, which is a post object field, but there is also a post object for <code>upcoming_event</code> that is really buggy.  Let me know if you need me to change anything on the WP side.</p>
+          <p><a href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/4</link>
+        <pubDate>Mon, 25 Jan 2021 09:06:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3851-4</guid>
+        <source url="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss">Tribe Events Calendar Posts not fetching</source>
+      </item>
+      <item>
+        <title>Tribe Events Calendar Posts not fetching</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david1">@david1</a></p>
+<p>There’s quite a lot going on here. It will be really difficult for us to analyse your issue in the abstract. It would help to have access to your project code and your source data. Could you provide a link to a repo with your code so we can see it and clone it please, and is your WP source data on a live server that we can access? If you can provide those then we’ll try our best to help you. Thanks.</p>
+          <p><a href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/3</link>
+        <pubDate>Fri, 22 Jan 2021 11:53:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3851-3</guid>
+        <source url="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss">Tribe Events Calendar Posts not fetching</source>
+      </item>
+      <item>
+        <title>Tribe Events Calendar Posts not fetching</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p>After sleeping on it, I thought I’d try a couple more things:</p>
+<ol>
+<li>Based on what <a class="mention" href="https://community.frontity.org/u/phn">@phn</a> did <a href="https://community.frontity.org/t/event-plugins/2450/9">here</a>, I thought I’d make my own handler:<pre><code class="lang-javascript">const tribeEventsHandler = {
+   name: 'tribe-events',
+   priority: 10,
+   pattern: '/tribe-events/:id',
+   func: async ({ route, params, state, libraries }) =&gt; {
+     const { api } = libraries.source
+     const { id } = params
+
+     const response = await api.get({
+       endpoint: `/tribe/events/v1/events/${id}`
+     })
+
+     const data = await response.json()
+     const currentPageData = state.source.data[route]
+
+     Object.assign(currentPageData, {
+       id,
+       data,
+       isEvent: true
+     })
+   }
+ }
+</code></pre>
+Then I added it to my <code>libraries.source.handlers</code> array and added an <code>await actions.source.fetch('tribe-events')</code> but that gives me the following error:<pre><code class="lang-javascript">post type from endpoints \"posts,pages,media\" with slug \"treasure-box-workshop-with-artist-jannette-vanderhoop\" not found
+</code></pre>
+</li>
+<li>I tried <a href="https://wordpress.org/plugins/wp-rest-api-controller/" rel="noopener nofollow ugc">this plugin</a> from <a href="https://community.frontity.org/t/event-plugins/2450/6">this post</a> and while it did <a href="http://staging.mvmuseum.org/wp-json/wp/v2/tribe_events" rel="noopener nofollow ugc">expose the events in the REST API</a> with all the data I needed for all events, I still couldn’t access individual events in Frontity.  I get the following error:<pre><code class="lang-javascript">You have tried to access content at route: /tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/ but it does not exist
+</code></pre>
+</li>
+</ol>
+<p>I’ll keep at it but if anyone has any tips, that would be greatly helpful.</p>
+          <p><a href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/2</link>
+        <pubDate>Thu, 21 Jan 2021 10:45:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3851-2</guid>
+        <source url="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss">Tribe Events Calendar Posts not fetching</source>
+      </item>
+      <item>
+        <title>Tribe Events Calendar Posts not fetching</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been banging my head against a wall on this one for about 3 hours now.  Basically, I want to access Tribe Events Calendar events posts in my website so I can include “Upcoming Events” and “Current Exhibitions” on the home page, which are in the events calendar, but I am unable to.  Here is what I’ve done so far:</p>
+<ol>
+<li>
+<p>I first tried to use the Tribe Events Calendar endpoint <a href="http://staging.mvmuseum.org/wp-json/tribe/events/v1/events/" rel="noopener nofollow ugc">tribe/events/v1/events/</a> (the link will go to the endpoint on my WordPress instance) by adding it as a custom post type in my <code>frontity.settings.js</code> file as such in <code>state.source</code>:</p>
+<pre><code class="lang-javascript"> postTypes: [{
+         type: 'tribe_events',
+         endpoint: 'tribe/events/v1/events',
+         archive: '/events'
+       }]
+</code></pre>
+<p>Then I added this to my root <code>index.js</code>:</p>
+<pre><code class="lang-javascript">actions: {
+  theme: {
+    beforeSSR: async ({ actions }) =&gt; {
+      await actions.source.fetch('/tribe/events/v1/events')
+    }
+  }
+}
+</code></pre>
+<p>Then in the necessary component:</p>
+<pre><code class="lang-javascript">const upcomingEventLink = `/${post.acf.upcoming_event.post_name}/${post.acf.upcoming_event.post_name}`
+
+useEffect(() =&gt; {
+  actions.source.fetch(upcomingEventLink)
+}, [])
+
+const upcomingEventData = state.source.get(upcomingEventLink)
+return (&lt;pre&gt;{(upcomingEventData.isReady) ? state.source[post.acf.upcoming_event.post_type][post.acf.upcoming_event.ID].featured_media : 'nothing'}&lt;/pre&gt;)
+</code></pre>
+<p>But that didn’t work, my hunch is it’s because of their custom namespace.  Also, we’ll be coming back to this route later.  Here is the error I get:</p>
+<pre><code class="lang-javascript">   Proxy
+   ​&lt;target&gt;: {…}
+   ​errorStatus: 404
+   ​errorStatusText: "Not Found"
+   ​is404: true
+   ​isError: true
+   ​isFetching: false
+   ​isReady: true
+   ​link: "/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/"
+   ​page: 1
+   ​query: Object {  }
+   ​route: "/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/"
+   ​&lt;prototype&gt;: Object { … }
+   ​&lt;handler&gt;: Object { get: get(target, key, receiver), has: has(target, key), ownKeys: ownKeys(target), … }
+</code></pre>
+</li>
+<li>
+<p>I exposed <code>tribe_events</code> post types using the example found <a href="https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-rest-api-support-for-custom-content-types/#adding-rest-api-support-to-existing-content-types" rel="noopener nofollow ugc">in WordPress documentation</a> and can now see that at <a href="http://staging.mvmuseum.org/wp-json/wp/v2/tribe-events" rel="noopener nofollow ugc">/wp-json/wp/v2/tribe-events</a> (the link will go to the endpoint on my WordPress instance):</p>
+<pre><code class="lang-javascript">add_filter( 'register_post_type_args', 'expose_tribe_events_to_rest', 10, 2 );
+
+function expose_tribe_events_to_rest( $args, $post_type ) {
+ if ('tribe_events' === $post_type) {
+ 	$args['show_in_rest'] = true;
+
+ 	// Optionally customize the rest_base or rest_controller_class
+ 	$args['rest_base']             = 'tribe-events';
+ 	$args['rest_controller_class'] = 'WP_REST_Posts_Controller';
+ }
+
+ return $args;
+}
+</code></pre>
+<p>This is also not working even though I can see that the REST route has been added.  This is the error I get from that:</p>
+<pre><code class="lang-javascript"> Proxy
+   &lt;target&gt;: {…}
+   errorStatus: 404
+   errorStatusText: "You have tried to access content at route: /tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/ but it does not exist"
+   is404: true
+   isError: true
+   isFetching: false
+   isReady: true
+   link: "/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/"
+   page: 1
+   query: Object {  }
+   route: "/tribe_events/treasure-box-workshop-with-artist-jannette-vanderhoop/"
+   &lt;prototype&gt;: Object { … }
+   &lt;handler&gt;: Object { get: get(target, key, receiver), has: has(target, key), ownKeys: ownKeys(target), … }
+</code></pre>
+<p>The other issue with this is that I don’t get any of the metadata associated with the event, such as start time, end time, venue, organizer, etc.  This is probably on the WordPress side and may have to do with the <code>rest_controller_class</code> or I may need to manually add the data to the posts via <a href="https://theeventscalendar.com/knowledgebase/k/introduction-to-the-events-calendar-rest-api/#modifying-the-response" rel="noopener nofollow ugc">this method</a>.</p>
+</li>
+<li>
+<p>I’ve also tried various incantations of the fetch in the <code>beforeSSR</code> and the <code>useEffect</code> because I am never sure if I should be fetching the post type, <code>tribe_events</code>, or the endpoint, which is either <code>events</code> or <code>tribe-events</code>.</p>
+</li>
+</ol>
+<p>What might be worth noting is I have another component that requires a custom post referenced in the current post’s advanced custom fields meta data and that is working just fine.  I have registered the custom post type in WordPress, registered it in <code>frontity.settings.js</code> just as I did for the <code>tribe_event</code>, I fetch the data in <code>beforeSSR</code> and in <code>useEffect</code>, and I’m able to grab the featured image as well as I don’t get an error returned.</p>
+<p>I’m going off of code I found here in the forums.  Namely this <a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/14">thread contained code regarding using an ACF post object to populate a featured image</a> and <a href="https://community.frontity.org/t/event-plugins/2450/10">this thread</a> where <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> suggests using custom post type definitions to add events calendar post types to <code>state.source</code> for use later.</p>
+          <p><a href="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851/1</link>
+        <pubDate>Wed, 20 Jan 2021 14:32:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3851-1</guid>
+        <source url="https://community.frontity.org/t/tribe-events-calendar-posts-not-fetching/3851.rss">Tribe Events Calendar Posts not fetching</source>
+      </item>
+  </channel>
+</rss>

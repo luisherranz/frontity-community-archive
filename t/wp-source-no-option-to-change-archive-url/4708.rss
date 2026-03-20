@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Wp-source: no option to change archive URL</title>
+    <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708</link>
+    <description>I can&#39;t find an option to change the URL of archives.
+
+In my project I have:
+  
+```
+  postsPage: &#39;/blog&#39;,
+  categoryBase: &#39;blog/category&#39;,
+  authorBase: &#39;blog/author&#39;,
+  tagBase: &#39;blog/tag&#39;,
+```
+
+All posts/categories are correctly prefixed by `blog` slug except archives by year/month.
+
+It should be `https://domain.com/blog/2021/05`
+but it is: `https://domain.com/2021/05`
+
+On the backend archives are served from the correct URL with `blog` slug.
+
+How can I force Frontity to use this slug for archives?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 10 Jun 2021 09:38:48 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, right. That happens because packages in <code>frontity.settings.js</code> are evaluated in the same order they are defined, so your <code>mars-theme</code> package should appear before <code>@frontity/wp-source</code>. Try moving <code>@frontity/wp-source</code> to the first place. That way, when the <code>init()</code> action of <code>mars-theme</code> runs, <code>libraries.source.handlers</code> should be defined.</p>
+<p>BTW, that’s something we wanted to fix with the <a href="https://community.frontity.org/t/frontity-priorities/4156" class="inline-onebox">Frontity Priorities</a> API, but we haven’t started to work on that yet.</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/12</link>
+        <pubDate>Thu, 10 Jun 2021 09:38:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-12</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[marek]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david">@David</a>,<br>
+thank you for your reply!</p>
+<p>I tried to add it in the starter theme to <code>marsTheme.actions.theme.init</code> but <code>libraries.source.handlers</code> returns empty array there so the script fails as it can’t find the correct handler.</p>
+<p>I tried it in my project too, but only custom handlers provided by my theme or by packages (like <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-comments) are available there.</p>
+<p>Where should I add it then?</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/10</link>
+        <pubDate>Wed, 09 Jun 2021 09:40:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-10</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/marek">@marek</a> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>Currently there isn’t an option in the <code>wp-source</code> package to change the URL pattern of date archives.</p>
+<p>However, you can add the following <code>init()</code> action in your theme to create a new handler for your date archives starting with <code>/blog</code>:</p>
+<pre><code class="lang-js">      init: ({ libraries }) =&gt; {
+        // Search the default handler for date archives.
+        const dateHandler = libraries.source.handlers.find(
+          ({ name }) =&gt; name === "date"
+        );
+
+        // Create a new one prepending "/blog" to the pattern and giving it
+        // more priority.
+        libraries.source.handlers.push({
+          name: "date (blog)",
+          pattern: `/blog${dateHandler.pattern}`,
+          priority: dateHandler.priority - 1,
+          func: dateHandler.func,
+        });
+      },
+</code></pre>
+<p>Hope it helps!</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/8</link>
+        <pubDate>Wed, 09 Jun 2021 08:52:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-8</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/david">@David</a>, can you help here?</p>
+<p>In this codesandbox</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://codesandbox.io/favicon.ico" class="site-icon" width="48" height="48">
+
+      <a href="https://codesandbox.io/s/github/eMtlk/frontity-archive-blog-prefix" target="_blank" rel="noopener" title="06:18AM - 04 June 2021">CodeSandbox – 4 Jun 21</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/3107e7445fc4e2825aecaab87e6845e2b6eb2a0d_2_690x362.png" class="thumbnail" width="690" height="362" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/3107e7445fc4e2825aecaab87e6845e2b6eb2a0d_2_690x362.png, https://community.frontity.org/uploads/default/optimized/2X/3/3107e7445fc4e2825aecaab87e6845e2b6eb2a0d_2_1035x543.png 1.5x, https://community.frontity.org/uploads/default/original/2X/3/3107e7445fc4e2825aecaab87e6845e2b6eb2a0d.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/3107e7445fc4e2825aecaab87e6845e2b6eb2a0d_2_10x10.png"></div>
+
+<h3><a href="https://codesandbox.io/s/github/eMtlk/frontity-archive-blog-prefix" target="_blank" rel="noopener">archive-blog-prefix - CodeSandbox</a></h3>
+
+  <p>Frontity project</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>you can see how these settings in <code>frontity.settings.js</code></p>
+<pre><code class="lang-javascript">  {
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          url: "https://distcode.uk/frontity-blog",
+          homepage: "/home",
+          postsPage: "/blog",
+          categoryBase: "blog/category",
+          authorBase: "blog/author",
+          tagBase: "blog/tag"
+        }
+      }
+    },
+
+</code></pre>
+<p>and these ones on the WordPress side</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/f/f62aa79e2057b98d153f957d78521917e8a3b4f8.png" alt="Captura de pantalla 2021-06-04 a las 8.49.05" data-base62-sha1="z7GQoEW1rzVBSL0gKpesrOsDCqc" width="650" height="195"></p>
+<p>make all links in the Top Menu work but the one with the text  “Prefixed archive 2021/02”</p>
+<p>Any thoughts?</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/6</link>
+        <pubDate>Fri, 04 Jun 2021 06:52:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-6</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[marek]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> .</p>
+<p>I was able to replicate this issue on clean WP and Frontity install (Mars Theme).</p>
+<aside class="onebox githubfolder">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+
+      <a href="https://github.com/eMtlk/frontity-archive-blog-prefix" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/345;"><img src="https://community.frontity.org/uploads/default/optimized/2X/2/2bf8ef3e18ecc90f3d3c7dd15cb885a43c972380_2_690x345.png" class="thumbnail" width="690" height="345" srcset="https://community.frontity.org/uploads/default/optimized/2X/2/2bf8ef3e18ecc90f3d3c7dd15cb885a43c972380_2_690x345.png, https://community.frontity.org/uploads/default/optimized/2X/2/2bf8ef3e18ecc90f3d3c7dd15cb885a43c972380_2_1035x517.png 1.5x, https://community.frontity.org/uploads/default/original/2X/2/2bf8ef3e18ecc90f3d3c7dd15cb885a43c972380.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/2/2bf8ef3e18ecc90f3d3c7dd15cb885a43c972380_2_10x10.png"></div>
+
+<h3><a href="https://github.com/eMtlk/frontity-archive-blog-prefix" target="_blank" rel="noopener nofollow ugc">eMtlk/frontity-archive-blog-prefix</a></h3>
+
+
+  <p><span class="label1">Contribute to eMtlk/frontity-archive-blog-prefix development by creating an account on GitHub.</span></p>
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+<p>
+Here is the repository with Frontity:</p>
+<p>I only added this:</p>
+<pre><code>      homepage: '/home',
+      postsPage: '/blog',
+      categoryBase: 'blog/category',
+      authorBase: 'blog/author',
+      tagBase: 'blog/tag',
+</code></pre>
+<p>to the frontity.settings.js file.</p>
+<p>It’s connected to the fresh instance of Wordpress at <a href="https://distcode.uk/frontity-blog" rel="noopener nofollow ugc">https://distcode.uk/frontity-blog</a>.</p>
+<p>You can login there using:<br>
+User: frontity<br>
+Password: frontity</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/5</link>
+        <pubDate>Fri, 04 Jun 2021 05:56:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-5</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/marek">@marek</a></p>
+<p>Can you please <strong><a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">provide a repo or code-sandbox with your code</a></strong>? This is especially helpful to find solutions to technical issues with specific code</p>
+<p>Detailing the info suggested <a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">here</a> when having issues will help the community to provide the best possible help as quickly and as efficiently as possible.</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/4</link>
+        <pubDate>Thu, 03 Jun 2021 08:02:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-4</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[marek]]></dc:creator>
+        <description><![CDATA[
+            <p>Response for <code>/blog/2021/05/</code>:</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/d/d40d943e6f749fd5e8abbdc372542f91476e24b5.png" alt="Screen Shot 2021-06-03 at 8.55.01 AM" data-base62-sha1="ufUjDGloPjlx92lhTP1BYbk2kJL" width="477" height="259"></p>
+<p>And for <code>/2021/05/</code>:<br>
+<img src="https://community.frontity.org/uploads/default/original/2X/7/788e84e9e5c36ab787602c0d0bd9aa9e35492e4b.png" alt="Screen Shot 2021-06-03 at 8.55.40 AM" data-base62-sha1="hcuDPsnG6jugSCtYC17t4y4dOmn" width="477" height="322"></p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/3</link>
+        <pubDate>Thu, 03 Jun 2021 01:56:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-3</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[marek]]></dc:creator>
+        <description><![CDATA[
+            <p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/c1b6a9240abd00aacf2f0878117a2d5cb6eac15a.png" data-download-href="https://community.frontity.org/uploads/default/c1b6a9240abd00aacf2f0878117a2d5cb6eac15a" title="Screen Shot 2021-06-03 at 8.51.50 AM"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/c1b6a9240abd00aacf2f0878117a2d5cb6eac15a_2_690x237.png" alt="Screen Shot 2021-06-03 at 8.51.50 AM" data-base62-sha1="rDFv28ep7RypxStnlcq1dkqT9t8" width="690" height="237" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/c1b6a9240abd00aacf2f0878117a2d5cb6eac15a_2_690x237.png, https://community.frontity.org/uploads/default/optimized/2X/c/c1b6a9240abd00aacf2f0878117a2d5cb6eac15a_2_1035x355.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/c/c1b6a9240abd00aacf2f0878117a2d5cb6eac15a_2_1380x474.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/c1b6a9240abd00aacf2f0878117a2d5cb6eac15a_2_10x10.png"></a></div><p></p>
+<p>Here is the config from Wordpress admin</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/2</link>
+        <pubDate>Thu, 03 Jun 2021 01:52:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-2</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+      <item>
+        <title>Wp-source: no option to change archive URL</title>
+        <dc:creator><![CDATA[marek]]></dc:creator>
+        <description><![CDATA[
+            <p>I can’t find an option to change the URL of archives.</p>
+<p>In my project I have:</p>
+<pre><code class="lang-javascript">  postsPage: '/blog',
+  categoryBase: 'blog/category',
+  authorBase: 'blog/author',
+  tagBase: 'blog/tag',
+</code></pre>
+<p>All posts/categories are correctly prefixed by <code>blog</code> slug except archives by year/month.</p>
+<p>It should be <code>https://domain.com/blog/2021/05</code><br>
+but it is: <code>https://domain.com/2021/05</code></p>
+<p>On the backend archives are served from the correct URL with <code>blog</code> slug.</p>
+<p>How can I force Frontity to use this slug for archives?</p>
+          <p><a href="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708/1</link>
+        <pubDate>Thu, 03 Jun 2021 01:49:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4708-1</guid>
+        <source url="https://community.frontity.org/t/wp-source-no-option-to-change-archive-url/4708.rss">Wp-source: no option to change archive URL</source>
+      </item>
+  </channel>
+</rss>

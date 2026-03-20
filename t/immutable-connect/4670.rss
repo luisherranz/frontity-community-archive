@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Immutable Connect</title>
+    <link>https://community.frontity.org/t/immutable-connect/4670</link>
+    <description>I&#39;ve started studying how an immutable version of Connect could work. I tried an implementation based on `immer` and I&#39;m trying another one now using `valtio`.
+
+The goals are:
+
+1. Take advantage of the Redux DevTools (as opposed to creating our own DevTools).
+1. Prepare it for Concurrent mode (immutable state managers are a better fit for Concurrent).
+1. Add action/state hooks (this will supersede the https://community.frontity.org/t/frontity-hooks/2811). 
+
+Extra goals can be:
+
+- Finally figure out how to create nested derived state.
+
+Open questions:
+
+- Switch to a setter function: `setState(s =&gt; s.x = &quot;x&quot;)` vs `state.x = &quot;x&quot;`. This would add compatibility with old browsers and would easy the implementation.
+
+This might or might not require a backward compatible change, depending on the final API (so Frontity v2), but it is a possibility.
+
+I&#39;ve recorded a video with a summary of the current status: 
+
+&lt;iframe width=&quot;640&quot; height=&quot;400&quot; src=&quot;https://www.loom.com/embed/b2c30231d299445b97a805038e6376a3&quot; frameborder=&quot;0&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;&lt;/iframe&gt;
+
+And this is the codesandbox I am using: https://codesandbox.io/s/immutable-connect-with-valtio-0pgdg</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 16 Jun 2021 14:52:28 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/immutable-connect/4670.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Immutable Connect</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Absolutely my fault Michal, sorry. I was in the middle of a refactoring because I think making a <code>Store</code> class will simplify the types a lot.</p>
+<p>You can clone the repo and go back to the previous commit: <a href="https://github.com/luisherranz/immutable-connect/commits/main" class="inline-onebox">Commits · luisherranz/immutable-connect · GitHub</a></p>
+          <p><a href="https://community.frontity.org/t/immutable-connect/4670/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/immutable-connect/4670/6</link>
+        <pubDate>Wed, 16 Jun 2021 14:52:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4670-6</guid>
+        <source url="https://community.frontity.org/t/immutable-connect/4670.rss">Immutable Connect</source>
+      </item>
+      <item>
+        <title>Immutable Connect</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I was not able to run the codesandbox nor the repo successfully. In the codesandbox it seems that there is a bug in the <code>createStore()</code></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/1/1ba8fc9a179d26efc509ec95dc4097976d35bd76.png" data-download-href="https://community.frontity.org/uploads/default/1ba8fc9a179d26efc509ec95dc4097976d35bd76" title="Screen Shot 2021-06-15 at 18.00.21"><img src="https://community.frontity.org/uploads/default/optimized/2X/1/1ba8fc9a179d26efc509ec95dc4097976d35bd76_2_517x197.png" alt="Screen Shot 2021-06-15 at 18.00.21" data-base62-sha1="3WGWx5SRAwufoq1j929cZUGeYBw" width="517" height="197" srcset="https://community.frontity.org/uploads/default/optimized/2X/1/1ba8fc9a179d26efc509ec95dc4097976d35bd76_2_517x197.png, https://community.frontity.org/uploads/default/optimized/2X/1/1ba8fc9a179d26efc509ec95dc4097976d35bd76_2_775x295.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/1/1ba8fc9a179d26efc509ec95dc4097976d35bd76_2_1034x394.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/1/1ba8fc9a179d26efc509ec95dc4097976d35bd76_2_10x10.png"></a></div><p></p>
+<p>I see that the repo has the same issue, but I wasn’t even able to run it because of an issue in <code>react-scripts</code> <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"> :</p>
+<pre><code class="lang-javascript">TypeError: Cannot assign to read only property 'jsx' of object '#&lt;Object&gt;'
+</code></pre>
+<p>I would normally try to fix the bug, but I think that the offending snippet <img src="https://community.frontity.org/images/emoji/apple/point_down.png?v=9" title=":point_down:" class="emoji" alt=":point_down:"> is not possible (you cannot pass <code>store</code> to the <code>wrapActions()</code> ) so I’m not sure what the intention here was:</p>
+<pre><code class="lang-ts">  // Init the store to pass its reference to the wrappers.
+  const store: ResolveStore&lt;Store&gt; = {
+    state: wrapState(mutableState),
+    actions: wrapActions(store, initialStore.actions)
+  };
+</code></pre>
+<p>Could you help me out <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> ? <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/immutable-connect/4670/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/immutable-connect/4670/5</link>
+        <pubDate>Tue, 15 Jun 2021 23:14:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4670-5</guid>
+        <source url="https://community.frontity.org/t/immutable-connect/4670.rss">Immutable Connect</source>
+      </item>
+      <item>
+        <title>Immutable Connect</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I have advanced a bit more and refactored it a little bit.</p>
+<p>I am still working on CS, but I am doing commits to a repo now. It’s not the final repo but more a way to save the work and go back if I need to <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<ul>
+<li>CS: <a href="https://codesandbox.io/s/flamboyant-jackson-nei0m" class="inline-onebox">flamboyant-jackson-nei0m - CodeSandbox</a>
+</li>
+<li>Repo: <a href="https://github.com/luisherranz/immutable-connect" class="inline-onebox">GitHub - luisherranz/immutable-connect: Created with CodeSandbox</a>
+</li>
+</ul>
+<p>Next steps: I want to do a couple of optimizations, finish the types of <code>Derived</code> and start working on the proxification of the store when passed to actions/components.</p>
+<p>I am confident that I will be able to show who triggered the action/mutation in the Redux DevTools. I think we could use the action object to log it:</p>
+<pre><code class="lang-json">{
+  "type": "actions.router.set",
+  "triggered-by": "Link",
+  "arguments": {
+    "arg-1": "/next-post"
+  }
+}
+</code></pre>
+<pre><code class="lang-json">{
+  "type": "actions.source.fetch (async mutation)",
+  "triggered-by": "actions.router.set"
+}
+</code></pre>
+<p>State diff in both cases is shown in the Redux DevTools automatically.</p>
+          <p><a href="https://community.frontity.org/t/immutable-connect/4670/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/immutable-connect/4670/4</link>
+        <pubDate>Wed, 02 Jun 2021 16:40:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4670-4</guid>
+        <source url="https://community.frontity.org/t/immutable-connect/4670.rss">Immutable Connect</source>
+      </item>
+      <item>
+        <title>Immutable Connect</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"> <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"> <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+          <p><a href="https://community.frontity.org/t/immutable-connect/4670/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/immutable-connect/4670/3</link>
+        <pubDate>Mon, 31 May 2021 07:00:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4670-3</guid>
+        <source url="https://community.frontity.org/t/immutable-connect/4670.rss">Immutable Connect</source>
+      </item>
+      <item>
+        <title>Immutable Connect</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Adding the DevTools sync action messages was pretty straighforward! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://codesandbox.io/favicon.ico" class="site-icon" width="48" height="48">
+
+      <a href="https://codesandbox.io/s/immutable-connect-with-valtio-forked-2x9nb?file=%2Fsrc%2Fcreate-store.ts:2179-2314" target="_blank" rel="noopener" title="02:08AM - 29 May 2021">CodeSandbox – 29 May 21</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://community.frontity.org/uploads/default/optimized/2X/7/737a69a7b789ab7eca604e9ea2ccd3f617302537_2_690x362.png" class="thumbnail" width="690" height="362" srcset="https://community.frontity.org/uploads/default/optimized/2X/7/737a69a7b789ab7eca604e9ea2ccd3f617302537_2_690x362.png, https://community.frontity.org/uploads/default/optimized/2X/7/737a69a7b789ab7eca604e9ea2ccd3f617302537_2_1035x543.png 1.5x, https://community.frontity.org/uploads/default/original/2X/7/737a69a7b789ab7eca604e9ea2ccd3f617302537.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/7/737a69a7b789ab7eca604e9ea2ccd3f617302537_2_10x10.png"></div>
+
+<h3><a href="https://codesandbox.io/s/immutable-connect-with-valtio-forked-2x9nb?file=%2Fsrc%2Fcreate-store.ts:2179-2314" target="_blank" rel="noopener">Immutable Connect (with valtio) (forked) - CodeSandbox</a></h3>
+
+  <p>Immutable Connect (with valtio) (forked) by michalczaplinski using react, react-dom, react-scripts, ts-toolbelt, valtio</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/immutable-connect/4670/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/immutable-connect/4670/2</link>
+        <pubDate>Sat, 29 May 2021 03:15:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4670-2</guid>
+        <source url="https://community.frontity.org/t/immutable-connect/4670.rss">Immutable Connect</source>
+      </item>
+      <item>
+        <title>Immutable Connect</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve started studying how an immutable version of Connect could work. I tried an implementation based on <code>immer</code> and I’m trying another one now using <code>valtio</code>.</p>
+<p>The goals are:</p>
+<ol>
+<li>Take advantage of the Redux DevTools (as opposed to creating our own DevTools).</li>
+<li>Prepare it for Concurrent mode (immutable state managers are a better fit for Concurrent).</li>
+<li>Add action/state hooks (this will supersede the <a href="https://community.frontity.org/t/frontity-hooks/2811" class="inline-onebox">Frontity Hooks</a>).</li>
+</ol>
+<p>Extra goals can be:</p>
+<ul>
+<li>Finally figure out how to create nested derived state.</li>
+</ul>
+<p>Open questions:</p>
+<ul>
+<li>Switch to a setter function: <code>setState(s =&gt; s.x = "x")</code> vs <code>state.x = "x"</code>. This would add compatibility with old browsers and would easy the implementation.</li>
+</ul>
+<p>This might or might not require a backward compatible change, depending on the final API (so Frontity v2), but it is a possibility.</p>
+<p>I’ve recorded a video with a summary of the current status:</p>
+<iframe width="640" height="400" src="https://www.loom.com/embed/b2c30231d299445b97a805038e6376a3" frameborder="0" allowfullscreen=""></iframe>
+<p>And this is the codesandbox I am using: <a href="https://codesandbox.io/s/immutable-connect-with-valtio-0pgdg" class="inline-onebox">Immutable Connect (with valtio) - CodeSandbox</a></p>
+          <p><a href="https://community.frontity.org/t/immutable-connect/4670/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/immutable-connect/4670/1</link>
+        <pubDate>Fri, 28 May 2021 16:06:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4670-1</guid>
+        <source url="https://community.frontity.org/t/immutable-connect/4670.rss">Immutable Connect</source>
+      </item>
+  </channel>
+</rss>

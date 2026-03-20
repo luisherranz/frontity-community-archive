@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>WP plugins and how to manage them</title>
+    <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61</link>
+    <description>Sharing what I&#39;ve learnt so far:
+
+# About `composer`
+[Composer](https://getcomposer.org/) is a package manager for PHP (similar to NPM) and there are also a couple of packages that allow us to manage monorepos with composer: [composer-monorepo-plugin](https://github.com/beberlei/composer-monorepo-plugin) and [monorepo-builder](https://github.com/Symplify/MonorepoBuilder).
+
+But I&#39;m not sure if we have a use for it, as what we want to have is many WP plugins inside one repo, but these plugins don&#39;t need to be `composer` packages to be used by our general plugin.
+
+So...
+
+# Possible solutions
+## 1. One plugin to contain them all
+In this solution, proposed by Luis, the main plugin is in the root of the repo and the other plugins will be inside that plugin, in a plugins folder, and will be directly imported by the main plugin.
+
+### Pros
+* We still can publish the minor plugins on its own just keeping the WP install/activate logic out of the main class, so the class can be directly imported by the main plugin.
+* The way the main plugin uses the minor ones is very simple, just require if not yet required.
+
+### Cons
+* If a blog already has a minor plugin installed, the code of that plugin would be duplicated.
+* We would need to use symlinks in development in order to work with the minor plugins as installed independently
+* We might need to handle some conflicts that can appear between minor plugins if they are installed independently and the main plugin is also installed.
+
+## 2. One plugin to rule them all
+All the plugins live inside the packages folder of the repo (including the main plugin), and the main plugin will have the minor plugins as dependencies, so in order to use the main plugin in production all the minor plugins should be installed. The main plugin will act only as a manager and it might install any minor plugin required.
+
+### Pros
+* There shouldn&#39;t be conflicts between the main plugin and the minor plugins when installed.
+* No code is duplicated in production.
+
+### Cons
+* All minor plugins must be installed in order for the main one to work. To ask the user to install them is highly inconvenient. If we install them with the main plugin it might be a bit shady.
+* We would need to use symlinks in development in order to work with all the plugins
+
+# Things to consider
+## Minor plugins might need to save settings/transients
+We should be careful about removing the settings/transients when uninstalling/deactivating a minor plugin if the main one is still installed or viceversa.
+
+## Minor plugins might need an UI in order to be used
+Maybe here we should declare a general admin page in the menu called `Frontity`, no matter if we are dealing with the main plugin or with minor plugins, and for each of the minor plugins declare a subpage. So the UI for the main plugin would be a list of subpages created by the minor plugins.
+
+We could also prevent the minor plugins from creating their UI in case the main plugin is installed, and with the main plugin render all the UIs needed in one page, if this is more suitable for our needs.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 27 Jun 2019 13:26:54 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I think it’s okay to give that possibility to users, right?</p>
+<p>I cannot think of a case right now, but someone may want to have a feature disabled by default and only enable it using the query.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/9</link>
+        <pubDate>Thu, 27 Jun 2019 13:26:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-9</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, so I’ve been thinking that we should add the “enabled” checkbox to the smaller plugins as well.</p>
+<p>Why? Because features can also be enabled using query params. Something like this:</p>
+<ul>
+<li>If query param is present, follow query param.</li>
+<li>If query param is not present, follow “enabled” status.</li>
+</ul>
+<p>Some examples:</p>
+<p>HTML purifier <strong>not enabled</strong> in WP-Admin:</p>
+<ul>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <code>/wp-json/wp/v2/posts</code> &lt;- html purifier not working</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <code>/wp-json/wp/v2/posts?htmlpurifier=true</code> &lt;- html purifier working</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <code>/wp-json/wp/v2/posts?htmlpurifier=false</code> &lt;- html purifier not working</li>
+</ul>
+<p>HTML purifier <strong>enabled</strong> in WP-Admin:</p>
+<ul>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <code>/wp-json/wp/v2/posts</code> &lt;- html purifier working</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <code>/wp-json/wp/v2/posts?htmlpurifier=true</code> &lt;- html purifier working</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <code>/wp-json/wp/v2/posts?htmlpurifier=false</code> &lt;- html purifier not working</li>
+</ul>
+<p>So you may want to install a small plugin, don’t enable it and use it only with queries.</p>
+<p>Makes sense?</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/8</link>
+        <pubDate>Thu, 27 Jun 2019 08:23:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-8</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I just wanted to make it even simpler reducing the number of parameters needed. It’s already written though.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/7</link>
+        <pubDate>Wed, 26 Jun 2019 09:51:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-7</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="5" data-topic="61">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>To write a small script (width <code>symlink-dir</code> ) that generates a symlink between your local WP <code>wp-content/plugins</code> and the repo containing the Frontity plugins, just passing the path to your local WP installation.</p>
+</blockquote>
+</aside>
+<p>Maybe we don’t need a script, just instructions on how to use <code>npx symlink-dir</code>.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/6</link>
+        <pubDate>Tue, 25 Jun 2019 16:40:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-6</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>We are back here! After discussing it we decided to proceed with the following implementation:</p>
+<ul>
+<li>To use <code>lerna</code> to handle the packages version management of the different plugins.</li>
+<li>To write a small script (width <code>symlink-dir</code>) that generates a symlink between your local WP <code>wp-content/plugins</code> and the repo containing the Frontity plugins, just passing the path to your local WP installation.</li>
+<li>There is going to be a main plugin, that contains all the Frontity plugins, and then each Frontity plugin might be independent.</li>
+<li>We are going to build a script that will sort out the directories to a new folder ready to be deployed with svn.</li>
+<li>We will handle the differences between the requires of development and production creating two different files: <code>require-dev.php</code> and <code>require-prod.php</code>, so what we change with the script in our <code>plugin.php</code> file is just the required file path.</li>
+<li>All the requires and imports script registered will be done in a different file than the one containing the main class of the plugin.</li>
+</ul>
+<p>I might be missing some details, but I’ll start working with this.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/5</link>
+        <pubDate>Tue, 25 Jun 2019 09:46:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-5</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I agree with you.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/4</link>
+        <pubDate>Mon, 04 Mar 2019 13:17:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-4</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Good points.</p>
+<p>In general, I think we should aim for this:</p>
+<p>final-user-experience <strong>&gt;</strong> developer-experience <strong>&gt;</strong> core-developer-experience</p>
+<p><em>("&gt;" meaning “more important than”)</em></p>
+<p>With that in mind, I think the first solution has a better <strong>final-user-experience</strong> than the second one, although it has a worse <strong>core-developer-experience</strong>. The <strong>developer-experience</strong> is not affected.</p>
+<p>The second solution has a worse <strong>final-user-experience</strong> because it has to install many different plugins. In my opinion, we should avoid that.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/3</link>
+        <pubDate>Mon, 04 Mar 2019 13:15:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-3</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I created a <a href="https://github.com/frontity/wp-org-plugins" rel="nofollow noopener">github repo</a> for these plugins, also using <code>Lerna</code> like in our main repository. It’s just to have something to start with and it’s not ready to start developing any plugin yet.</p>
+<p>I was trying to automate version updates in the <code>.php</code> files (using some of the <a href="https://docs.npmjs.com/misc/scripts" rel="nofollow noopener">npm scripts</a>) and here is my conclusion:</p>
+<ul>
+<li>
+<p><strong><code>postversion</code></strong><br>
+This is how I said to solve it before, but using this script <code>Lerna</code> has already created a “publish” commit and tags that point to that commit so it’s not a good moment to update any file.</p>
+</li>
+<li>
+<p><strong><code>version</code></strong><br>
+When running this script, <code>package.json</code> files have been updated but not committed. At that time you can update the version in the <code>.php</code> file by copying the version that is in <code>package.json</code>, and then stage the changes to the git repository. These changes will be committed in the “publish” commit that <code>Lerna</code> creates.</p>
+</li>
+</ul>
+<p>I added a <strong><code>version</code></strong> script in the root package to show how it could be implemented.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/2</link>
+        <pubDate>Mon, 04 Mar 2019 12:31:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-2</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+      <item>
+        <title>WP plugins and how to manage them</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Sharing what I’ve learnt so far:</p>
+<h1>About <code>composer</code>
+</h1>
+<p><a href="https://getcomposer.org/" rel="nofollow noopener">Composer</a> is a package manager for PHP (similar to NPM) and there are also a couple of packages that allow us to manage monorepos with composer: <a href="https://github.com/beberlei/composer-monorepo-plugin" rel="nofollow noopener">composer-monorepo-plugin</a> and <a href="https://github.com/Symplify/MonorepoBuilder" rel="nofollow noopener">monorepo-builder</a>.</p>
+<p>But I’m not sure if we have a use for it, as what we want to have is many WP plugins inside one repo, but these plugins don’t need to be <code>composer</code> packages to be used by our general plugin.</p>
+<p>So…</p>
+<h1>Possible solutions</h1>
+<h2>1. One plugin to contain them all</h2>
+<p>In this solution, proposed by Luis, the main plugin is in the root of the repo and the other plugins will be inside that plugin, in a plugins folder, and will be directly imported by the main plugin.</p>
+<h3>Pros</h3>
+<ul>
+<li>We still can publish the minor plugins on its own just keeping the WP install/activate logic out of the main class, so the class can be directly imported by the main plugin.</li>
+<li>The way the main plugin uses the minor ones is very simple, just require if not yet required.</li>
+</ul>
+<h3>Cons</h3>
+<ul>
+<li>If a blog already has a minor plugin installed, the code of that plugin would be duplicated.</li>
+<li>We would need to use symlinks in development in order to work with the minor plugins as installed independently</li>
+<li>We might need to handle some conflicts that can appear between minor plugins if they are installed independently and the main plugin is also installed.</li>
+</ul>
+<h2>2. One plugin to rule them all</h2>
+<p>All the plugins live inside the packages folder of the repo (including the main plugin), and the main plugin will have the minor plugins as dependencies, so in order to use the main plugin in production all the minor plugins should be installed. The main plugin will act only as a manager and it might install any minor plugin required.</p>
+<h3>Pros</h3>
+<ul>
+<li>There shouldn’t be conflicts between the main plugin and the minor plugins when installed.</li>
+<li>No code is duplicated in production.</li>
+</ul>
+<h3>Cons</h3>
+<ul>
+<li>All minor plugins must be installed in order for the main one to work. To ask the user to install them is highly inconvenient. If we install them with the main plugin it might be a bit shady.</li>
+<li>We would need to use symlinks in development in order to work with all the plugins</li>
+</ul>
+<h1>Things to consider</h1>
+<h2>Minor plugins might need to save settings/transients</h2>
+<p>We should be careful about removing the settings/transients when uninstalling/deactivating a minor plugin if the main one is still installed or viceversa.</p>
+<h2>Minor plugins might need an UI in order to be used</h2>
+<p>Maybe here we should declare a general admin page in the menu called <code>Frontity</code>, no matter if we are dealing with the main plugin or with minor plugins, and for each of the minor plugins declare a subpage. So the UI for the main plugin would be a list of subpages created by the minor plugins.</p>
+<p>We could also prevent the minor plugins from creating their UI in case the main plugin is installed, and with the main plugin render all the UIs needed in one page, if this is more suitable for our needs.</p>
+          <p><a href="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61/1</link>
+        <pubDate>Mon, 04 Mar 2019 11:36:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-61-1</guid>
+        <source url="https://community.frontity.org/t/wp-plugins-and-how-to-manage-them/61.rss">WP plugins and how to manage them</source>
+      </item>
+  </channel>
+</rss>

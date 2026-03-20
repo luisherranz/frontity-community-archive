@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Allow credentials in `@frontity/wp-source` requests</title>
+    <link>https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364</link>
+    <description>&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+## Description
+&lt;!-- Try to give a detailed explanation of what do you expect of this feature --&gt;
+I need to send the authentication cookies in every request to the REST API made with `@frontity/wp-source`.
+
+## Examples
+&lt;!-- Do you know examples that could inspire the community? Let us know! --&gt;
+I want to request `/wp-json/wp/v2/users` and get a full list of users if I&#39;m authenticated as an admin.
+
+## Possible solution
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+One way to solve this is passing a `fetch` options object as a parameter to `libraries.source.api.get` so I can use `fetch` with `{ credentials: &quot;include&quot; }` to attach cookies to the request. (This solution won&#39;t work with the default handlers, only with those created by users that decide to pass the options object to `api.get`)
+
+Another possible way is to set a general option in `wp-source` state like `allowCredentials: true` and the `libraries.source.api.get` should use that option to set the credentials value to `&quot;include&quot;`, which is the value that allows the cookies to be shared between subdomains.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 13 Mar 2020 08:47:07 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Allow credentials in `@frontity/wp-source` requests</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome! Thanks for your input <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+<aside class="quote no-group" data-username="orballo" data-post="3" data-topic="1364">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I don’t understand completely the <code>getApiUrl</code> function though. What is <code>options</code> and <code>params</code> ? Is <code>options</code> part of a refactorization of the handlers API?</p>
+</blockquote>
+</aside>
+<p>Yeah, sorry, I’m thinking already with the new API. I’ll open the Feature Discussion for Source v2 as soon as I can <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<p>Basically, you could configure the handler in the <code>state</code> like this:</p>
+<pre><code>export default {
+  state: {
+    source: {
+      handlers: {
+        home: {
+          pattern: "/",
+          options: {
+            type: "archive",
+            endpoint: "posts"
+          }
+        },
+        category: {
+          pattern: "/category/(.*)?/:slug",
+          options: {
+            type: "taxonomy",
+            endpoint: "posts",
+            taxonomyEndpoint: "categories"
+          }
+        },
+        ...
+      }
+    }
+  }
+}
+</code></pre>
+<p>That way people will be able to configure the handlers with their <code>frontity.settings.js</code> file:</p>
+<pre><code>const settings = {
+  state: {
+    source: {
+      handlers: {
+        home: {
+          pattern: "/blog"
+        }
+      }
+    }
+  }
+};
+</code></pre>
+<p>Or even create new handlers without writing code:</p>
+<pre><code>const settings = {
+  state: {
+    source: {
+      handlers: {
+        weirdCategory: {
+          pattern: "/weird-category",
+          options: {
+            type: "archive",
+            endpoint: "weird-post-type",
+            params: {
+              per_page: 50,
+              categories: "123,456,789"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+</code></pre>
+<p>This is a super brief example of the new Source v2 API, it has much more <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/4</link>
+        <pubDate>Fri, 13 Mar 2020 08:47:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1364-4</guid>
+        <source url="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364.rss">Allow credentials in `@frontity/wp-source` requests</source>
+      </item>
+      <item>
+        <title>Allow credentials in `@frontity/wp-source` requests</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I created this topic with the intention of starting a discussion about it, but I have no preferred way to solve this issue.</p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="2" data-topic="1364">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>What do you think about this approach?</p>
+</blockquote>
+</aside>
+<p>The helper looks good to me. I was wondering if <code>api.get</code> had to exist in the first place, because we’ll run soon into a situation where we need to extend every HTTP method like <code>api.post</code> and having to maintain that doesn’t make sense I think.</p>
+<p>I don’t understand completely the <code>getApiUrl</code> function though. What is <code>options</code> and <code>params</code>? Is <code>options</code> part of a refactorization of the handlers API?</p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="2" data-topic="1364">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Can you use <code>fetch</code> manually instead of <code>libraries.source.api</code> for now?</p>
+</blockquote>
+</aside>
+<p>Yes, I wasn’t actually planning on using <code>api.get</code> that much because most of the cases where I want to be authenticated are <code>POST</code> requests, so I already needed to use <code>fetch</code>.</p>
+<p><strong>EDIT:</strong> I’ve updated the topic title.</p>
+          <p><a href="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/3</link>
+        <pubDate>Thu, 12 Mar 2020 19:22:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1364-3</guid>
+        <source url="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364.rss">Allow credentials in `@frontity/wp-source` requests</source>
+      </item>
+      <item>
+        <title>Allow credentials in `@frontity/wp-source` requests</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I am designing the version 2 of <code>source</code> packages right now and I am actually thinking that we should remove <code>libraries.source.api</code> in favor of a helper like:</p>
+<pre><code>import { getApiUrl } from "@frontity/wp-source/helpers";
+
+const myHandler = ({ state, options }) =&gt; {
+  const apiUrl = getApiUrl({ state, options });
+  const response = await fetch(apiUrl);
+};
+</code></pre>
+<p>That way you won’t have to build the URL yourself but you get to do the <code>fetch</code> yourself, and have more control over it.</p>
+<pre><code>import { getApiUrl } from "@frontity/wp-source/helpers";
+
+const myHandler = ({ state, options }) =&gt; {
+  const apiUrl = getApiUrl({ state, options });
+  const response = await fetch(apiUrl, { credentials: "include" });
+};
+</code></pre>
+<p>The <code>apiUrl</code> returned by <code>getApiUrl</code> can be a URL object, which is accepted by <code>fetch</code>. Maybe something like this:</p>
+<pre><code>const getApiUrl = ({ state, options, api, endpoint, params }) =&gt; {
+  // Use options.api or the default.
+  const base = api || options.api || state.source.api;
+  // Use options endpoint or the default.
+  let endpoint = endpoint || options.endpoint || state.wpSource.default.endpoint;
+  // Add /wp/v2 to endpoint if needed.
+  if (!endpoint.startsWith("/")) endpoint = `/wp/v2/${endpoint}`;
+  // Join them and make sure there are no repeated /.
+  const api = `${base}/${endpoint}`.replace(/\/+/, "/");
+  // Build the URL object.
+  const url = new URL(base);
+  // Add the params.
+  const allParams = ({
+    embed: true,
+    ...state.wpSource.default.params,
+    ...options.params,
+    ...params
+  })
+  Object.keys(allParams).forEach(key =&gt;
+    url.searchParams.append(key, allParams[key])
+  );
+
+  return url;
+};
+</code></pre>
+<p>Other packages like <code>wp-graphql-source</code> will have their own helper to build the API URL.</p>
+<hr>
+<p>Two questions:</p>
+<ul>
+<li>What do you think about this approach?</li>
+<li>Can you use <code>fetch</code> manually instead of <code>libraries.source.api</code> for now?</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/2</link>
+        <pubDate>Thu, 12 Mar 2020 16:45:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1364-2</guid>
+        <source url="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364.rss">Allow credentials in `@frontity/wp-source` requests</source>
+      </item>
+      <item>
+        <title>Allow credentials in `@frontity/wp-source` requests</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <h2>Description</h2>
+
+<p>I need to send the authentication cookies in every request to the REST API made with <code>@frontity/wp-source</code>.</p>
+<h2>Examples</h2>
+
+<p>I want to request <code>/wp-json/wp/v2/users</code> and get a full list of users if I’m authenticated as an admin.</p>
+<h2>Possible solution</h2>
+
+<p>One way to solve this is passing a <code>fetch</code> options object as a parameter to <code>libraries.source.api.get</code> so I can use <code>fetch</code> with <code>{ credentials: "include" }</code> to attach cookies to the request. (This solution won’t work with the default handlers, only with those created by users that decide to pass the options object to <code>api.get</code>)</p>
+<p>Another possible way is to set a general option in <code>wp-source</code> state like <code>allowCredentials: true</code> and the <code>libraries.source.api.get</code> should use that option to set the credentials value to <code>"include"</code>, which is the value that allows the cookies to be shared between subdomains.</p>
+          <p><a href="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364/1</link>
+        <pubDate>Thu, 12 Mar 2020 14:48:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1364-1</guid>
+        <source url="https://community.frontity.org/t/allow-credentials-in-frontity-wp-source-requests/1364.rss">Allow credentials in `@frontity/wp-source` requests</source>
+      </item>
+  </channel>
+</rss>

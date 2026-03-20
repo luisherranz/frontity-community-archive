@@ -1,0 +1,988 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Gutenberg + Frontity integration</title>
+    <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467</link>
+    <description>## Description
+While working on fronity.org, we have tried to find the best way to integrate gutenberg blocks with frontity. 
+
+## Possible solution
+
+```
+import { Node, Processor } from &quot;@frontity/html2react/types&quot;;
+import { connect } from &quot;frontity&quot;;
+import { Connect } from &quot;frontity/types&quot;;
+import React, { useState } from &quot;react&quot;;
+
+import FrontityOrg from &quot;../../types&quot;;
+
+const Switch: React.FC&lt;Connect&lt;
+  FrontityOrg,
+  {
+    html: string;
+  }
+&gt;&gt; = connect(({ libraries, html }) =&gt; {
+  const Html2React = libraries.html2react.Component;
+
+  const [state, setState] = useState(true);
+
+  // `match()`
+  //
+  // 1. Match a part of html tree
+  // 2. Remove that part of the HTML from the `html` parameter
+  // 3. Then, it will create a &quot;slot&quot; in the &quot;html&quot; that you can &quot;fill&quot;
+  // using the returned Component (param 1.) You can think of a &quot;slot&quot; like a placeholder of somthing similar to `children` in react or slots in Vue: https://vuejs.org/v2/guide/components-slots.html
+  //
+  // Returns 2 params:
+  //  1. a React component
+  //  2. The HTML under the node that was matched
+  const [SwitchButton, buttonHtml] = match(&quot;div.switchButton&quot;, html);
+  const [Content, contentHtml] = match(&quot;div.content&quot;, html);
+
+  return (
+    // 2. We need to extend Html2React to be able to handle the &quot;slots&quot;
+    &lt;Html2React html={html}&gt;
+      {/* We can pass several children and let Html2React figure out 
+          where to put them in the HTML, according to the slots */}
+      &lt;SwitchButton onClick={() =&gt; setState((state) =&gt; !state)}&gt;
+        &lt;Html2React html={buttonHtml} /&gt;
+      &lt;/SwitchButton&gt;
+
+      &lt;Content&gt;
+        {state ? &quot;on&quot; : &quot;off&quot;}
+        &lt;Html2React html={contentHtml} /&gt;
+      &lt;/Content&gt;
+    &lt;/Html2React&gt;
+  );
+});
+
+export const switchElement: Processor&lt;
+  React.HTMLProps&lt;HTMLElement&gt;,
+  FrontityOrg
+&gt; = {
+  name: &quot;switch&quot;,
+  test: ({ node }) =&gt;
+    node.type === &quot;element&quot; &amp;&amp;
+    node.props?.className?.split(&quot; &quot;).includes(&quot;switch&quot;),
+  processor: ({ node, html }) =&gt; {
+    if (node.type !== &quot;element&quot;) return node;
+
+    const element: Node&lt;React.HTMLProps&lt;HTMLElement&gt; &amp; { html: string }&gt; = {
+      type: &quot;element&quot;,
+      component: Switch,
+      props: {
+        // `html` should be provided as an extra parameter in the
+        //  callback from the processor. Would have to modify html2React for this.
+        html,
+      },
+    };
+
+    return element;
+  },
+};
+```
+
+https://www.loom.com/share/4b864212718b4ec1a14a3ac5cfe0c704
+
+
+The code from the video example: 
+
+```
+import { connect } from &quot;frontity&quot;;
+import { Connect } from &quot;frontity/types&quot;;
+import React, { useState } from &quot;react&quot;;
+
+import FrontityOrg from &quot;../../types&quot;;
+
+interface Props {
+  rendered: string;
+}
+
+const Flow: React.FC&lt;Connect&lt;FrontityOrg, Props&gt;&gt; = ({
+  libraries,
+  rendered,
+}) =&gt; {
+  const Html2React = libraries.html2react.Component;
+
+  const [activeTab, setActiveTab] = useState(0);
+
+  // Match a part of html tree
+  // Return a part of the
+  const CreateButton = match(&quot;div.createButton&quot;, rendered);
+  const ConnectButton = match(&quot;div.connectButton&quot;, rendered);
+
+  const Content = ({ children }) =&gt; &lt;section&gt;{children}&lt;/section&gt;;
+
+  return (
+    &lt;Html2React html={rendered}&gt;
+      &lt;CreateButton onClick={() =&gt; setActiveTab(0)} /&gt;
+      &lt;ConnectButton onClick={() =&gt; setActiveTab(1)} /&gt;
+      &lt;StyleButton onClick={() =&gt; setActiveTab(2)} /&gt;
+      &lt;DeployButton onClick={() =&gt; setActiveTab(3)} /&gt;
+
+      &lt;Content&gt;
+        &lt;h4&gt; Some title &lt;/h4&gt;
+        &lt;Html2React html={} /&gt;
+      &lt;/Content&gt;
+    &lt;/Html2React&gt;
+  );
+};
+
+export default connect(Flow);
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 07 Jul 2020 23:44:40 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Just FYI - I shared some findings about the <code>gatsby-wp-gutenberg</code> library which has similar goals as this thread:</p>
+<aside class="quote quote-modified" data-post="1" data-topic="2306">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/review-of-gatsbywpgutenberg/2306">Review of gatsbywpgutenberg</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/framework/5"><span class="badge-category-bg" style="background-color: #0088CC;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Get involved in the framework design and its development.">» Framework Design</span></a>
+  </div>
+  <blockquote>
+    This is a package which allows using gutenberg with gatsby. I’ve had a look at it to see if we can extract some ideas and put them in frontity. Here are my impressions: 
+Description
+This package allows you to create blocks in the WP block editor and then use them in the gatsby app or write your own block “implementations” in react. In that sense it’s quite similar to html2react. 
+
+
+It’s not that easy to set up (as far as I can see it requires requires 3 different wp plugins: wp-gatsby, wp-grap…
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/18</link>
+        <pubDate>Tue, 07 Jul 2020 23:44:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-18</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I thought some time ago of exporting the function <code>&lt;Html2React&gt;</code> uses internally to render nodes as React elements, but I guess adding the <code>node</code> prop to the component would be a better idea. That way it’s more explicit that we are rendering React elements.</p>
+<p>Also, it could still use the processors defined in <code>libraries.html2react.processors</code>.</p>
+<p>So, yup, I think it makes sense. <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/17</link>
+        <pubDate>Fri, 19 Jun 2020 16:28:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-17</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I see, thanks <a class="mention" href="https://community.frontity.org/u/david">@david</a>.</p>
+<p>I guess it could be possible to add a step where we move from a <code>node</code> to a React component, right?</p>
+<p>Something like:</p>
+<pre><code class="lang-js">const createSlotAndFill = (fill) =&gt; {
+  const Fill = null;
+
+  const Slot = (node) =&gt; &lt;Html2React node={node} /&gt;;
+
+  return { Fill, Slot };
+};
+</code></pre>
+<p>If we make <code>Html2React</code> able to receive an already parsed <code>node</code> instead of the unparsed HTML.</p>
+<p>What do you think? Does it make sense? Do you see any other way of doing this?</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/16</link>
+        <pubDate>Thu, 18 Jun 2020 12:08:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-16</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, I see, I didn’t understand. <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>There are some problems with that approach, at least in the code you shared.</p>
+<pre><code class="lang-javascript">const Button = createSlotAndFill(button);
+</code></pre>
+<p><code>button</code> here and its children are Html2React nodes and, although they have a similar structure than React elements, they cannot be used the same way (for instance, you cannot add <code>button.children</code> in the <code>Slot</code> component render).</p>
+<pre><code class="lang-javascript">button.component = Button.Fill;
+</code></pre>
+<p>The line above would work if you remove <code>button.children</code> also. If not, <code>Html2React</code> would render <code>children</code> and pass them to <code>Button.Fill</code> just not to be shown at the end.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/15</link>
+        <pubDate>Wed, 17 Jun 2020 13:29:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-15</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="David" data-post="10" data-topic="1467">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Fills are now defined in the frontity state instead of having to render them using React.<br>
+Do we still have the problem you mentioned above? <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+</blockquote>
+</aside>
+<p>These slot and fills are independent of the other ones.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/13</link>
+        <pubDate>Wed, 17 Jun 2020 10:39:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-13</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Oops, I think I forgot to answer you here, <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>. Sorry about that. <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>Fills are now defined in the frontity state instead of having to render them using React.<br>
+Do we still have the problem you mentioned above? <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/10</link>
+        <pubDate>Mon, 15 Jun 2020 14:00:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-10</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I created a createSlotAndFill function like this:</p>
+<pre><code>const createSlotAndFill = () =&gt; {
+  const fill = {};
+
+  const Fill = ({ children, tag, ...props }) =&gt; {
+    fill.children = children;
+    fill.tag = tag;
+    fill.props = props;
+    return null;
+  };
+
+  const Slot = ({ children, tag, ...props }) =&gt; {
+    const Tag = tag || fill.tag;
+    return (
+      &lt;Tag {...fill.props} {...props}&gt;
+        {fill.children}
+        {children}
+      &lt;/Tag&gt;
+    );
+  };
+
+  return { Fill, Slot };
+};
+</code></pre>
+<p>Codesandbox: <a href="https://codesandbox.io/s/inspiring-bose-q8skd">https://codesandbox.io/s/inspiring-bose-q8skd</a></p>
+<p>The thing is that it has the same problem as the Slot and Fill libraries: The Fill needs to be rendered before the Slot.</p>
+<p>Taking into account that the only reason for the Fill existence is to populate the data the Slot will use, and we already have that data in Html2React, it doesn’t make sense to do it this way. We should instead do something like:</p>
+<pre><code>const processor = {
+  test: ({ node }) =&gt; node.is(".switch"),
+  processor: ({ node }) =&gt; {
+    const button = node.find(".switch-button");
+    // Pass the fill to the creator:
+    const Button = createSlotAndFill(button);
+    // Pass the Slot to the component which will use it.
+    node.props.Button = Button.Slot;
+    // Replace the node with the fill.
+    button.component = Button.Fill;
+  }
+};
+</code></pre>
+<p>And the <code>createSlotAndFill</code> can be something like this:</p>
+<pre><code>const createSlotAndFill = fill =&gt; {
+  const Fill = () =&gt; null;
+
+  const Slot = ({ children, ...props }) =&gt; (
+    &lt;fill.component {...fill.props} {...props}&gt;
+      {fill.children}
+      {children}
+    &lt;/fill.component&gt;
+  );
+
+  return { Fill, Slot };
+};
+</code></pre>
+<p><a class="mention" href="https://community.frontity.org/u/david">@david</a> can you please check this out and let us know if it’ll work with the current implementation of html2react?</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/8</link>
+        <pubDate>Mon, 06 Apr 2020 07:29:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-8</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been thinking a little bit at this yesterday and I want to do an update on my thoughts.</p>
+<h2>From HTML to JSX</h2>
+<p>As Michal suggested, we can use the slot and fill pattern to move from HTML to JSX.</p>
+<p>I don’t think the <a href="https://community.frontity.org/t/slot-and-fill/895">slot and fill utils we are going to build for the themes</a> apply here, because those are linked using strings and for this we need instances.</p>
+<p>So I think we would need to introduce a slot and fill creator, that returns two linked instances.</p>
+<pre><code>let SwitchButton = null;
+let SwitchValue = null;
+
+const Switch = ({ SwitchButton, SwitchValue }) =&gt; {
+  const [visible, setVisible] = React.useState(false);
+  return (
+    &lt;&gt;
+      &lt;SwitchButton onClick={() =&gt; setVisible(!visible)} /&gt;
+      {visible &amp;&amp; &lt;SwitchValue /&gt;}
+    &lt;/&gt;
+  );
+};
+
+const switch = {
+  test: ({ node }) =&gt; node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node }) =&gt; {
+    node.component = Switch;
+    // Create instances of slot-and-fill's.
+    SwitchButton = SlotAndFill();
+    SwitchValue = SlotAndFill();
+    // Pass the slots to Switch.
+    node.props.SwitchButton = SwitchButton.Slot;
+    node.props.SwitchValue = SwitchValue.Slot;
+  },
+};
+const switchButton = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-button"),
+  processor: ({ node, actions }) =&gt; {
+    // Turn the button in the fill.
+    node.component = SwitchButton.Fill;
+  },
+};
+const switchValue = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-value"),
+  processor: ({ node, state }) =&gt; {
+    // Turn the value in the fill.
+    node.component = SwitchValue.Fill;
+  },
+};
+</code></pre>
+<p>This, of course, works because we are traversing the tree from top to bottom, but it doesn’t feel solid to me. It would be better to find the children nodes inside the parent node.</p>
+<pre><code>const Switch = ({ SwitchButton, SwitchValue }) =&gt; {
+  const [visible, setVisible] = React.useState(false);
+  return (
+    &lt;&gt;
+      &lt;SwitchButton onClick={() =&gt; setVisible(!visible)} /&gt;
+      {visible &amp;&amp; &lt;SwitchValue /&gt;}
+    &lt;/&gt;
+  );
+};
+
+const switch = {
+  test: ({ node }) =&gt; node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node }) =&gt; {
+    node.component = Switch;
+    // Create instances of slot-and-fill's.
+    SwitchButton = SlotAndFill();
+    SwitchValue = SlotAndFill();
+    // Pass the slots to Switch.
+    node.props.SwitchButton = SwitchButton.Slot;
+    node.props.SwitchValue = SwitchValue.Slot;
+    // Find the children and turn them into fills
+    const button = node.find(".switch-button");
+    button.component = SwitchButton.Fill;
+    const value = node.find(".switch-value");
+    value.component = SwitchValue.Fill;
+  },
+};
+</code></pre>
+<h2>Finding nodes</h2>
+<p>Right now we use a test function to find nodes:</p>
+<pre><code>const processor = {
+  test: ({ node }) =&gt; node.props?.className?.split(" ").includes("switch"),
+};
+</code></pre>
+<p>If we want to be able to find nodes inside nodes easily, we need to find a way to do so. Michal and David (and even <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> a while ago in <a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/4" class="inline-onebox">Better class name tests in processors</a>) proposed to do so with a selector:</p>
+<pre><code>const processor = {
+  test: ({ node }) =&gt; node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node }) =&gt; {
+    const switchButton = node.find(".switch-button");
+    switchButton.component = SwitchButton;
+  },
+};
+</code></pre>
+<p>I proposed to use a processor:</p>
+<pre><code>const processor = {
+  test: ({ node }) =&gt; node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node }) =&gt; {
+    node.process({
+      test: ({ node }) =&gt;
+        node.props?.className?.split(" ").includes("switch-button"),
+      processor: ({ node }) =&gt; {
+        node.component = SwitchButton;
+      },
+    });
+  },
+};
+</code></pre>
+<p>but introduce the selector API in this system:</p>
+<pre><code>const processor = {
+  test: ({ node }) =&gt; node.is(".switch"),
+  processor: ({ node }) =&gt; {
+    node.process({
+      test: ({ node }) =&gt; node.is(".switch-button"),
+      processor: ({ node }) =&gt; {
+        node.component = SwitchButton;
+      },
+    });
+  },
+};
+</code></pre>
+<p>I’ve been thinking about the <code>node.find</code> API that:</p>
+<ul>
+<li>Receives either a test function or a selector string.</li>
+<li>Returns an array of nodes.</li>
+</ul>
+<p>and I can’t find any example that is not better using it instead of the test function for everything.</p>
+<p>Each <code>processor</code> function will be run only once because <code>node.find</code> returns an array of nodes.</p>
+<pre><code>const Switch = ({ SwitchButton, SwitchValue }) =&gt; {
+  const [visible, setVisible] = React.useState(false);
+  return (
+    &lt;&gt;
+      &lt;SwitchButton onClick={() =&gt; setVisible(!visible)} /&gt;
+      {visible &amp;&amp; &lt;SwitchValue /&gt;}
+    &lt;/&gt;
+  );
+};
+
+const processor = ({ root }) =&gt; {
+  root.find(".switch").map(switch =&gt; {
+    // Create instances of slot-and-fill's.
+    SwitchButton = SlotAndFill();
+    SwitchValue = SlotAndFill();
+    // Pass the slots to Switch.
+    switch.props.SwitchButton = SwitchButton.Slot;
+    switch.props.SwitchValue = SwitchValue.Slot;
+    // Find the children and turn them into fills
+    switch.find(".switch-button").map(switchButton =&gt; {
+      switchButton.component = SwitchButton.Fill;
+    });
+    switch.find(".switch-value").map(switchValue =&gt; {
+      switchValue.component = SwitchValue.Fill;
+    });
+  });
+};
+</code></pre>
+<p>I think that using the Slot and Fill system solves the problem we have when the rest of the children is uncertain, because when you replace a component with a fill, that component disappears and therefore there’s no need to modify <code>children</code>.</p>
+<pre><code>const Switch = ({ SwitchButton, children }) =&gt; {
+  const [visible, setVisible] = React.useState(false);
+  return (
+    &lt;&gt;
+      &lt;SwitchButton onClick={() =&gt; setVisible(!visible)} /&gt;
+      {/* children doesn't have switch-button because
+          we turned that into a fill. */}
+      {visible &amp;&amp; children}
+    &lt;/&gt;
+  );
+};
+
+const processor = ({ root }) =&gt; {
+  root.find(".switch").map(switch =&gt; {
+    // Create instances of slot-and-fill's.
+    SwitchButton = SlotAndFill();
+    // Pass the slots to Switch.
+    switch.props.SwitchButton = SwitchButton.Slot;
+    // Find the children and turn them into fills
+    switch.find(".switch-button").map(switchButton =&gt; {
+      switchButton.component = SwitchButton.Fill;
+    });
+  });
+};
+</code></pre>
+<p>It also simplifies some complex processors where we need to count the number of nodes, for example in the one that counts paragraphs to insert ads.</p>
+<pre><code>const Paragraph = ({ hasAd, children, ...props }) =&gt; (
+  &lt;&gt;
+    &lt;p {...props}&gt;{children}&lt;/p&gt;
+    {hasAd &amp;&amp; &lt;AdSlot /&gt;}
+  &lt;/&gt;
+);
+
+const processor = ({ root }) =&gt; {
+  const count = 0;
+  root.find("p").map((p) =&gt; {
+    count += 1;
+    if (count % 3 === 0) p.props.hasAd = true;
+  });
+};
+</code></pre>
+<p>So I got pretty excited about this <code>node.find</code>.</p>
+<h2>Performance</h2>
+<p>The problem is that performance-wise this <code>node.find</code> is a N operation (it traverses the tree N times where N is the number of processors), whereas the test function is a 1 operation (it traverses the tree 1 time, no matter the number of processors):</p>
+<ul>
+<li>test function: 1</li>
+<li>
+<code>node.find</code>: N</li>
+</ul>
+<p>I guess that was the reason to decide to use the test function in the first place, although it was so long ago that I don’t remember.</p>
+<p>In case of doing nested <code>node.find</code>, things get worse. Let’s say that the worse case scenario is that the tree to look for with a nested <code>node.find</code> is half as big as the original tree.</p>
+<ul>
+<li>
+<code>node.find</code> =&gt; <code>node.find</code> : N+N/2</li>
+<li>test function =&gt; <code>node.find</code> : 1+N/2</li>
+<li>test function =&gt; test function : 1+N/2</li>
+</ul>
+<p>In the case of nested finds, we don’t gain performance by using the test function.</p>
+<h2>Selector libraries</h2>
+<p>To create <code>node.find</code>, the best option seems to be <a href="https://github.com/fb55/css-select">css-select</a> combined with <a href="https://github.com/fb55/css-what">css-what</a>, although we would need to write our own adapter for himalaya and get rid of <code>domutils</code> with Webpack. It seems viable though.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/7</link>
+        <pubDate>Fri, 03 Apr 2020 07:51:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-7</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>First, I believe that what <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> wants to do can be done without adding new APIs:</p>
+<ol>
+<li>Using the state manager.</li>
+<li>Using React contexts.</li>
+</ol>
+<p>I admit that <strong>it would be nice to be able to move from HTML to JSX</strong> and I agree that if we find a nice way to do so we can implement it.</p>
+<p>But remember that one of our design principles is that <strong>Frontity should have as less concepts to learn as possible</strong> so we have to be really careful when introducing new APIs.</p>
+<h2>How to solve this problem today</h2>
+<h3>Using the state manager</h3>
+<p>This is the code of my first proposal, using the state manager.</p>
+<p>As you can see, you don’t even need to create any React component, because all the nodes of Html2React will end up being React components, so you can just pass an <code>onClick</code> prop and it should work:</p>
+<pre><code>const switchButton = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-button"),
+  processor: ({ node, actions }) =&gt; {
+    node.props.onClick = actions.theme.toggleSwitch;
+  },
+};
+const switchValue = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-value"),
+  processor: ({ node, state }) =&gt; (state.theme.isSwitchOn ? node : null),
+};
+</code></pre>
+<p>This is super simple, but the problem with this approach is that this will only work for one block. If you have more than one, all of them will switch on and off at the same time.</p>
+<p>To solve that, we could use a <code>count</code>. It is the same technique we use to count the number of paragraphs and insert ads and it works great, although I admit that for this case it’s not very elegant.</p>
+<pre><code>const switchCount = 1;
+
+const switchButton = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-button"),
+  processor: ({ node, actions }) =&gt; {
+    node.props.onClick = () =&gt; actions.theme.toggleSwitch(switchCount);
+  },
+};
+const switchValue = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-value"),
+  processor: ({ node, state }) =&gt;
+    state.theme.isSwitchOn[switchCount++] ? node : null,
+};
+</code></pre>
+<h3>Using React context</h3>
+<p>Multiple blocks work perfectly with React contexts though. This is the code I was proposing:</p>
+<pre><code>const SwitchContext = React.createContext();
+
+const Switch = ({ tag, children, ...props }) =&gt; {
+  const [isSwitchOn, setSwitch] = React.useState(false);
+  return (
+    &lt;SwitchContext.Provider value={{ isSwitchOn, setSwitch }}&gt;
+      &lt;tag {...props}&gt;{children}&lt;/tag&gt;
+    &lt;/SwitchContext.Provider&gt;
+  );
+};
+const SwitchButton = ({ tag, children, ...props }) =&gt; {
+  const { isSwitchOn, setSwitch } = React.useContext(SwitchContext);
+  return (
+    &lt;tag {...props} onClick={() =&gt; setSwitch(!isSwitchOn)}&gt;
+      {children}
+    &lt;/tag&gt;
+  );
+};
+const SwitchValue = ({ tag, children, ...props }) =&gt; {
+  const { isSwitchOn } = React.useContext(SwitchContext);
+  return isSwitchOn ? &lt;tag {...props}&gt;{children}&lt;/tag&gt; : null;
+};
+
+const switch = {
+  test: ({ node }) =&gt; node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node }) =&gt; {
+    node.tag = node.component;
+    node.component = Switch;
+  },
+};
+const switchButton = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-button"),
+  processor: ({ node, actions }) =&gt; {
+    node.tag = node.component;
+    node.component = SwitchButton;
+  },
+};
+const switchValue = {
+  test: ({ node }) =&gt;
+    node.props?.className?.split(" ").includes("switch-value"),
+  processor: ({ node, state }) =&gt; {
+    node.tag = node.component;
+    node.component = SwitchValue;
+  },
+};
+</code></pre>
+<h2>Enhancing the processors API</h2>
+<p>Let’s talk now about the ways we can enhance the processors API without introducing new concepts that need to be learned.</p>
+<h3>A CSS selector</h3>
+<p>I agree with you that a CSS selector API could be introduced. After all, that is something that everybody knows. Actually, I proposed it a while ago in this topic: <a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/4" class="inline-onebox">Better class name tests in processors</a>. I even found a library to do it.</p>
+<pre><code>test: ({ node }) =&gt; node.is(".switch");
+test: ({ node }) =&gt; node.is(".switch-button");
+test: ({ node }) =&gt; node.is(".switch-value");
+</code></pre>
+<h3>Finding nodes inside nodes</h3>
+<p>I also agree that introducing a way to find node inside nodes would be nice. Again, I already proposed it a while ago on the same topic: <a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/4" class="inline-onebox">Better class name tests in processors</a>, but with a twist: the API is the processors API. So there’s nothing new to learn.</p>
+<p>This would be the way to find the subcomponents of <code>switch</code>:</p>
+<pre><code>const switchElement = {
+  test: ({ node }) =&gt; node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node }) =&gt; {
+    node.process({
+      test: ({ node }) =&gt;
+        node.props?.className?.split(" ").includes("switch-button"),
+      processor: ({ node }) =&gt; {
+        node.component = SwitchButton;
+      },
+    });
+    node.process({
+      test: ({ node }) =&gt;
+        node.props?.className?.split(" ").includes("switch-value"),
+      processor: ({ node }) =&gt; {
+        node.component = SwitchValue;
+      },
+    });
+    node.component = Switch;
+  },
+};
+</code></pre>
+<p>If we apply both APIs, it would be:</p>
+<pre><code>const switchElement = {
+  test: ({ node }) =&gt; node.is("switch"),
+  processor: ({ node }) =&gt; {
+    node.process({
+      test: ({ node }) =&gt; node.is("switch-button"),
+      processor: ({ node }) =&gt; {
+        node.component = SwitchButton;
+      },
+    });
+    node.process({
+      test: ({ node }) =&gt; node.is("switch-value"),
+      processor: ({ node }) =&gt; {
+        node.component = SwitchValue;
+      },
+    });
+    node.component = Switch;
+  },
+};
+</code></pre>
+<h3>Introducing helpers</h3>
+<p>We could provide helpers for common cases, like:</p>
+<ul>
+<li>Adding CSS to a node:</li>
+</ul>
+<pre><code>const blue = css`
+  color: blue;
+`;
+
+cssProcessor(".switch-button", blue);
+</code></pre>
+<ul>
+<li>Replacing node with React component:</li>
+</ul>
+<pre><code>replaceProcessor(".switch-button", SwitchButton);
+</code></pre>
+<p>Underneath, they are just normal processors:</p>
+<pre><code>const cssProcessor = (selector, css) =&gt; ({
+  test: ({ node }) =&gt; node.is(selector),
+  processor: ({ node }) =&gt; {
+    node.props.css = [node.props.css, css];
+  }
+};
+const replaceProcessor = (selector, component) =&gt; ({
+  test: ({ node }) =&gt; node.is(selector),
+  processor: ({ node }) =&gt; {
+    node.component = component;
+  }
+};
+</code></pre>
+<p>I think this could simplify a little bit Michal’s concern about the need to create 4 separate processors for 4 separete nodes.</p>
+<p><em>Although I am a bit against providing abstractions at this moment because people need to learn what’s going on underneath first.</em></p>
+<hr>
+<p>All the previous things were a summary of things that can be done right now and new APIs that can be introduced without introducing new concepts, but neither of those is solving what Michal said in his last message: <strong>Create a React component where the HTML nodes become React components and you can arrange them using JSX</strong>.</p>
+<p>So let’s keep working on that. I like Michal’s suggestion of using Slot and Fill, maybe we can find a way to make this work with that concept.</p>
+<p>EDIT: I’m sorry for being such a taliban about not introducing new concepts to learn, but I strongly believe that it is really important to do our best to keep the Frontity’s APIs as small as possible.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/5</link>
+        <pubDate>Thu, 02 Apr 2020 08:14:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-5</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>And this was <a class="mention" href="https://community.frontity.org/u/david">@David</a>’s proposal:</p>
+<hr>
+<p>I would propose to do that kind of stuff in the processor, maybe adding the <code>match</code> function you thought about to the nodes of the <code>html</code> tree.</p>
+<p>Something like:</p>
+<pre><code>export const switchElement: Processor = {
+  name: "switch",
+  test: ({ node }) =&gt;
+    node.type === "element" &amp;&amp;
+    node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node }) =&gt; {
+    // `node.match` would return the elements that match the query
+    const switchButtonNodes = node.match("div.switchButton");
+    const switchContentNodes = node.match("div.content");
+
+    // Replace `div` by our components in that nodes
+    const switchButtons = switchButtonNodes.map(node =&gt; ({
+      ...node,
+      component: SwitchButton
+    }));
+    const switchContent = switchContentNodes.map(node =&gt; ({
+      ...node,
+      component: SwitchContent
+    }));
+
+    return {
+      component: Switch,
+      children: [
+        // Add the nodes to `children` so they will be rendered by Html2React
+        ...switchButtons,
+        ...switchContent
+      ]
+    };
+  }
+};
+</code></pre>
+<p>This way you won’t need to nest <code>Html2React</code> components <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/4</link>
+        <pubDate>Thu, 02 Apr 2020 06:05:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-4</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This was my first proposal:</p>
+<ul>
+<li>
+<p>If the switch state needs to be internal to React, you need to share it from a parent. That can be solved with React context.</p>
+<ul>
+<li>
+<code>switch</code>:
+<ul>
+<li>Create <code>visible</code> and <code>setVisible</code> with <code>React.useState</code>.</li>
+<li>Create context, add those to the context and use the <code>&lt;Provider&gt;</code>.</li>
+</ul>
+</li>
+<li>
+<code>switch-button</code>:
+<ul>
+<li>Get <code>setVisible</code> from the context using <code>useContext</code>.</li>
+</ul>
+</li>
+<li>
+<code>switch-value</code>:
+<ul>
+<li>Get <code>visible</code> from the context.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>If the switch state needs to be exposed in the state manager then there’s no need for a context, just connect both components to the state manager, create an action for the switch and read the state from the “switch-value”.</p>
+<ul>
+<li>
+<code>switch</code>: nothing.</li>
+<li>
+<code>switch-button</code>: use <code>actions.theme.toggleSwitch()</code>.</li>
+<li>
+<code>switch-value</code>: read from <code>state.theme.isSwitchOn</code>.</li>
+</ul>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/3</link>
+        <pubDate>Thu, 02 Apr 2020 06:03:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-3</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>For context, we were discussing this in GitHub: <a href="https://github.com/frontity/frontity.org/pull/67">https://github.com/frontity/frontity.org/pull/67</a></p>
+<p>And this is what we are trying to solve. We have this layout:</p>
+<pre><code>&lt;div class="switch"&gt;
+  &lt;div class="switch-button"&gt;&lt;/div&gt;
+  &lt;div class="switch-value"&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>And when the user clicks the <code>"switch-button"</code> div, the <code>"switch-value"</code> div must appear and disappear.</p>
+<p>Thanks for opening this topic Michal, I think this is a better place <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/2</link>
+        <pubDate>Thu, 02 Apr 2020 06:02:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-2</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+      <item>
+        <title>Gutenberg + Frontity integration</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <h2>Description</h2>
+<p>While working on <a href="http://fronity.org">fronity.org</a>, we have tried to find the best way to integrate gutenberg blocks with frontity.</p>
+<h2>Possible solution</h2>
+<pre><code class="lang-javascript">import { Node, Processor } from "@frontity/html2react/types";
+import { connect } from "frontity";
+import { Connect } from "frontity/types";
+import React, { useState } from "react";
+
+import FrontityOrg from "../../types";
+
+const Switch: React.FC&lt;Connect&lt;
+  FrontityOrg,
+  {
+    html: string;
+  }
+&gt;&gt; = connect(({ libraries, html }) =&gt; {
+  const Html2React = libraries.html2react.Component;
+
+  const [state, setState] = useState(true);
+
+  // `match()`
+  //
+  // 1. Match a part of html tree
+  // 2. Remove that part of the HTML from the `html` parameter
+  // 3. Then, it will create a "slot" in the "html" that you can "fill"
+  // using the returned Component (param 1.) You can think of a "slot" like a placeholder of somthing similar to `children` in react or slots in Vue: https://vuejs.org/v2/guide/components-slots.html
+  //
+  // Returns 2 params:
+  //  1. a React component
+  //  2. The HTML under the node that was matched
+  const [SwitchButton, buttonHtml] = match("div.switchButton", html);
+  const [Content, contentHtml] = match("div.content", html);
+
+  return (
+    // 2. We need to extend Html2React to be able to handle the "slots"
+    &lt;Html2React html={html}&gt;
+      {/* We can pass several children and let Html2React figure out 
+          where to put them in the HTML, according to the slots */}
+      &lt;SwitchButton onClick={() =&gt; setState((state) =&gt; !state)}&gt;
+        &lt;Html2React html={buttonHtml} /&gt;
+      &lt;/SwitchButton&gt;
+
+      &lt;Content&gt;
+        {state ? "on" : "off"}
+        &lt;Html2React html={contentHtml} /&gt;
+      &lt;/Content&gt;
+    &lt;/Html2React&gt;
+  );
+});
+
+export const switchElement: Processor&lt;
+  React.HTMLProps&lt;HTMLElement&gt;,
+  FrontityOrg
+&gt; = {
+  name: "switch",
+  test: ({ node }) =&gt;
+    node.type === "element" &amp;&amp;
+    node.props?.className?.split(" ").includes("switch"),
+  processor: ({ node, html }) =&gt; {
+    if (node.type !== "element") return node;
+
+    const element: Node&lt;React.HTMLProps&lt;HTMLElement&gt; &amp; { html: string }&gt; = {
+      type: "element",
+      component: Switch,
+      props: {
+        // `html` should be provided as an extra parameter in the
+        //  callback from the processor. Would have to modify html2React for this.
+        html,
+      },
+    };
+
+    return element;
+  },
+};
+</code></pre>
+<p>            <video title="1 April, 2020 - Loom Recording" width="695" height="434" style="max-width:100%" poster="https://cdn.loom.com/sessions/thumbnails/4b864212718b4ec1a14a3ac5cfe0c704-00001.gif" controls="">
+              <source src="https://cdn.loom.com/sessions/transcoded/4b864212718b4ec1a14a3ac5cfe0c704.mp4?Expires=2147472000&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4ubG9vbS5jb20vc2Vzc2lvbnMvdHJhbnNjb2RlZC80Yjg2NDIxMjcxOGI0ZWMxYTE0YTNhYzVjZmUwYzcwNC5tcDQiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjIxNDc0NzIwMDB9fX1dfQ__&amp;Signature=lJgwwj9792GiPPEKswL50-XFXYmMrGAFAtMK5loWXPovbbNFyJZ29cCsHB8AE4orsYj6lGht5E4QaN1uc9tHc1z0LzLfPCT6JPLQxrrI1eZTB9~iuGOp9SWW93Je9s~cEqTM2IZG-CWEQJMKWeNyoUApDTIXl4P96xS1HNKMyn2LAIOjDEMpZbAv2vNrGO~y9043-n-4Wu~ra-tJHLJEISaydi1IG92mhziE5hVzLV~Xiwp~40-BVIMO616ZB9H~6QHVgkCSs0be5pSfUAaY7dRpGHPagZv0uKyoNhIbioh9NiLjO4xsB89~AhC-rhnRQWrkKrhkOo46IjrePnm~hg__&amp;Key-Pair-Id=APKAJQIC5BGSW7XXK7FQ">
+            </video>
+</p>
+<p>The code from the video example:</p>
+<pre><code class="lang-javascript">import { connect } from "frontity";
+import { Connect } from "frontity/types";
+import React, { useState } from "react";
+
+import FrontityOrg from "../../types";
+
+interface Props {
+  rendered: string;
+}
+
+const Flow: React.FC&lt;Connect&lt;FrontityOrg, Props&gt;&gt; = ({
+  libraries,
+  rendered,
+}) =&gt; {
+  const Html2React = libraries.html2react.Component;
+
+  const [activeTab, setActiveTab] = useState(0);
+
+  // Match a part of html tree
+  // Return a part of the
+  const CreateButton = match("div.createButton", rendered);
+  const ConnectButton = match("div.connectButton", rendered);
+
+  const Content = ({ children }) =&gt; &lt;section&gt;{children}&lt;/section&gt;;
+
+  return (
+    &lt;Html2React html={rendered}&gt;
+      &lt;CreateButton onClick={() =&gt; setActiveTab(0)} /&gt;
+      &lt;ConnectButton onClick={() =&gt; setActiveTab(1)} /&gt;
+      &lt;StyleButton onClick={() =&gt; setActiveTab(2)} /&gt;
+      &lt;DeployButton onClick={() =&gt; setActiveTab(3)} /&gt;
+
+      &lt;Content&gt;
+        &lt;h4&gt; Some title &lt;/h4&gt;
+        &lt;Html2React html={} /&gt;
+      &lt;/Content&gt;
+    &lt;/Html2React&gt;
+  );
+};
+
+export default connect(Flow);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/gutenberg-frontity-integration/1467/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-frontity-integration/1467/1</link>
+        <pubDate>Thu, 02 Apr 2020 02:45:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1467-1</guid>
+        <source url="https://community.frontity.org/t/gutenberg-frontity-integration/1467.rss">Gutenberg + Frontity integration</source>
+      </item>
+  </channel>
+</rss>

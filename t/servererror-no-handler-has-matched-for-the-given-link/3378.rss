@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>ServerError: No handler has matched for the given link</title>
+    <link>https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378</link>
+    <description>Hello,
+
+I have a SPA and I&#39;m exposing some custom routes from WP API in order to load only some selected posts (and not all the posts) which the site admin (my client) will want promote and which will be displayed in specific ways (some set of posts, matching a specific url, will be mapped in a component to be styled in a way, some others, matching another url, will be mapped in another component to be styled in another way...). 
+
+Right now i am exposing:
+```
+api.cadence-musique.fr/wp-json/wp/v2/numerique
+api.cadence-musique.fr/wp-json/wp/v2/numerique/actus
+api.cadence-musique.fr/wp-json/wp/v2/numerique/focus
+api.cadence-musique.fr/wp-json/wp/v2/numerique/retours
+```
+
+The front url while development is :
+`localhost:3000/numerique`
+
+I have created handlers as explained in documentation and other topics here.
+When i&#39;m fetching it in Before CSR I&#39;m getting :
+`
+ServerError: No handler has matched for the given link: &quot;numerique/&quot;
+    at eval (webpack-internal:///./node_modules/@frontity/wp-source/src/actions.ts:24:19)
+    at Object.eval [as fetch] (webpack-internal:///./node_modules/@frontity/connect/src/create-store.js:5:1702)
+    at eval (webpack-internal:///./packages/Cadence-Theme/src/index.js:6:458)
+    at eval (webpack-internal:///./node_modules/@frontity/connect/src/create-store.js:5:1702)
+    at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:63:88)
+    at Array.map (&lt;anonymous&gt;)
+    at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:63:48)
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)
+    at eval (webpack-internal:///./node_modules/koa-mount/index.js:16:290) {
+  status: 404,
+  statusText: &#39;No handler has matched for the given link: &quot;numerique/&quot;&#39;
+}
+`
+
+
+While
+```
+const data = state.source.get(state.router.link);
+console.log(data);
+```
+is logging
+```
+{
+  link: &#39;/numerique/&#39;,
+  route: &#39;/numerique/&#39;,
+  query: {},
+  page: 1,
+  isFetching: false,
+  isReady: false
+}
+```
+Here is my code : 
+## frontity.settings.js
+```javascript
+const settings = {
+  &quot;name&quot;: &quot;cadence-front&quot;,
+  &quot;state&quot;: {
+    &quot;frontity&quot;: {
+      &quot;url&quot;: &quot;https://future.cadence-musique.fr&quot;,
+      &quot;title&quot;: &quot;Site de Cadence&quot;,
+      &quot;description&quot;: &quot;Api Wordpress &amp; Frontity&quot;
+    }
+  },
+  &quot;packages&quot;: [
+    {
+      &quot;name&quot;: &quot;Cadence-Theme&quot;,
+      &quot;state&quot;: {
+        &quot;theme&quot;: {
+          &quot;menu&quot;: [
+            [
+              &quot;Accueil&quot;,
+              &quot;/&quot;
+            ],
+          ],
+          &quot;featured&quot;: {
+            &quot;showOnList&quot;: false,
+            &quot;showOnPost&quot;: false
+          }
+        }
+      }
+    },
+    {
+      &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+      &quot;state&quot;: {
+        &quot;source&quot;: {
+          &quot;api&quot;: &quot;https://api.cadence-musique.fr/wp-json&quot;,
+        }
+      }
+    },
+    {
+      &quot;name&quot;: &quot;@frontity/tiny-router&quot;,
+      &quot;state&quot;: {
+        &quot;router&quot;: {
+          &quot;autoFetch&quot;: false
+        }
+      }
+    },
+    &quot;@frontity/html2react&quot;
+  ]
+};
+
+export default settings;
+```
+## index.js
+```javascript
+import React from &quot;react&quot;;
+import Root from &quot;./Root&quot;;
+import numerique from &quot;./CustomHandlers&quot;;
+
+export default {
+  name: &quot;Cadence-Theme&quot;,
+  roots: {
+    theme: Root
+  },
+  state: {
+    theme: {
+      mode: &#39;accueil&#39;,
+    }
+  },
+  actions: {
+    init: ({ libraries }) =&gt; {
+      libraries.source.handlers.push(numerique);
+    },
+    theme: {
+      beforeSSR: ({ actions }) =&gt; async () =&gt; {
+        await actions.source.fetch(&quot;numerique&quot;);
+      },
+      beforeCSR: ({ actions }) =&gt; async () =&gt; {
+        await actions.source.fetch(&quot;numerique&quot;);
+      }
+    },
+  },
+};
+```
+## CustomHandlers.js
+```javascript
+let numerique = {
+    name: &quot;numerique&quot;,
+    priority: 10,
+    pattern: &quot;numerique&quot;,
+    func: async ({ link, params, state, libraries, force }) =&gt; {
+      const response = await libraries.source.api.get({
+        endpoint: &quot;numerique&quot;
+      });
+
+      const data = await response.json();
+
+    Object.assign(state.source.data[&quot;numerique&quot;], {
+      data: data,
+      actus: data.actus,
+      retours: data.retours,
+      focus: data.focus,
+      isNiveaux1_2: true,
+    });
+    },
+}
+
+export default numerique;
+```
+## package.json
+```javascript
+
+{
+  &quot;name&quot;: &quot;cadence-front&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;private&quot;: true,
+  &quot;description&quot;: &quot;Frontity project&quot;,
+  &quot;keywords&quot;: [
+    &quot;frontity&quot;
+  ],
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;frontity dev&quot;,
+    &quot;build&quot;: &quot;frontity build&quot;,
+    &quot;serve&quot;: &quot;frontity serve&quot;
+  },
+  &quot;prettier&quot;: {},
+  &quot;dependencies&quot;: {
+    &quot;@frontity/core&quot;: &quot;^1.7.3&quot;,
+    &quot;@frontity/html2react&quot;: &quot;^1.3.5&quot;,
+    &quot;@frontity/mars-theme&quot;: &quot;./packages/mars-theme&quot;,
+    &quot;@frontity/tiny-router&quot;: &quot;^1.2.1&quot;,
+    &quot;@frontity/wp-source&quot;: &quot;^1.8.1&quot;,
+    &quot;Cadence-Theme&quot;: &quot;file:packages/Cadence-Theme&quot;,
+    &quot;frontity&quot;: &quot;^1.10.1&quot;,
+    &quot;react-headroom&quot;: &quot;^3.0.0&quot;
+  }
+}
+```
+Thanks for your help.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 17 Nov 2020 15:25:07 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>ServerError: No handler has matched for the given link</title>
+        <dc:creator><![CDATA[solid.realm.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+Thanks for your replying.<br>
+Working on it with Gregoire.<br>
+We found a work around for that and will be posting it soon in case it can help.<br>
+Cheers!</p>
+          <p><a href="https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378/3</link>
+        <pubDate>Tue, 17 Nov 2020 15:25:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3378-3</guid>
+        <source url="https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378.rss">ServerError: No handler has matched for the given link</source>
+      </item>
+      <item>
+        <title>ServerError: No handler has matched for the given link</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/gregoire">@gregoire</a></p>
+<p>I don’t think you need to perform the same action in <code>beforeSSR</code> and in <code>beforeCSR</code>. I think doing it in <code>beforeSSR</code> should suffice.</p>
+<p>Also I see there are no posts in <code>numerique</code>, this list will be empty. There are only posts in <code>numerique/actus</code>, <code>numerique/focus</code>, and <code>numerique/retours</code>.</p>
+<p>Do you have a repo that we can clone so we can examine and test your code?</p>
+          <p><a href="https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378/2</link>
+        <pubDate>Fri, 13 Nov 2020 14:03:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3378-2</guid>
+        <source url="https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378.rss">ServerError: No handler has matched for the given link</source>
+      </item>
+      <item>
+        <title>ServerError: No handler has matched for the given link</title>
+        <dc:creator><![CDATA[gregoire]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,</p>
+<p>I have a SPA and I’m exposing some custom routes from WP API in order to load only some selected posts (and not all the posts) which the site admin (my client) will want promote and which will be displayed in specific ways (some set of posts, matching a specific url, will be mapped in a component to be styled in a way, some others, matching another url, will be mapped in another component to be styled in another way…).</p>
+<p>Right now i am exposing:</p>
+<pre><code class="lang-javascript">api.cadence-musique.fr/wp-json/wp/v2/numerique
+api.cadence-musique.fr/wp-json/wp/v2/numerique/actus
+api.cadence-musique.fr/wp-json/wp/v2/numerique/focus
+api.cadence-musique.fr/wp-json/wp/v2/numerique/retours
+</code></pre>
+<p>The front url while development is :<br>
+<code>localhost:3000/numerique</code></p>
+<p>I have created handlers as explained in documentation and other topics here.<br>
+When i’m fetching it in Before CSR I’m getting :<br>
+<code>ServerError: No handler has matched for the given link: "numerique/"     at eval (webpack-internal:///./node_modules/@frontity/wp-source/src/actions.ts:24:19)     at Object.eval [as fetch] (webpack-internal:///./node_modules/@frontity/connect/src/create-store.js:5:1702)     at eval (webpack-internal:///./packages/Cadence-Theme/src/index.js:6:458)     at eval (webpack-internal:///./node_modules/@frontity/connect/src/create-store.js:5:1702)     at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:63:88)     at Array.map (&lt;anonymous&gt;)     at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:63:48)     at processTicksAndRejections (internal/process/task_queues.js:97:5)     at eval (webpack-internal:///./node_modules/koa-mount/index.js:16:290) {   status: 404,   statusText: 'No handler has matched for the given link: "numerique/"' }</code></p>
+<p>While</p>
+<pre><code class="lang-javascript">const data = state.source.get(state.router.link);
+console.log(data);
+</code></pre>
+<p>is logging</p>
+<pre><code class="lang-javascript">{
+  link: '/numerique/',
+  route: '/numerique/',
+  query: {},
+  page: 1,
+  isFetching: false,
+  isReady: false
+}
+</code></pre>
+<p>Here is my code :</p>
+<h2>frontity.settings.js</h2>
+<pre><code class="lang-javascript">const settings = {
+  "name": "cadence-front",
+  "state": {
+    "frontity": {
+      "url": "https://future.cadence-musique.fr",
+      "title": "Site de Cadence",
+      "description": "Api Wordpress &amp; Frontity"
+    }
+  },
+  "packages": [
+    {
+      "name": "Cadence-Theme",
+      "state": {
+        "theme": {
+          "menu": [
+            [
+              "Accueil",
+              "/"
+            ],
+          ],
+          "featured": {
+            "showOnList": false,
+            "showOnPost": false
+          }
+        }
+      }
+    },
+    {
+      "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "api": "https://api.cadence-musique.fr/wp-json",
+        }
+      }
+    },
+    {
+      "name": "@frontity/tiny-router",
+      "state": {
+        "router": {
+          "autoFetch": false
+        }
+      }
+    },
+    "@frontity/html2react"
+  ]
+};
+
+export default settings;
+</code></pre>
+<h2>index.js</h2>
+<pre><code class="lang-javascript">import React from "react";
+import Root from "./Root";
+import numerique from "./CustomHandlers";
+
+export default {
+  name: "Cadence-Theme",
+  roots: {
+    theme: Root
+  },
+  state: {
+    theme: {
+      mode: 'accueil',
+    }
+  },
+  actions: {
+    init: ({ libraries }) =&gt; {
+      libraries.source.handlers.push(numerique);
+    },
+    theme: {
+      beforeSSR: ({ actions }) =&gt; async () =&gt; {
+        await actions.source.fetch("numerique");
+      },
+      beforeCSR: ({ actions }) =&gt; async () =&gt; {
+        await actions.source.fetch("numerique");
+      }
+    },
+  },
+};
+</code></pre>
+<h2>CustomHandlers.js</h2>
+<pre><code class="lang-javascript">let numerique = {
+    name: "numerique",
+    priority: 10,
+    pattern: "numerique",
+    func: async ({ link, params, state, libraries, force }) =&gt; {
+      const response = await libraries.source.api.get({
+        endpoint: "numerique"
+      });
+
+      const data = await response.json();
+
+    Object.assign(state.source.data["numerique"], {
+      data: data,
+      actus: data.actus,
+      retours: data.retours,
+      focus: data.focus,
+      isNiveaux1_2: true,
+    });
+    },
+}
+
+export default numerique;
+</code></pre>
+<h2>package.json</h2>
+<pre><code class="lang-javascript">
+{
+  "name": "cadence-front",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontity project",
+  "keywords": [
+    "frontity"
+  ],
+  "scripts": {
+    "dev": "frontity dev",
+    "build": "frontity build",
+    "serve": "frontity serve"
+  },
+  "prettier": {},
+  "dependencies": {
+    "@frontity/core": "^1.7.3",
+    "@frontity/html2react": "^1.3.5",
+    "@frontity/mars-theme": "./packages/mars-theme",
+    "@frontity/tiny-router": "^1.2.1",
+    "@frontity/wp-source": "^1.8.1",
+    "Cadence-Theme": "file:packages/Cadence-Theme",
+    "frontity": "^1.10.1",
+    "react-headroom": "^3.0.0"
+  }
+}
+</code></pre>
+<p>Thanks for your help.</p>
+          <p><a href="https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378/1</link>
+        <pubDate>Wed, 11 Nov 2020 19:04:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3378-1</guid>
+        <source url="https://community.frontity.org/t/servererror-no-handler-has-matched-for-the-given-link/3378.rss">ServerError: No handler has matched for the given link</source>
+      </item>
+  </channel>
+</rss>

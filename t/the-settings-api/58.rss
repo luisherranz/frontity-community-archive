@@ -1,0 +1,1267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The Settings API</title>
+    <link>https://community.frontity.org/t/the-settings-api/58</link>
+    <description>Ok, the first thing we need is a package system for the settings. 
+
+There may be different packages in the future, depending on where the settings are stored:
+- `file-settings`: save settings in a `setting.json` file in your project folder.
+- `wp-org-settings`: save settings in wp mysql database
+- `mongo-settings`: save settings in mongo
+- `graphql-settings`: save settings using graphql
+
+and so on...
+
+I think it&#39;s ok if users need to define their settings package in the `frontity.config.js` file. I also think it&#39;s ok that there&#39;s only one settings package activated at a time.
+
+```js
+// frontity.config.js
+module.exports = {
+  settingsPackage: &#39;@frontity/file-settings&#39; 
+}
+```
+
+The first package we are going to develop is `file-settings` and it&#39;s going to be the default one. This means there&#39;s no need for a `frontity.config.js` to start using Frontity.
+
+I&#39;ve done a quick draft of the server architecture:
+
+![49|578x500](upload://Ailcgr47uwIINGBVaMDtliRf4ly.png) 
+
+Frontity must import the correct package and use their `getSettings` method.
+
+----
+
+Ok, the first problem is: **Frontity must import the correct package**. I&#39;ve opened a new thread about that because it&#39;s important and we also need it for the &quot;App Packages&quot;: https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59
+
+Now, I&#39;ll continue assuming we&#39;ve solved that :)
+
+
+
+## Constrains
+
+- The settings must be serializable, they cannot contain code.
+This is not very important for `file-settings` but it is for packages that save them to a database.
+- The developer must be able to force the use of another site using a query `?site=my-other-site`.
+
+----
+
+I&#39;ll continue working on this tomorrow.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 09 May 2019 08:23:35 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/the-settings-api/58.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Pushing our design principles even further, I’m going to get rid of settings and live only state.</p>
+<p>Once we finished the design of Connect, state and namespaces were not the same than in our previous framework.</p>
+<ul>
+<li>
+<strong>Old framework</strong>: each package lives in its own namespace.</li>
+<li>
+<strong>New framework</strong>: each package has the opportunity to use a shared state for whatever they want, namespaced or not.</li>
+</ul>
+<p>Regarding settings, this is the change I want to make</p>
+<ul>
+<li>
+<strong>From:</strong> frontity.settings.js can be used to overwrite a subset of the state named settings.</li>
+<li>
+<strong>To:</strong> frontity.settings.js can be used to overwrite any part of the state.</li>
+</ul>
+<p>These are the changes in code:</p>
+<ol>
+<li>Packages don’t use the <code>setting</code> namespace, just their own:</li>
+</ol>
+<pre><code class="lang-javascript">export default {
+  state: {
+    theme: {
+       mainColor: "#FFF",
+       linkColor: "#CCC",
+       featuredImage: true,
+    }
+  }
+}
+</code></pre>
+<ol start="2">
+<li>Users can overwrite any state using <code>frontity.settings.js</code>:</li>
+</ol>
+<pre><code class="lang-javascript">export default {
+  packages: [
+    {
+       name: "my-theme",
+       active: true,
+       state: {
+         theme: {
+           linkColor: "#AAA",
+           featuredImage: false,
+         }
+      }
+  ]
+}
+</code></pre>
+<p>That’s it. Everything gets merged together when the app starts.</p>
+<p>The pros for removing settings are:</p>
+<ul>
+<li>Settings are not different from state anymore, it’s just a small subset of it.</li>
+<li>Settings don’t provide any additional feature the state itself doesn’t.</li>
+<li>Settings is an extra concept (and we want to minimize concepts).</li>
+<li>If devs are able to work with state directly Frontity becomes more hackable.</li>
+<li>It’s easier to launch Frontity without settings and introduce them later on, rather than the opposite.</li>
+</ul>
+<p>The cons for removing settings are:</p>
+<ul>
+<li>Package providers won’t be able to select what part of the state is a setting and what not. Everything becomes a setting. And therefore, everything becomes hackable.</li>
+</ul>
+<p>Interesting things arise. For example, users will be able to add a non-existent urls to their sites:</p>
+<pre><code class="lang-javascript">export default {
+  packages: [
+    {
+       name: "@frontity/wp-source",
+       state: {
+         source: {
+           dataMap: {
+             "/about": {
+                type: "page",
+                id: 0,
+                isPage: true,
+             }
+           },
+           page: {
+             0: {
+                title: "About us",
+                content: "Yes, this is us!"
+             }
+           }
+         }
+      }
+  ]
+}
+</code></pre>
+<p>As an extra, I’m going to remove the concept of <strong>excluded namespaces</strong> as well. I think the API to do so (if it is needed at all) needs to be programmatic instead of something backed in the <code>frontity.settings.js</code> file.</p>
+<p>We will keep <code>state.frontity</code> for the general state, but now everything is explicitly namespaced:</p>
+<pre><code class="lang-javascript">export default {
+  name: "site-1",
+  mode: "html",
+  state: {
+    frontity: {
+      url: "https://site.com",
+      language: "en"
+    }
+  },
+  packages: [...]
+}
+</code></pre>
+<p>Actually, the concept of namespaces is abstract to Frontity, so users can overwrite any state they want in any place.</p>
+<pre><code class="lang-javascript">export default {
+  name: "site-1",
+  mode: "html",
+  state: {
+    frontity: {
+      url: "https://site.com",
+      language: "en"
+    },
+    source: {
+      api: "https://wp.site.com", // &lt;- this works but it's not recommended.
+  },
+  packages: [...]
+}
+</code></pre>
+<p>I’ll try to finish the refactor today.</p>
+<p><a class="mention-group" href="https://community.frontity.org/groups/development-team">@development-team</a> if you feel I’m missing something, say it now <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/27">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/27</link>
+        <pubDate>Thu, 09 May 2019 08:23:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-27</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m going to reverse <code>namespace</code> and call it <code>excludedNamespaces</code>. Because it’s the only use it has and makes everything much simpler. The default which is an empty array makes sense this way.</p>
+<pre><code class="lang-javascript">{
+  name: string;
+  active?: boolean;
+  excludedNamespaces?: string[]; // Default []
+  settings?: object;
+}
+</code></pre>
+<p>With that change I think I will also be able to treat <code>settings</code> just like any other namespace.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/26">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/26</link>
+        <pubDate>Tue, 30 Apr 2019 18:07:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-26</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>The first version of <a href="https://github.com/frontity/frontity/tree/dev/packages/file-settings" rel="nofollow noopener"><code>file-settings</code></a> has been implemented. Here is the README info:</p>
+<h2>Usage</h2>
+<p>You can install it with  <code>npm</code> :</p>
+<pre><code class="lang-auto">npm i @frontity/file-settings
+</code></pre>
+<p>Here is a small example of how to use  <code>getSettings</code> :</p>
+<pre><code class="lang-auto">import { getSettings } from "@frontity/file-settings";
+
+const settings = await getSettings({ name: "example-name", url: "https://example.site" });
+</code></pre>
+<h2>API Reference</h2>
+<h3><code>async getSettings(options) =&gt; settings</code></h3>
+<p>Used to retrieve the settings from the  <code>frontity.settings.js</code>  file.</p>
+<h4>Parameters</h4>
+<p><strong><code>options</code></strong>  :  <code>{ name?: string; url: string; }</code></p>
+<p>Used to match the right set of settings when there is more than one.</p>
+<ul>
+<li>
+<strong><code>options.name</code></strong>  :  <code>string (optional)</code><br>
+The name of the set of settings you want to retrieve. When provided,  <code>getSettings</code>  won’t use  <code>options.url</code> .</li>
+<li>
+<strong><code>options.url</code></strong>  :  <code>string</code><br>
+The url of the site using Frontity. The  <code>matches</code>  field of each set of settings will be tested against this url to determine which set of settings should be used.</li>
+</ul>
+<h4>Return</h4>
+<p><strong><code>settings</code></strong>  :  <code>Settings</code><br>
+An object with type  <code>Settings</code>  containing a set of settings.</p>
+<h3><code>async getPackages() =&gt; packages</code></h3>
+<p>Used to retrieve a list of names of the packages used in each settings set.</p>
+<h4>Return</h4>
+<p><strong><code>packages</code></strong>  :  <code>{ [key: string]: string[] }</code><br>
+An object with a key for each set of settings populated with an array of packages names from that set.</p>
+<p>If the settings file exports only one set of settings (or  <em>mono settings</em> ),  <code>packages</code>  will have only one key named  <code>default</code> :</p>
+<pre><code class="lang-auto">{
+  default: [ "theme-package", "source-package" ] 
+}
+</code></pre>
+<p>If the settings file exports various sets of settings (or  <em>multi settings</em> ),  <code>packages</code>  will have one key per set of settings named like them.</p>
+<pre><code class="lang-auto">{ 
+  "settings-one": [ "theme-one", "source-one" ],
+  "settings-two": [ "theme-two", "source-one" ]
+}
+</code></pre>
+<h2>Settings File</h2>
+<p>The file must be located in the root directory of the project, it must be named  <code>frontity.settings.ts</code>  or  <code>frontity.settings.js</code> , and it needs to export a serializable object.</p>
+<p>The settings exported can be  <strong>mono settings</strong>  (only one):</p>
+<pre><code class="lang-auto">{
+  name?: string;
+  matches?: string[];
+  mode?: string; // Default: "html"
+  settings?: {
+    url?: string;
+    title?: string;
+    timezone?: number; // Default: 0
+    language?: string; // Default; "en"
+  },
+  packages: [
+    string,
+    {
+      name: string;
+      active?: boolean; // Default: true
+      namespaces?: string[];
+      settings?: object;
+    }
+  ]
+}
+</code></pre>
+<p>Or  <strong>multi settings</strong> :</p>
+<pre><code class="lang-auto">// An array of more than one set of settings.
+[
+  {
+    name: string; // This time the name is mandatory and must be unique.
+    matches?: string[];
+    mode?: string; // Default: "html"
+    settings?: { ... },
+    packages: [ ... ]
+  },
+  {
+    name: string; // This time the name is mandatory and must be unique.
+    matches?: string[];
+    mode?: string; // Default: "html"
+    settings?: { ... },
+    packages: [ ... ]
+  }
+]
+</code></pre>
+<h2>Typescript</h2>
+<p>Some <a href="https://github.com/frontity/frontity/blob/dev/packages/file-settings/src/types.ts" rel="nofollow noopener">TS types</a> are exposed to be used in development. They can be accessed like this:</p>
+<p>import { Settings } from “<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/file-settings”; const settings: Settings = { … };</p>
+<p>The following are probably the only types you will need during development:</p>
+<h3><code>Settings&lt;T = Package&gt;</code></h3>
+<p>Types for the imported settings object from the settings file. You’ll want to use them on your  <code>frontity.settings.ts</code>  file.</p>
+<h3><code>Package</code></h3>
+<p>Types for each package within a settings object.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/25">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/25</link>
+        <pubDate>Thu, 28 Mar 2019 11:53:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-25</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>The <code>getPackages()</code> should return an object with all the packages for each site:</p>
+<pre><code class="lang-auto">{
+  "my-site": [ ... ],
+  "my-blog": [ ... ],
+  "my-blog-amp": [ ... ],
+}
+</code></pre>
+<p>With that we can generate the client bundles and server bundle.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/24">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/24</link>
+        <pubDate>Wed, 20 Mar 2019 12:29:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-24</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="22" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I realised that if we use the <code>match</code> setting to both the site and the mode, we would end with more than one <code>match</code> matching the current url, and we’d need to set some kind of priority.</p>
+</blockquote>
+</aside>
+<p>Yes, I think that’s the last problem we need to solve, at least for now.</p>
+<p>In my first designs, it worked because everything was an array and the user can order the items. That means things like “amp” must go before “html” which may not be very intuitive:</p>
+<p>This works:</p>
+<pre><code class="lang-auto">export default = [
+    {
+      mode: "amp",
+      match: "\/amp$",
+      ...
+    },
+    {
+      mode: "html",
+      // match: ".*" (the default)
+      ...
+    }
+];
+</code></pre>
+<p>This doesn’t, because the first match catches everything:</p>
+<pre><code class="lang-auto">export default = [
+    {
+      mode: "html",
+      // match: ".*" (the default)
+      ...
+    },
+    {
+      mode: "amp",
+      match: "\/amp$",
+      ...
+    }
+];
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/23">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/23</link>
+        <pubDate>Wed, 13 Mar 2019 08:34:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-23</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Another summary of what we have discussed so far:</p>
+<h2>Schema</h2>
+<p>(Not sure if this types are correct, but the TypeScript docs are down right know, so bear with me)</p>
+<pre><code class="lang-auto">type MainSettings = {
+  url?: string; // Default: undefined 
+  title?: string; // Default: undefined
+  timezone?: number; // Default: 0
+  language?: string; // Default: "en"
+}
+
+type Package = {
+  name: string;
+  active?: boolean; // Default: true
+  namespaces?: string | string[]; // Default: ["all", "available", "namespaces"],
+  settings?: object;
+}
+
+type Settings = {
+  name?: string; // Default: undefined
+  match?: string | string[]; // Default: undefined
+  mode?: string; // Default: "html"
+  settings?: MainSettings;
+  packages: (string | Package)[];
+}
+
+type ExportedSettings = Settings | Settings[];
+</code></pre>
+<h2>Examples</h2>
+<h3>One site</h3>
+<pre><code class="lang-javascript">export default {
+  settings: {
+    url: "https://site.com",
+    title: "Site Title",
+    timezone: 1,
+    language: "en",
+  },
+  packages: [
+    {
+      name: "@frontity/theme",
+      namespaces: ["theme", "h2r"],
+      settings: {
+        theme: { ... },
+        h2r: { ... },
+        // Each key corresponds to one namespace.
+      }
+    }
+  ]
+}
+</code></pre>
+<h3>One site with AMP</h3>
+<pre><code class="lang-javascript">export default [
+  {
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        namespaces: ["theme", "h2r", "comments"],
+        settings: { ... },
+      }
+    ]
+  },
+  {
+    mode: "amp",
+    match: "\/amp\/?$",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        namespaces: ["theme", "h2r"],
+        settings: { ... }
+      }
+    ]
+  }
+]
+</code></pre>
+<h3>More than one site</h3>
+<pre><code class="lang-javascript">export default [
+  {
+    name: "site-one",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+  {
+    name: "site-one-amp",
+    match: "\/amp\/?",
+    mode: "amp",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+  {
+    name: "site-two",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+  {
+    name: "site-two-amp",
+    match: "\/amp\/?",
+    mode: "amp",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+]
+</code></pre>
+<p>I realised that if we use the <code>match</code> setting for both the site and the mode, we would end with more than one <code>match</code> matching the current url, and we’d need to set some kind of priority. In order to avoid that, to select some site settings we’ll use the <code>name</code> field, and to select some mode settings the <code>match</code> field. We can also use the <code>url</code> field instead of the <code>name</code> field.</p>
+<p>I don’t have a preference here, but if using one of them would reduce the schema surface, I’d go for that one.</p>
+<p>Also, I’d rather build a repetitive schema that looks clearer at first glance, than something more complicated to avoid duplicated settings. As the settings file is a JS file, the developer can always extract duplicated settings and reuse them when necessary:</p>
+<pre><code class="lang-javascript">const mainSettings = {
+  url: "https://site.com",
+  title: "Site Title",
+  timezone: 0,
+  language: "en"
+}
+
+export default [
+  {
+    settings: mainSettings,
+    packages: [ ... ]
+  },
+  {
+    match: "\/amp\/?$",
+    settings: mainSettings,
+    packages: [ ... ]
+  }
+]
+</code></pre>
+<h2>API</h2>
+<p>So far, unless something changes, the API remains as discussed before:</p>
+<ul>
+<li><code>getSettings({ name, url })</code></li>
+<li><code>getPackages({ name, url })</code></li>
+</ul>
+<h2>Ideas</h2>
+<p>The <code>frontity.settings.js</code> file should be in the root folder of the project, at the same level than <code>package.json</code>.</p>
+<p>The default settings will be defined in a <code>frontity.settings.js</code> file inside the <code>file-settings</code> package.</p>
+<p>The queries modifying the <code>url</code> or <code>name</code> fields shouldn’t affect the settings schema, they should be used in <code>core</code>, either to override the value in the store, or to be used with <code>getSettings</code> or <code>getPackages</code> to retrieve different settings.</p>
+<p>The <code>mode</code> defined in settings is defined only to be used within React, not to decide what settings to use.</p>
+<hr>
+<p>I think I covered pretty much everything we discussed. Let me know if I’m missing something.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/22</link>
+        <pubDate>Tue, 12 Mar 2019 14:53:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-22</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Haha, ok ok…</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/21</link>
+        <pubDate>Mon, 11 Mar 2019 16:14:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-21</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="19" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>And do you like it? <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=6" title=":laughing:" class="emoji" alt=":laughing:"></p>
+</blockquote>
+</aside>
+<p>You know is not the same <img src="https://community.frontity.org/images/emoji/apple/joy.png?v=6" title=":joy:" class="emoji" alt=":joy:"></p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/20</link>
+        <pubDate>Mon, 11 Mar 2019 16:06:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-20</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="18" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I don’t dislike the idea</p>
+</blockquote>
+</aside>
+<p>And do you like it? <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=6" title=":laughing:" class="emoji" alt=":laughing:"></p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/19</link>
+        <pubDate>Mon, 11 Mar 2019 16:01:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-19</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I don’t dislike the idea, but I’d aim for the simplest case to look like:</p>
+<pre><code class="lang-auto">export default {
+  settings: { ... }, // Optional
+  packages: [ ... ]
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/18</link>
+        <pubDate>Mon, 11 Mar 2019 13:39:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-18</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It may be more work if most of the settings are the same but it is clearer when they are not. We also reduce from two configurations (regexp for mode, regexp for site) to one.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/17</link>
+        <pubDate>Mon, 11 Mar 2019 12:02:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-17</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Quick idea: what if we remove the <code>modes</code> regexp and use <code>match</code> to distinguish between them?</p>
+<pre><code class="lang-auto">export default {
+  "my-site": [
+    {
+      mode: "amp",
+      match: "https://my-site.*/amp$",
+      settings: {...},
+      packages: [ ... ]
+    },
+    {
+      mode: "html",
+      match: "https://my-site.*",
+      settings: {...},
+      packages: [ ... ]
+    }
+  ]
+}
+</code></pre>
+<p>Is it simpler or more complex?</p>
+<p>Default mode is <code>"html"</code> and default match is <code>".*"</code>:</p>
+<pre><code class="lang-auto">export default {
+  "my-site": {
+    settings: {...},
+    packages: [ ... ]
+  }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/16</link>
+        <pubDate>Mon, 11 Mar 2019 12:00:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-16</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Two additional constrains:</p>
+<h3>Constrains</h3>
+<ul>
+<li>Settings can be retrieved by either the URL or the “site name”.</li>
+<li>A site configuration can contain “general settings” as well, not belonging to any package.</li>
+<li>Different modes can be defined for each site.</li>
+<li>Different modes can have different packages and/or settings configuration.</li>
+<li>There must be a way to know which settings belong to which namespace of a package.</li>
+<li>Settings must be serializable, they cannot contain code.</li>
+<li>Packages can be either “active” or “inactive”.</li>
+<li>Namespaces of a package can be either “active” or “inactive”.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/15</link>
+        <pubDate>Mon, 11 Mar 2019 09:10:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-15</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been thinking that it’d be great if both <code>frontity.config.js</code> and the default settings of each package could have typings. It is only useful for <code>file-settings</code>. Other settings package will have to find a way to type their own settings if they want.</p>
+<p>This is just an idea:</p>
+<pre><code class="lang-auto">import Settings from "@frontity/types-settings" // Base typings
+import { Settings as ThemeSettings } from "my-theme"
+import { Settings as WpSourceSettings } from "@frontity/wp-source"
+
+const settings: Settings&lt;ThemeSettings, WpSourceSettings&gt; = {
+  name: "my-site",
+  url: "https://site.com",
+  packages: [
+    {
+      name: "my-theme",
+      settings: {
+        // this has typings now!
+      }
+    },
+    {
+      name: "@frontity/wp-source",
+      settings: {
+        // and this!
+      }
+    }
+  ]
+};
+
+export default settings;
+</code></pre>
+<p>And let the packages export their default settings (the same typing is used):</p>
+<pre><code class="lang-auto">type ThemeSettings = {
+  color: "white" | "black";
+  featuredImage: boolean;
+}
+
+const defaultSettings: ThemeSettings = {
+  color: "white",
+  featuredImage: false
+};
+
+const theme = {
+  root: ThemeRoot,
+  store: ThemeStore,
+  Settings: ThemeSettings, // These are the types
+  settings: defaultSettings, // These are the defaults
+};
+
+export default {
+  theme
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/14</link>
+        <pubDate>Mon, 11 Mar 2019 09:01:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-14</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, after what we talk in the meeting, I think this is the final (at least for now) API schema that we are going to use:</p>
+<pre><code class="lang-javascript">export default [
+  {
+    // The name of the settings. Only needs to be populated in case there is more than one site. Defaults `null`.
+    name: "settings-name-1",
+    // The url of the site. Defaults to `null`.
+    url: "https://site.com/",
+    // Match used against the url passed in `getSettings` to identify the needed settings.
+    match: "/https:\/\/site.com\//",
+    // Matches used against the url passed in `getSettings` to identify the render mode.
+    mode: {
+      pwa: "*", // This name should be changed. This is the default value.
+      amp: "/\/amp\/?$/", // This is the default value.
+    },
+    // Number defining the offset from UTC. Defaults to 0.
+    timezone: 2,
+    // Defaults to "en".
+    language: "en",
+    // Defaults to `null`.
+    title: "Awesome Title",
+    // Used packages and it's settings. Defaults to [].
+    packages: [
+      {
+        // Package name in `npm`. This field is mandatory.
+        name: "@frontity/theme",
+        // Allows for the dev to deactivate a package without removing its settings. Defaults to `true`.
+        active: true,
+        // Mode in which this package is used. It can be a string or a string[]. Defaults to ["pwa", "amp"].
+        modes: "amp",
+        // Namespaces used. Defaults to an array containing all the namespaces ["theme", "comments", "h2r"].
+        namespaces: "theme",
+        // Settings for this package.
+        settings: {
+          color: "#FFF",
+          // Specific mode settings that override the general package settings.
+          mode: {
+            amp: {
+              color: "#000",
+            }
+          }
+        }
+      }
+    ]
+  }
+]
+</code></pre>
+<p>[WIP] There are some things missing yet.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/13</link>
+        <pubDate>Fri, 08 Mar 2019 15:50:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-13</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>An update of the constrains:</p>
+<h3>Constrains</h3>
+<ul>
+<li>Settings can be retrieved by either the URL or the “site name”.</li>
+<li>A site configuration can contain “general settings” as well, not belonging to any package.</li>
+<li>Different modes can be defined for each site.</li>
+<li>Different modes can have different packages and/or settings configuration.</li>
+<li>There must be a way to know which settings belong to which namespace of a package.</li>
+<li>The settings must be serializable, they cannot contain code.</li>
+</ul>
+<p>I’d remove this constrain because it has nothing to do with this API:</p>
+<ul>
+<li>The developer must be able to force the use of another site using a query ?site=my-other-site.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/12</link>
+        <pubDate>Fri, 08 Mar 2019 07:48:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-12</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Maybe the package should be the responsible of defining those namespaces?</p>
+</blockquote>
+</aside>
+<p>They export them, but they can export several.</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>If we follow our design principles, this field, somehow, should have a default value.</p>
+</blockquote>
+</aside>
+<p>Sure. Let us know if you come up with a solution!</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Don’t know if is something that can be achieved by overmind’s <code>namespaced</code> , for example, I don’t actually know what that function does <img src="https://community.frontity.org/images/emoji/apple/expressionless.png?v=6" title=":expressionless:" class="emoji" alt=":expressionless:"></p>
+</blockquote>
+</aside>
+<p>Each Frontity namespace will end up in an Overmind namespace, but that doesn’t help us know what settings go to what namespace:<br>
+<a href="https://overmindjs.org/api/config?view=react&amp;typescript=false#config-namespaced" class="onebox" target="_blank" rel="nofollow noopener">https://overmindjs.org/api/config?view=react&amp;typescript=false#config-namespaced</a></p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>It seems to me that the <code>url</code> value can be known in the request, and also is something that belongs more to <code>build</code> maybe? I see <code>build</code> like <code>derived</code> state, so if we can get these values from somewhere else, maybe we should avoid to define them in <code>settings</code> .</p>
+</blockquote>
+</aside>
+<p>Where would derive the URL from?</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I’m worried here about mixing content-related settings with Frontity settings. I think we should try to have a separation of concerns. Not sure if this makes sense, though.</p>
+</blockquote>
+</aside>
+<p>I think one file/place for all the settings of a site is better than two, so my vote goes for keeping the general settings in the <code>frontity.settings.js</code> file. It seems too complex:</p>
+<pre><code class="lang-auto">// frontity.settings.js
+{
+  name: "my-site",
+  settings: {
+    "my-theme": {
+    ...
+    },
+    "wp-source": {
+    ...
+    }
+  }
+}
+// frontity.general.settings.js
+{
+  name: "my-site",
+  settings: {
+    url: "https://www.my-site.com",
+    language: "en",
+    timezone: "+2"
+  }
+}
+</code></pre>
+<p>The configuration of the server itself (webpack, babel…) already goes to the <code>frontity.config.js</code> file.</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I thought that maybe the dev would like to change the <code>user-agent</code> match that determines what bundle to send, but the best option should be used whenever possible.</p>
+</blockquote>
+</aside>
+<p>Oh, both esModules and es5 are always included in the HTML because it’s the browser the one who chooses the right one <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"><br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <a href="https://jakearchibald.com/2017/es-modules-in-browsers/#nomodule-for-backwards-compatibility" target="_blank" rel="nofollow noopener">jakearchibald.com</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/d4b1f0c19c8eb9e95e64c4caff9071d2b217e5a9.png" class="thumbnail onebox-avatar" width="500" height="500">
+
+<h3><a href="https://jakearchibald.com/2017/es-modules-in-browsers/#nomodule-for-backwards-compatibility" target="_blank" rel="nofollow noopener">ECMAScript modules in browsers</a></h3>
+
+<p>ES modules are landing in browsers! Here are the HTML-specific differences you need to be aware of.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<p></p>
+<aside class="quote group-development-team" data-post="9" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I didn’t know that different sites could use different packages. That way the bundle will be bigger than neccessary, right?</p>
+</blockquote>
+</aside>
+<p>Yes, that problem is explained here in detail: <a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/9" class="inline-onebox">How to resolve dynamic imports in Webpack</a></p>
+<aside class="quote group-development-team" data-post="10" data-topic="58" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Are the settings packages some kind of <em>special</em> package? Or are they treated exactly the same than other packages. I mean, for example, in the way the package is used by Frontity.</p>
+</blockquote>
+</aside>
+<p>Yes, they are not regular Frontity packages because they are consumed by the server before the SSR starts.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/11</link>
+        <pubDate>Fri, 08 Mar 2019 07:42:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-11</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Are the settings packages some kind of <em>special</em> package? Or are they treated exactly the same than other packages. I mean, for example, in the way the package is used by Frontity.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/10</link>
+        <pubDate>Thu, 07 Mar 2019 13:32:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-10</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="7" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><strong><code>getAllPackages()</code></strong> : retrieves all the packages of all the sites.</p>
+</blockquote>
+</aside>
+<p>I didn’t know that different sites could use different packages. That way the bundle will be bigger than neccessary, right?</p>
+<p>I’m OK with that API.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/9</link>
+        <pubDate>Thu, 07 Mar 2019 09:19:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-9</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>How do we know that <code>aThemeSetting</code> goes to <code>settings.theme</code> and that <code>aRouterSetting</code> goes to <code>settings.router</code> ?</p>
+</blockquote>
+</aside>
+<p>If we follow our design principles, this field, somehow, should have a default value. Maybe the package should be the responsible of defining those namespaces? Even if it can be overridden in the settings later. Don’t know if is something that can be achieved by overmind’s <code>namespaced</code>, for example, I don’t actually know what that function does <img src="https://community.frontity.org/images/emoji/apple/expressionless.png?v=6" title=":expressionless:" class="emoji" alt=":expressionless:"></p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>In our old framework the URL was used by several packages. I think it’s important.</p>
+</blockquote>
+</aside>
+<p>It seems to me that the <code>url</code> value can be known in the request, and also is something that belongs more to <code>build</code> maybe? I see <code>build</code> like <code>derived</code> state, so if we can get these values from somewhere else, maybe we should avoid to define them in <code>settings</code>.</p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I think we need a way to store general settings. Not only the URL but things that are needed by all the extensions like the timezone or the language.</p>
+</blockquote>
+</aside>
+<p>I agree. I didn’t think of any but, yes, I think they should just go in the root level.<br>
+I’m worried here about mixing content-related settings with Frontity settings. I think we should try to have a separation of concerns. Not sure if this makes sense, though.</p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I don’t quite understand what you are trying to accomplish with <code>bundle</code> .</p>
+</blockquote>
+</aside>
+<p>I know, it makes no sense. I thought that maybe the dev would like to change the <code>user-agent</code> match that determines what bundle to send, but the best option should be used whenever possible.</p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I proposed to use a <code>match</code> field that contains regexps for the URL</p>
+</blockquote>
+</aside>
+<p>Yes, you are right. I missed that one.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/8</link>
+        <pubDate>Thu, 07 Mar 2019 09:15:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-8</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been think a lot about what you said and I think you’re right, we should not require a <code>frontity.package.js</code> file. That information is already in the <code>frontity.settings.js</code> anyway.</p>
+<p>I don’t know if you’ve already thought about the API of the settings packages but in my head it was something like :</p>
+<ul>
+<li>
+<strong><code>getSettings({ url, site })</code></strong>: retrieves the single settings for a site, using either its url or its site name.</li>
+<li>
+<strong><code>getPackages({ url, site })</code></strong>: retrieves all the packages of a site, using either its url or its site name.</li>
+</ul>
+<p>We would need to add another one:</p>
+<ul>
+<li>
+<strong><code>getAllPackages()</code></strong>: retrieves all the packages of all the sites.</li>
+</ul>
+<p>Then use that <code>getAllPackages()</code> function to create our <code>frontity.packages.js</code> file internally before Webpack runs.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/7</link>
+        <pubDate>Thu, 07 Mar 2019 08:34:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-7</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="5" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I also think that developers shouldn’t need to be mindful of the <code>namespaces</code> exposed by the packages they use and shouldn’t need to define them here, if there is a way to avoid it.</p>
+</blockquote>
+</aside>
+<p>The problem (that you actually pointed out when I was working on this) is that, without a namespace, we don’t know where those settings are going to end up. For example:</p>
+<pre><code class="lang-auto">    {
+      name: "@frontity/some-theme",
+      settings: {
+    	aThemeSetting: "#FFF",
+        aRouterSetting: true
+      }
+    }
+</code></pre>
+<p>How do we know that <code>aThemeSetting</code> goes to <code>settings.theme</code> and that <code>aRouterSetting</code> goes to <code>settings.router</code>?</p>
+<hr>
+<p>As I <a href="https://community.frontity.org/t/the-packages-export-api/64">commented here</a>, I don’t like the <code>pwa</code> name. It doesn’t make sense anymore. I don’t quite like <code>default</code> either. We need to find something better <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<hr>
+<aside class="quote group-development-team" data-post="5" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I can’t think of a use for the <code>url</code> field and I think the WP API url should be defined inside the <code>wp-source</code> package settings.</p>
+</blockquote>
+</aside>
+<p>In our old framework the URL was used by several packages. I think it’s important. But I agree with you with the  WP REST API URL. That should go in the <code>wp-source</code> package.</p>
+<p>I think we need a way to store general settings. Not only the URL but things that are needed by all the extensions like the timezone or the language.</p>
+<hr>
+<p>Last two things:</p>
+<ul>
+<li>I don’t quite understand what you are trying to accomplish with <code>bundle</code>.</li>
+<li>We need a way to distinguish between different sites. Remember, now the domain can point directly to Node, so no <code>siteId</code> is involved. I proposed to use a <code>match</code> field that contains regexps for the URL:</li>
+</ul>
+<pre><code class="lang-auto">exports default [{
+  name: "main",
+  match: "https://site.com/.*"
+  ...
+}, {
+  name: "blog",
+  match: "https://blog.site.com/.*"
+  ...
+}]
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/6</link>
+        <pubDate>Wed, 06 Mar 2019 18:08:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-6</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, this is the way I imagine the settings being used:</p>
+<p>The settings need to be serializable, and can be an <code>array</code> or an <code>object</code>. The settings being an array is useful to store the settings of different sites in just one file.</p>
+<p>The API should be as follows:</p>
+<pre><code class="lang-auto">module.exports = {
+  name: "example-name", // Useful only when there is more than one site.
+  mode: {
+    pwa: "*", // Default.
+    amp: "\/amp\/?$", // Default.
+    // More modes can be defined here.
+  },
+  bundle: {
+    babel: "old useragent match", // Default.
+    es6: "new useragent match", // Default.
+  },
+  packages: [
+    {
+      name: "@frontity/theme",
+      settings: {
+    	color: "#FFF",
+    	mode: {
+    	  amp: {
+            color: "#000",
+    	  }
+        }
+      }
+    }
+  ]
+}
+</code></pre>
+<p>If we remove the default values the API would be as follows:</p>
+<pre><code class="lang-auto">module.exports = {
+  packages: [
+    {
+      name: "@frontity/theme",
+      settings: {
+    	color: "#FFF",
+    	mode: {
+    	  amp: {
+            color: "#000",
+    	  }
+        }
+      }
+    }
+  ]
+}
+</code></pre>
+<h3><code>name</code></h3>
+<p>The name of the settings that you want to use in your current app. This is an useful identifier in case you are developing one theme for many different sites. Setting it as a query param will identify which are the required settings. If this param is not provided, the first settings in the array should be used.</p>
+<h3><code>mode</code></h3>
+<p>The different modes that Frontity supports and it’s patterns to identify them in the url.</p>
+<h3><code>bundle</code></h3>
+<p>The different bundles that can be served and the pattern to identify them in the <code>user-agent</code> of the request.</p>
+<h3><code>packages</code></h3>
+<p>An array of the packages used in the Frontity app.</p>
+<ul>
+<li>
+<code>name</code> the name of the package declared.</li>
+<li>
+<code>settings</code> the settings of the declared package.</li>
+<li>
+<code>mode</code> specific settings if needed for the different modes.</li>
+</ul>
+<h2>Some notes</h2>
+<p>I can’t think of a use for the <code>url</code> field and I think the WP API url should be defined inside the <code>wp-source</code> package settings.</p>
+<p>I also think that developers shouldn’t need to be mindful of the <code>namespaces</code> exposed by the packages they use and shouldn’t need to define them here, if there is a way to avoid it. But I’m not sure what’s the use of <code>namespaces</code> here, I’m assuming it’s to avoid including stores for those namespaces if they are not used in the app.</p>
+<p>Please let me know what do you think and what I’m missing.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/5</link>
+        <pubDate>Wed, 06 Mar 2019 14:57:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-5</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="3" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I’m afraid I don’t know the constrains nor the features.</p>
+</blockquote>
+</aside>
+<p><strong>Features</strong>: things we want the settings API to have.<br>
+<strong>Constrains</strong>: things that must be done in a certain way for some reason and may limit the design.</p>
+<aside class="quote group-development-team" data-post="3" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>from the things I read is that you want something like</p>
+</blockquote>
+</aside>
+<p>It’s not what I want. Think about what we need and what would make a good settings API that follows our design principles. Use the experience we have from the old framework and the new things we want to achieve with this one.</p>
+<p><a href="https://github.com/wp-pwa/wp-pwa/issues/93" rel="nofollow noopener">This issue</a> may be helpful as well. I’ve been writing about some features and constraints that directly relate to the settings API.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/4</link>
+        <pubDate>Wed, 06 Mar 2019 09:24:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-4</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+      <item>
+        <title>The Settings API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m afraid I don’t know the constrains nor the features.</p>
+<p>The only thing I could understand from the things I read is that you want something like:</p>
+<pre><code class="lang-auto">{
+   	name: "example-name",
+   	url: "https://mysite.com",
+   	mode: {
+		default: "*",
+   		amp: "\/amp\/?$"
+   	},
+  	packages: [
+  		{
+  			name: "@frontity/theme",
+  			namespace: "theme",
+ 			mode: "default",
+            settings: {}
+   		}
+   	]
+}
+</code></pre>
+<p>I’m completely blocked on this issue.</p>
+          <p><a href="https://community.frontity.org/t/the-settings-api/58/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-settings-api/58/3</link>
+        <pubDate>Wed, 06 Mar 2019 09:14:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-58-3</guid>
+        <source url="https://community.frontity.org/t/the-settings-api/58.rss">The Settings API</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Load packages only client side</title>
+    <link>https://community.frontity.org/t/load-packages-only-client-side/5277</link>
+    <description>I am trying to install react-konva to my fronting app, however I am having some issue.
+
+I did a simple `npm install react-konva konva` to install the package.
+When I try to load my app I get the following error:
+
+```
+ModuleNotFoundError: Module not found: Error: Can&#39;t resolve &#39;canvas&#39; in &#39;/Users/donkoko/devs/JS/kh-frontity-theme/node_modules/konva/lib&#39;
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/Compilation.js:925:10
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:401:22
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:130:21
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:224:22
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/neo-async/async.js:2830:7
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/neo-async/async.js:6877:13
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:214:25
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/enhanced-resolve/lib/Resolver.js:213:14
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/enhanced-resolve/lib/Resolver.js:285:5
+    at eval (eval at create (/Users/donkoko/devs/JS/kh-frontity-theme/node_modules/tapable/lib/HookCodeFactory.js:33:10), &lt;anonymous&gt;:15:1)
+```
+
+From what I understand this happens because `canvas` is not available server side. Makes sense, however my question is how can I go around this? Is there a way to load the package just client side?
+
+I also made a sandbox for testing: https://codesandbox.io/s/wizardly-carson-2hy24?file=/README.md
+and here is the repository: https://github.com/DonKoko/frontity-konva-test
+
+EDIT: Here is the solution that the Konva devs suggested when using GatsbyJS. However I am not aware of a way to modify webpack with frontity https://github.com/jsdom/jsdom/issues/3042</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 24 Sep 2021 17:16:20 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/load-packages-only-client-side/5277.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Okey, after facing even more issues, I kept on digging further and it turns out, there is actually a way to modify the webpack config. It is not documented yet so it was tricky to find and understand but in the end it solved all issues including the need of doing a dynamic import.<br>
+So the final solution involved adding the <code>frontity.config.js</code> file with the following settings:</p>
+<pre><code class="lang-javascript">const webpack_1 = require("webpack");
+
+export const webpack = ({ config, mode }) =&gt; {
+  config.plugins.push(new webpack_1.IgnorePlugin(/canvas|jsdom/, /konva/));
+};
+</code></pre>
+<p>I am not sure if i need to actually <code>require</code> webpack or I can access it somehow, but this approach works. Also once this is done, no dynamic imports are required. You can import Konva component in the normal way.</p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/9</link>
+        <pubDate>Fri, 24 Sep 2021 17:16:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-9</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>EDIT:</strong> <strong>This is not the final solution. Please look at the comment below for the solution. I am leaving this here so we can have a full trace of the problem solving.</strong></p>
+<p>I am posting this an update as I managed to make this work, however the solution involves a hack that I am unhappy with and will be looking to solve.<br>
+So in the end, no matter what approach I would try to take with the import, webpack would keep on giving me errors about canvas, even after I installed canvas specifically.</p>
+<p>After many hours of digging, I realized that the only realistic solution would be to modify webpack config as per this comment: <a href="https://github.com/konvajs/react-konva/issues/102#issuecomment-308000612" rel="noopener nofollow ugc">https://github.com/konvajs/react-konva/issues/102#issuecomment-308000612</a></p>
+<p>So, as my webpack knowledge is quite basic, the only way I could do it is to actually modify the webpack files within <code>node_modules/@frontity/core/dist/src/config/webpack/plugins.js</code>.</p>
+<p>NOTE: I know this is not the correct way of doing it and that updating will overwrite the changes, however it is the only way I could manage to make it work.</p>
+<p>Inside plugins.js I modified the line with the ignoring of folders to this:<br>
+<code>config.push(new webpack_1.WatchIgnorePlugin([new RegExp(outDir)]), new webpack_1.IgnorePlugin(/^encoding$/), new webpack_1.IgnorePlugin(/canvas|jsdom/, /konva/)); </code></p>
+<p>Once this was done webpack could actually compile the code.</p>
+<p>The next step was using Konva. I have made a seperate package where Konva is used, called <code>customizer</code>. Inside that package the <code>index.js</code> file looks like this:</p>
+<pre><code class="lang-javascript">export default {
+  name: "kh-product-customizer",
+  roots: {},
+  state: {
+    customizer: {
+      visible: false,
+    },
+  },
+  libraries: {
+    customizer: {
+      components: {},
+    },
+  },
+  actions: {
+    customizer: {
+      beforeCSR: async ({ libraries, roots }) =&gt; {
+        let reactKonva = await loadable(() =&gt; import("./Components/index.js"));
+        libraries.customizer.Component = reactKonva
+      },
+    },
+  },
+};
+</code></pre>
+<p>An extra note, I could only make it work with <code>loadable</code>. If i tried to use import as in the example above, it would keep giving me errors about the component not being exported properly.</p>
+<p>Last but not least, in the component where I actually want to show the Konva component, I have the following:</p>
+<pre><code class="lang-javascript">const ProductCustomizer = libraries.customizer.Component
+</code></pre>
+<p>and within the return I have:</p>
+<pre><code class="lang-javascript">{ProductCustomizer &amp;&amp; &lt;ProductCustomizer/&gt;}
+</code></pre>
+<p>As some extra info, for testing I was using one of the example components from Konva that looks like this:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { useConnect, connect } from 'frontity'
+import { Stage, Layer, Rect, Transformer } from "react-konva";
+
+const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) =&gt; {
+  const shapeRef = React.useRef();
+  const trRef = React.useRef();
+
+  React.useEffect(() =&gt; {
+    if (isSelected) {
+      // we need to attach transformer manually
+      trRef.current.nodes([shapeRef.current]);
+      trRef.current.getLayer().batchDraw();
+    }
+  }, [isSelected]);
+
+  return (
+    &lt;React.Fragment&gt;
+      &lt;Rect
+        onClick={onSelect}
+        onTap={onSelect}
+        ref={shapeRef}
+        {...shapeProps}
+        draggable
+        onDragEnd={(e) =&gt; {
+          onChange({
+            ...shapeProps,
+            x: e.target.x(),
+            y: e.target.y(),
+          });
+        }}
+        onTransformEnd={(e) =&gt; {
+          // transformer is changing scale of the node
+          // and NOT its width or height
+          // but in the store we have only width and height
+          // to match the data better we will reset scale on transform end
+          const node = shapeRef.current;
+          const scaleX = node.scaleX();
+          const scaleY = node.scaleY();
+
+          // we will reset it back
+          node.scaleX(1);
+          node.scaleY(1);
+          onChange({
+            ...shapeProps,
+            x: node.x(),
+            y: node.y(),
+            // set minimal value
+            width: Math.max(5, node.width() * scaleX),
+            height: Math.max(node.height() * scaleY),
+          });
+        }}
+      /&gt;
+      {isSelected &amp;&amp; (
+        &lt;Transformer
+          ref={trRef}
+          boundBoxFunc={(oldBox, newBox) =&gt; {
+            // limit resize
+            if (newBox.width &lt; 5 || newBox.height &lt; 5) {
+              return oldBox;
+            }
+            return newBox;
+          }}
+        /&gt;
+      )}
+    &lt;/React.Fragment&gt;
+  );
+};
+
+const initialRectangles = [
+  {
+    x: 10,
+    y: 10,
+    width: 100,
+    height: 100,
+    fill: "red",
+    id: "rect1",
+  },
+  {
+    x: 150,
+    y: 150,
+    width: 100,
+    height: 100,
+    fill: "green",
+    id: "rect2",
+  },
+];
+
+const App = () =&gt; {
+  const [rectangles, setRectangles] = React.useState(initialRectangles);
+  const [selectedId, selectShape] = React.useState(null);
+  const { state } = useConnect();
+  const checkDeselect = (e) =&gt; {
+    // deselect when clicked on empty area
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      selectShape(null);
+    }
+  };
+  console.log("state", state)
+  return (
+    &lt;Stage
+      width={window.innerWidth}
+      height={window.innerHeight}
+      onMouseDown={checkDeselect}
+      onTouchStart={checkDeselect}
+    &gt;
+      &lt;Layer&gt;
+        {rectangles.map((rect, i) =&gt; {
+          return (
+            &lt;Rectangle
+              key={i}
+              shapeProps={rect}
+              isSelected={rect.id === selectedId}
+              onSelect={() =&gt; {
+                selectShape(rect.id);
+              }}
+              onChange={(newAttrs) =&gt; {
+                const rects = rectangles.slice();
+                rects[i] = newAttrs;
+                setRectangles(rects);
+              }}
+            /&gt;
+          );
+        })}
+      &lt;/Layer&gt;
+
+    &lt;/Stage&gt;
+  )
+};
+
+export default connect(App, { injectProps: false });
+</code></pre>
+<p>This is the best way I could make this work for now. If I have some improvements I will post them here for anyone needing this in the future.</p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/8</link>
+        <pubDate>Fri, 24 Sep 2021 11:59:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-8</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,</p>
+<p>unfortunately after many struggles I still keep on facing the same issue. I have tried to import it in any way I can think/see in the examples, and the error still persists. I have updated the codesandbox so you can see the error as well. I also tried using <code>loadable</code> but I keep on getting the same error:</p>
+<pre><code class="lang-javascript">    ERROR in ./node_modules/konva/lib/index-node.js
+    Module not found: Error: Can't resolve 'canvas' in '/sandbox/node_modules/konva/lib'
+     @ ./node_modules/konva/lib/index-node.js 1:39-69 1:82-99 1:101-107
+     @ ./node_modules/react-konva/es/ReactKonva.js
+     @ ./packages/mars-theme/src/components/konva-test.js
+     @ ./packages/mars-theme/src/index.js
+     @ ./build/bundling/entry-points/server.ts
+ℹ ｢wdm｣: Failed to compile.
+</code></pre>
+<p>Here is again the link to the sandbox: <a href="https://codesandbox.io/s/wizardly-carson-2hy24?file=/packages/mars-theme/src/index.js" class="inline-onebox" rel="noopener nofollow ugc">wizardly-carson-2hy24 - CodeSandbox</a></p>
+<p>EDIT: I also tried simply running <code>npm install canvas</code> and we get a different error then, related to the same issue with rendering on the server.</p>
+<pre><code class="lang-javascript">    ERROR in ./node_modules/canvas/build/Release/canvas.node 1:0
+    Module parse failed: Unexpected character '�' (1:0)
+    You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+    (Source code omitted for this binary file)
+ModuleParseError: Module parse failed: Unexpected character '�' (1:0)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+(Source code omitted for this binary file)
+    at handleParseError (/Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/webpack/lib/NormalModule.js:469:19)
+    at /Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/webpack/lib/NormalModule.js:503:5
+    at /Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/webpack/lib/NormalModule.js:358:12
+    at /Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/loader-runner/lib/LoaderRunner.js:373:3
+    at iterateNormalLoaders (/Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/loader-runner/lib/LoaderRunner.js:214:10)
+    at Array.&lt;anonymous&gt; (/Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/loader-runner/lib/LoaderRunner.js:205:4)
+    at Storage.finished (/Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:55:16)
+    at /Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/enhanced-resolve/lib/CachedInputFileSystem.js:91:9
+    at /Users/donkoko/devs/JS/frontity-examples/demo-using-google-fonts/node_modules/graceful-fs/graceful-fs.js:123:16
+    at FSReqCallback.readFileAfterClose [as oncomplete] (internal/fs/read_file_context.js:63:3)
+</code></pre>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/7</link>
+        <pubDate>Thu, 23 Sep 2021 15:29:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-7</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a></p>
+<aside class="quote no-group" data-username="ni.bonev" data-post="4" data-topic="5277">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/ni.bonev/40/1155_2.png" class="avatar"> ni.bonev:</div>
+<blockquote>
+<p>I will test it tomorrow morning. That seems exactly what I was looking for.</p>
+</blockquote>
+</aside>
+<p>How did you get on with this?</p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/6</link>
+        <pubDate>Thu, 23 Sep 2021 09:53:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-6</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a></p>
+<p>More on dynamic importing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports">here</a>.</p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/5</link>
+        <pubDate>Mon, 20 Sep 2021 13:23:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-5</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you very much <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>. I will test it tomorrow morning. That seems exactly what I was looking for.</p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/4</link>
+        <pubDate>Mon, 20 Sep 2021 13:20:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-4</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a></p>
+<p>Take a look at <a href="https://github.com/frontity-demos/frontity-examples/tree/master/demo-using-google-fonts">this repo</a> which dynamically imports Google Fonts into a Frontity project.</p>
+<p>It uses <code>webfontloader</code> which only works client side, i.e. the problem that you’re having with <code>konva</code>, and so uses dynamic import in a <code> beforeCSR</code> action.</p>
+<p>I think a similar solution should work for you. Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/3</link>
+        <pubDate>Mon, 20 Sep 2021 13:17:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-3</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> &amp; <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>. Sorry to ping you guys like this but we are quite stuck with this and I was hoping you could take a quick look and let give us some direction on how to handle this?</p>
+<p>Thanks in advance.</p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/2</link>
+        <pubDate>Mon, 20 Sep 2021 11:49:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-2</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+      <item>
+        <title>Load packages only client side</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>I am trying to install react-konva to my fronting app, however I am having some issue.</p>
+<p>I did a simple <code>npm install react-konva konva</code> to install the package.<br>
+When I try to load my app I get the following error:</p>
+<pre><code class="lang-javascript">ModuleNotFoundError: Module not found: Error: Can't resolve 'canvas' in '/Users/donkoko/devs/JS/kh-frontity-theme/node_modules/konva/lib'
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/Compilation.js:925:10
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:401:22
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:130:21
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:224:22
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/neo-async/async.js:2830:7
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/neo-async/async.js:6877:13
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/webpack/lib/NormalModuleFactory.js:214:25
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/enhanced-resolve/lib/Resolver.js:213:14
+    at /Users/donkoko/devs/JS/kh-frontity-theme/node_modules/enhanced-resolve/lib/Resolver.js:285:5
+    at eval (eval at create (/Users/donkoko/devs/JS/kh-frontity-theme/node_modules/tapable/lib/HookCodeFactory.js:33:10), &lt;anonymous&gt;:15:1)
+</code></pre>
+<p>From what I understand this happens because <code>canvas</code> is not available server side. Makes sense, however my question is how can I go around this? Is there a way to load the package just client side?</p>
+<p>I also made a sandbox for testing: <a href="https://codesandbox.io/s/wizardly-carson-2hy24?file=/README.md" class="inline-onebox" rel="noopener nofollow ugc">wizardly-carson-2hy24 - CodeSandbox</a><br>
+and here is the repository: <a href="https://github.com/DonKoko/frontity-konva-test" rel="noopener nofollow ugc">https://github.com/DonKoko/frontity-konva-test</a></p>
+<p>EDIT: Here is the solution that the Konva devs suggested when using GatsbyJS. However I am not aware of a way to modify webpack with frontity <a href="https://github.com/jsdom/jsdom/issues/3042" rel="noopener nofollow ugc">https://github.com/jsdom/jsdom/issues/3042</a></p>
+          <p><a href="https://community.frontity.org/t/load-packages-only-client-side/5277/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/load-packages-only-client-side/5277/1</link>
+        <pubDate>Tue, 14 Sep 2021 15:33:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5277-1</guid>
+        <source url="https://community.frontity.org/t/load-packages-only-client-side/5277.rss">Load packages only client side</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to fetch menus in different languages in a multi-language site? Problem with subdirectory</title>
+    <link>https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012</link>
+    <description>Hello Frontity Community,
+
+I&#39;m trying to create a multi-language site using the WP plugin **WPML** in German and English. We are also using Advanced Custom Fields to display our own modules in the pages. So I created 2 different sites in the same project, inside the frontity settings file. It looks like this:
+
+```
+const settings = [
+  {
+    name: &quot;my-example-site&quot;,
+    match: [&quot;http?:\\/\\/[^/]+\\/de([^-\\w]|$)&quot;],
+    state: {
+      frontity: {
+        url: &quot;http://localhost:3000/de&quot;,
+        title: &quot;My Example Site&quot;,
+        description: &quot;Some text here&quot;,
+      }
+    },
+    packages: [
+      {
+        name: &quot;my-theme&quot;,
+      },
+      {
+        name: &quot;@frontity/wp-source&quot;,
+        state: {
+          source: {
+            url: &quot;http://myexample.com/de&quot;,
+            homepage: &quot;/home&quot;,
+            subdirectory: &quot;de&quot;,
+          },
+          theme: {
+            autoPrefetch: &quot;hover&quot;,
+          },
+        }
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;
+    ]
+  },
+  {
+    name: &quot;my-example-site-en&quot;,
+    match: [&quot;http?:\\/\\/[^/]+\\/en([^-\\w]|$)&quot;],
+    state: {
+      frontity: {
+        url: &quot;http://localhost:3000/en&quot;,
+        title: &quot;My Example Site EN&quot;,
+        description: &quot;Some text here&quot;,
+      }
+    },
+    packages: [
+      {
+        name: &quot;my-theme&quot;,
+      },
+      {
+        name: &quot;@frontity/wp-source&quot;,
+        state: {
+          source: {
+            url: &quot;http://myexample.com/en&quot;,
+            homepage: &quot;/home&quot;,
+            subdirectory: &quot;en&quot;
+          },
+          theme: {
+            autoPrefetch: &quot;hover&quot;,
+          },
+        }
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;
+    ]
+  }
+]
+```
+
+In the **Page** component I get the current language (string) and the current available translations (array) for each page directly from the WP API and then I&#39;m firing 2 actions to set them in the state. After that, the **languageToggler** component takes both (current language and current translations) and display them inside a select tag, so that I can change the language of each page. This will fire another action to change the state and force a redirection with `window.location`
+
+Problems I&#39;m getting:
+
+To get the menus I followed this frontity-talk to [fetch the menus from WP](https://youtu.be/BMJn0RZ2I9s) and it works. The problem comes from the &#39;subdirectory&#39;.
+
+When I type `subdirectory: &quot;de&quot;` and `subdirectory: &quot;en&quot;` in the settings, the menu is not getting fetched - `errorStatusText: &quot;No handler has matched for the given link: &quot;/menu/main-menu/&quot;&quot;`
+Without it, the menu appears. But I need the subdirectories in order to display also the content of the pages and no only the menu. 
+
+Do you have maybe any idea how to solve this issue? Thank you very much in advance!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 30 Jul 2021 08:14:32 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to fetch menus in different languages in a multi-language site? Problem with subdirectory</title>
+        <dc:creator><![CDATA[jaime]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey Johan, you saved my day. It’s totally working!</p>
+<p>If you are hardcoding the language options, you should have something like this in your <code>index.js</code>:</p>
+<pre><code class="lang-javascript">state: {
+    theme: {
+      translations: [
+        {
+          href: "https://myexample.com/de/",
+          abbreviation: "de"
+        },
+        {
+          href: "https://myexample.com/en/",
+          abbreviation: "en"
+        },
+        {
+          href: "https://myexample.com/fr/",
+          abbreviation: "fr"
+        },
+        {
+          href: "https://myexample.com/it/",
+          abbreviation: "it"
+        }
+      ],
+      language: "",
+      redirectedSite: "",
+    },
+  },
+</code></pre>
+<p>In my <code>LanguageToggler</code> component I am getting the main URL of my site, the API url and the available translations. In both of the urls I’m slicing the language at the end in order to get the url clean:</p>
+<pre><code class="lang-javascript">const mainURL = state.frontity.url.slice(0, state.frontity.url.length - 2);
+const apiURL = state.source.url.slice(0, state.source.url.length - 2);
+const translations = state.theme.translations;
+</code></pre>
+<p>and then I’m mapping the array <code>translations</code> to display the languages abbreviations inside a <code>select</code> tag. As soon as I’m selecting any of the available languages I run an action to change the language of the site:</p>
+<pre><code class="lang-javascript">onChange={e =&gt; {
+    e.preventDefault();
+    actions.theme.changeLanguage(e.target.value, mainURL, apiURL);
+}}
+</code></pre>
+<p>This action will look like this in the <code>index.js</code>:</p>
+<pre><code class="lang-javascript">changeLanguage: ({ state }) =&gt; (lang, mainURL, apiURL) =&gt; {
+    // I filter the language I'm choosing from the array 'translations'
+    const selectedLanguage = state.theme.translations.filter(translation =&gt; translation.abbreviation === lang)[0];
+    // I change the language to the new one
+    state.theme.language = lang;
+    // here I get the new url where we are going to redirect with the mainURL (http://localhost:3000/) + the path without the API url (example: 'en/contact')
+    const newURL = mainURL + selectedLanguage.href.replace(apiURL, '');
+     // and I store this new url in the state
+    state.theme.redirectedSite = newURL;
+},
+</code></pre>
+<p>Now in my <code>Root</code> Component, as <code>window</code> is undefined on the first render, I create a variable and use <code>useEffect</code> when the DOM did mount to change it to true:</p>
+<pre><code class="lang-javascript">const [languageChanged, setLanguageChanged] = useState(false);
+useEffect(() =&gt; {
+    setLanguageChanged(true);
+}, [])
+
+</code></pre>
+<p>in addition I create another useEffect to redirect to the new URL when the <code>state.theme.language</code> did change:</p>
+<pre><code class="lang-javascript">useEffect(() =&gt; {
+    if (languageChanged) {
+      window.location.assign(state.theme.redirectedSite);
+    }
+}, [state.theme.language])
+</code></pre>
+<p>I changed a bit this example since mine is a bit specific considering that I’m using ACF and the WP plugin WPML for the multilanguage. I hope this can guide you a bit to achieve your goal.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/4</link>
+        <pubDate>Sun, 25 Jul 2021 18:11:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5012-4</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012.rss">How to fetch menus in different languages in a multi-language site? Problem with subdirectory</source>
+      </item>
+      <item>
+        <title>How to fetch menus in different languages in a multi-language site? Problem with subdirectory</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Try to change the handler pattern to <code>@menu/:slug</code>, so it won’t try to find a page/post at that location. That seems to work for me.</p>
+<p>PS. I’m curious how you force to fully reload the page when switching the language. It’s the only thing I haven’t figured out yet.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/3</link>
+        <pubDate>Wed, 21 Jul 2021 19:55:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5012-3</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012.rss">How to fetch menus in different languages in a multi-language site? Problem with subdirectory</source>
+      </item>
+      <item>
+        <title>How to fetch menus in different languages in a multi-language site? Problem with subdirectory</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jaime">@jaime</a></p>
+<p>Welcome to the Frontity community.</p>
+<p>You may have to create separate handlers to fetch the menus for the two different sites. Alternatively you could change the <code>pattern</code> that must be matched for the handler function to execute to accommodate both cases.</p>
+<p>See <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-handlers">the docs here</a> for more info.</p>
+<p>Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/2</link>
+        <pubDate>Wed, 21 Jul 2021 14:39:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5012-2</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012.rss">How to fetch menus in different languages in a multi-language site? Problem with subdirectory</source>
+      </item>
+      <item>
+        <title>How to fetch menus in different languages in a multi-language site? Problem with subdirectory</title>
+        <dc:creator><![CDATA[jaime]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello Frontity Community,</p>
+<p>I’m trying to create a multi-language site using the WP plugin <strong>WPML</strong> in German and English. We are also using Advanced Custom Fields to display our own modules in the pages. So I created 2 different sites in the same project, inside the frontity settings file. It looks like this:</p>
+<pre><code class="lang-javascript">const settings = [
+  {
+    name: "my-example-site",
+    match: ["http?:\\/\\/[^/]+\\/de([^-\\w]|$)"],
+    state: {
+      frontity: {
+        url: "http://localhost:3000/de",
+        title: "My Example Site",
+        description: "Some text here",
+      }
+    },
+    packages: [
+      {
+        name: "my-theme",
+      },
+      {
+        name: "@frontity/wp-source",
+        state: {
+          source: {
+            url: "http://myexample.com/de",
+            homepage: "/home",
+            subdirectory: "de",
+          },
+          theme: {
+            autoPrefetch: "hover",
+          },
+        }
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react"
+    ]
+  },
+  {
+    name: "my-example-site-en",
+    match: ["http?:\\/\\/[^/]+\\/en([^-\\w]|$)"],
+    state: {
+      frontity: {
+        url: "http://localhost:3000/en",
+        title: "My Example Site EN",
+        description: "Some text here",
+      }
+    },
+    packages: [
+      {
+        name: "my-theme",
+      },
+      {
+        name: "@frontity/wp-source",
+        state: {
+          source: {
+            url: "http://myexample.com/en",
+            homepage: "/home",
+            subdirectory: "en"
+          },
+          theme: {
+            autoPrefetch: "hover",
+          },
+        }
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react"
+    ]
+  }
+]
+</code></pre>
+<p>In the <strong>Page</strong> component I get the current language (string) and the current available translations (array) for each page directly from the WP API and then I’m firing 2 actions to set them in the state. After that, the <strong>languageToggler</strong> component takes both (current language and current translations) and display them inside a select tag, so that I can change the language of each page. This will fire another action to change the state and force a redirection with <code>window.location</code></p>
+<p>Problems I’m getting:</p>
+<p>To get the menus I followed this frontity-talk to <a href="https://youtu.be/BMJn0RZ2I9s" rel="noopener nofollow ugc">fetch the menus from WP</a> and it works. The problem comes from the ‘subdirectory’.</p>
+<p>When I type <code>subdirectory: "de"</code> and <code>subdirectory: "en"</code> in the settings, the menu is not getting fetched - <code>errorStatusText: "No handler has matched for the given link: "/menu/main-menu/""</code><br>
+Without it, the menu appears. But I need the subdirectories in order to display also the content of the pages and no only the menu.</p>
+<p>Do you have maybe any idea how to solve this issue? Thank you very much in advance!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012/1</link>
+        <pubDate>Mon, 19 Jul 2021 19:21:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5012-1</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menus-in-different-languages-in-a-multi-language-site-problem-with-subdirectory/5012.rss">How to fetch menus in different languages in a multi-language site? Problem with subdirectory</source>
+      </item>
+  </channel>
+</rss>

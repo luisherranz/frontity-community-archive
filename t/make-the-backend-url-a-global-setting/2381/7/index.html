@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Make the backend URL a global setting - #7 by luisherranz - Released - Frontity Community Forum</title>
+    <meta name="description" content="Description
+The WordPress backend URL is only on state.source.api now, and it may (or may not) contain a prefix, usually /wp-json. 
+We have started to see more and more examples of different packages that need to know th&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/make-the-backend-url-a-global-setting/2381" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Make the backend URL a global setting&#39;" href="../2381.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/make-the-backend-url-a-global-setting/2381/7" />
+<meta name="twitter:url" content="/t/make-the-backend-url-a-global-setting/2381/7" />
+<meta property="og:title" content="Make the backend URL a global setting" />
+<meta name="twitter:title" content="Make the backend URL a global setting" />
+<meta property="og:description" content="To make it backwards compatible state.source.api can be a derived state built with state.frontity.backend and state.source.prefix, so packages relying on state.source.api will still work:  const state = {   source: {     prefix: &quot;/wp-json&quot;,     api: ({ state }) =&gt; state.frontity.backend + state.source.prefix,   }, };  If someone overwrites state.source.api in the frontity.settings.js file, it will still work because it will overwrite the derived state.   By the way, I wouldn’t name it wordpressU..." />
+<meta name="twitter:description" content="To make it backwards compatible state.source.api can be a derived state built with state.frontity.backend and state.source.prefix, so packages relying on state.source.api will still work:  const state = {   source: {     prefix: &quot;/wp-json&quot;,     api: ({ state }) =&gt; state.frontity.backend + state.source.prefix,   }, };  If someone overwrites state.source.api in the frontity.settings.js file, it will still work because it will overwrite the derived state.   By the way, I wouldn’t name it wordpressU..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Released" />
+<meta property="og:article:section:color" content="D3ABFF" />
+<meta property="article:published_time" content="2020-07-31T10:00:33+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/make-the-backend-url-a-global-setting/2381">
+
+    
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/make-the-backend-url-a-global-setting/2381">Make the backend URL a global setting</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/released/40" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #D3ABFF'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Released</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Make the backend URL a global setting'>
+        <meta itemprop='articleSection' content='Released'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-13T18:37:35Z' class='post-time'>
+                    13 July 2020 18:37
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-13T18:37:35Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Sounds good to me!</p>
+<p>I cant think of any counterargument at the moment. Also, a side-effect would be that we can have zero-configuration for the <code>wp-source</code> package in that case <img src="../../../../images/emoji/apple/slight_smile.png%3Fv=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I don’t like the name <code>backend</code> that much though because it’s quite generic… Maybe <code>backendUrl</code> or <code>wordpressUrl</code> …?</p>
+<div class="poll" data-poll-status="open" data-poll-max="20" data-poll-results="always" data-poll-charttype="bar" data-poll-type="regular" data-poll-name="poll">
+<div>
+<div class="poll-container">
+<ul>
+<li data-poll-option-id="fd8e7e9eeee54601e14ecb1ad45d1f20">backend</li>
+<li data-poll-option-id="0e7869d3552835078300052056e1aa5e">backendUrl</li>
+<li data-poll-option-id="e9d50d80c90e7a479b04c03af7b26335">wordpressUrl</li>
+</ul>
+</div>
+<div class="poll-info">
+<p>
+<span class="info-number">0</span>
+<span class="info-label">voters</span>
+</p>
+</div>
+</div>
+</div>
+<p>(edit the poll to add other suggestions if you like) <img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-14T07:11:45Z' class='post-time'>
+                    14 July 2020 07:11
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-14T07:11:45Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I like the idea <img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> Apart from being useful for the uses cases you listed, I think the settings would be clearer this way.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/nicholasio.oliveira'><span itemprop='name'>nicholasio.oliveira</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-20T20:08:10Z' class='post-time'>
+                    20 July 2020 20:08
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-20T20:08:10Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Does this change need to be backwards compatible?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-22T03:00:58Z' class='post-time'>
+                    22 July 2020 03:00
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-22T03:00:58Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey <a class="mention" href="/u/nicholasio.oliveira">@nicholasio.oliveira</a></p>
+<p>I’m afraid that yes. <img src="../../../../images/emoji/apple/slight_smile.png%3Fv=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>What use case do you have in mind that would require making it backwards-incompatible and in what way would it be incompatible?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/nicholasio.oliveira'><span itemprop='name'>nicholasio.oliveira</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-23T19:16:58Z' class='post-time'>
+                    23 July 2020 19:16
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-23T19:16:58Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m just thinking of packages and themes that potentially rely on <code>state.source.api</code> and therefore would break if we just remove it.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-31T10:00:33Z' class='post-time'>
+                    31 July 2020 10:00
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-31T10:00:33Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>To make it backwards compatible <code>state.source.api</code> can be a derived state built with <code>state.frontity.backend</code> and <code>state.source.prefix</code>, so packages relying on <code>state.source.api</code> will still work:</p>
+<pre><code class="lang-js">const state = {
+  source: {
+    prefix: "/wp-json",
+    api: ({ state }) =&gt; state.frontity.backend + state.source.prefix,
+  },
+};
+</code></pre>
+<p>If someone overwrites <code>state.source.api</code> in the <code>frontity.settings.js</code> file, it will still work because it will overwrite the derived state.</p>
+<hr>
+<p>By the way, I wouldn’t name it <code>wordpressUrl</code> because now it’s going to be a global setting. Even though the framework (and the company) is focused on WordPress, there’s yet not a single line of the core hardcoded for WordPress and I would like it to remain that way. If someone else wants to start using Frontity for another CMS, they should be able to do so. All the WordPress integrations done so far and/or planned ahead are always done at a package level <img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/client-routing-for-internal-content-links/887">Client routing for internal `content` links</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-31T12:35:43Z' class='post-time'>
+                    31 July 2020 12:35
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-31T12:35:43Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Looking at the results of the poll and taking into account that we should avoid the WordPress name in the core, I think we can go with <code>backendUrl</code>. And yes, as <a class="mention" href="/u/mmczaplinski">@mmczaplinski</a> mentioned, this would make <code>wp-source</code> a zero-config package <img src="../../../../images/emoji/apple/smile.png%3Fv=9" title=":smile:" class="emoji" alt=":smile:"> <img src="../../../../images/emoji/apple/tada.png%3Fv=9" title=":tada:" class="emoji" alt=":tada:"></p>
+<pre><code class="lang-js">const settings = {
+  state: {
+    frontity: {
+      url: "https://mars.frontity.org",
+      backendUrl: "https://test.frontity.org",
+    },
+  },
+  packages: ["@frontity/wp-source"],
+};
+</code></pre>
+<p>Thoughts?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="4" />
+              <span class='post-likes'>4 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mburridge'><span itemprop='name'>mburridge</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-24T13:44:05Z' class='post-time'>
+                    24 August 2020 13:44
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-24T13:44:05Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><code>backendUrl</code> sounds pretty ugly. I propose <code>dataSourceUrl</code> or <code>sourceDataUrl</code> instead.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-28T10:34:25Z' class='post-time'>
+                    28 August 2020 10:34
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-28T10:34:25Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Uhm, I like that. What about <code>sourceUrl</code>?</p>
+<pre><code class="lang-js">const settings = {
+  state: {
+    frontity: {
+      url: "https://mars.frontity.org",
+      sourceUrl: "https://test.frontity.org",
+    },
+  },
+  packages: [...],
+};
+</code></pre>
+<p>And we could also keep it in <code>state.source</code> but call it <code>url</code> instead of <code>api</code>:</p>
+<pre><code class="lang-js">const settings = {
+  state: {
+    frontity: {
+      url: "https://mars.frontity.org",
+    },
+  },
+  packages: [
+    {
+      name: "@my-source-package",
+      state: {
+        source: {
+          url: "https://test.frontity.org",
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>Packages that need access to it would use <code>state.source.url</code> instead of <code>state.frontity.sourceUrl</code>.</p>
+<p>In the end, it’s the same, it’s just a matter of how to organize it to make more sense 🤷</p>
+<p>The important thing here is that we remove the <code>/wp-json</code> prefix.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-28T10:36:31Z' class='post-time'>
+                    28 August 2020 10:36
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-28T10:36:31Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>By the way, this would be equivalent, as there are no restrictions on what to include on those <code>state</code> blocks:</p>
+<pre><code class="lang-js">const settings = {
+  state: {
+    frontity: {
+      url: "https://mars.frontity.org",
+    },
+    source: {
+      url: "https://test.frontity.org",
+    },
+  },
+  packages: ["@my-source-package"],
+};
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-15T20:31:44Z' class='post-time'>
+                    15 September 2020 20:31
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-15T20:51:28Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>By the way, I’ve just noticed that <code>state.source.api</code> is not part of the <code>source</code> namespace and currently belongs to <code>wp-source</code> only. I think that if we finally go with <code>state.source.src</code>, we have to add it to the <code>source</code> namespace, as any source package will have to expose that setting for the other packages to use, not only <code>wp-source</code>.</p>
+<p>EDIT: I’ve moved <code>state.source.api</code> to the <code>source</code> namespace in <a href="https://github.com/frontity/frontity/pull/548/commits/302902ca4430de7564749eeae47b6e163b9e0163">this commit</a>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-15T16:34:48Z' class='post-time'>
+                    15 October 2020 16:34
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-15T16:34:48Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I wonder if we could make this work with relative URLs as well.</p>
+<p>Imagine I’m using the Embedded mode:</p>
+<ul>
+<li>Frontity URL: <a href="http://mydomain.com">mydomain.com</a>
+</li>
+<li>Backend URL: <a href="http://mydomain.com">mydomain.com</a>
+</li>
+</ul>
+<p>It’d make sense to make the Backend URL relative to the domain, something like this:</p>
+<pre><code class="lang-js">const settings = {
+  packages: [
+    {
+      name: "@my-source-package",
+      state: {
+        source: {
+          url: "/",
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>So requests in <code>mydomain.com</code> go to <code>mydomain.com/wp-json</code> and requests in <code>mydomain.local</code> go to <code>mydomain.local/wp-json</code> without having to configure anything else.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-16T07:28:24Z' class='post-time'>
+                    16 October 2020 07:28
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-16T07:28:24Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>My 2 cents here…</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="10" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>The important thing here is that we remove the <code>/wp-json</code> prefix.</p>
+</blockquote>
+</aside>
+<p>Agree <img src="../../../../images/emoji/apple/+1.png%3Fv=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="10" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>And we could also keep it in <code>state.source</code> but call it <code>url</code> instead of <code>api</code> :</p>
+</blockquote>
+</aside>
+<p><img src="../../../../images/emoji/apple/+1.png%3Fv=9" title=":+1:" class="emoji" alt=":+1:"> I think having the main domain (without <code>/wp-json</code>) of the source of data (API REST) stored in <code>state.source.url</code> is the way to go<br>
+But… I don’t really get the purpose of this Feature Discussion as it starts saying…</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="1" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Extracting the WordPress URL from <code>state.source.api</code> is not trivial.</p>
+</blockquote>
+</aside>
+<p>What would be the difference of extracting the value from <code>state.source.api</code> vs extracting the value from <code>state.source.url</code>?</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="13" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>So requests in <code>mydomain.com</code> go to <code>mydomain.com/wp-json</code> and requests in <code>mydomain.local</code> go to <code>mydomain.local/wp-json</code> without having to configure anything else.</p>
+</blockquote>
+</aside>
+<p>Why don’t we go a step further and make this value the default one? So if there¡s no definition of <code>state.source.url</code>, Frontity will assume <code>/</code> as the default value</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-21T00:48:17Z' class='post-time'>
+                    21 October 2020 00:48
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-21T00:48:17Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-community-team" data-username="juanma" data-post="14" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>What would be the difference of extracting the value from <code>state.source.api</code> vs extracting the value from <code>state.source.url</code> ?</p>
+</blockquote>
+</aside>
+<p><a class="mention" href="/u/juanma">@juanma</a> The idea would be that the user can only provide the <code>state.source.url</code> from now on and the <code>state.source.api</code> can be constructed from it like mentioned in: <a href="./" class="inline-onebox">Make the backend URL a global setting</a></p>
+<p>I’d like to put together an implementation proposal because I think we should implement this together with the <a href="/t/301-redirects-stored-in-wordpress-database/3032">301 Redirections</a>. Having this setting ready would simplify that feature and prevent us from having to extract the url from <code>state.source.api</code> there which as Luis has mentioned is “not trivial” <img src="../../../../images/emoji/apple/slight_smile.png%3Fv=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<hr>
+<h3>Side note about “<code>prefix</code>”</h3>
+<p>I think what we’ve been calling a <code>prefix</code> in this thread, should really be a <code>suffix</code> or perhaps a different name altogether. A “prefix” is something that goes before the main name, so this might be confusing I think. I will keep using the <code>suffix</code> for the time being.</p>
+<h2>The Implementation Proposal</h2>
+<h3>Types:</h3>
+<p>I think that we’ll need to require either <code>url</code> or <code>api</code> or both. With TS this should be:</p>
+<pre><code class="lang-ts">/// packages/source/types.ts
+interface SourceBase {
+  suffix?: string | false;
+  data: Record&lt;string, Data&gt;;
+  /* all the other properties here */
+}
+interface SourceWithAPI extends SourceBase {
+  api: string;
+}
+interface SourceWithURL extends SourceBase {
+  url: string;
+}
+type FinalSource = SourceWithAPI | SourceWithURL;
+
+interface Source&lt;T = null&gt; extends Package {
+  state: {
+    source: FinalSource; 
+  }
+}
+</code></pre>
+<h3>Extending <code>wp-source</code>:</h3>
+<pre><code class="lang-javascript">const state: WpSource["state"]["source"] = {
+  // ...
+  api: ({ state }) =&gt; {
+    if (state.source.url) {
+      const suffix = state.source.suffix ?? "?rest_route=";
+      return state.source.url + suffix;
+    }
+    return "";
+  },  
+  suffix: "/wp-json", // This is the default
+  //...
+}
+</code></pre>
+<h3>Example usage:</h3>
+<pre><code class="lang-js">const settings = {
+  packages: [
+    {
+      name: "@my-source-package",
+      state: {
+        // The most simple example, uses the /wp-json default
+        source: {
+          url: "https://my-wordpress-site.com",
+        },
+
+        // custom suffix
+        source: {
+          suffix: "/custom-suffix"
+          url: "https://my-wordpress-site.com",
+        },
+
+        // use "?rest_route=" as the suffix
+        source: {
+          suffix: false
+          url: "https://my-wordpress-site.com",
+        },
+
+        // custom REST api location
+        source: {
+          api: "https://my-wordpress.site.com/api/"
+          url: "https://my-wordpress-site.com",
+        },
+
+        // Everything should still work even if 
+        // you don't specify the state.source.url
+        source: {
+          api: "https://my-wordpress.site.com/api/"
+        },
+      },
+    },
+  ],
+};
+
+</code></pre>
+<p>Outstanding questions:</p>
+<ol>
+<li>Some features will depend on this new setting (like 301 Redirections). Can we (or should we) fallback to extracting the url from the <code>state.source.api</code> or should any future features throw an error if <code>state.source.url</code> is not available?</li>
+<li>About making this work with <a href="./">relative URLs for the embedded mode</a>… I haven’t included that in the proposal, but I think this could be added now or in a future update.</li>
+</ol>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-22T07:26:07Z' class='post-time'>
+                    22 October 2020 07:26
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-22T07:26:07Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I saw a problem yesterday with this proposal regarding <a href="http://WordPress.com">WordPress.com</a> sites (I already mentioned this to Michal).</p>
+<p>If we simply replace <code>state.source.api</code> by <code>state.source.url</code> we would lose context as, right now, <code>state.source.api</code> is the one used to compute <code>state.source.isWpCom</code>.</p>
+<p>That is because the REST API URL for <a href="http://WordPress.com">WordPress.com</a> sites is slightly different.</p>
+<p>For example, with <code>state.source.api</code>:</p>
+<pre><code class="lang-ts">{
+  state: {
+    source: {
+      api: "https://public-api.wordpress.com/wp/v2/sites/my-wp-site.com",
+      isWpCom: true // &lt;-- This value is derived from `state.source.api`.
+    }
+  }
+}
+</code></pre>
+<p>With the <code>url</code> proposal:</p>
+<pre><code class="lang-ts">{
+  state: {
+    source: {
+      url: "https://my-wp-site.com",
+      isWpCom: true // &lt;-- We can't derive this value from `url`.
+    }
+  }
+}
+</code></pre>
+<p>This could be solved making <code>isWpCom</code> to be assignable in <code>frontity.settings.js</code>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-22T07:35:41Z' class='post-time'>
+                    22 October 2020 07:35
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-22T07:35:41Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="15" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I think what we’ve been calling a <code>prefix</code> in this thread, should really be a <code>suffix</code> or perhaps a different name altogether.</p>
+</blockquote>
+</aside>
+<p>I don’t disagree with you, as this can be considered a <code>suffix</code> of the URL. But when we “inherit” concepts from WordPress, we always have to try to stay as close as possible to the names already defined in WordPress itself, to avoid confusion.</p>
+<p>There is already a filter in WordPress which calls this <code>prefix</code>: <a href="https://developer.wordpress.org/reference/functions/rest_get_url_prefix/">https://developer.wordpress.org/reference/functions/rest_get_url_prefix/</a>. It also makes sense, because it’s also the prefix of the URI: <code>[wp-json]/wp/v2/...</code>. So I would stick to <code>prefix</code> because of that.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="14" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>Why don’t we go a step further and make this value the default one? So if there¡s no definition of <code>state.source.url</code> , Frontity will assume <code>/</code> as the default value</p>
+</blockquote>
+</aside>
+<p>I really like that idea. It’ll solve the problem very elegantly.</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="15" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Some features will depend on this new setting (like 301 Redirections). Can we (or should we) fallback to extracting the url from the <code>state.source.api</code> or should any future features throw an error if <code>state.source.url</code> is not available?</p>
+</blockquote>
+</aside>
+<p>I guess new features don’t need to be backward compatible with <code>state.source.api</code>, because when we instruct people to set <code>state.router.redirections</code> when can ask people to also set <code>state.source.url</code>, right? But we have to remember to put that requirement in the docs.</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="15" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>About making this work with <a href="./">relative URLs for the embedded mode</a>… I haven’t included that in the proposal, but I think this could be added now or in a future update.</p>
+</blockquote>
+</aside>
+<p>I really like <a class="mention" href="/u/juanma">@juanma</a> idea. If <code>state.source.url</code> is not defined, it fallbacks to <code>state.frontity.url</code>.</p>
+<hr>
+<p>My feedback about the proposal:</p>
+<h1>1. Move <code>state.source.prefix</code> to <code>state.wpSource.prefix</code>
+</h1>
+<p>This is in preparation for Source v2, where we want packages from different APIs, like the REST API and GraphQL, to coexist.</p>
+<pre><code class="lang-js">const mergedState = {
+  source: {
+    url: "https://mybackend.com",
+  },
+  wpSource: {
+    prefix: "/wp-json",
+  },
+  wpGraphqlSource: {
+    prefix: "/graphql",
+  },
+};
+</code></pre>
+<p>I know that <code>state.source.api</code> is still coupled to <code>wpSource</code>, but that’s something we cannot change now to keep backward compatibility.</p>
+<h1>2. If <code>state.source.url</code> is missing, use <code>state.frontity.url</code>
+</h1>
+<p>As Juanma suggested, we can ask people to delete <code>state.source.url</code> if they are using the Embedded mode, and it will fall back to <code>state.frontity.url</code>.</p>
+<h1>3. Support for <code>?rest_route=</code>, but using the <code>prefix</code> field</h1>
+<p>That’s a good point, thanks for adding it here. My only opinion is that I don’t see a reason why people should not set it in the prefix, instead of setting it to <code>false</code>:</p>
+<pre><code class="lang-js">const settings = {
+  state: {
+    wpSource: {
+      prefix: "?rest_route=",
+    },
+  },
+};
+</code></pre>
+<p>We have to make sure that it works in <code>libraries.source.api.get</code> though.</p>
+<h1>4. Keep backward compatibility with <a href="http://WordPress.com">WordPress.com</a>
+</h1>
+<p>We have to make sure that we keep backward compatibility with <a href="http://WordPress.com">WordPress.com</a>. Right now, <code>state.source.isWpCom</code> is populated automatically.</p>
+<p>Juanma made a series of tests a while ago and discovered that the long public-api URL (<a href="https://public-api.wordpress.com/wp/v2/sites/site.wordpress.com">https://public-api.wordpress.com/wp/v2/sites/site.wordpress.com</a>) is only used for free sites that use the <a href="http://site.wordpress.com">site.wordpress.com</a> URL.</p>
+<p>Thanks to that, I think we can still detect it and keep backward compatibility.</p>
+<pre><code class="lang-ts">export default {
+  state: {
+    wpSource: {
+      prefix: "/wp-json",
+    },
+    source: {
+      // The default when `state.source.url` is not overwritten in
+      // frontity.settings.js is to fallback to `state.frontity.url`.
+      url: ({ state }) =&gt; state.frontity.url,
+
+      // Keep backward compatibility when `state.source.api` is not
+      // overwritten in frontity.settings.js.
+      api: ({ state }) =&gt; {
+        // Check if it's a free WordPress.com site.
+        if (/^https:\/\/[\w-]\.wordpress\.com/.test(state.source.url))
+          return `https://public-api.wordpress.com/wp/v2/sites/${state.source.url}`;
+
+        return normalize(state.source.url + state.wpSource.prefix);
+      },
+
+      // Keep backward compatibility.
+      isWpCom: ({ state }) =&gt;
+        state.source.api.startsWith("https://public-api.wordpress.com"),
+    },
+  },
+};
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-22T18:00:07Z' class='post-time'>
+                    22 October 2020 18:00
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-22T18:00:07Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Awesome, thanks <a class="mention" href="/u/luisherranz">@luisherranz</a>! Not much to add, I agree with pretty much everything:</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="17" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>There is already a filter in WordPress which calls this <code>prefix</code>: <a href="https://developer.wordpress.org/reference/functions/rest_get_url_prefix/">https://developer.wordpress.org/reference/functions/rest_get_url_prefix/</a>. It also makes sense, because it’s also the prefix of the URI: <code>[wp-json]/wp/v2/...</code>. So I would stick to <code>prefix</code> because of that.</p>
+</blockquote>
+</aside>
+<p>oh, I see, I was not aware of that. This makes sense.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="17" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I guess new features don’t need to be backward compatible with <code>state.source.api</code>, because when we instruct people to set <code>state.router.redirections</code> when can ask people to also set <code>state.source.url</code>, right?</p>
+</blockquote>
+</aside>
+<p>yep, that’s what I had in mind as well.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="17" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>That’s a good point, thanks for adding it here. My only opinion is that I don’t see a reason why people should not set it in the prefix, instead of setting it to <code>false</code>:</p>
+</blockquote>
+</aside>
+<p>You’re right, that would be more intuitive for Frontity users. I was following the WordPress here where <code>?rest_route=</code> is the default (hence the <code>false</code>)</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="17" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I really like <a class="mention" href="/u/juanma">@juanma</a> idea. If <code>state.source.url</code> is not defined, it fallbacks to <code>state.frontity.url</code>.</p>
+</blockquote>
+</aside>
+<p><img src="../../../../images/emoji/apple/+1.png%3Fv=9" title=":+1:" class="emoji only-emoji" alt=":+1:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-11-02T11:04:42Z' class='post-time'>
+                    2 November 2020 11:04
+                  </time>
+                  <meta itemprop='dateModified' content='2020-11-02T15:02:45Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The normalization of URLs is quite a mess right now. We are going to need to make something much better for Source v2.</p>
+<p>Also, I think that the <code>?rest_route=</code> prefix doesn’t work now. But nobody seems to have requested it yet, so I guess we can fix it later of even wait for the Source v2.</p>
+<p>Finally, we have to rethink all the types of the <code>source</code> namespace for Source v2:</p>
+<ul>
+<li>What goes into <code>state.source</code> in <code>@frontity/source</code>: this is meant to be included by any source package.</li>
+<li>What goes into <code>state.source</code> in <code>@frontity/wp-source</code>: this is meant to be included only by <code>wp-source</code>. I’m not sure if this makes sense anymore.</li>
+<li>What goes into <code>state.wpSource</code> in <code>@frontity/wp-source</code>: this is meant to be included only by <code>wp-source</code>.</li>
+</ul>
+<hr>
+<p>I have approved the PR now Michal. Feel free to merge and update the FD with the Final Implementation <img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/code-documentation-workflow/1633">Code &lt;-&gt; Documentation workflow</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-11-03T23:01:10Z' class='post-time'>
+                    3 November 2020 23:01
+                  </time>
+                  <meta itemprop='dateModified' content='2020-11-03T23:21:34Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>Final implementation</h1>
+<p>The final implementation consists of the following:</p>
+<ol>
+<li>
+<p>Introduce a new property <code>state.source.url</code> in wp-source that points to the URL of the users’ WordPress backend. The default value of that property is derived from <code>state.frontity.url</code>.</p>
+</li>
+<li>
+<p>The default value of <code>state.source.api</code>  has changed. We now derive that value from the <code>state.source.url</code>. This should have no impact on existing applications, but has an important effect on new apps: You don’t have to specify the <code>state.source.api</code>!</p>
+<p>You now can just specify the <code>state.source.url</code> and the <code>state.source.api</code>  is computed from it by adding the “prefix” (see point 3. <img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> ).</p>
+</li>
+<li>
+<p>Introduce a new property <code>state.wpSource.prefix</code> where the user can specify prefix of the REST API, for example <code>"/wp-json"</code> or <code>"?rest_route=/"</code>. The default value is <code>"/wp-json"</code>.</p>
+</li>
+<li>
+<p>Introduce the <code>state.wpSource.api</code> and <code>state.wpSource.isWpCom</code>. For the moment their values are just derived from <code>state.source.api</code> and <code>state.source.isWpCom</code> respectively. This is added in preparation for the Source V2.</p>
+</li>
+</ol>
+<p>For completeness, here is the actual, final implementation:</p>
+<pre><code class="lang-ts">// packages/wp-source/src/index.ts
+
+const wpSource = (): WpSource =&gt; ({
+  // ... 
+  state: {
+    wpSource: {
+      // Just copy the value of `state.source.api` until we deprecate it and
+      // move its logic to `state.wpSource.api` in the v2.
+      api: ({ state }) =&gt; state.source.api,
+      // Just copy the value of `state.source.isWpCom` until we deprecate it and
+      // move its logic to `state.wpSource.isWpCom` in the v2.
+      isWpCom: ({ state }) =&gt; state.source.isWpCom,
+      prefix: "/wp-json",
+
+      // ...
+    },
+  },
+}
+</code></pre>
+<pre><code class="lang-ts">// packages/wp-source/src/state.ts
+
+const state: WpSource["state"]["source"] = {
+  // ...
+  // Keep backward compatibility when `state.source.api` is not
+  // overwritten in frontity.settings.js.
+  api: ({ state }) =&gt; {
+    // Check if it's a free WordPress.com site.
+    if (/^https:\/\/(\w+\.)?wordpress\.com/.test(state.source.url))
+      return addFinalSlash(
+        `https://public-api.wordpress.com/wp/v2/sites/${state.source.url}`
+      );
+
+    return addFinalSlash(
+      addFinalSlash(state.source.url) + state.wpSource.prefix.replace(/^\//, "")
+    );
+  },
+  url: ({ state }) =&gt; {
+    if (!state.frontity?.url)
+      error(
+        "Please set either `state.source.url` (or at least `state.frontity.url` if you are using Embedded mode) in your frontity.settings.js file."
+      );
+    return addFinalSlash(state.frontity.url);
+  },
+
+  //... 
+};
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="3" />
+              <span class='post-likes'>3 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_21' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/make-the-backend-url-a-global-setting/2381">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-11-05T17:07:14Z' class='post-time'>
+                    5 November 2020 17:07
+                  </time>
+                  <meta itemprop='dateModified' content='2020-11-05T17:07:14Z'>
+              <span itemprop='position'>21</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Awesome work Michal! Thanks <img src="../../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"> <img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/make-the-backend-url-a-global-setting/2381">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

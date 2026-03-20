@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Conditionally Render an iframe on custom post type based on ACF field value?</title>
+    <link>https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260</link>
+    <description>I want to render an iframe which loads a booking widget into a page. 
+
+The page link is &#39;/sub/for-renters&#39;
+
+I currently have an ACF field for the &quot;sub&quot; custom post type. 
+
+The ACF is called &quot;posttype&quot;, and the field values are &quot;about, renters, and owners&quot; for each of the post types values I have under the sub post type.
+
+if the posttype = &quot;renters&quot;, it should render the iframe, else don&#39;t render it at all. 
+
+I see that I added the acf properly and I can access it since it is console.logged in the dev tools. 
+
+I tried doing an if statement to make it work, but keep crashing everything and get a &quot; TypeError: Assignment to constant variable.&quot; error
+
+Just wondering if anyone was doing something similar and how you resolved it? Should I put the iframe in a separate component and load it that way? 
+
+Here&#39;s whats coming out of dev tools:
+![Screen Shot 2020-10-26 at 11.35.32 PM|690x395](upload://2I130LKx0AqEuaamM8FjQtzftCh.png) 
+
+Here&#39;s my code for Sub.js: 
+
+    const Sub = ({ state, actions, libraries }) =&gt; {
+
+    const data = state.source.get(state.router.link);
+
+    const sub = state.source[data.type][data.id];
+  
+    const postType = sub.acf.posttype
+    console.log(postType)
+
+    const Html2React = libraries.html2react.Component;
+
+    useEffect(() =&gt; {
+      actions.source.fetch(&quot;/&quot;);
+      List.preload();
+    }, []);
+
+    return data.isReady ? (
+      &lt;Container&gt;
+        &lt;div&gt;
+
+          {data.isSub}
+        &lt;/div&gt;
+
+        {state.theme.featured.showOnPost &amp;&amp; (
+          &lt;FeaturedMedia id={sub.featured_media} /&gt;
+        )}
+
+        &lt;Content&gt;
+          &lt;Html2React html={sub.content.rendered} /&gt;
+          &lt;ContactContainer&gt;
+          {postType = &quot;renters&quot; ? 
+              &lt;iframe 
+              src=&quot;https://beds24.com/booking2.php?ownerid=65282&amp;amp;referer=iframe&quot;
+              title=&quot;Frontity&quot;
+              width= &quot;80%&quot;
+              height= &quot;900px&quot;
+            /&gt;
+              :
+              &lt;Contact /&gt;
+          }
+          &lt;/ContactContainer&gt;
+        &lt;/Content&gt;
+      &lt;/Container&gt;
+    ) : null;
+  };
+
+Here&#39;s the console.log in dev tools showing that postType variable is correctly being accessed?
+/sub/about
+![Screen Shot 2020-10-26 at 11.25.21 PM|690x402](upload://k5Q1rcdzA8etuz9fi0iOV04uJQo.png) 
+
+/sub/for-renters
+![Screen Shot 2020-10-26 at 11.25.11 PM|690x394](upload://hJFOOSMBXfOODdoHrhSyUrHV3Fl.png) 
+
+
+
+Thanks!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 27 Oct 2020 16:14:08 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Conditionally Render an iframe on custom post type based on ACF field value?</title>
+        <dc:creator><![CDATA[Chris1337]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/chayce.solchaga">@chayce.solchaga</a>,</p>
+<p>In fact it should be</p>
+<pre><code class="lang-js">if (postType === "renters") {
+   ...
+}
+</code></pre>
+<p>If you want to know why, pls read <a href="https://www.guru99.com/difference-equality-strict-operator-javascript.html#:~:text=%3D%20Vs%20%3D%3D%20VS%20%3D%3D%3D%20in%20JavaScript,-Here%20are%20the&amp;text=%3D%3D%20in%20JavaScript%20is%20used,datatype%20and%20compares%20two%20values.&amp;text=It%20returns%20true%20only%20if,same%20for%20the%20two%20variables." rel="noopener nofollow ugc">here</a></p>
+<p>Kind regards<br>
+Chris</p>
+          <p><a href="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/4</link>
+        <pubDate>Tue, 27 Oct 2020 16:14:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3260-4</guid>
+        <source url="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260.rss">Conditionally Render an iframe on custom post type based on ACF field value?</source>
+      </item>
+      <item>
+        <title>Conditionally Render an iframe on custom post type based on ACF field value?</title>
+        <dc:creator><![CDATA[chayce.solchaga]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> yes you were right! Thank you for your help once again! I definitely need more coffee <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=9" title=":laughing:" class="emoji" alt=":laughing:"> . Sometimes being in “Frontity” land you forget that you’re still part of Planet “React” <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/3</link>
+        <pubDate>Tue, 27 Oct 2020 15:06:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3260-3</guid>
+        <source url="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260.rss">Conditionally Render an iframe on custom post type based on ACF field value?</source>
+      </item>
+      <item>
+        <title>Conditionally Render an iframe on custom post type based on ACF field value?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/chayce.solchaga">@chayce.solchaga</a></p>
+<aside class="quote no-group" data-username="chayce.solchaga" data-post="1" data-topic="3260">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/chayce.solchaga/40/1767_2.png" class="avatar"> chayce.solchaga:</div>
+<blockquote>
+<p><code>postType = "renters"</code></p>
+</blockquote>
+</aside>
+<p>Should that line be: <code>postType == "renters"</code>?</p>
+<p>It looks to me that that should be a conditional check, not a variable assignment - which will fail as <code>postType</code> has been defined as a <code>const</code>.</p>
+          <p><a href="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/2</link>
+        <pubDate>Tue, 27 Oct 2020 09:40:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3260-2</guid>
+        <source url="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260.rss">Conditionally Render an iframe on custom post type based on ACF field value?</source>
+      </item>
+      <item>
+        <title>Conditionally Render an iframe on custom post type based on ACF field value?</title>
+        <dc:creator><![CDATA[chayce.solchaga]]></dc:creator>
+        <description><![CDATA[
+            <p>I want to render an iframe which loads a booking widget into a page.</p>
+<p>The page link is ‘/sub/for-renters’</p>
+<p>I currently have an ACF field for the “sub” custom post type.</p>
+<p>The ACF is called “posttype”, and the field values are “about, renters, and owners” for each of the post types values I have under the sub post type.</p>
+<p>if the posttype = “renters”, it should render the iframe, else don’t render it at all.</p>
+<p>I see that I added the acf properly and I can access it since it is console.logged in the dev tools.</p>
+<p>I tried doing an if statement to make it work, but keep crashing everything and get a " TypeError: Assignment to constant variable." error</p>
+<p>Just wondering if anyone was doing something similar and how you resolved it? Should I put the iframe in a separate component and load it that way?</p>
+<p>Here’s whats coming out of dev tools:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/1/12fe1f42e5bacc8fad1c0fedee46849791199051.png" data-download-href="https://community.frontity.org/uploads/default/12fe1f42e5bacc8fad1c0fedee46849791199051" title="Screen Shot 2020-10-26 at 11.35.32 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/1/12fe1f42e5bacc8fad1c0fedee46849791199051_2_690x395.png" alt="Screen Shot 2020-10-26 at 11.35.32 PM" data-base62-sha1="2I130LKx0AqEuaamM8FjQtzftCh" width="690" height="395" srcset="https://community.frontity.org/uploads/default/optimized/2X/1/12fe1f42e5bacc8fad1c0fedee46849791199051_2_690x395.png, https://community.frontity.org/uploads/default/optimized/2X/1/12fe1f42e5bacc8fad1c0fedee46849791199051_2_1035x592.png 1.5x, https://community.frontity.org/uploads/default/original/2X/1/12fe1f42e5bacc8fad1c0fedee46849791199051.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/1/12fe1f42e5bacc8fad1c0fedee46849791199051_2_10x10.png"></a></div><p></p>
+<p>Here’s my code for Sub.js:</p>
+<pre><code>const Sub = ({ state, actions, libraries }) =&gt; {
+
+const data = state.source.get(state.router.link);
+
+const sub = state.source[data.type][data.id];
+
+const postType = sub.acf.posttype
+console.log(postType)
+
+const Html2React = libraries.html2react.Component;
+
+useEffect(() =&gt; {
+  actions.source.fetch("/");
+  List.preload();
+}, []);
+
+return data.isReady ? (
+  &lt;Container&gt;
+    &lt;div&gt;
+
+      {data.isSub}
+    &lt;/div&gt;
+
+    {state.theme.featured.showOnPost &amp;&amp; (
+      &lt;FeaturedMedia id={sub.featured_media} /&gt;
+    )}
+
+    &lt;Content&gt;
+      &lt;Html2React html={sub.content.rendered} /&gt;
+      &lt;ContactContainer&gt;
+      {postType = "renters" ? 
+          &lt;iframe 
+          src="https://beds24.com/booking2.php?ownerid=65282&amp;amp;referer=iframe"
+          title="Frontity"
+          width= "80%"
+          height= "900px"
+        /&gt;
+          :
+          &lt;Contact /&gt;
+      }
+      &lt;/ContactContainer&gt;
+    &lt;/Content&gt;
+  &lt;/Container&gt;
+) : null;
+</code></pre>
+<p>};</p>
+<p>Here’s the console.log in dev tools showing that postType variable is correctly being accessed?<br>
+/sub/about<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/8/8cd473d5cc1a8033ac01193950ca53d6af8be0f4.png" data-download-href="https://community.frontity.org/uploads/default/8cd473d5cc1a8033ac01193950ca53d6af8be0f4" title="Screen Shot 2020-10-26 at 11.25.21 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/8/8cd473d5cc1a8033ac01193950ca53d6af8be0f4_2_690x402.png" alt="Screen Shot 2020-10-26 at 11.25.21 PM" data-base62-sha1="k5Q1rcdzA8etuz9fi0iOV04uJQo" width="690" height="402" srcset="https://community.frontity.org/uploads/default/optimized/2X/8/8cd473d5cc1a8033ac01193950ca53d6af8be0f4_2_690x402.png, https://community.frontity.org/uploads/default/optimized/2X/8/8cd473d5cc1a8033ac01193950ca53d6af8be0f4_2_1035x603.png 1.5x, https://community.frontity.org/uploads/default/original/2X/8/8cd473d5cc1a8033ac01193950ca53d6af8be0f4.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/8/8cd473d5cc1a8033ac01193950ca53d6af8be0f4_2_10x10.png"></a></div><p></p>
+<p>/sub/for-renters<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/7/7c4eb32041d0a813a45283ac375b99cb90d02897.png" data-download-href="https://community.frontity.org/uploads/default/7c4eb32041d0a813a45283ac375b99cb90d02897" title="Screen Shot 2020-10-26 at 11.25.11 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/7/7c4eb32041d0a813a45283ac375b99cb90d02897_2_690x394.png" alt="Screen Shot 2020-10-26 at 11.25.11 PM" data-base62-sha1="hJFOOSMBXfOODdoHrhSyUrHV3Fl" width="690" height="394" srcset="https://community.frontity.org/uploads/default/optimized/2X/7/7c4eb32041d0a813a45283ac375b99cb90d02897_2_690x394.png, https://community.frontity.org/uploads/default/optimized/2X/7/7c4eb32041d0a813a45283ac375b99cb90d02897_2_1035x591.png 1.5x, https://community.frontity.org/uploads/default/original/2X/7/7c4eb32041d0a813a45283ac375b99cb90d02897.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/7/7c4eb32041d0a813a45283ac375b99cb90d02897_2_10x10.png"></a></div><p></p>
+<p>Thanks!</p>
+          <p><a href="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260/1</link>
+        <pubDate>Tue, 27 Oct 2020 06:36:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3260-1</guid>
+        <source url="https://community.frontity.org/t/conditionally-render-an-iframe-on-custom-post-type-based-on-acf-field-value/3260.rss">Conditionally Render an iframe on custom post type based on ACF field value?</source>
+      </item>
+  </channel>
+</rss>

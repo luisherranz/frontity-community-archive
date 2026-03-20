@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Dynamically Add Handlers</title>
+    <link>https://community.frontity.org/t/dynamically-add-handlers/6375</link>
+    <description>I am trying to dynamically create handlers for a set of specific urls that come from wordpress. The requirement comes from the need to have a set of top level slugs for a CPT. 
+
+To do this I call an endpoint and get a list of the slugs, then the idea is to add a handler (or multiple handlers) to catch these and serve the correct page. 
+
+I hit an issue when I try to run any async code before I add the handler in the index file, for example: 
+
+```
+const before = async ({ libraries, actions }) =&gt; {
+  libraries.source.handlers.push(menuHandler);
+  libraries.source.handlers.push(officeHandler);
+
+  const slugs = await getOfficeNames(libraries, actions);
+
+  libraries.source.handlers.push(officePageHandler(libraries, actions,&quot;/slug&quot;));
+
+  await actions.source.fetch(&quot;primaryMenu&quot;);
+  await actions.source.fetch(&quot;offices&quot;);
+};
+
+```
+
+This function is called in both Both beforeSSR and beforeCSR: 
+```
+  beforeSSR: async ({ libraries, actions }) =&gt; {
+        await before({ libraries, actions });
+      },
+      beforeCSR: async ({ libraries, actions }) =&gt; {
+        await before({ libraries, actions });
+      },
+     
+```
+The getOfficeNames function currently does nothing for testing (it will get the list of slugs): 
+```
+async function getOfficeNames(libraries, actions) {
+  // const requestUrl = &quot;/wp/v2/office?per_page=100&amp;parent=0&amp;page=&quot;;
+  const x = new Promise((resolveInner) =&gt; {
+    setTimeout(resolveInner, 1000);
+  });
+  const y = await x;
+  return &quot;TEST&quot;;
+```
+
+When I run it in this configuration it doesnt work navigating to /slug. However in this configuration: 
+
+```
+const before = async ({ libraries, actions }) =&gt; {
+  libraries.source.handlers.push(menuHandler);
+  libraries.source.handlers.push(officeHandler);
+
+  libraries.source.handlers.push(officePageHandler(libraries, actions,&quot;/slug&quot;));
+
+  const slugs = await getOfficeNames(libraries, actions);
+
+
+  await actions.source.fetch(&quot;primaryMenu&quot;);
+  await actions.source.fetch(&quot;offices&quot;);
+};
+```
+it works. 
+
+Does any one know why running something async before adding to the handlers cause it to break? I have checked the handler list and it seems to have added the handler correctly, it just doesnt get called.
+
+```
+{
+    name: &#39;Office Pages TEST&#39;,
+    priority: 10,
+    pattern: &#39;RegExp:(/slug/)&#39;,
+    func: [AsyncFunction: func]
+  }
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 28 Sep 2022 08:41:56 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/dynamically-add-handlers/6375.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Dynamically Add Handlers</title>
+        <dc:creator><![CDATA[ross.wilson]]></dc:creator>
+        <description><![CDATA[
+            <p>I am trying to dynamically create handlers for a set of specific urls that come from wordpress. The requirement comes from the need to have a set of top level slugs for a CPT.</p>
+<p>To do this I call an endpoint and get a list of the slugs, then the idea is to add a handler (or multiple handlers) to catch these and serve the correct page.</p>
+<p>I hit an issue when I try to run any async code before I add the handler in the index file, for example:</p>
+<pre><code class="lang-javascript">const before = async ({ libraries, actions }) =&gt; {
+  libraries.source.handlers.push(menuHandler);
+  libraries.source.handlers.push(officeHandler);
+
+  const slugs = await getOfficeNames(libraries, actions);
+
+  libraries.source.handlers.push(officePageHandler(libraries, actions,"/slug"));
+
+  await actions.source.fetch("primaryMenu");
+  await actions.source.fetch("offices");
+};
+
+</code></pre>
+<p>This function is called in both Both beforeSSR and beforeCSR:</p>
+<pre><code class="lang-javascript">  beforeSSR: async ({ libraries, actions }) =&gt; {
+        await before({ libraries, actions });
+      },
+      beforeCSR: async ({ libraries, actions }) =&gt; {
+        await before({ libraries, actions });
+      },
+     
+</code></pre>
+<p>The getOfficeNames function currently does nothing for testing (it will get the list of slugs):</p>
+<pre><code class="lang-javascript">async function getOfficeNames(libraries, actions) {
+  // const requestUrl = "/wp/v2/office?per_page=100&amp;parent=0&amp;page=";
+  const x = new Promise((resolveInner) =&gt; {
+    setTimeout(resolveInner, 1000);
+  });
+  const y = await x;
+  return "TEST";
+</code></pre>
+<p>When I run it in this configuration it doesnt work navigating to /slug. However in this configuration:</p>
+<pre><code class="lang-javascript">const before = async ({ libraries, actions }) =&gt; {
+  libraries.source.handlers.push(menuHandler);
+  libraries.source.handlers.push(officeHandler);
+
+  libraries.source.handlers.push(officePageHandler(libraries, actions,"/slug"));
+
+  const slugs = await getOfficeNames(libraries, actions);
+
+
+  await actions.source.fetch("primaryMenu");
+  await actions.source.fetch("offices");
+};
+</code></pre>
+<p>it works.</p>
+<p>Does any one know why running something async before adding to the handlers cause it to break? I have checked the handler list and it seems to have added the handler correctly, it just doesnt get called.</p>
+<pre><code class="lang-javascript">{
+    name: 'Office Pages TEST',
+    priority: 10,
+    pattern: 'RegExp:(/slug/)',
+    func: [AsyncFunction: func]
+  }
+</code></pre>
+          <p><a href="https://community.frontity.org/t/dynamically-add-handlers/6375/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/dynamically-add-handlers/6375/1</link>
+        <pubDate>Wed, 28 Sep 2022 08:41:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6375-1</guid>
+        <source url="https://community.frontity.org/t/dynamically-add-handlers/6375.rss">Dynamically Add Handlers</source>
+      </item>
+  </channel>
+</rss>

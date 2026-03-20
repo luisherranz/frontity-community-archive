@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Entering direct subpage gives 404error</title>
+    <link>https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751</link>
+    <description>Hi guys
+
+when entering a direct subpage from a link, for example https://skibickifoto.pl/kontakt/ get a 404 error, but If I enter to subpage &#39;kontakt&#39; from navigation in main page entering correctly.
+Repository of my project: https://github.com/Borowski-shovv/frontity-photographer-page; 
+
+Thanks</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 08 Jan 2021 11:22:58 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Entering direct subpage gives 404error</title>
+        <dc:creator><![CDATA[rborowski.shovv]]></dc:creator>
+        <description><![CDATA[
+            <p>host is on proserwer.pl<br>
+node version 12.9.0<br>
+my app.js<br>
+var frontity = require("./build/server").default;</p>
+<pre><code>var http = require("http"); 
+
+var server = http.createServer(frontity); 
+
+server.listen()
+</code></pre>
+<p>I noticed that after refresh page component  is empty</p>
+          <p><a href="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/5</link>
+        <pubDate>Fri, 08 Jan 2021 11:22:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3751-5</guid>
+        <source url="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751.rss">Entering direct subpage gives 404error</source>
+      </item>
+      <item>
+        <title>Entering direct subpage gives 404error</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/rborowski.shovv">@rborowski.shovv</a></p>
+<p>On my localhost everything worked fine too, both with <code>npx frontity dev</code> and with <code>npx frontity build</code> -&gt; <code>npx frontity serve</code>.</p>
+<p>Where are you hosting your site? Can you provide details about your configuration.</p>
+          <p><a href="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/4</link>
+        <pubDate>Fri, 08 Jan 2021 09:56:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3751-4</guid>
+        <source url="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751.rss">Entering direct subpage gives 404error</source>
+      </item>
+      <item>
+        <title>Entering direct subpage gives 404error</title>
+        <dc:creator><![CDATA[rborowski.shovv]]></dc:creator>
+        <description><![CDATA[
+            <p>Unfortunately, the problem has not gone away.</p>
+<p>I have noticed a new one, on the subpage where I download photos or videos from the API after refreshing the content is not downloading.</p>
+<p>Below I put component which is fetching photos</p>
+<pre><code>const AstroPage = ({ state, libraries }) =&gt; {
+  const [currentImage, setCurrentImage] = useState(0);
+  const [viewerIsOpen, setViewerIsOpen] = useState(false);
+ 
+  const [data, setData] = useState({
+    isReady: false,
+    items: []
+  });
+
+  useEffect(() =&gt; {
+    getMedia( libraries, state, setData);
+   
+  }, [])
+
+  const images = data.isReady &amp;&amp; data.items.map(({ type, id }) =&gt; state.source[type][id])
+  console.log('data', images)
+  let imageLinks = [];
+  let imageSmall = [];
+
+   images &amp;&amp; images.map(image =&gt; {
+     imageLinks.push({
+         src: image.media_details.sizes.full.source_url,
+          width: 4,
+          height: 3,
+          title: image.title.rendered,
+       })
+     });
+
+   images &amp;&amp; images.map(image =&gt; {
+      imageSmall.push({
+         src: image.media_details.sizes.medium.source_url,
+         width: 4,
+         height: 3,
+
+       })
+     });
+  const openLightbox = useCallback((event, { photo, index }) =&gt; {
+    setCurrentImage(index);
+    setViewerIsOpen(true);
+  }, []);
+
+  const closeLightbox = () =&gt; {
+    setCurrentImage(0);
+    setViewerIsOpen(false);
+  };
+
+  return (
+    &lt;&gt;
+    {data.items.length === 0 ? 
+
+      &lt; BackdropWrapper&gt;
+          &lt;Indicator color="inherit" /&gt;
+      &lt;/ BackdropWrapper&gt;
+    
+    :
+    &lt;GalleryWrapper&gt;
+      &lt;Gallery photos={imageSmall} onClick={openLightbox}/&gt;
+      &lt;ModalGateway&gt;
+      {viewerIsOpen ? (
+        &lt;Modal onClose={closeLightbox}&gt;
+          &lt;Carousel
+            currentIndex={currentImage}
+            views={imageLinks.map(x =&gt; ({
+              ...x,
+              srcset: x.srcSet,
+              caption: x.title,
+              
+            }))}
+          /&gt;
+        &lt;/Modal&gt;
+      ) : null}
+    &lt;/ModalGateway&gt; 
+&lt;/GalleryWrapper&gt;
+    }
+    &lt;/&gt;
+  );
+};
+
+export default connect(AstroPage)
+
+const getMedia = async ( libraries, state, setData) =&gt; {
+
+  // Get other images
+  const response = await libraries.source.api.get({
+    endpoint: "media",
+    params: { 
+        parent: "43",
+        per_page: '100'
+    }, 
+  });
+
+  const entitiesAdded = await libraries.source.populate({ response, state });
+  await setData({
+    isReady: true,
+    items: entitiesAdded
+  });
+
+};
+</code></pre>
+<p>Thank you,<br>
+I noticed problems after put project on the server, on localhost everything is fine.</p>
+          <p><a href="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/3</link>
+        <pubDate>Thu, 07 Jan 2021 11:07:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3751-3</guid>
+        <source url="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751.rss">Entering direct subpage gives 404error</source>
+      </item>
+      <item>
+        <title>Entering direct subpage gives 404error</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/rborowski.shovv">@rborowski.shovv</a></p>
+<p>I’ve cloned your repo and I’m not able to reproduce the problem when I run the project on localhost, so I don’t think there’s an issue with your code.</p>
+<p>That said, it might be worth taking a look at <a href="https://community.frontity.org/t/how-to-remove-category-prefix-from-category-urls/817/7">this similar issue</a> which may guide you to a solution.</p>
+          <p><a href="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/2</link>
+        <pubDate>Thu, 07 Jan 2021 10:00:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3751-2</guid>
+        <source url="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751.rss">Entering direct subpage gives 404error</source>
+      </item>
+      <item>
+        <title>Entering direct subpage gives 404error</title>
+        <dc:creator><![CDATA[rborowski.shovv]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi guys</p>
+<p>when entering a direct subpage from a link, for example <a href="https://skibickifoto.pl/kontakt/" rel="noopener nofollow ugc">https://skibickifoto.pl/kontakt/</a> get a 404 error, but If I enter to subpage ‘kontakt’ from navigation in main page entering correctly.<br>
+Repository of my project: <a href="https://github.com/Borowski-shovv/frontity-photographer-page;" rel="noopener nofollow ugc">https://github.com/Borowski-shovv/frontity-photographer-page;</a></p>
+<p>Thanks</p>
+          <p><a href="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751/1</link>
+        <pubDate>Thu, 07 Jan 2021 08:41:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3751-1</guid>
+        <source url="https://community.frontity.org/t/entering-direct-subpage-gives-404error/3751.rss">Entering direct subpage gives 404error</source>
+      </item>
+  </channel>
+</rss>

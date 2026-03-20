@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to access ACF fields and the featured_media for /blog page</title>
+    <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891</link>
+    <description>I have created some custom fields for /blog page and want to show those fields and featured_media for on this page.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 05 Apr 2022 07:23:11 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[francis]]></dc:creator>
+        <description><![CDATA[
+            <p>There is a solution though and that is through creating a custom handler.</p>
+<p>Here are the general steps:</p>
+<ol>
+<li>Change the postsPage in frontity.settings to something else</li>
+<li>Create a handler for /blog/</li>
+<li>Get /blog by using</li>
+</ol>
+<pre data-code-wrap="await"><code class="lang-nohighlight">        endpoint: 'pages',
+        params: {
+          slug: 'blog',
+          _embed: true,
+        },
+      });
+</code></pre>
+<ol start="4">
+<li>Get all your blog posts by</li>
+</ol>
+<pre><code class="lang-javascript">await api.get({
+      endpoint: 'posts',
+      params: {
+        per_page: 100,
+        _embed: true,
+      },
+    });
+</code></pre>
+<ol start="5">
+<li>Then build your own state.source.data by setting isPostArchive to true etc.</li>
+</ol>
+<p>I can share more in detail if anyone is curious.</p>
+<p>Here are some links that might help:</p><aside class="quote quote-modified" data-post="14" data-topic="1289">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img loading="lazy" alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/how-to-get-all-post-ignoring-the-per-page-param/1289/14">How to get all post ignoring the `per_page` param?</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="The “Get Help” category is the place for asking generic technical questions about Frontity
+or about how to solve a specific issue you’re having in your Frontity project.
+You can contribute to the project by providing support to these current unanswered questions">🙋Get Help</span></a>
+  </div>
+  <blockquote>
+    Hi <a class="mention" href="https://community.frontity.org/u/josema.enzo">@josema.enzo</a> <img width="20" height="20" src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=12" title="slightly_smiling_face" alt="slightly_smiling_face" class="emoji"> 
+In this case, I’d consider moving “games” to a specific <a href="https://www.wpbeginner.com/wp-tutorials/how-to-create-custom-post-types-in-wordpress/" rel="noopener nofollow ugc">Custom Post Type</a>, I think it could be cleaner. 
+Anyway, with the current setup, I’d recommend the Approach 1 as you say. I’ve seen that in your backend, all the articles are under the category article with id=2. In WordPress API you can filter posts by category with a query: https://wp.mysite.com/wp/v2/posts?categories=2 for example. 
+In your case, you can add this param to the handler you’re creatin…
+  </blockquote>
+</aside>
+
+<p>Here is the handler. Not tested!</p>
+<pre><code class="lang-javascript">const blogHandler = {
+  pattern: '/blog/',
+  priority: 5,
+  func: async ({link, params, state, libraries}) =&gt; {
+
+    const {api, populate, getTotalPages} = libraries.source;
+
+    // Get the Blog Page
+    // 1. search id in state or get the entity from WP REST API
+    const {route, query} = libraries.source.parse(link);
+    const routeData = state.source.get(route);
+    if (!routeData.id) {
+      //console.log(routeData);
+      // Get the page
+      let response = await api.get({
+        endpoint: 'pages',
+        params: {
+          slug: 'blog',
+          _embed: true,
+        },
+      });
+      const blogPage = await populate({
+        response,
+        state,
+      });
+      console.log("Blog Page", blogPage);
+    }
+
+    // 2. Get the Blog List
+
+    let response = await api.get({
+      endpoint: 'posts',
+      params: {
+        per_page: 100,
+        _embed: true,
+      },
+    });
+    const firstItems = await populate({
+      response,
+      state,
+    });
+    const pages = getTotalPages(response);
+    const requests = [];
+
+    // Get the next pages
+    for (let page = 2; page &lt;= pages; page++) {
+      requests.push(
+          api.get({
+            endpoint: 'posts',
+            params: {
+              per_page: 100,
+              page,
+              _embed: true,
+            },
+          }),
+      );
+    }
+    const responses = await Promise.all(requests);
+
+    const newItems = await Promise.all(
+        responses.map((response) =&gt; populate({state, response})),
+    );
+    const items = firstItems.concat(newItems);
+
+    // 4. add data to source
+    const currentPageData = state.source.data['/blog/'];
+    const postData = {
+      isPostType: true,
+      isPostArchive: true,
+      type: 'page',
+      items,
+    };
+
+    Object.assign(currentPageData, postData);
+  },
+};
+
+export default blogHandler;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/13</link>
+        <pubDate>Tue, 05 Apr 2022 07:16:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-13</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[sidbits]]></dc:creator>
+        <description><![CDATA[
+            <p>Got it. Thank you for the explanation <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/12</link>
+        <pubDate>Sat, 03 Jul 2021 10:34:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-12</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="sidbits" data-post="10" data-topic="4891">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sidbits/40/2767_2.png" class="avatar"> sidbits:</div>
+<blockquote>
+<p>My doubt is that why is it missing in frontity source?</p>
+</blockquote>
+</aside>
+<p>Because, as I explained before, when you get the posts archive (<code>/blog</code>) WordPress will not return the page.</p>
+<p>The request you sent is:<br>
+<code>/wp-json/wp/v2/pages?slug=/blog</code><br>
+This will obviously return the content of the ‘blog’ <strong>page</strong>, but does not return anything else (like the posts it should show.</p>
+<p>The request that is actually done:<br>
+<code>/wp-json/wp/v2/posts</code><br>
+This will return all the posts which is the same as WordPress does on the archive. And since you set ‘/blog’ as the posts archive URI, it will do this request by default (as it should).</p>
+<p>So it’s not a bug or missing feature in Frontity, it’s how WordPress works and how Frontity implemented it to return the exact same results.</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/11</link>
+        <pubDate>Mon, 28 Jun 2021 18:51:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-11</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[sidbits]]></dc:creator>
+        <description><![CDATA[
+            <p>But when listing the pages using wp-rest apis, I’m getting the <code>id, featured_media, acf</code> for the /blog, like this</p>
+<pre><code class="lang-javascript">{
+   "id":64,
+   "slug":"blog",
+   "status":"publish",
+   "type":"page",
+   "title":{
+      "rendered":"Blog"
+   },
+   "author":1,
+   "featured_media":1637,
+   "acf":{
+      "title":"Blog"
+   }
+}
+</code></pre>
+<p>My doubt is that why is it missing in frontity source?</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/10</link>
+        <pubDate>Mon, 28 Jun 2021 18:04:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-10</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="sidbits" data-post="8" data-topic="4891">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sidbits/40/2767_2.png" class="avatar"> sidbits:</div>
+<blockquote>
+<p>Yes frontity only gives the collection of posts when doing <code>state.source[data.type]</code>. I am not sure why <code>data.id</code> is missing for <code>/blog</code> only.</p>
+</blockquote>
+</aside>
+<p>Because an archive page is not a real page, so it doesn’t have a page/post id. Even when you have set a page in WP.</p>
+<p>So it’s normal behavior in WordPress.</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/9</link>
+        <pubDate>Sun, 27 Jun 2021 13:14:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-9</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[sidbits]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes frontity only gives the collection of posts when doing <code>state.source[data.type]</code>. I am not sure why <code>data.id</code> is missing for <code>/blog</code> only.</p>
+<p>As the wordpress rest endpoint is giving both the <code>featured_media</code> and <code>acf</code> fields but are missing when getting via frontity.</p>
+<p><code>/blog</code> is set to be <code>postsPage</code> but it is a page. Frontity should also return id for this page so we can get the page details just like other pages.</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/8</link>
+        <pubDate>Sun, 27 Jun 2021 04:33:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-8</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>You could maybe do something like what I did here and create a page called eg /blog_page and manually 404 the route in the browser, but use it to get data over REST</p>
+<aside class="quote quote-modified" data-post="9" data-topic="4762">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/codemonkeynorth/40/2674_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/9">Holding page for CPT including posts of that CPT (eg /events)</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="The “Get Help” category is the place for asking generic technical questions about Frontity
+or about how to solve a specific issue you’re having in your Frontity project.
+You can contribute to the project by providing support to these current unanswered questions">🙋Get Help</span></a>
+  </div>
+  <blockquote>
+    <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> I ended up solving like this, without handlers for simplicity (and also due to this handler issue <a href="https://community.frontity.org/t/how-to-extend-default-data-with-handler/4775/1" class="inline-onebox">How to extend default data with handler?</a>) 
+it allows me to easily use the proper pagination eg /events/page/2 etc and connects to Yoast properly 
+
+
+archive is events, page for content is events-page 
+
+
+disable /events-page route in browser - see discussion: 
+<a href="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/3" class="inline-onebox">Allow route for fetch only, not as public-facing browser url? - #3 by codemonkeynorth</a> 
+
+
+beforeSSR: async ({ state, actions, libraries }…
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/7</link>
+        <pubDate>Sun, 27 Jun 2021 00:49:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-7</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>The problem you’re having is caused by a limitation in the REST API of WordPress (or actually, a limitation of WordPress in general).</p>
+<p>When querying <code>/blog/</code> you will not get a post or page, but instead a collection of posts. WordPress does not know that it’s an actual page (even though it exists), so instead will return the contents of the archive.</p>
+<p>I guess the only solution is to do a second fetch to ACF directly to retrieve the data from that page.</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/6</link>
+        <pubDate>Sun, 27 Jun 2021 00:37:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-6</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>So what are your acf fields attached to? Surely individual items in the blog?</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/5</link>
+        <pubDate>Sat, 26 Jun 2021 18:17:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-5</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[sidbits]]></dc:creator>
+        <description><![CDATA[
+            <p>This is what I get from <code>state.source.get('/blog')</code></p>
+<pre><code class="lang-javascript">isArchive: true
+isFetching: false
+isPostArchive: true
+isPostTypeArchive: true
+isReady: true
+items: [post objects]
+link: "/blog/"
+next: "/blog/page/2/"
+page: 1
+query: {}
+route: "/blog/"
+total: 51
+totalPages: 6
+type: "post"
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/4</link>
+        <pubDate>Sat, 26 Jun 2021 14:36:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-4</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[sidbits]]></dc:creator>
+        <description><![CDATA[
+            <p>for individual post and pages data.id exists but for /blog page (by making the page as blog page in wordpress settings) data.id doesn’t exist</p>
+<pre><code class="lang-javascript">const data = state.source.get('/blog');
+const page = state.source[data.type][data.id];  
+</code></pre>
+<p>so I can’t get page or acf prop from it</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/3</link>
+        <pubDate>Sat, 26 Jun 2021 14:33:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-3</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>I just do eg…</p>
+<pre><code class="lang-javascript">
+const data = state.source.get(state.router.link);
+const post = state.source[data.type][data.id];  
+const foo = post.acf.foo
+
+</code></pre>
+<p>console.log data and post and you’ll see what information is available</p>
+<p>For featured media I’m sure there’s an examples in Mars theme… look for the Boolean in the settings file and check how that’s implemented in the code</p>
+<aside class="onebox githubblob" data-onebox-src="https://github.com/frontity/frontity/blob/edec58493493053deffa7d2e9c99857d42328825/packages/mars-theme/src/components/list/list-item.js#L42">
+  <header class="source">
+
+      <a href="https://github.com/frontity/frontity/blob/edec58493493053deffa7d2e9c99857d42328825/packages/mars-theme/src/components/list/list-item.js#L42" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/edec58493493053deffa7d2e9c99857d42328825/packages/mars-theme/src/components/list/list-item.js#L42" target="_blank" rel="noopener nofollow ugc">frontity/frontity/blob/edec58493493053deffa7d2e9c99857d42328825/packages/mars-theme/src/components/list/list-item.js#L42</a></h4>
+
+
+
+  <pre class="onebox">    <code class="lang-js">
+      <ol class="start lines" start="32" style="counter-reset: li-counter 31 ;">
+          <li>        &lt;PublishDate&gt;</li>
+          <li>          {" "}</li>
+          <li>          on &lt;b&gt;{date.toDateString()}&lt;/b&gt;</li>
+          <li>        &lt;/PublishDate&gt;</li>
+          <li>      &lt;/div&gt;</li>
+          <li>
+          </li>
+<li>      {/*</li>
+          <li>       * If the want to show featured media in the</li>
+          <li>       * list of featured posts, we render the media.</li>
+          <li>       */}</li>
+          <li class="selected">      {state.theme.featured.showOnList &amp;&amp; (</li>
+          <li>        &lt;FeaturedMedia id={item.featured_media} /&gt;</li>
+          <li>      )}</li>
+          <li>
+          </li>
+<li>      {/* If the post has an excerpt (short summary text), we render it */}</li>
+          <li>      {item.excerpt &amp;&amp; (</li>
+          <li>        &lt;Excerpt dangerouslySetInnerHTML={{ __html: item.excerpt.rendered }} /&gt;</li>
+          <li>      )}</li>
+          <li>    &lt;/article&gt;</li>
+          <li>  );</li>
+          <li>};</li>
+      </ol>
+    </code>
+  </pre>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/2</link>
+        <pubDate>Sat, 26 Jun 2021 13:29:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-2</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+      <item>
+        <title>How to access ACF fields and the featured_media for /blog page</title>
+        <dc:creator><![CDATA[sidbits]]></dc:creator>
+        <description><![CDATA[
+            <p>I have created some custom fields for /blog page and want to show those fields and featured_media for on this page.</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891/1</link>
+        <pubDate>Sat, 26 Jun 2021 13:16:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4891-1</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-fields-and-the-featured-media-for-blog-page/4891.rss">How to access ACF fields and the featured_media for /blog page</source>
+      </item>
+  </channel>
+</rss>

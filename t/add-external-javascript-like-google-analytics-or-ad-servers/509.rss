@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Add external javascript, like Google Analytics or Ad Servers</title>
+    <link>https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509</link>
+    <description>Hello! If I need to use a custom javascript file (executed on client side) what would be the correct way?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 23 Aug 2019 10:48:34 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Add external javascript, like Google Analytics or Ad Servers</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, I see. You need to observe to either <code>actions.router.set</code> or <code>state.router.link</code>.</p>
+<p>We are going to add middleware to the state manager (<code>@frontity/connect</code>) to be able to do both of those things. It’s up in the roadmap, coming in the next 2-3 months <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<hr>
+<p>Until then, you can use <code>observe</code>, like this:</p>
+<pre><code class="lang-javascript">import { observe } from "frontity";
+
+afterCSR: ({ state }) =&gt; {
+  observe(() =&gt; {
+    console.log(state.router.link);
+  })
+}
+</code></pre>
+<p>That function should run each time <code>state.router.link</code> changes.</p>
+          <p><a href="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/6</link>
+        <pubDate>Fri, 23 Aug 2019 10:48:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-509-6</guid>
+        <source url="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509.rss">Add external javascript, like Google Analytics or Ad Servers</source>
+      </item>
+      <item>
+        <title>Add external javascript, like Google Analytics or Ad Servers</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>This is perfect! I did the</p>
+<pre><code>export default {
+ ...
+actions: {
+   theme: {
+     afterCSR: ({ state }) =&gt; {
+       setTimeout(() =&gt; {
+          // check something
+          console.log("Hello world!");
+       }, 1000);
+     },
+  }
+}
+</code></pre>
+<p>And if works perfect, but It only works one time (when the first page is loaded) if I click on one post this is not executing again (which is normal). But what would be the best way to set a trigger when the route link changes?</p>
+<p>Thanks for the help!</p>
+          <p><a href="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/5</link>
+        <pubDate>Fri, 23 Aug 2019 08:41:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-509-5</guid>
+        <source url="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509.rss">Add external javascript, like Google Analytics or Ad Servers</source>
+      </item>
+      <item>
+        <title>Add external javascript, like Google Analytics or Ad Servers</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="3" data-topic="509">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/javier/40/105_2.png" class="avatar"> javier:</div>
+<blockquote>
+<p>For example to check after a seconds if the ads are correctly loaded.</p>
+</blockquote>
+</aside>
+<p>Can’t you use the <code>afterCSR</code> action (after-client-side-rendering) to do that?</p>
+<pre><code class="lang-javascript">export default {
+   ...
+   actions: {
+      theme: {
+         afterCSR: ({ state }) =&gt; {
+           setTimeout(() =&gt; {
+              // check something
+           }, 1000);
+         },
+      }
+   }
+}
+</code></pre>
+<aside class="quote no-group" data-post="3" data-topic="509">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/javier/40/105_2.png" class="avatar"> javier:</div>
+<blockquote>
+<p>Or for example add external javascripts like analytics or google tag manager, smartadserver, etc.</p>
+</blockquote>
+</aside>
+<p>I think those can be added as React components, can’t they?</p>
+<pre><code class="lang-javascript">const SmartAdsHeader = ({ state }) =&gt; (
+  &lt;Head&gt;
+    &lt;script
+      src={`//ced.sascdn.com/tag/${state.theme.smartAds.networkId}/smart.js`}
+      type="text/javascript"
+      async
+    /&gt;
+  &lt;/Head&gt;
+);
+</code></pre>
+<p>Finally, if you need React components to execute something after mount, you can do it with <a href="https://docs.frontity.org/javascript-and-and-react/react-basic#useeffect" rel="nofollow noopener"><code>useEffect</code></a>:</p>
+<pre><code class="lang-javascript">const SmartAd = ({ tagId, width, height, callType, callParams }) =&gt; {
+  
+  // Run this for each SmartAd component, on mount.
+  useEffect(() =&gt; {
+     const sas = window &amp;&amp; window.sas ? window.sas : (window.sas = {});
+     sas.cmd = sas.cmd || [];
+     sas.cmd.push(() =&gt; {
+       const containerExists = window.document.getElementById(callParams.tagId) !== null;
+       if (containerExists) {
+          sas.call(callType, { async: true, ...callParams });
+        }
+     });
+  }, []);
+
+  return (
+    &lt;div
+      className="sas-ad"
+      id={tagId}
+      width={width}
+      height={height}
+    /&gt;
+  );
+};
+</code></pre>
+<p>Let me know if that helps.</p>
+          <p><a href="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/4</link>
+        <pubDate>Thu, 22 Aug 2019 12:46:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-509-4</guid>
+        <source url="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509.rss">Add external javascript, like Google Analytics or Ad Servers</source>
+      </item>
+      <item>
+        <title>Add external javascript, like Google Analytics or Ad Servers</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>For example to check after a seconds if the ads are correctly loaded.</p>
+<p>Or for example add external javascripts like analytics or google tag manager, smartadserver, etc.</p>
+          <p><a href="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/3</link>
+        <pubDate>Thu, 22 Aug 2019 11:36:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-509-3</guid>
+        <source url="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509.rss">Add external javascript, like Google Analytics or Ad Servers</source>
+      </item>
+      <item>
+        <title>Add external javascript, like Google Analytics or Ad Servers</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>What’s the use case?</p>
+          <p><a href="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/2</link>
+        <pubDate>Thu, 22 Aug 2019 10:50:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-509-2</guid>
+        <source url="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509.rss">Add external javascript, like Google Analytics or Ad Servers</source>
+      </item>
+      <item>
+        <title>Add external javascript, like Google Analytics or Ad Servers</title>
+        <dc:creator><![CDATA[javier]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello! If I need to use a custom javascript file (executed on client side) what would be the correct way?</p>
+          <p><a href="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509/1</link>
+        <pubDate>Thu, 22 Aug 2019 09:03:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-509-1</guid>
+        <source url="https://community.frontity.org/t/add-external-javascript-like-google-analytics-or-ad-servers/509.rss">Add external javascript, like Google Analytics or Ad Servers</source>
+      </item>
+  </channel>
+</rss>

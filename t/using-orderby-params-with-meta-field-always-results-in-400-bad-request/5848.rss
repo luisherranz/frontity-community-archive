@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Using &quot;orderby&quot; params with meta field always results in 400 Bad Request</title>
+    <link>https://community.frontity.org/t/using-orderby-params-with-meta-field-always-results-in-400-bad-request/5848</link>
+    <description>Hello all,
+
+I am trying to build (what I think is) a simple website to show stars from the HYG database. As a Wordpress developer diving deeper into ReactJS, I thought this would be a great way to learn how to integrate the two. I&#39;ve been running into some issues, however, and I am now stumped.
+
+At the moment, I would like the default behavior to have the stars sorted by distance from Earth, ascending. So I put the following in my **frontity.settings.js**:
+
+```
+&quot;state&quot;: {
+        &quot;source&quot;: {
+          &quot;url&quot;: &quot;http://localhost:10004&quot;,
+          &quot;postTypes&quot;: [
+            {
+              type: &quot;astrog_star&quot;, // Prefixing with plugin namespace &quot;astrog_&quot; to avoid conflicts
+              endpoint: &quot;stars&quot;, // &#39;/wp/v2/stars&#39;
+              archive: &quot;/&quot;, // I want these to appear on the homepage
+            }
+          ],
+          &quot;params&quot;: {
+            per_page: 100,
+            orderby: &quot;distance&quot;, // This will later be changed to &quot;astrog_distance&quot; for clarity
+            order: &quot;asc&quot;,
+            type: [&quot;astrog_star&quot;],
+          },
+        }
+      }
+
+```
+
+The &quot;distance&quot; field is a meta field I&#39;ve added. Looking at the WP api endpoints, I see that it isn&#39;t one of the args under my custom post type endpoint, so I&#39;ve been looking for examples of code that does exactly that. I&#39;ve examined [this gist](https://gist.github.com/aaronsummers/8518b0d70c4bc34e0bde4049fabac08c), this blog post [by Tim Ross](https://www.timrosswebdevelopment.com/wordpress-rest-api-post-order/), this post from [Shishir Raven](https://iamshishir.com/sorting-orderby-for-custom-meta-fields-in-wordpress/), and this [StackOverflow post](https://stackoverflow.com/questions/44783932/wp-rest-api-orderby-meta-value). So far, none of these solutions have worked, and in some places even appear contradictory to me (for example, that gist puts down &quot;meta_value_num&quot; into the `$params[&#39;orderby&#39;][&#39;enum&#39;]` value through the collection params filter hook, but Tim Ross and others put down the meta_key instead.) I really don&#39;t know what to think or do here.
+
+I have the following in my plugin file, **astrographer.php**, though right now it&#39;s just a combination of different ideas and I&#39;m commenting certain functions out and in to try and test what combination might work. You can see [my repo here](https://github.com/jdkolassa/astrographer).
+
+```
+// Adding custom fields to rest
+
+add_action( &#39;rest_api_init&#39;, &#39;astrog_star_register_fields&#39;);
+function astrog_star_register_fields(){
+   foreach ([&#39;spect&#39;, &#39;distance&#39;, &#39;astrog_lumos&#39;, &#39;astrog_hue&#39;] as $field) {
+       register_rest_field(&#39;astrog_star&#39;,
+       $field,
+       [
+           &#39;get_callback&#39; =&gt; &#39;astrog_star_get_field&#39;,
+           &#39;update_callback&#39; =&gt; null,
+           &#39;schema&#39; =&gt; null,
+       ]);
+   }
+}
+
+add_action(&#39;rest_api_init&#39;, &#39;astrog_star_orderby&#39;);
+function astrog_star_orderby(){
+
+     add_filter(&quot;rest_endpoints&quot;, function($routes){
+        $route = $routes[&#39;/wp/v2/stars&#39;];
+        $route[&#39;endpoints&#39;][0][&#39;args&#39;][&#39;orderby&#39;][&#39;enum&#39;][] = &#39;meta_value&#39;;
+        $route[&#39;endpoints&#39;][0][&#39;args&#39;][&#39;meta_key&#39;] = [
+            &#39;description&#39; =&gt; &#39;The meta key to query&#39;,
+            &#39;type&#39; =&gt; &#39;float&#39;,
+            &#39;enum&#39; =&gt; [&#39;distance&#39;],
+            &#39;validate_callback&#39; =&gt; &#39;rest_validate_request_arg&#39;,
+        ];
+        return $routes;
+    }, 10,1);
+
+    add_filter(&quot;rest_stars_collection_params&quot;, function( $params ){
+        $params[&#39;orderby&#39;][&#39;enum&#39;][] = &quot;distance&quot;;
+        return $params;
+    },10,1);
+
+    add_filter(&quot;rest_stars_query&quot;, function($args, $request){
+        $orderkey = $request-&gt;get_param(&#39;orderby&#39;);
+        if( isset($orderkey) &amp;&amp; &#39;distance&#39; === $orderkey ) {
+            $args[&#39;meta_key&#39;] = $orderkey;
+            $args[&#39;orderby&#39;][&#39;enum&#39;] = &#39;meta_value&#39;;
+        }
+        return $args;
+    },10,2);
+}
+
+/*
+ * Get the value of the meta fields
+ * @param array $object Details of current post.
+ * @param string $field_name Name of field.
+ * @param WP_REST_Request $request Current request
+ *
+ * @return mixed
+*/
+
+function astrog_star_get_field($object, $field_name, $request){
+    return get_post_meta($object[&#39;id&#39;], $field_name, true);
+}
+
+function astrog_add_meta_vars ($current_vars) {
+    $current_vars = array_merge($current_vars, array(&#39;meta_key&#39;, &#39;meta_value&#39;, &#39;meta_value_num&#39;));
+    return $current_vars;
+}
+
+add_filter(&#39;query_vars&#39;, &#39;astrog_add_meta_vars&#39;);
+
+```
+No matter what I do, however, I always get a **400 - Bad Request** response, and I believe it&#39;s because my code isn&#39;t adding the fields to the `[&#39;endpoints&#39;][0][&#39;args&#39;][&#39;orderby&#39;][&#39;enum&#39;]` array, as shown in the picture below. I thought the hook to us in order to add these would be `rest_api_init`, but maybe I&#39;m wrong? I&#39;m not sure where to look for answers at this point.
+
+![stars_api_orderby|500x500](upload://rdMrd28Mgvtpe8E9rf96C4c8VMb.png)
+
+
+A few points:
+
+1. I&#39;m using filters like &quot;rest_stars_collection_params&quot; and not &quot;rest_astrog_stars_collection_params&quot; because according to the [Wordpress API docs](https://developer.wordpress.org/reference/hooks/rest_this-post_type_collection_params/) &quot;The dynamic part of the filter `$this-&gt;post_type` refers to the post type slug for the controller.&quot; And, in **custom_star_type.php**, I have both `&#39;rewrite&#39; =&gt; [&#39;slug&#39; =&gt; &#39;stars&#39;]` and `&#39;rest_base&#39; =&gt; &#39;stars&#39;` as I thought having astrog_star in every url would be too much. Am I misreading the docs?
+
+2. I&#39;m currently developing this on local with Flywheel&#39;s Local tool. That wouldn&#39;t be causing an issue, would it?
+
+3. Related, but after I solve this issue I want to add filtering tools for users. I was initially looking at purely React filter code, which you can see in **Grid.js**, but that always returns blanks (and even blanks out what is already there, if I&#39;m not running into this bad request issue.) Would I use Frontity actions and/or libraries to modify the request to achieve this? I figure if I/we can solve my current problem, this filtering one should go a lot more smoothly.
+
+To round this out, here&#39;s my `npx frontity info` data:
+
+```
+## System:
+ - OS: Windows 10 10.0.19042
+ - CPU: (8) x64 Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz
+ - Memory: 19.38 GB / 31.95 GB
+## Binaries:
+ - Node: 16.13.1 - C:\Program Files\nodejs\node.EXE
+ - npm: 8.1.2 - C:\Program Files\nodejs\npm.CMD
+## Browsers:
+ - Chrome: Not Found
+ - Edge: Spartan (44.19041.1266.0), Chromium (99.0.1150.46)
+ - Internet Explorer: 11.0.19041.1566
+## npmPackages:
+ - @frontity/core: ^1.14.3 =&gt; 1.14.3
+ - @frontity/html2react: ^1.7.0 =&gt; 1.7.0
+ - @frontity/mars-theme: ./packages/mars-theme =&gt; 1.6.2
+ - @frontity/tiny-router: ^1.4.4 =&gt; 1.4.4
+ - @frontity/wp-source: ^1.11.7 =&gt; 1.11.7
+ - frontity: ^1.17.1 =&gt; 1.17.1
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 23 Mar 2022 19:08:39 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/using-orderby-params-with-meta-field-always-results-in-400-bad-request/5848.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Using &quot;orderby&quot; params with meta field always results in 400 Bad Request</title>
+        <dc:creator><![CDATA[jdkolassa]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello all,</p>
+<p>I am trying to build (what I think is) a simple website to show stars from the HYG database. As a Wordpress developer diving deeper into ReactJS, I thought this would be a great way to learn how to integrate the two. I’ve been running into some issues, however, and I am now stumped.</p>
+<p>At the moment, I would like the default behavior to have the stars sorted by distance from Earth, ascending. So I put the following in my <strong>frontity.settings.js</strong>:</p>
+<pre><code class="lang-javascript">"state": {
+        "source": {
+          "url": "http://localhost:10004",
+          "postTypes": [
+            {
+              type: "astrog_star", // Prefixing with plugin namespace "astrog_" to avoid conflicts
+              endpoint: "stars", // '/wp/v2/stars'
+              archive: "/", // I want these to appear on the homepage
+            }
+          ],
+          "params": {
+            per_page: 100,
+            orderby: "distance", // This will later be changed to "astrog_distance" for clarity
+            order: "asc",
+            type: ["astrog_star"],
+          },
+        }
+      }
+
+</code></pre>
+<p>The “distance” field is a meta field I’ve added. Looking at the WP api endpoints, I see that it isn’t one of the args under my custom post type endpoint, so I’ve been looking for examples of code that does exactly that. I’ve examined <a href="https://gist.github.com/aaronsummers/8518b0d70c4bc34e0bde4049fabac08c" rel="noopener nofollow ugc">this gist</a>, this blog post <a href="https://www.timrosswebdevelopment.com/wordpress-rest-api-post-order/" rel="noopener nofollow ugc">by Tim Ross</a>, this post from <a href="https://iamshishir.com/sorting-orderby-for-custom-meta-fields-in-wordpress/" rel="noopener nofollow ugc">Shishir Raven</a>, and this <a href="https://stackoverflow.com/questions/44783932/wp-rest-api-orderby-meta-value" rel="noopener nofollow ugc">StackOverflow post</a>. So far, none of these solutions have worked, and in some places even appear contradictory to me (for example, that gist puts down “meta_value_num” into the <code>$params['orderby']['enum']</code> value through the collection params filter hook, but Tim Ross and others put down the meta_key instead.) I really don’t know what to think or do here.</p>
+<p>I have the following in my plugin file, <strong>astrographer.php</strong>, though right now it’s just a combination of different ideas and I’m commenting certain functions out and in to try and test what combination might work. You can see <a href="https://github.com/jdkolassa/astrographer" rel="noopener nofollow ugc">my repo here</a>.</p>
+<pre><code class="lang-javascript">// Adding custom fields to rest
+
+add_action( 'rest_api_init', 'astrog_star_register_fields');
+function astrog_star_register_fields(){
+   foreach (['spect', 'distance', 'astrog_lumos', 'astrog_hue'] as $field) {
+       register_rest_field('astrog_star',
+       $field,
+       [
+           'get_callback' =&gt; 'astrog_star_get_field',
+           'update_callback' =&gt; null,
+           'schema' =&gt; null,
+       ]);
+   }
+}
+
+add_action('rest_api_init', 'astrog_star_orderby');
+function astrog_star_orderby(){
+
+     add_filter("rest_endpoints", function($routes){
+        $route = $routes['/wp/v2/stars'];
+        $route['endpoints'][0]['args']['orderby']['enum'][] = 'meta_value';
+        $route['endpoints'][0]['args']['meta_key'] = [
+            'description' =&gt; 'The meta key to query',
+            'type' =&gt; 'float',
+            'enum' =&gt; ['distance'],
+            'validate_callback' =&gt; 'rest_validate_request_arg',
+        ];
+        return $routes;
+    }, 10,1);
+
+    add_filter("rest_stars_collection_params", function( $params ){
+        $params['orderby']['enum'][] = "distance";
+        return $params;
+    },10,1);
+
+    add_filter("rest_stars_query", function($args, $request){
+        $orderkey = $request-&gt;get_param('orderby');
+        if( isset($orderkey) &amp;&amp; 'distance' === $orderkey ) {
+            $args['meta_key'] = $orderkey;
+            $args['orderby']['enum'] = 'meta_value';
+        }
+        return $args;
+    },10,2);
+}
+
+/*
+ * Get the value of the meta fields
+ * @param array $object Details of current post.
+ * @param string $field_name Name of field.
+ * @param WP_REST_Request $request Current request
+ *
+ * @return mixed
+*/
+
+function astrog_star_get_field($object, $field_name, $request){
+    return get_post_meta($object['id'], $field_name, true);
+}
+
+function astrog_add_meta_vars ($current_vars) {
+    $current_vars = array_merge($current_vars, array('meta_key', 'meta_value', 'meta_value_num'));
+    return $current_vars;
+}
+
+add_filter('query_vars', 'astrog_add_meta_vars');
+
+</code></pre>
+<p>No matter what I do, however, I always get a <strong>400 - Bad Request</strong> response, and I believe it’s because my code isn’t adding the fields to the <code>['endpoints'][0]['args']['orderby']['enum']</code> array, as shown in the picture below. I thought the hook to us in order to add these would be <code>rest_api_init</code>, but maybe I’m wrong? I’m not sure where to look for answers at this point.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/b/bec980ec7702db25ecb0eab4d53558491474410f.png" data-download-href="https://community.frontity.org/uploads/default/bec980ec7702db25ecb0eab4d53558491474410f" title="stars_api_orderby"><img src="https://community.frontity.org/uploads/default/optimized/2X/b/bec980ec7702db25ecb0eab4d53558491474410f_2_500x500.png" alt="stars_api_orderby" data-base62-sha1="rdMrd28Mgvtpe8E9rf96C4c8VMb" width="500" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/b/bec980ec7702db25ecb0eab4d53558491474410f_2_500x500.png, https://community.frontity.org/uploads/default/optimized/2X/b/bec980ec7702db25ecb0eab4d53558491474410f_2_750x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/b/bec980ec7702db25ecb0eab4d53558491474410f_2_1000x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/b/bec980ec7702db25ecb0eab4d53558491474410f_2_10x10.png"></a></div><p></p>
+<p>A few points:</p>
+<ol>
+<li>
+<p>I’m using filters like “rest_stars_collection_params” and not “rest_astrog_stars_collection_params” because according to the <a href="https://developer.wordpress.org/reference/hooks/rest_this-post_type_collection_params/" rel="noopener nofollow ugc">Wordpress API docs</a> “The dynamic part of the filter <code>$this-&gt;post_type</code> refers to the post type slug for the controller.” And, in <strong>custom_star_type.php</strong>, I have both <code>'rewrite' =&gt; ['slug' =&gt; 'stars']</code> and <code>'rest_base' =&gt; 'stars'</code> as I thought having astrog_star in every url would be too much. Am I misreading the docs?</p>
+</li>
+<li>
+<p>I’m currently developing this on local with Flywheel’s Local tool. That wouldn’t be causing an issue, would it?</p>
+</li>
+<li>
+<p>Related, but after I solve this issue I want to add filtering tools for users. I was initially looking at purely React filter code, which you can see in <strong>Grid.js</strong>, but that always returns blanks (and even blanks out what is already there, if I’m not running into this bad request issue.) Would I use Frontity actions and/or libraries to modify the request to achieve this? I figure if I/we can solve my current problem, this filtering one should go a lot more smoothly.</p>
+</li>
+</ol>
+<p>To round this out, here’s my <code>npx frontity info</code> data:</p>
+<pre><code class="lang-javascript">## System:
+ - OS: Windows 10 10.0.19042
+ - CPU: (8) x64 Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz
+ - Memory: 19.38 GB / 31.95 GB
+## Binaries:
+ - Node: 16.13.1 - C:\Program Files\nodejs\node.EXE
+ - npm: 8.1.2 - C:\Program Files\nodejs\npm.CMD
+## Browsers:
+ - Chrome: Not Found
+ - Edge: Spartan (44.19041.1266.0), Chromium (99.0.1150.46)
+ - Internet Explorer: 11.0.19041.1566
+## npmPackages:
+ - @frontity/core: ^1.14.3 =&gt; 1.14.3
+ - @frontity/html2react: ^1.7.0 =&gt; 1.7.0
+ - @frontity/mars-theme: ./packages/mars-theme =&gt; 1.6.2
+ - @frontity/tiny-router: ^1.4.4 =&gt; 1.4.4
+ - @frontity/wp-source: ^1.11.7 =&gt; 1.11.7
+ - frontity: ^1.17.1 =&gt; 1.17.1
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+</code></pre>
+          <p><a href="https://community.frontity.org/t/using-orderby-params-with-meta-field-always-results-in-400-bad-request/5848/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-orderby-params-with-meta-field-always-results-in-400-bad-request/5848/1</link>
+        <pubDate>Wed, 23 Mar 2022 19:08:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5848-1</guid>
+        <source url="https://community.frontity.org/t/using-orderby-params-with-meta-field-always-results-in-400-bad-request/5848.rss">Using &quot;orderby&quot; params with meta field always results in 400 Bad Request</source>
+      </item>
+  </channel>
+</rss>

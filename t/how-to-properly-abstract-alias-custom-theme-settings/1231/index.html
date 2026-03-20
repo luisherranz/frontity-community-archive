@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>How to properly abstract/alias custom theme settings? - 🙋Get Help - Frontity Community Forum</title>
+    <meta name="description" content="The theme I’m working on can be found here. 
+Inspired by the great work of @Segun on their Chakra UI Frontity Theme, I decided that I wanted to better abstract aspects of my theme to variables set in it’s settings. 
+So i&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;How to properly abstract/alias custom theme settings?&#39;" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/how-to-properly-abstract-alias-custom-theme-settings/1231" />
+<meta name="twitter:url" content="/t/how-to-properly-abstract-alias-custom-theme-settings/1231" />
+<meta property="og:title" content="How to properly abstract/alias custom theme settings?" />
+<meta name="twitter:title" content="How to properly abstract/alias custom theme settings?" />
+<meta property="og:description" content="The theme I’m working on can be found here.  Inspired by the great work of @Segun on their Chakra UI Frontity Theme, I decided that I wanted to better abstract aspects of my theme to variables set in it’s settings.  So in src/index.js there is the theme JS object:  import Theme from &quot;./components&quot;; import image from &quot;@frontity/html2react/processors/image&quot;;  const desertJackalope = {   name: &quot;desert-jackalope&quot;,   roots: {     // In Frontity, any package can add React components to the site.     /..." />
+<meta name="twitter:description" content="The theme I’m working on can be found here.  Inspired by the great work of @Segun on their Chakra UI Frontity Theme, I decided that I wanted to better abstract aspects of my theme to variables set in it’s settings.  So in src/index.js there is the theme JS object:  import Theme from &quot;./components&quot;; import image from &quot;@frontity/html2react/processors/image&quot;;  const desertJackalope = {   name: &quot;desert-jackalope&quot;,   roots: {     // In Frontity, any package can add React components to the site.     /..." />
+<meta property="og:article:section" content="🙋Get Help" />
+<meta property="og:article:section:color" content="3AB54A" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="12 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="2 ❤" />
+<meta property="article:published_time" content="2020-02-13T21:31:01+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"How to properly abstract/alias custom theme settings?","mainEntity":{"@type":"Question","name":"How to properly abstract/alias custom theme settings?","text":"The theme I’m working on can be found <a href=\"https://github.com/jcklpe/desert-jackalope\" rel=\"nofollow noopener\">here<\/a>.\n\nInspired by the great work of <a class=\"mention\" href=\"/u/segun\">@Segun<\/a> on their <a href=\"/t/frontity-release-frontity-chakra-theme/1144\">Chakra UI Frontity Theme<\/a>, I decided that I wanted to better abstract aspects of my theme to variables set in it’s settings.\n\nSo in <a href=\"https://github.com/jcklpe/desert-jackalope/blob/master/src/index.js\" rel=\"nofollow noopener\">src/index.js<\/a> there is the theme JS object:\n\nimport Theme from &quot;./components&quot;;\n\n&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2020-02-13T21:31:01.318Z","author":{"@type":"Person","name":"jcklpe"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">How to properly abstract/alias custom theme settings?</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/dev-talk-questions/3" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #3AB54A'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🙋Get Help</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='How to properly abstract/alias custom theme settings?'>
+        <meta itemprop='articleSection' content='🙋Get Help'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-13T21:31:01Z' class='post-time'>
+                    13 February 2020 21:31
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-13T21:31:01Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>The theme I’m working on can be found <a href="https://github.com/jcklpe/desert-jackalope" rel="nofollow noopener">here</a>.</p>
+<p>Inspired by the great work of <a class="mention" href="/u/segun">@Segun</a> on their <a href="/t/frontity-release-frontity-chakra-theme/1144">Chakra UI Frontity Theme</a>, I decided that I wanted to better abstract aspects of my theme to variables set in it’s settings.</p>
+<p>So in <a href="https://github.com/jcklpe/desert-jackalope/blob/master/src/index.js" rel="nofollow noopener">src/index.js</a> there is the theme JS object:</p>
+<pre><code>import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+
+const desertJackalope = {
+  name: "desert-jackalope",
+  roots: {
+    // In Frontity, any package can add React components to the site.
+    // We use roots for that, scoped to the "theme" namespace.
+    theme: Theme
+  },
+  state: {
+    // State is where the packages store their default settings and other
+    // relevant state. It is scoped to the "theme" namespace.
+    theme: {
+      isBlog: false,
+      colors: {
+        primary: {
+          default: "#2657eb",
+          heavy: "#1f38c5"
+        }
+      }
+    }
+  },
+  // Actions are functions that modify the state or deal with other parts of
+  // Frontity like libraries.
+  actions: {
+    theme: {}
+  },
+  libraries: {
+    html2react: {
+      // Add a processor to html2react so it processes the &lt;img&gt; tags
+      // inside the content HTML. You can add your own processors too.
+      processors: [image]
+    }
+  }
+};
+
+export default desertJackalope;
+
+</code></pre>
+<p>As you can see I have added a couple of key-value pairs to the theme object. <code>isBlog</code> determines whether or not the website is set to “blog” mode or if it’s set to “case study mode”. I also set some default theme colors.</p>
+<p><code>isBlog</code> works fine, and as intended which you can see an example of it’s use in <a href="https://github.com/jcklpe/desert-jackalope/blob/master/src/components/Archive/archive.js" rel="nofollow noopener">src/components/archive/archive.js</a>:</p>
+<pre><code>import React from "react";
+import { connect } from "frontity";
+import BlogArchive from "./BlogArchive";
+import CaseStudyArchive from "./CaseStudyArchive";
+
+const Archive = ({ state, data }) =&gt; {
+  // check whether or not blog or case study presentation
+
+  return (
+    &lt;&gt;
+      {state.theme.isBlog ? (
+        &lt;BlogArchive data={data} /&gt;
+      ) : (
+        &lt;CaseStudyArchive data={data} /&gt;
+      )}
+    &lt;/&gt;
+  );
+};
+
+export default connect(Archive);
+</code></pre>
+<p>However when I try to add the colors to my global css in <a href="https://github.com/jcklpe/desert-jackalope/blob/master/src/components/index.js" rel="nofollow noopener">src/components/index.js</a>, I get a result of undefined. This is how the code currently looks. You can see my commented out attempts at directly importing desertJackalope (the name of the JS object in my src/index.js file) and my attempt at setting the value of <code>desertJackalope.theme.colors.primary.default</code> to the const <code>primaryColor</code>.</p>
+<pre><code>import React from "react";
+import { Global, css, connect, styled } from "frontity";
+import Header from "./Header";
+import Archive from "./Archive";
+import Post from "./Post";
+import Page404 from "./Page404";
+import Page from "./Page";
+import Loading from "./Loading";
+import { useTransition, animated } from "react-spring";
+import Meta from "./Meta";
+import { colors } from "../theme";
+import Footer from "./Footer";
+//import desertJackalope from "../index";
+//const primaryColor = desertJackalope.theme.colors.primary.default;
+
+const Theme = ({ state }) =&gt; {
+  const transitions = useTransition(state.router.link, link =&gt; link, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 }
+  });
+
+  return (
+    &lt;&gt;
+      &lt;Meta /&gt;
+      &lt;Global styles={globalStyles} /&gt;
+      &lt;Header /&gt;
+
+      {transitions.map(({ item, props, key }) =&gt; {
+        const data = state.source.get(item);
+        return (
+          &lt;animated.div key={key} style={props}&gt;
+            &lt;Absolute&gt;
+              {(data.isFetching &amp;&amp; &lt;Loading /&gt;) ||
+                (data.isArchive &amp;&amp; &lt;Archive data={data} /&gt;) ||
+                (data.isPage &amp;&amp; &lt;Page data={data} /&gt;) ||
+                (data.isPostType &amp;&amp; &lt;Post data={data} /&gt;) ||
+                (data.is404 &amp;&amp; &lt;Page404 /&gt;)}
+            &lt;/Absolute&gt;
+          &lt;/animated.div&gt;
+        );
+      })}
+      {/* &lt;Footer /&gt; */}
+    &lt;/&gt;
+  );
+};
+
+export default connect(Theme);
+
+//- GLOBAL STYLES CSS
+
+//- Color vars
+const primaryColor = colors.primary.default;
+const heavyprimaryColor = colors.primary.heavy;
+const accentColor = colors.accent;
+const darkColor = colors.dark[100];
+const darkColor90 = colors.dark[90];
+const darkColor80 = colors.dark[80];
+const darkColor30 = colors.dark[30];
+
+// set global styles
+const globalStyles = css`
+  @import url("https://fonts.googleapis.com/css?family=Space+Mono:400,400i,700,700i&amp;display=swap");
+  :root {
+    --primary-heavy: ${heavyprimaryColor};
+    --primary: ${primaryColor};
+    --snappy: cubic-bezier(0.075, 0.82, 0.165, 1);
+    --heavy-snap: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+    --accent: ${accentColor};
+    --dark: ${darkColor};
+    --dark90: ${darkColor90};
+    --dark80: ${darkColor80};
+    --dark30: ${darkColor30};
+    *::selection {
+      background: var(--primary);
+      color: white;
+    }
+  }
+  body {
+    margin: 0;
+    font-family: "Space Mono", "Segoe UI", Roboto, "Droid Sans",
+      "Helvetica Neue", Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+  }
+  a,
+  a:visited {
+    color: inherit;
+    text-decoration: none;
+  }
+`;
+
+//- Page Transition stuff
+
+const Absolute = styled.div`
+  position: absolute;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+</code></pre>
+<p>Directly referencing the <code>desertJackalope.state.theme.colors.primary.default</code> value does not work. It does work when inserted into a component, because all components created inherit state, but trying to set <code>desertJackalope.state.theme.colors.primary.default</code> to <code>const primaryColor</code> and then setting the css variable in global state root to <code>${primaryColor}</code> results in a react error saying that “primaryColor is undefined”.</p>
+<p>If instead I create a JS object in <a href="https://github.com/jcklpe/desert-jackalope/blob/master/src/theme.js" rel="nofollow noopener">src/theme.js</a> called “colors” and I set it such that colors.primary.default is my default color, and then import the colors object to src/index.js and set <code>const primaryColor</code> to <code>colors.primary.default</code>, I can then set the css global root variable to <code>${primaryColor}</code> then it works no problem… and I’m not clear why.</p>
+<p>Setting all my theme color settings in src/theme.js isn’t too bad but it does mean that I can’t have the option of setting default color settings in my src/index.js file with the option of being overridden by the frontity.settings.js file (as I can do with the isBlog value very easily).</p>
+<p>Segun sets his colors in his src/index.js file but he passes all colors to his components via prop drilling. So it works because those components inherit state. But for some reason when I try passing the contents of desertJackalope.state.theme etc to a const and pass that into CSS variables it does not work.</p>
+<p>I find prop drilling messy, and I would prefer to abstract/alias my theme colors via my custom src/theme.js file than have to muck up my component markup with a bunch of color variables.</p>
+<p>I assume this problem is caused by how frontity is handling the src/index.js object. Clearly the object gets some kind of interaction as the default state set in that file can be overridden by frontity.settings.js but I’m not clear how, and if however it is doing it is preventing me from aliasing and including my theme colors the way that I want to.</p>
+<p>Does this make sense?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-18T23:40:39Z' class='post-time'>
+                    18 February 2020 23:40
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-18T23:40:39Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey <a class="mention" href="/u/thedonquixotic">@thedonquixotic</a> <img src="/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>Okay, I think you touched upon a couple of problems and I ll try to unpack them all.</p>
+<h4>1. importing the theme</h4>
+<p>I notice that in your example, you had a commented out line:</p>
+<pre><code>//const primaryColor = desertJackalope.theme.colors.primary.default;
+</code></pre>
+<p>as you have correctly indicated later in your post, you are missing the <code>state</code>, so the whole line should be:</p>
+<pre><code>const primaryColor = desertJackalope.state.theme.colors.primary.default;
+</code></pre>
+<p>With that fixed, you should be able to use import the <code>index.js</code> and use the values defined there.</p>
+<h4>CSS custom properties.</h4>
+<p>All that being said, what is your use case for CSS custom properties?</p>
+<p>The variables that you define in <code>state.theme</code> in the <code>src/index.js</code> file can be accessed in any component as long as it’s wrapped with <a href="https://docs.frontity.org/javascript-and-and-react/react-basic#state-manager-frontity-connect">connect()</a>. So, this essentially serves the same function as CSS Custom Properties.</p>
+<p>In fact, you have already used that functionality by using the <code>isBlog</code> property in your <a href="https://github.com/jcklpe/desert-jackalope/blob/master/src/components/Archive/archive.js">src/components/Archive/archive.js</a></p>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="1" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>I find prop drilling messy, and I would prefer to abstract/alias my theme colors via my custom src/theme.js file than have to muck up my component markup with a bunch of color variables.</p>
+</blockquote>
+</aside>
+<p>As far as I can tell, you don’t have to do any prop drilling because as long as you wrap your component with <code>connect()</code>, your theme variables should be available in that component in  <code>state.theme</code>. <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<h4></h4>
+<p>Addiionally, not that there are some caveats with using <code>&lt;Global/&gt;</code>, most notably that Frontity is not able to optimise the CSS that is provided in it. <a href="https://docs.frontity.org/learning-frontity/styles#less-than-global-greater-than">More info here</a></p>
+<p>Hope this helps!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-19T01:08:45Z' class='post-time'>
+                    19 February 2020 01:08
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-19T01:08:45Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thank you for the excellent response!</p>
+<p>Correcint it to desertJackalope.state.theme.colors.primary.default; doesn’t fix the issue unfortunately.</p>
+<p>Here’s what I added:</p>
+<pre><code>import desertJackalope from "../index";
+const primeColor = desertJackalope.state.theme.colors.primary.default;
+</code></pre>
+<p>(it says primeColor so that I could just swap out variable name without having to unimport the other variables)</p>
+<p>here’s the output I get:</p>
+<p>from console:</p>
+<pre><code>SERVER STARTED -- Listening @ http://localhost:3000
+  - mode: development
+  - target: module
+
+
+webpack built client 4ab813001e2039c4a137 in 8346ms
+ℹ ｢wdm｣: Child client:
+                     Asset      Size        Chunks             Chunk Names
+         archive.module.js  64.9 KiB       archive  [emitted]  archive    
+    server-front.module.js  5.75 MiB  server-front  [emitted]  server-front
+     + 1 hidden asset
+Child server:
+        Asset      Size  Chunks             Chunk Names
+    server.js  8.43 MiB    main  [emitted]  main
+ℹ ｢wdm｣: Compiled successfully.
+TypeError: Cannot read property 'state' of undefined
+    at eval (webpack-internal:///./packages/desert-jackalope/src/components/index.js:19:343)
+    at Module../packages/desert-jackalope/src/components/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:5396:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./packages/desert-jackalope/src/index.js:2:69)
+    at Module../packages/desert-jackalope/src/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:5540:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./build/bundling/entry-points/server.ts:3:84)
+    at Module../build/bundling/entry-points/server.ts (/mnt/c/Users/aslan/home/work/server-front/build/server.js:139:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at /mnt/c/Users/aslan/home/work/server-front/build/server.js:104:18
+TypeError: Cannot read property 'state' of undefined
+    at eval (webpack-internal:///./packages/desert-jackalope/src/components/index.js:19:343)
+    at Module../packages/desert-jackalope/src/components/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:5396:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./packages/desert-jackalope/src/index.js:2:69)
+    at Module../packages/desert-jackalope/src/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:5540:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./build/bundling/entry-points/server.ts:3:84)
+    at Module../build/bundling/entry-points/server.ts (/mnt/c/Users/aslan/home/work/server-front/build/server.js:139:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at /mnt/c/Users/aslan/home/work/server-front/build/server.js:104:18
+</code></pre>
+<p>from browser response</p>
+<pre><code>TypeError: Cannot read property 'state' of undefined
+    at eval (webpack-internal:///./packages/desert-jackalope/src/components/index.js:19:343)
+    at Module../packages/desert-jackalope/src/components/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:5396:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./packages/desert-jackalope/src/index.js:2:69)
+    at Module../packages/desert-jackalope/src/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:5540:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./build/bundling/entry-points/server.ts:3:84)
+    at Module../build/bundling/entry-points/server.ts (/mnt/c/Users/aslan/home/work/server-front/build/server.js:139:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at /mnt/c/Users/aslan/home/work/server-front/build/server.js:104:18
+</code></pre>
+<h4>CSS Custom Properties</h4>
+<p>My reason for using CSS custom properties is informed by a philosophy of relying on the native browser implementations as much as possible.</p>
+<h4>Global</h4>
+<p>Yeah I’m aware of those issues. I’ve tried to keep the global CSS as small as possible. It basically holds just the root variables.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-19T14:30:45Z' class='post-time'>
+                    19 February 2020 14:30
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-19T14:30:45Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I see. It seems like the issue you are having has to do with an incorrect <code>import</code> path.</p>
+<p><strong>However</strong>, I would strongly recommend <strong>not</strong> to import this package directly. The main reason is that the data will not be reactive:</p>
+<p>Normally, if you update the value of <code>colors.primary</code> in some component, frontity will re-render all the components that use that variable <strong>if</strong> you pass it down from <code>state.theme</code>. If you just import it directly, frontity has no knowledge of that and won’t rerender.</p>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="4" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>My reason for using CSS custom properties is informed by a philosophy of relying on the native browser implementations as much as possible.</p>
+</blockquote>
+</aside>
+<p>I see. I would not worry about the particular features being “native” or not. Using the variables defined in JS gives you the same benefits. Passing them again into CSS Variables is just extra work. There is no significant difference in performance and CSS variables won’t work in IE11 and below!</p>
+<p>So, in your case, you should just wrap your components with <code>connect()</code> and if you want to pass <code>state</code> to your CSS you can do one of:</p>
+<h3>1. Create a function that gets  <code>state</code>  and returns the CSS:</h3>
+<pre><code>const MyComp = ({ state }) =&gt; (
+  &lt;&gt;
+    &lt;Global styles={globalStyles(state)} /&gt;
+    &lt;div css={someStyle(state)}&gt;...&lt;/div&gt;
+  &lt;/&gt;
+);
+
+const globalStyles = state =&gt; css`
+  body {
+    color: ${state.theme.colors.primary};
+  }
+`;
+
+const someStyle = state =&gt; css`
+  color: ${state.theme.colors.primary};
+`;
+</code></pre>
+<h3>2. Define the CSS inside the component:</h3>
+<pre><code>const MyComp = ({ state }) =&gt; {
+  const globalStyles = css`
+    body {
+      color: ${state.theme.colors.primary};
+    }
+  `;
+  
+  const someStyle = css`
+    color: ${state.theme.colors.primary};
+  `;
+
+  return (
+    &lt;&gt;
+      &lt;Global styles={globalStyles} /&gt;
+      &lt;div css={someStyle}&gt;...&lt;/div&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<h3>3. Pass down props to styled components (not possible with Global):</h3>
+<pre><code>const MyComp = ({ state }) =&gt; (
+  &lt;&gt;
+    &lt;Global styles={globalStyles(state)} /&gt;
+    &lt;Div primary={state.theme.colors.primary}&gt;...&lt;/Div&gt;
+  &lt;/&gt;
+);
+
+const globalStyles = state =&gt; css`
+  body {
+    color: ${state.theme.colors.primary};
+  }
+`;
+
+const Div = styled.div`
+  color: ${props =&gt; props.primary};
+`;
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-19T19:53:52Z' class='post-time'>
+                    19 February 2020 19:53
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-19T19:53:52Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="mmczaplinski" data-post="6" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I see. It seems like the issue you are having has to do with an incorrect <code>import</code> path.</p>
+</blockquote>
+</aside>
+<p>Sorry, I don’t think so. I’ve double checked my import path and it is correct.</p>
+<p>Also I don’t need the data to be reactive. It’s intended to be static variables used to define the visual theming.</p>
+<p>Are you saying though that if the server settings in frontity.settings.js file changes those variables that they won’t change?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-20T18:09:49Z' class='post-time'>
+                    20 February 2020 18:09
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-20T18:09:49Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-username="thedonquixotic" data-post="7" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Are you saying though that if the server settings in frontity.settings.js file changes those variables that they won’t change?</p>
+</blockquote>
+</aside>
+<p>I’m not sure what you are referring to exactly, but I think that this is not what I meant. I was only referring to the re-rendering of components on the client.</p>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="7" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Also I don’t need the data to be reactive. It’s intended to be static variables used to define the visual theming.</p>
+</blockquote>
+</aside>
+<p>The solution that I suggested is the preferred way to accomplish what you are trying to do even if you “don’t need it to be reactive” right now, because:</p>
+<ol>
+<li>you might want some part of to be reactive in the future.</li>
+<li>this way you don’t have to import your variables in every file that uses them, just use the <code>state</code> prop</li>
+<li>you are already using the same mechanism for non-style related settings and actions, so why use a different one just for styles? <img src="/images/emoji/apple/upside_down_face.png?v=9" title=":upside_down_face:" class="emoji" alt=":upside_down_face:">
+</li>
+</ol>
+<p>Hope this helps!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-21T01:12:58Z' class='post-time'>
+                    21 February 2020 01:12
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-21T01:12:58Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="mmczaplinski" data-post="8" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I’m not sure what you are referring to exactly, but I think that this is not what I meant. I was only referring to the re-rendering of components on the client.</p>
+</blockquote>
+</aside>
+<p>What I was referring to was this:<br>
+Settings which are established or changed in src/index.js mirror settings that can be written in frontity.settings.js. src/index.js establishes default values that then can be overwritten on a per server basis via frontity.settings.js.</p>
+<p>So for instance, by default my theme has set desertJackalope.state.theme.isBlog to “false”, but if I install my theme on a server and in frontity.settings.js set state.theme.isBlog to true then those settings will override it.</p>
+<p>This isn’t the point though. Maybe I can do things one way or another but whether or not I’m using custom CSS properties isn’t the issue. The issue is that I’ am not being able to access the state from outside of a component. I can access <code>isBlog</code> blog from inside the component but if I want to access a key-value held in state as a variable that I use in my CSS styling I can’t. The way that <a class="mention" href="/u/segun">@Segun</a> accesses Chakra UI theme’s key-values for colors is through the use of prop drilling which I’d like to avoid.</p>
+<p>So what I’m trying to figure out is how can I set color values in my src/index.js file and access those key-values from outside of components that are directly inheriting state?</p>
+<p>Let me give you some simplified examples I’ve tried and their results:</p>
+<h2>Example 1 (export variable from src/index.js file)</h2>
+<p>src/index.js</p>
+<pre><code>import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+
+const desertJackalope = {
+  name: "desert-jackalope",
+  roots: {
+    // In Frontity, any package can add React components to the site.
+    // We use roots for that, scoped to the "theme" namespace.
+    theme: Theme
+  },
+  state: {
+    // State is where the packages store their default settings and other
+    // relevant state. It is scoped to the "theme" namespace.
+    theme: {
+      isBlog: false,
+      colors: {
+        primary: {
+          default: "#2657eb",
+          heavy: "#1f38c5"
+        }
+      },
+      newsletterURL:
+        "https://the-jackalope.us8.list-manage.com/subscribe/post?u=7fc8ae244460f6dd1c74dd7bf&amp;amp;id=74ff6c880b",
+      footerlinks: {
+        github: "https://github.com/jcklpe",
+        blog: "https://www.jackalope.tech"
+      }
+    }
+  },
+  // Actions are functions that modify the state or deal with other parts of
+  // Frontity like libraries.
+  actions: {
+    theme: {}
+  },
+  libraries: {
+    html2react: {
+      // Add a processor to html2react so it processes the &lt;img&gt; tags
+      // inside the content HTML. You can add your own processors too.
+      processors: [image]
+    }
+  }
+};
+
+const primeColor = desertJackalope.state.theme.colors.primary.default;
+
+export { primeColor };
+
+export default desertJackalope;
+
+</code></pre>
+<hr>
+<p>src/component/index.js</p>
+<pre><code>import React from "react";
+import { css, connect, styled } from "frontity";
+
+const Theme = ({ state }) =&gt; {
+  return (
+    &lt;section&gt;
+      &lt;TestComponent&gt; testing&lt;/TestComponent&gt;
+      &lt;p&gt;testing&lt;/p&gt;
+    &lt;/section&gt;
+  );
+};
+
+export default connect(Theme);
+
+//- CSS
+
+const TestComponent = styled.p`
+ background: ${primeColor};
+`;
+
+</code></pre>
+<hr>
+<p>resulting error:</p>
+<pre><code>ReferenceError: primeColor is not defined
+    at eval (webpack-internal:///./packages/desert-jackalope/src/components/index.js:9:147)
+    at Module../packages/desert-jackalope/src/components/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:4912:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./packages/desert-jackalope/src/index.js:3:69)
+    at Module../packages/desert-jackalope/src/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:4924:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./build/bundling/entry-points/server.ts:3:84)
+    at Module../build/bundling/entry-points/server.ts (/mnt/c/Users/aslan/home/work/server-front/build/server.js:139:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at /mnt/c/Users/aslan/home/work/server-front/build/server.js:104:18
+</code></pre>
+<hr>
+<h2>Example 2 (export primeColor using connect() )</h2>
+<p>Okay this is me trying something new based on what you’ve said. But this also does not work. It is able to compile but it does not result in the intended styling:</p>
+<p>src/index.js</p>
+<pre><code>import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+import { css, connect, styled } from "frontity";
+
+const desertJackalope = {
+  name: "desert-jackalope",
+  roots: {
+    // In Frontity, any package can add React components to the site.
+    // We use roots for that, scoped to the "theme" namespace.
+    theme: Theme
+  },
+  state: {
+    // State is where the packages store their default settings and other
+    // relevant state. It is scoped to the "theme" namespace.
+    theme: {
+      isBlog: false,
+      colors: {
+        primary: {
+          default: "#2657eb",
+          heavy: "#1f38c5"
+        }
+      },
+      newsletterURL:
+        "https://the-jackalope.us8.list-manage.com/subscribe/post?u=7fc8ae244460f6dd1c74dd7bf&amp;amp;id=74ff6c880b",
+      footerlinks: {
+        github: "https://github.com/jcklpe",
+        blog: "https://www.jackalope.tech"
+      }
+    }
+  },
+  // Actions are functions that modify the state or deal with other parts of
+  // Frontity like libraries.
+  actions: {
+    theme: {}
+  },
+  libraries: {
+    html2react: {
+      // Add a processor to html2react so it processes the &lt;img&gt; tags
+      // inside the content HTML. You can add your own processors too.
+      processors: [image]
+    }
+  }
+};
+
+const primeColor = desertJackalope.state.theme.colors.primary.default;
+
+export default connect(desertJackalope, primeColor);
+
+</code></pre>
+<hr>
+<p>the src/components/index file:</p>
+<pre><code>import React from "react";
+import { css, connect, styled } from "frontity";
+
+import { primeColor } from "../index";
+
+const Theme = ({ state }) =&gt; {
+  return (
+    &lt;section&gt;
+      &lt;TestComponent&gt; testing ing&lt;/TestComponent&gt;
+      &lt;p&gt;testing&lt;/p&gt;
+    &lt;/section&gt;
+  );
+};
+
+export default connect(Theme);
+
+//- CSS
+
+const TestComponent = styled.p`
+  background: ${primeColor};
+`;
+
+</code></pre>
+<hr>
+<p>Result<br>
+This doesn’t throw an error but it also doesn’t apply the styling at all.</p>
+<hr>
+<h3>Example 3 (export desertJackalope theme via connect)</h3>
+<p>The src/index file:</p>
+<pre><code>import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+import { css, connect, styled } from "frontity";
+
+const desertJackalope = {
+  name: "desert-jackalope",
+  roots: {
+    // In Frontity, any package can add React components to the site.
+    // We use roots for that, scoped to the "theme" namespace.
+    theme: Theme
+  },
+  state: {
+    // State is where the packages store their default settings and other
+    // relevant state. It is scoped to the "theme" namespace.
+    theme: {
+      isBlog: false,
+      colors: {
+        primary: {
+          default: "#2657eb",
+          heavy: "#1f38c5"
+        }
+      },
+      newsletterURL:
+        "https://the-jackalope.us8.list-manage.com/subscribe/post?u=7fc8ae244460f6dd1c74dd7bf&amp;amp;id=74ff6c880b",
+      footerlinks: {
+        github: "https://github.com/jcklpe",
+        blog: "https://www.jackalope.tech"
+      }
+    }
+  },
+  // Actions are functions that modify the state or deal with other parts of
+  // Frontity like libraries.
+  actions: {
+    theme: {}
+  },
+  libraries: {
+    html2react: {
+      // Add a processor to html2react so it processes the &lt;img&gt; tags
+      // inside the content HTML. You can add your own processors too.
+      processors: [image]
+    }
+  }
+};
+
+export default connect(desertJackalope);
+</code></pre>
+<p>the src/component/index file:</p>
+<pre><code>import React from "react";
+import { css, connect, styled } from "frontity";
+
+import { desertJackalope } from "../index";
+
+const primeColor = desertJackalope.state.theme.colors.primary.default;
+
+const Theme = ({ state }) =&gt; {
+  return (
+    &lt;section&gt;
+      &lt;TestComponent&gt; testing ing&lt;/TestComponent&gt;
+      &lt;p&gt;testing&lt;/p&gt;
+      &lt;p&gt;{primeColor}&lt;/p&gt;
+    &lt;/section&gt;
+  );
+};
+
+export default connect(Theme);
+
+//- CSS
+
+const TestComponent = styled.p`
+  background: ${primeColor};
+`;
+
+</code></pre>
+<hr>
+<p>Results in:</p>
+<pre><code>TypeError: Cannot read property 'state' of undefined
+    at eval (webpack-internal:///./packages/desert-jackalope/src/components/index.js:9:73)
+    at Module../packages/desert-jackalope/src/components/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:4912:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./packages/desert-jackalope/src/index.js:2:69)
+    at Module../packages/desert-jackalope/src/index.js (/mnt/c/Users/aslan/home/work/server-front/build/server.js:4924:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at eval (webpack-internal:///./build/bundling/entry-points/server.ts:3:84)
+    at Module../build/bundling/entry-points/server.ts (/mnt/c/Users/aslan/home/work/server-front/build/server.js:139:1)
+    at __webpack_require__ (/mnt/c/Users/aslan/home/work/server-front/build/server.js:27:30)
+    at /mnt/c/Users/aslan/home/work/server-front/build/server.js:104:18
+</code></pre>
+<hr>
+<p>Does this make sense? Do you see what I’m asking how to do?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/double-rendering-of-items-held-in-state-array/1276">Double rendering of items held in state array?</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-22T23:50:16Z' class='post-time'>
+                    22 February 2020 23:50
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-22T23:50:16Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Possibly related issue here: <a href="/t/double-rendering-of-items-held-in-state-array/1276" class="inline-onebox">Double rendering of items held in state array?</a></p>
+<p>Am I misunderstanding how themes/settings work with state for Frontity?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-24T17:33:41Z' class='post-time'>
+                    24 February 2020 17:33
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-24T17:33:41Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Yes, I see your problem! <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I agree that this should perhaps be better documented in the docs!</p>
+<p>There are 2 ways that you can achieve what you are looking for:</p>
+<p>The first one is the way that I mentioned already here:</p>
+<h3>3. Pass down props to styled components (not possible with Global):</h3>
+<pre><code>const MyComp = ({ state }) =&gt; (
+  &lt;&gt;
+    &lt;Global styles={globalStyles(state)} /&gt;
+    &lt;Div primary={state.theme.colors.primary}&gt;...&lt;/Div&gt;
+  &lt;/&gt;
+);
+
+const globalStyles = state =&gt; css`
+  body {
+    color: ${state.theme.colors.primary};
+  }
+`;
+
+const Div = styled.div`
+  color: ${props =&gt; props.primary};
+`;
+</code></pre>
+<p>But also, instead of using a styled-component, you can use the <code>css</code> prop and create a function that takes state as a parameter and returns some styles. This way you can use it anywhere.</p>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="9" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>So what I’m trying to figure out is how can I set color values in my src/index.js file and access those key-values from outside of components that are directly inheriting state?</p>
+</blockquote>
+</aside>
+<p>What I don’t really understand is what use case you have accesing it “outside of components”. In every one of your examples, you can pass the <code>state.theme.colors.primary.default</code> as a prop to your styled-component like:</p>
+<pre><code>const Theme = ({ state }) =&gt; {
+  return (
+    &lt;section&gt;
+      &lt;TestComponent color={state.theme.colors.primary.default}&gt; testing&lt;/TestComponent&gt;
+      &lt;p&gt;testing&lt;/p&gt;
+    &lt;/section&gt;
+  );
+};
+
+const TestComponent = styled.p`
+ background: ${({ color }) =&gt; color};
+`;</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-24T23:15:02Z' class='post-time'>
+                    24 February 2020 23:15
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-24T23:15:02Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The problem with these solutions is that they all saving the values as props, which means relying on prop drilling similar to how Chakra UI’s theme did stuff. You can see an example of how they did that with <code>bg={primary.700}</code> on this component <a href="https://github.com/chakra-ui/frontity-chakra-ui-theme/blob/f70212dde70336d2c390501a0cb499a95d3ea73b/packages/frontity-chakra-theme/src/components/menu/menu-drawer.js" rel="nofollow noopener">[here]</a>.</p>
+<p>I don’t want to use a prop drilling approach. If for nothing else because I think it junks up the markup with styling information which I think should remain as separate as possible (in order to be as easily encapsulated as possible). Maybe this isn’t the “react way” or “frontity way” of doing things but I’m asking here for suggestions on how to do this. If it’s not possible then I’ll just have to deal with my current solution which is not the best, but is what it is.</p>
+<hr>
+<p>I’m not sure I understand why <code>state</code> is returning undefined but I’m guessing it has something to do with the way stuff is merged. I hit a bug in that other thread I linked that has to do with a problem merging arrays from frontity.settings.js and src/index.js</p>
+<p>If this is the source of the problem, then is it something that I can work around or that can be changed? I understand if frontity doesn’t want to support my preferred method of encapsulating styles. That’s totally fine and ya’ll’s right.  Currently, I am defining colors in my src/theme.js file instead of in the src/index.js file,and therefore I sacrifice the ability to change color scheme variables in frontity.settings.js for the sake of adhering to my preferred project structure and markup styling. I’m okay making that tradeoff. I’d prefer to not have to, but I’m also not demanding ya’ll conform your project to my preferences, nor am I going to start using props to pass along variables.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T16:20:43Z' class='post-time'>
+                    25 February 2020 16:20
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T16:20:43Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>To be honest I still don’t see the issue that you’re concerned with <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>There is no “prop drilling” in any of the solutions I posted nor in the Chakra component that you linked to. You can props to pass inline styles to Chakra components like</p>
+<pre><code>&lt;DrawerContent bg="primary.700" px={8} max="auto"&gt;
+</code></pre>
+<p>This is intentional and there is nothing wrong with that <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>I would suggest that you try the approach that I outlined and see how you like it. I know that it’s quite a bit different from doing “classic” CSS and takes some getting used to.</p>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="12" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>I think it junks up the markup with styling information which I think should remain as separate as possible (in order to be as easily encapsulated as possible).</p>
+</blockquote>
+</aside>
+<p>Why do you think that? <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T20:29:55Z' class='post-time'>
+                    25 February 2020 20:29
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T20:29:55Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="mmczaplinski" data-post="13" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Why do you think that?</p>
+</blockquote>
+</aside>
+<p>Honestly it’s an aesthetic preference on my part. There’s nothing wrong with setting a bunch of styles as props in a component’s markup but I would prefer to not do that because of separation of concerns. This could be my Wordpress background speaking. I like my mark up and my styling as separate as possible.</p>
+<p>I realize that in the React community and espc in the styled components community this style preference isn’t shared as much, but I’d like to know how to do it my preferred way, if it is at all possible to do it that way.</p>
+<blockquote>
+<p>There is no “prop drilling” in any of the solutions I posted nor in the Chakra component that you linked to. You can props to pass inline styles to Chakra components like</p>
+</blockquote>
+<p>Sorry yes you are correct. I realize the distinction you are making. Since the color settings are in the top level state, they can be accessed from any lower level components and passed as props.</p>
+<p>BUT,</p>
+<p>my issue is I don’t want to be passing my styling as props.</p>
+<p>Why?</p>
+<p>As said above, because I think looks bad. I think it makes it harder to read and I prefer to keep my styles as separate from mark up as possible.</p>
+<p>I understand some of the advantages of CSS-in-JS but I don’t see any advantage in mixing my CSS variables with my markup syntax.</p>
+<p>I’m not asking ya’ll to share or approve of my preferred approach to this. I’m simply asking <em><strong>is it possible?</strong></em> If it’s not possible, that’s cool, and ya’ll don’t have to support stuff that ya’ll don’t want to in your framework. I get that. I’m not asking these questions because I’m trying to boss you around. I’m asking because I want to know <em><strong>is it possible?</strong></em></p>
+<p>Can I get a straight answer on that? I’m not asking for code style advice, I’m asking a technical question that should have a yes or no answer.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T20:41:02Z' class='post-time'>
+                    25 February 2020 20:41
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T20:41:02Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Sorry, I didn’t have time to read the whole thread in detail but I wanted to add one clarification: Frontity state is meant to be imported through <code>connect</code>. <strong>No other way is going to be supported.</strong></p>
+<p>Said that, you don’t need to store all your values in the state, you can create a <code>theme.js</code> file with a plain object and import those values in your files.</p>
+<pre><code>// src/theme.js
+const theme = {
+  colors...
+};
+
+export default theme;
+</code></pre>
+<pre><code>import theme from "./theme";
+
+const MyComp = () =&gt; (
+  &lt;SomeStyledComp color={theme.colors.primary...} /&gt;
+);
+</code></pre>
+<p>You can even import that in your state if you want to have it in both places</p>
+<pre><code>// src/index.js
+import theme from "./theme";
+
+export default {
+ state: {
+   theme: {
+     ...theme,
+     // ...
+    }
+  }
+}
+</code></pre>
+<p><strong>But remember that if you import it directly from <code>theme.js</code> the things you add in <code>frontity.settings.js</code> will be obviously ignored.</strong></p>
+<p>Again, please accept my apologies if this doesn’t make sense. As I said, it’s a very long topic and I didn’t have to read it in detail.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T00:11:45Z' class='post-time'>
+                    26 February 2020 00:11
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T00:11:45Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>No worries and thank you Luis!</p>
+<p>The first technique you mention, creating a theme.js file and then importing it into my src/components/index.js file is currently how I’m dealing with the issue. It’s works well enough except for the fact that frontity.settings.js does not overwrite or modify variables.</p>
+<p>The second technique though as pictured here:</p>
+<pre><code>// src/index.js
+import theme from "./theme";
+
+export default {
+ state: {
+   theme: {
+     ...theme,
+     // ...
+    }
+  }
+}
+</code></pre>
+<p>is resulting in the the following error: <code>TypeError: Cannot read property 'router' of undefined</code>.</p>
+<p>For documentation purposes here are the relevant files:</p>
+<p>src/index.js</p>
+<pre><code>import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+import { css, connect, styled } from "frontity";
+import colors from "./theme";
+
+const desertJackalope = {
+  name: "desert-jackalope",
+  roots: {
+    // In Frontity, any package can add React components to the site.
+    // We use roots for that, scoped to the "theme" namespace.
+    theme: Theme
+  },
+  state: {
+    // State is where the packages store their default settings and other
+    // relevant state. It is scoped to the "theme" namespace.
+    theme: {
+      ...colors,
+      isBlog: false,
+      newsletterURL:
+        "https://the-jackalope.us8.list-manage.com/subscribe/post?u=7fc8ae244460f6dd1c74dd7bf&amp;amp;id=74ff6c880b",
+      footerlinks: [
+        { name: "github", href: "https://github.com/jcklpe" },
+        { name: "blog", href: "https://www.jackalope.tech" }
+      ]
+    }
+  },
+  // Actions are functions that modify the state or deal with other parts of
+  // Frontity like libraries.
+  actions: {
+    theme: {}
+  },
+  libraries: {
+    html2react: {
+      // Add a processor to html2react so it processes the &lt;img&gt; tags
+      // inside the content HTML. You can add your own processors too.
+      processors: [image]
+    }
+  }
+};
+
+export default desertJackalope;
+
+
+</code></pre>
+<hr>
+<p>src/components/index.js (chunks of this file have been removed for concision but are otherwise unnecessary for troubleshooting this issue)</p>
+<pre><code>import React from "react";
+import { Global, css, connect, styled, router } from "frontity";
+import Header from "./Header";
+
+const Theme = ({ state }) =&gt; {
+
+  return (
+    &lt;&gt;
+      &lt;Meta /&gt;
+      &lt;Global styles={globalStyles} /&gt;
+      &lt;Header /&gt;
+
+      
+             &lt;Absolute&gt;
+
+... the contents of this component have been removed for concision
+            &lt;/Absolute&gt;
+          &lt;/animated.div&gt;
+        );
+      })}
+    &lt;/&gt;
+  );
+};
+
+export default connect(Theme);
+
+//- GLOBAL STYLES CSS
+
+// set global styles
+const globalStyles = state =&gt; css`
+
+
+  :root {
+    --primary-heavy: purple;
+    --primary: blue;
+    --snappy: cubic-bezier(0.075, 0.82, 0.165, 1);
+    --heavy-snap: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+    --accent: green;
+    --dark: black;
+    --dark90:black;
+    --dark80: black;
+    --dark30: black;
+}
+`;
+
+//- Page Transition stuff
+
+const Absolute = styled.div`
+  position: absolute;
+  width: 100%;
+
+`;
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T08:02:20Z' class='post-time'>
+                    26 February 2020 08:02
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T08:02:20Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>What’s the content of <code>theme.js</code>?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T08:04:00Z' class='post-time'>
+                    26 February 2020 08:04
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T08:04:00Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Sorry should have included that:</p>
+<pre><code>const colors = {
+  primary: {
+    default: "#2657eb",
+    heavy: "#1f38c5"
+  },
+  dark: {
+    100: "rgba(12, 17, 43, 1)",
+    90: "rgba(12, 17, 43, 0.9)",
+    80: "rgba(12, 17, 43, 0.8)",
+    30: "rgba(12, 17, 43, 0.3)"
+  },
+  accent: "#7200ff"
+};
+
+
+//- Exports
+export default colors
+
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-28T15:46:30Z' class='post-time'>
+                    28 February 2020 15:46
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-28T15:46:30Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-username="thedonquixotic" data-post="17" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>src/components/index.js (chunks of this file have been removed for concision but are otherwise unnecessary for troubleshooting this issue)</p>
+<pre><code>import React from "react";
+import { Global, css, connect, styled, router } from "frontity";
+import Header from "./Header";
+
+const Theme = ({ state }) =&gt; {
+</code></pre>
+</blockquote>
+</aside>
+<p>Is it possible that you are using <code>router</code> someplace where it can result in the<br>
+<code>TypeError: Cannot read property 'router' of undefined.</code> ?</p>
+<p>There is no <code>router</code> exported from frontity, so this line is incorrect:</p>
+<pre><code>import { Global, css, connect, styled, router } from "frontity";
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_21' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-28T20:34:02Z' class='post-time'>
+                    28 February 2020 20:34
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-28T20:34:02Z'>
+              <span itemprop='position'>21</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Sorry, I just added that because I was getting an error of “router is undefined” after updating the frontity framework to the newest version. It was not in my code previously though when I was getting the above errors. Things are a bit of a mess, but I’m going to try to revert my code to a previous commit on a fresh server so that I can reproduce the original problem.</p>
+<p>Can anyone confirm in the meantime whether the expected/intended behavior of <code>...theme</code> in src/index.js will allow for values to be overwritten by frontity.settings.js?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_22' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-28T20:42:32Z' class='post-time'>
+                    28 February 2020 20:42
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-28T20:42:32Z'>
+              <span itemprop='position'>22</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-username="thedonquixotic" data-post="21" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Can anyone confirm in the meantime whether the expected/intended behavior of <code>...theme</code> in src/index.js will allow for values to be overwritten by frontity.settings.js?</p>
+</blockquote>
+</aside>
+<p>I think that you are talking about the line with <code>...colors</code>, correct?</p>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="17" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<pre><code>theme: { 
+  ...colors, 
+  isBlog: false,
+  newsletterURL: "https://the-jackalope.us8.list-manage.com/subscribe/post?u=7fc8ae244460f6dd1c74dd7bf&amp;amp;id=74ff6c880b",
+</code></pre>
+</blockquote>
+</aside>
+<p>Yes, as far as I can tell, this should work as expected.</p>
+<p>As for this:</p>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="17" data-topic="1231">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>is resulting in the the following error: <code>TypeError: Cannot read property 'router' of undefined</code> .</p>
+</blockquote>
+</aside>
+<p>It’s hard to debug without looking at the full stack trace, but I think you should be able to follow the filenames and lines in the full error message to find the place where <code>.router</code> is being accessed in your code and it’s most likely the culprit <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_23' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/thedonquixotic'><span itemprop='name'>thedonquixotic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/how-to-properly-abstract-alias-custom-theme-settings/1231">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-03-03T07:20:35Z' class='post-time'>
+                    3 March 2020 07:20
+                  </time>
+                  <meta itemprop='dateModified' content='2020-03-03T07:20:35Z'>
+              <span itemprop='position'>23</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I fixed my local install and did some more dev work today. From what I can tell I can use the <code>...colors</code> to include parts of theme.js file inside of the src/index.js file, but it doesn’t allow for those settings to get overwritten by the frontity.settings.js files. So… that’s not ideal but I guess it’s just a limitation of the framework I gotta live with.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

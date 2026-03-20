@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Get Posts for a certain category</title>
+    <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730</link>
+    <description>Hi 
+
+I wanted to re-implemented the /news/-page on one of my frontity pages. So that&#39;s why I created a handler and wanted to retrieve the news category at first (two later on query all the posts of that category):
+
+    export default {
+     priority: 10,
+       pattern: &quot;/news1/&quot;,
+       func: async ({ route, params, state, libraries }) =&gt; {
+         const response = await libraries.source.api.get({
+           endpoint: &quot;/wp/v2/categories/&quot;,
+           params: {
+             per_page: 100 // To make sure you get all of them
+           }
+         });
+
+         const items = response.json();
+         console.log(items)
+         const currentPageData = state.source.data[route];
+         Object.assign(currentPageData, {
+           items
+         });
+       },
+     }
+
+
+But I am not gettting any results, from the [API](https://wp.hei-integration.ch/wp-json/wp/v2/categories). Anyone got an idea what I am doing wrong?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 31 Jan 2021 23:24:52 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Get Posts for a certain category</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> or anyone else on here has any idea on that issue?</p>
+          <p><a href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730/7</link>
+        <pubDate>Sun, 31 Jan 2021 23:24:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3730-7</guid>
+        <source url="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss">Get Posts for a certain category</source>
+      </item>
+      <item>
+        <title>Get Posts for a certain category</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, for sure. Here you go:</p>
+<aside class="onebox githubfolder">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/pichichi91/hei-integration.ch" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:420/420;"><img src="https://avatars0.githubusercontent.com/u/7605468?s=400&amp;amp;v=4" class="thumbnail" width="420" height="420"></div>
+
+<h3><a href="https://github.com/pichichi91/hei-integration.ch" target="_blank" rel="noopener nofollow ugc">pichichi91/hei-integration.ch</a></h3>
+
+<p><a href="https://github.com/pichichi91/hei-integration.ch/tree/update-news-page" target="_blank" rel="noopener nofollow ugc">update-news-page</a></p>
+
+  <p><span class="label1">Contribute to pichichi91/hei-integration.ch development by creating an account on GitHub.</span></p>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730/6</link>
+        <pubDate>Mon, 18 Jan 2021 17:33:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3730-6</guid>
+        <source url="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss">Get Posts for a certain category</source>
+      </item>
+      <item>
+        <title>Get Posts for a certain category</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a></p>
+<p>Could you provide a link to a repo so that I can take a look at your code. Thanks.</p>
+          <p><a href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730/5</link>
+        <pubDate>Tue, 12 Jan 2021 09:19:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3730-5</guid>
+        <source url="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss">Get Posts for a certain category</source>
+      </item>
+      <item>
+        <title>Get Posts for a certain category</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>I managed to get it working like his:</p>
+<pre><code>export default {
+    priority: 10,
+    pattern: "/news1/",
+    func: async ({ route, params, state, libraries }) =&gt; {
+        const categoryResponse = await libraries.source.api.get({
+            endpoint: "/wp/v2/categories/",
+            params: {
+                slug: "news"
+            }
+        });
+
+        state.source.data["/news1/"].isNewsList = true;
+        const categories = await categoryResponse.json();
+        const postsResponse = await libraries.source.api.get({
+            endpoint: "/wp/v2/posts/",
+            params: {
+                categories: categories[0].id
+            }
+        });
+
+        const posts = await postsResponse.json();
+        const currentPageData = state.source.data[route];
+        Object.assign(currentPageData, {
+                posts
+            });
+        },
+    }
+</code></pre>
+<p>Now, I have the problem that during the custom post listing I don’t have the attachments loaded, so I cannot display the featured_media. Any suggestions on how to fetch the attachments?</p>
+          <p><a href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730/4</link>
+        <pubDate>Mon, 11 Jan 2021 22:06:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3730-4</guid>
+        <source url="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss">Get Posts for a certain category</source>
+      </item>
+      <item>
+        <title>Get Posts for a certain category</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>aaaah, thanks a lot <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730/3</link>
+        <pubDate>Mon, 11 Jan 2021 14:01:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3730-3</guid>
+        <source url="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss">Get Posts for a certain category</source>
+      </item>
+      <item>
+        <title>Get Posts for a certain category</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a></p>
+<p><code>response.json()</code> returns a promise, so you need to await it:</p>
+<pre><code class="lang-javascript">const items = await response.json();
+</code></pre>
+          <p><a href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730/2</link>
+        <pubDate>Tue, 05 Jan 2021 16:30:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3730-2</guid>
+        <source url="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss">Get Posts for a certain category</source>
+      </item>
+      <item>
+        <title>Get Posts for a certain category</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi</p>
+<p>I wanted to re-implemented the /news/-page on one of my frontity pages. So that’s why I created a handler and wanted to retrieve the news category at first (two later on query all the posts of that category):</p>
+<pre><code>export default {
+ priority: 10,
+   pattern: "/news1/",
+   func: async ({ route, params, state, libraries }) =&gt; {
+     const response = await libraries.source.api.get({
+       endpoint: "/wp/v2/categories/",
+       params: {
+         per_page: 100 // To make sure you get all of them
+       }
+     });
+
+     const items = response.json();
+     console.log(items)
+     const currentPageData = state.source.data[route];
+     Object.assign(currentPageData, {
+       items
+     });
+   },
+ }
+</code></pre>
+<p>But I am not gettting any results, from the <a href="https://wp.hei-integration.ch/wp-json/wp/v2/categories" rel="noopener nofollow ugc">API</a>. Anyone got an idea what I am doing wrong?</p>
+          <p><a href="https://community.frontity.org/t/get-posts-for-a-certain-category/3730/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-posts-for-a-certain-category/3730/1</link>
+        <pubDate>Sat, 02 Jan 2021 17:55:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3730-1</guid>
+        <source url="https://community.frontity.org/t/get-posts-for-a-certain-category/3730.rss">Get Posts for a certain category</source>
+      </item>
+  </channel>
+</rss>

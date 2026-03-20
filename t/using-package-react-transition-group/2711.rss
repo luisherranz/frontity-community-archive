@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Using package react-transition-group</title>
+    <link>https://community.frontity.org/t/using-package-react-transition-group/2711</link>
+    <description>I am trying to add Transitiongroups (react-transition-group, https://reactcommunity.org/react-transition-group) to have a more smooth render when clicking on link, 
+
+When install the package using npm and add it to frontity.settings.js I am getting the following error:
+
+      TypeError: Cannot convert undefined or null to object
+          at Function.keys (&lt;anonymous&gt;)
+          at getKeys (webpack-internal:///./node_modules/deepmerge/dist/umd.js:2:1009)
+          at mergeObject (webpack-internal:///./node_modules/deepmerge/dist/umd.js:2:1282)
+          at deepmerge (webpack-internal:///./node_modules/deepmerge/dist/umd.js:2:2056)
+          at eval (webpack-internal:///./node_modules/@frontity/core/src/utils/merge-packages.ts:8:484)
+          at Array.forEach (&lt;anonymous&gt;)
+          at __webpack_exports__.default (webpack-internal:///./node_modules/@frontity/core/src/utils/merge-packages.ts:8:226)
+          at __webpack_exports__.default (webpack-internal:///./node_modules/@frontity/core/src/server/store.ts:5:271)
+          at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:47:68)
+          at runMicrotasks (&lt;anonymous&gt;)
+
+
+Any ideas on how to solve this?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 20 Jul 2021 14:51:22 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/using-package-react-transition-group/2711.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[eugenregehr]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a>, it looks good, I will test it at the next opportunity. For my project I realized that i had to write the animation logic by myself because the page transitions are more complex. But thank you for the example, maybe it will help someone else.</p>
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/11</link>
+        <pubDate>Tue, 20 Jul 2021 14:51:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-11</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/eugenregehr">@eugenregehr</a> have you solved it yet? I am not sure which one anymore, but I’ve found a pretty good example in the showcases and I did replicate this.</p>
+<p>My code looked something like this:</p>
+<pre><code class="lang-javascript">const Theme = ({ state }) =&gt; {
+  const transitions = useTransition(state.router.link, link =&gt; link, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+    config: { duration: 650 }
+  });
+
+  const current = state.source["data"][state.router.link];
+
+  return (
+    &lt;&gt;
+      &lt;Title /&gt;
+      &lt;Global styles={globalStyles} /&gt;
+      &lt;NavBar /&gt;
+      &lt;SimpleReactLightbox&gt;
+        &lt;Main className={state.theme.isMobileMenuOpen ? "hide--page" : ""}&gt;
+          {transitions.map(({ item, props, key }) =&gt; {
+            const data = state.source.get(item);
+            return (
+              &lt;animated.div key={key} style={props}&gt;
+                &lt;Absolute&gt;
+                  &lt;Body&gt;
+                    &lt;Switch&gt;
+                      &lt;Loading when={data.isFetching} /&gt;
+                      &lt;Error when={data.is404} /&gt;
+                      &lt;PortFolio when={data.isPortfolioOverview} data={data} /&gt;
+                      &lt;PortFolioItem when={data.isPortfolio} data={data} /&gt;
+                      &lt;List when={data.isArchive} data={data} /&gt;
+                      &lt;Post when={data.isPostType} data={data} /&gt;
+                    &lt;/Switch&gt;
+                  &lt;/Body&gt;
+                  &lt;Footer className="footer" /&gt;
+                &lt;/Absolute&gt;
+              &lt;/animated.div&gt;
+            );
+          })}
+        &lt;/Main&gt;
+      &lt;/SimpleReactLightbox&gt;
+      &lt;FullNavigation /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>I did it all on on the index instead of the Post.js</p>
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/10</link>
+        <pubDate>Mon, 12 Jul 2021 12:05:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-10</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[eugenregehr]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a>, do you have a short example how you implement react-transition-group. I tried to use CSSTransition for rendering components, and it works, except for Post component, short example:</p>
+<pre><code class="lang-javascript">&lt;CSSTransition
+          in={data.isPost}
+          timeout={300}
+          unmountOnExit
+          onEntered={() =&gt; { console.log("post enter") }}
+          onExit={() =&gt; { console.log("post exit") }}
+        &gt;
+          &lt;Post /&gt;
+&lt;/CSSTransition&gt;
+</code></pre>
+<p>When the Post component is unmounted, i get a error:<br>
+“TypeError: Cannot read property ‘undefined’ of undefined” for</p>
+<pre><code class="lang-javascript"> const data = state.source.get(state.router.link);
+ const post = state.source[data.type][data.id]; &lt;-- undefined
+</code></pre>
+<p>Someone have an idea to solve this problem? My plan is to make some complex animations using the enter / exit hooks with react transition group and use timelines with gsap library.</p>
+<p>Thanks!</p>
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/9</link>
+        <pubDate>Thu, 27 May 2021 21:27:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-9</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="juanma" data-post="5" data-topic="2711">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>hel</p>
+</blockquote>
+</aside>
+<p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>, I revoked the public access again as I was not expecting any more contributes in here.  But the main problem was that I was adding the modules in frontity.settings.js, but I’ve read that in another thread in the community that it works perfectly in the package.json inside the  template-package as I did with the following imports:</p>
+<pre><code>{
+  "name": "@frontity/mars-theme",
+  "version": "1.4.3",
+  "description": "A starter theme for Frontity",
+  "keywords": [
+    "frontity",
+    "frontity-theme"
+  ],
+  "homepage": "https://frontity.org",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frontity/frontity.git"
+  },
+  "bugs": {
+    "url": "https://community.frontity.org"
+  },
+  "dependencies": {
+    "@frontity/components": "^1.3.3",
+    "@frontity/html2react": "^1.3.4",
+    "frontity": "^1.9.0",
+    "mailgo": "^0.9.15",
+    "react-icons": "3.11.0"
+  }
+}</code></pre>
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/8</link>
+        <pubDate>Fri, 18 Sep 2020 21:05:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-8</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a>,</p>
+<p>The repository you provide <a href="https://github.com/pichichi91/hei-integration.ch">https://github.com/pichichi91/hei-integration.ch </a> doesn’t seem to be available anymore</p>
+<p>In order to provide the best possible help as quickly and as efficiently as possible, we recommend providing the info suggested <a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">here</a></p>
+<p>The more info you provide about your issue the better.<br>
+<strong><a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">Providing a repo or code-sandbox with your code</a></strong>  is especially helpful to find solutions of technical issues with specific code</p>
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/5</link>
+        <pubDate>Thu, 10 Sep 2020 16:17:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-5</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/pablo">@Pablo</a>, thanks for the shout - The Repo can be found be here: <a href="https://github.com/pichichi91/hei-integration.ch" rel="nofollow noopener">https://github.com/pichichi91/hei-integration.ch</a></p>
+<p>THe changes are avaialable at the following branch:<br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/pichichi91/hei-integration.ch/tree/transition-groups" target="_blank" rel="nofollow noopener">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/2X/0/0da7dff3384ba99edf215019ba53b7a6d439f1c3.png" class="thumbnail onebox-avatar" width="420" height="420">
+
+<h3><a href="https://github.com/pichichi91/hei-integration.ch/tree/transition-groups" target="_blank" rel="nofollow noopener">pichichi91/hei-integration.ch</a></h3>
+
+<p>Contribute to pichichi91/hei-integration.ch development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/3</link>
+        <pubDate>Sun, 23 Aug 2020 12:43:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-3</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/phn">@phn</a> can you provide a repo or a codesandbox reproducing the error you are facing? This way the community will be able to help you better.</p>
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/2</link>
+        <pubDate>Sun, 23 Aug 2020 10:15:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-2</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+      <item>
+        <title>Using package react-transition-group</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>I am trying to add Transitiongroups (react-transition-group, <a href="https://reactcommunity.org/react-transition-group" rel="nofollow noopener">https://reactcommunity.org/react-transition-group</a>) to have a more smooth render when clicking on link,</p>
+<p>When install the package using npm and add it to frontity.settings.js I am getting the following error:</p>
+<pre><code>  TypeError: Cannot convert undefined or null to object
+      at Function.keys (&lt;anonymous&gt;)
+      at getKeys (webpack-internal:///./node_modules/deepmerge/dist/umd.js:2:1009)
+      at mergeObject (webpack-internal:///./node_modules/deepmerge/dist/umd.js:2:1282)
+      at deepmerge (webpack-internal:///./node_modules/deepmerge/dist/umd.js:2:2056)
+      at eval (webpack-internal:///./node_modules/@frontity/core/src/utils/merge-packages.ts:8:484)
+      at Array.forEach (&lt;anonymous&gt;)
+      at __webpack_exports__.default (webpack-internal:///./node_modules/@frontity/core/src/utils/merge-packages.ts:8:226)
+      at __webpack_exports__.default (webpack-internal:///./node_modules/@frontity/core/src/server/store.ts:5:271)
+      at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:47:68)
+      at runMicrotasks (&lt;anonymous&gt;)
+</code></pre>
+<p>Any ideas on how to solve this?</p>
+          <p><a href="https://community.frontity.org/t/using-package-react-transition-group/2711/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-package-react-transition-group/2711/1</link>
+        <pubDate>Fri, 21 Aug 2020 16:46:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2711-1</guid>
+        <source url="https://community.frontity.org/t/using-package-react-transition-group/2711.rss">Using package react-transition-group</source>
+      </item>
+  </channel>
+</rss>

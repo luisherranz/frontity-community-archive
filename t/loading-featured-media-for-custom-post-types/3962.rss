@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Loading featured_media for custom post types</title>
+    <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962</link>
+    <description>Hi All
+
+I created a CPT on my wordpress (https://wp.dossis.ch/wp-json/wp/v2/portfolio/) to be a able to generate a portfolio page dynamically based on all the portfolio-posts. 
+
+It is working great, but the featured_media is not being loaded into state at the moment, or only if I click Refresh/F5 on the actual CPT for example /portfolio/dossis/
+
+Any idea how I could solve that? How are featured_media, being fetched and added to state.source.attachment (which is only loaded with blog posts stuff)?
+
+Here is a URL from the Site https://dossis-portfolio-frontity-bsqpscq12.vercel.app and here should be a sandbox of it: https://codesandbox.io/s/t8hym</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 09 Feb 2021 22:23:11 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Loading featured_media for custom post types</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>I think I solved it - I was browsing through “old” frontity topics and found this one from <a class="mention" href="https://community.frontity.org/u/david">@David</a>  <a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/11" class="inline-onebox">Retrieve all posts of CPT without knowing slugs</a></p>
+<p>I’ve just added the archive to the CPT config in frontity.settings.js and added this to the Portfolio.js:</p>
+<pre><code>useEffect(() =&gt; {
+  actions.source.fetch("/portfolio-archive/");
+
+  }, []);</code></pre>
+          <p><a href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/7</link>
+        <pubDate>Tue, 09 Feb 2021 22:23:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3962-7</guid>
+        <source url="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss">Loading featured_media for custom post types</source>
+      </item>
+      <item>
+        <title>Loading featured_media for custom post types</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>I tried to debug the Issue a bit more, so I checked the state’s data on the two pages:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/9/9c4dcf72a74e8917da0991ede8d94edea7c1b88b.png" data-download-href="https://community.frontity.org/uploads/default/9c4dcf72a74e8917da0991ede8d94edea7c1b88b" title="4c37ecea17044e5b5cca04a427c32cf9"><img src="https://community.frontity.org/uploads/default/optimized/2X/9/9c4dcf72a74e8917da0991ede8d94edea7c1b88b_2_690x198.png" alt="4c37ecea17044e5b5cca04a427c32cf9" data-base62-sha1="miJbYYpinPohAJK3bJcl7eJrcoj" width="690" height="198" srcset="https://community.frontity.org/uploads/default/optimized/2X/9/9c4dcf72a74e8917da0991ede8d94edea7c1b88b_2_690x198.png, https://community.frontity.org/uploads/default/optimized/2X/9/9c4dcf72a74e8917da0991ede8d94edea7c1b88b_2_1035x297.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/9/9c4dcf72a74e8917da0991ede8d94edea7c1b88b_2_1380x396.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/9/9c4dcf72a74e8917da0991ede8d94edea7c1b88b_2_10x10.png"></a></div><p></p>
+<p>Besides state.attachment, also the _embedded item on the CPT item (state.portfolio[*]) itself is not getting populated. Does _embedded have any effects?</p>
+<p>Is there any documentation of how state.attachment is being populated? <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/6</link>
+        <pubDate>Tue, 09 Feb 2021 18:16:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3962-6</guid>
+        <source url="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss">Loading featured_media for custom post types</source>
+      </item>
+      <item>
+        <title>Loading featured_media for custom post types</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, I left it there because I already removed the check for featured.showOnList/showOnPost in my theme. It wouldn’t have other effect or would it?</p>
+<p>I think the problem is that frontity.state.source.attachment is only populated with featuredImages from posts but not from CPTs. See here:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/9/9e604864a6f25aee9297fa24a7cf3a72f83aca6e.png" data-download-href="https://community.frontity.org/uploads/default/9e604864a6f25aee9297fa24a7cf3a72f83aca6e" title="image"><img src="https://community.frontity.org/uploads/default/original/2X/9/9e604864a6f25aee9297fa24a7cf3a72f83aca6e.png" alt="image" data-base62-sha1="mB3IXQXiNVppeKMMzlrXu12fIWG" width="690" height="100" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/9/9e604864a6f25aee9297fa24a7cf3a72f83aca6e_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/5</link>
+        <pubDate>Mon, 08 Feb 2021 18:16:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3962-5</guid>
+        <source url="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss">Loading featured_media for custom post types</source>
+      </item>
+      <item>
+        <title>Loading featured_media for custom post types</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, it looks like you have those properties in your themes <code>index.js</code>, but they’re currently set to <code>false</code>.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/8/870f735da03a2b52a0c76a1ceed0dd26f96666ad.png" data-download-href="https://community.frontity.org/uploads/default/870f735da03a2b52a0c76a1ceed0dd26f96666ad" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/8/870f735da03a2b52a0c76a1ceed0dd26f96666ad_2_690x448.png" alt="image" data-base62-sha1="jgNyNUaPFm4dc5XGWsiTiAQJOzj" width="690" height="448" srcset="https://community.frontity.org/uploads/default/optimized/2X/8/870f735da03a2b52a0c76a1ceed0dd26f96666ad_2_690x448.png, https://community.frontity.org/uploads/default/optimized/2X/8/870f735da03a2b52a0c76a1ceed0dd26f96666ad_2_1035x672.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/8/870f735da03a2b52a0c76a1ceed0dd26f96666ad_2_1380x896.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/8/870f735da03a2b52a0c76a1ceed0dd26f96666ad_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/4</link>
+        <pubDate>Mon, 08 Feb 2021 12:29:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3962-4</guid>
+        <source url="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss">Loading featured_media for custom post types</source>
+      </item>
+      <item>
+        <title>Loading featured_media for custom post types</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a></p>
+<p>As you’re using <code>mars-theme</code> on this project try adding the following to <code>frontity.settings.js</code>:</p>
+<pre><code class="lang-javascript">packages: [
+  {
+    name: "@frontity/mars-theme",
+    state: {
+      theme: {
+        //...
+        featured: {
+          showOnList: true,
+          showOnPost: true,
+        },
+      },
+    },
+  },
+//...
+]
+</code></pre>
+<p>See <a href="https://docs.frontity.org/frontity-themes/frontity-mars-theme#settings">here</a> in our docs.</p>
+<p>Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/3</link>
+        <pubDate>Mon, 08 Feb 2021 12:27:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3962-3</guid>
+        <source url="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss">Loading featured_media for custom post types</source>
+      </item>
+      <item>
+        <title>Loading featured_media for custom post types</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>For the moment I came up with something like this, but I don’t think this is a good idea, performance-wise:</p>
+<pre><code>const mediaResponse = await libraries.source.api.get({
+      endpoint: '/wp/v2/media/',
+      params: {         
+      }
+    });
+    const media = await mediaResponse.json();
+    const attachment = media.reduce(function (map, image) {
+      map[image.id] = image;
+      return map;
+    }, {});
+    Object.assign(state.source, {
+      attachment
+    });</code></pre>
+          <p><a href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/2</link>
+        <pubDate>Sat, 06 Feb 2021 20:22:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3962-2</guid>
+        <source url="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss">Loading featured_media for custom post types</source>
+      </item>
+      <item>
+        <title>Loading featured_media for custom post types</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi All</p>
+<p>I created a CPT on my wordpress (<a href="https://wp.dossis.ch/wp-json/wp/v2/portfolio/" rel="noopener nofollow ugc">https://wp.dossis.ch/wp-json/wp/v2/portfolio/</a>) to be a able to generate a portfolio page dynamically based on all the portfolio-posts.</p>
+<p>It is working great, but the featured_media is not being loaded into state at the moment, or only if I click Refresh/F5 on the actual CPT for example /portfolio/dossis/</p>
+<p>Any idea how I could solve that? How are featured_media, being fetched and added to state.source.attachment (which is only loaded with blog posts stuff)?</p>
+<p>Here is a URL from the Site <a href="https://dossis-portfolio-frontity-bsqpscq12.vercel.app" rel="noopener nofollow ugc">https://dossis-portfolio-frontity-bsqpscq12.vercel.app</a> and here should be a sandbox of it: <a href="https://codesandbox.io/s/t8hym" rel="noopener nofollow ugc">https://codesandbox.io/s/t8hym</a></p>
+          <p><a href="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962/1</link>
+        <pubDate>Sat, 06 Feb 2021 15:45:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3962-1</guid>
+        <source url="https://community.frontity.org/t/loading-featured-media-for-custom-post-types/3962.rss">Loading featured_media for custom post types</source>
+      </item>
+  </channel>
+</rss>

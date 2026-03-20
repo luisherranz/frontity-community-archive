@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How do you track your most viewed posts?</title>
+    <link>https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472</link>
+    <description>Hello all! I would like to display my most viewed posts on my React homepage. I have read a couple tutorials - like https://www.wpbeginner.com/wp-tutorials/how-to-track-popular-posts-by-views-in-wordpress-without-a-plugin/ - and while I can install a custom plugin just fine, I think the problem is that it doesn&#39;t register a &quot;view&quot; on my post in React as a pageview. Has anyone encountered this issue before? Do you have any ideas on how to tackle this?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 26 Apr 2021 10:53:06 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How do you track your most viewed posts?</title>
+        <dc:creator><![CDATA[kevin]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome, thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> . I didn’t know about using <code>state.source.auth</code> before. That definitely makes the code a lot cleaner!</p>
+          <p><a href="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/8</link>
+        <pubDate>Mon, 26 Apr 2021 10:53:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2472-8</guid>
+        <source url="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472.rss">How do you track your most viewed posts?</source>
+      </item>
+      <item>
+        <title>How do you track your most viewed posts?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/kevin">@kevin</a></p>
+<p>Great work! I’m sure many people will find that solution useful.</p>
+<p>Regarding authentication, the <code>wp-source</code> package now accepts a <code>state.source.auth</code> property. <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#state-source-auth">See here</a> for more info.</p>
+          <p><a href="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/7</link>
+        <pubDate>Mon, 26 Apr 2021 08:52:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2472-7</guid>
+        <source url="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472.rss">How do you track your most viewed posts?</source>
+      </item>
+      <item>
+        <title>How do you track your most viewed posts?</title>
+        <dc:creator><![CDATA[kevin]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> ,</p>
+<p>I actually looked into this, and it seems that from my quick inspection, <code>rest_pre_echo_response</code> hook is triggered only when Frontity runs Server-Side Rendering.</p>
+<p>I was exploring a few options today, and came up with this one solution. It needs to be secure, too. The workflow is as follows:</p>
+<p><strong>Step 1.</strong><br>
+On WordPress - create a function to create / update post meta, let’s call it <code>post_view_count</code>.</p>
+<pre><code>function my_set_post_views($post_id) {
+    $count_key = 'post_view_count';
+    $count = get_post_meta($post_id, $count_key, true);
+    if ($count == ''){
+        $count = 0;
+        delete_post_meta($post_id, $count_key);
+        add_post_meta($post_id, $count_key, '0');
+    } else {
+        $count++;
+        update_post_meta($post_id, $count_key, $count);
+    }
+}
+</code></pre>
+<p>Don’t forget to register this metadata so that it’s accessible via REST API &amp; on Frontity.</p>
+<pre><code>// Register post_view_count meta data on REST
+$meta_args = array( 
+    'type'                =&gt; 'number',
+    'single'             =&gt; true,
+    'show_in_rest' =&gt; true,
+);
+register_meta( 'post', 'post_view_count', $meta_args );
+</code></pre>
+<p><strong>Step 2.</strong><br>
+On WordPress - create a custom REST API endpoint, which can update the metadata of a given post. There’s a <code>permission_callback</code> here, which means you’ll need to authenticate when making the request to this endpoint (more secure).</p>
+<pre><code>// REST API Endpoint for Updating Post View Count
+add_action( 'rest_api_init', 'post_update_endpoint' );
+function post_update_endpoint() {
+    register_rest_route('my/v1', '/post_update/', array(
+        'methods' =&gt; 'POST',
+        'callback' =&gt; 'post_update_func',
+        'permission_callback' =&gt; function () {
+          return current_user_can( 'edit_others_posts' );
+        }
+    ) );
+}
+
+function post_update_func( WP_REST_Request $request ) {
+    $data = (array) $request-&gt;get_json_params();
+    $id   = $data['id'];
+    $update = my_set_post_views($id);
+    // Optional. If the function returns anything, you can create a response here ...
+    // $response = new WP_REST_Response( $update );
+    // return $response;
+}
+</code></pre>
+<p><strong>Step 3.</strong><br>
+On Frontity - server-side (<code>server.js</code>), create a custom endpoint that accepts post’s <code>id</code> as a parameter, and in turn hits WordPress REST API endpoint to trigger the metadata update.</p>
+<p>Here’s a quick-and-dirty example on <code>beforeSSR</code> action, creating a custom route <code>/update-post-view-count</code></p>
+<pre><code>import { fetch } from "frontity";
+
+export default {
+  actions: {
+    theme: {
+      beforeSSR: {
+        const data = state.source.data[state.router.link];
+
+        if (data.route === "/update-post-view-count/") {
+          const id = data.query.id;
+
+          if (id) {
+             const { api } = libraries.source.api;
+             const data = { id };
+             const response = await fetch(`${api}my/v1/post_update/`, {
+               method: "POST",
+               headers: {
+                 "Content-Type": "application/json",
+                  Authorization: ``, // Use your own auth method
+               },
+               body: JSON.stringify(data),
+             });
+            
+             // ctx - Koa context
+             ctx.status = 200;
+
+             // Handle response / error
+             // const res = await response.json();
+             // console.log(res);
+          }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>Step 4.</strong><br>
+On Frontity - client-side post template (e.g. <code>post.js</code>), hit the “server-side” url. This should be run every time the post is accessed, regardless of SSR. Something like:</p>
+<pre><code class="lang-javascript">fetch(`/update-post-view-count/?id=${data.id}`);
+</code></pre>
+<p>Seems to be working so far. Hope that helps, but I’m very open to suggestion on how to improve the workflow <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/6</link>
+        <pubDate>Fri, 23 Apr 2021 19:26:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2472-6</guid>
+        <source url="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472.rss">How do you track your most viewed posts?</source>
+      </item>
+      <item>
+        <title>How do you track your most viewed posts?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jeanette">@jeanette</a></p>
+<p>On second thoughts I think you could do this server side in WordPress. The solution might be largely similar to the one in the article that you cite, but hooked onto the <a href="https://developer.wordpress.org/reference/hooks/rest_pre_echo_response/"><code>rest_pre_echo_response</code> hook</a>, rather than <code>wp_head</code> as they do in that article. I think it could be worth experimenting with this approach.</p>
+<p>In either case, you would also need to <a href="https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/">add the post meta</a> to the post data returned by the WP REST API so that you have access to it from your Frontity app.</p>
+          <p><a href="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/5</link>
+        <pubDate>Fri, 24 Jul 2020 20:40:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2472-5</guid>
+        <source url="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472.rss">How do you track your most viewed posts?</source>
+      </item>
+      <item>
+        <title>How do you track your most viewed posts?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jeanette">@jeanette</a></p>
+<p>Welcome to the community.</p>
+<p>This is not going to be simple to do, but it could be done. As you’ll see from the article you refer to WordPress doesn’t do this by default and needs some custom code to register post views. You would need to do something similar in React, but you have the added complication of then sending the page view registration back to WordPress and then storing it in the meta with the post as demonstrated in the article. So it will involve both client side JS/React code and server side PHP code. In addition, as you’re sending data back to the server you will need to authenticate each Send to prevent malicious actors sending to the same endpoint. You should also take extra measures to ensure that you’re not creating any security issues as you’re writing data from client to server.</p>
+<p>On the whole I think that this might be quite a challenging programming task. But certainly doable with enough perseverance.</p>
+<p>Good luck. Do let us know how you get on with this.</p>
+          <p><a href="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/3</link>
+        <pubDate>Fri, 24 Jul 2020 09:08:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2472-3</guid>
+        <source url="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472.rss">How do you track your most viewed posts?</source>
+      </item>
+      <item>
+        <title>How do you track your most viewed posts?</title>
+        <dc:creator><![CDATA[jeanette]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello all! I would like to display my most viewed posts on my React homepage. I have read a couple tutorials - like <a href="https://www.wpbeginner.com/wp-tutorials/how-to-track-popular-posts-by-views-in-wordpress-without-a-plugin/" rel="nofollow noopener">https://www.wpbeginner.com/wp-tutorials/how-to-track-popular-posts-by-views-in-wordpress-without-a-plugin/</a> - and while I can install a custom plugin just fine, I think the problem is that it doesn’t register a “view” on my post in React as a pageview. Has anyone encountered this issue before? Do you have any ideas on how to tackle this?</p>
+          <p><a href="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472/1</link>
+        <pubDate>Wed, 22 Jul 2020 14:35:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2472-1</guid>
+        <source url="https://community.frontity.org/t/how-do-you-track-your-most-viewed-posts/2472.rss">How do you track your most viewed posts?</source>
+      </item>
+  </channel>
+</rss>

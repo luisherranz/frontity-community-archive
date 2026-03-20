@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Get the first 4 posts with a specific tag</title>
+    <link>https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286</link>
+    <description>Hello,
+
+In my WordPress blog, the theme uses the &quot;destacado&quot; (featured) tag to feature the first 4 posts with this tag in the top section. I want to replicate this behavior in Frontity and I think I got it right but I want to make sure it is the correct way or if there&#39;s a better form.
+
+What I got so far in my component:
+
+    import React, {useEffect} from &quot;react&quot;
+    import { connect, styled } from &quot;frontity&quot;
+    import Link from &quot;@frontity/components/link&quot;
+
+    const IndexBody = ({state, actions}) =&gt; {
+      useEffect(()=&gt;{
+        actions.source.fetch(&quot;/tag/destacado&quot;)
+      }, []);
+      const data = state.source.get(&quot;/tag/destacado&quot;)
+      return (
+        &lt;&gt;
+          &lt;DestaList isReady={data.isReady}&gt;
+            {data.isReady &amp;&amp; data.items.map((item) =&gt; {
+              const post = state.source[item.type][item.id]
+              return (
+                &lt;Link key={item.id} link={post.link}&gt;
+                  {post.title.rendered}
+                  &lt;br/&gt;
+                &lt;/Link&gt;
+              )
+            })}
+          &lt;/DestaList&gt;
+        &lt;/&gt;
+      )
+    }
+
+    export default connect(IndexBody)
+
+    const DestaList = styled.div`
+      height: 300px;
+      background-color: ${(props) =&gt; (props.isReady ? &quot;lightseagreen&quot; : &quot;maroon&quot;)};
+    `
+
+The box starts with the maroon background, gets populated and turns light sea green, so I know the code works, but is it the best way?
+
+Also, how can I just ask for the first 4 posts instead of the default 10?
+
+Thanks!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 23 Mar 2021 15:27:48 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Get the first 4 posts with a specific tag</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/eduardojoseperezf">@eduardojoseperezf</a></p>
+<p>Welcome to the Frontity Community!!</p>
+<p>The <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#actions-source-fetch"><code>actions.source.fetch()</code></a> method doesn’t allow you to specify query parameters to the query.</p>
+<p>You could use a <em>low-level</em> method to fetch the data from the WP REST API such as <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-api-get"><code>libraries.source.api.get()</code></a> which will allow to specify parameters to the query</p>
+<p>I think using the <code>per_page=4</code> parameter for that query could be what you’re looking for</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://s.w.org/favicon.ico?2" class="site-icon" width="15" height="15">
+      <a href="https://developer.wordpress.org/rest-api/reference/posts/" target="_blank" rel="noopener">WordPress Developer Resources</a>
+  </header>
+  <article class="onebox-body">
+    
+
+<h3><a href="https://developer.wordpress.org/rest-api/reference/posts/" target="_blank" rel="noopener">Posts | REST API Handbook | WordPress Developer Resources</a></h3>
+
+<p>Schema The schema defines all the fields that exist within a post record. Any response from these endpoints can be expected to contain the…</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>The thing about using this low-level method is that it doesn’t do all the automatic things that <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#actions-source-fetch"><code>actions.source.fetch()</code></a> do for you, so besides getting the data through <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-api-get"><code>libraries.source.api.get()</code></a> you’ll have to manually populate the state with both:</p>
+<ul>
+<li>An entry in <code>state.source.data</code> with information about that link.</li>
+<li>Normalized entities in relevant part of the state, like <code>state.source.post</code>, <code>state.source.category</code> or <code>state.source.author</code> and so on.</li>
+</ul>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286/3</link>
+        <pubDate>Tue, 23 Mar 2021 15:27:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4286-3</guid>
+        <source url="https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286.rss">Get the first 4 posts with a specific tag</source>
+      </item>
+      <item>
+        <title>Get the first 4 posts with a specific tag</title>
+        <dc:creator><![CDATA[eduardojoseperezf]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,</p>
+<p>In my WordPress blog, the theme uses the “destacado” (featured) tag to feature the first 4 posts with this tag in the top section. I want to replicate this behavior in Frontity and I think I got it right but I want to make sure it is the correct way or if there’s a better form.</p>
+<p>What I got so far in my component:</p>
+<pre><code>import React, {useEffect} from "react"
+import { connect, styled } from "frontity"
+import Link from "@frontity/components/link"
+
+const IndexBody = ({state, actions}) =&gt; {
+  useEffect(()=&gt;{
+    actions.source.fetch("/tag/destacado")
+  }, []);
+  const data = state.source.get("/tag/destacado")
+  return (
+    &lt;&gt;
+      &lt;DestaList isReady={data.isReady}&gt;
+        {data.isReady &amp;&amp; data.items.map((item) =&gt; {
+          const post = state.source[item.type][item.id]
+          return (
+            &lt;Link key={item.id} link={post.link}&gt;
+              {post.title.rendered}
+              &lt;br/&gt;
+            &lt;/Link&gt;
+          )
+        })}
+      &lt;/DestaList&gt;
+    &lt;/&gt;
+  )
+}
+
+export default connect(IndexBody)
+
+const DestaList = styled.div`
+  height: 300px;
+  background-color: ${(props) =&gt; (props.isReady ? "lightseagreen" : "maroon")};
+`
+</code></pre>
+<p>The box starts with the maroon background, gets populated and turns light sea green, so I know the code works, but is it the best way?</p>
+<p>Also, how can I just ask for the first 4 posts instead of the default 10?</p>
+<p>Thanks!</p>
+          <p><a href="https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286/1</link>
+        <pubDate>Sun, 21 Mar 2021 01:28:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4286-1</guid>
+        <source url="https://community.frontity.org/t/get-the-first-4-posts-with-a-specific-tag/4286.rss">Get the first 4 posts with a specific tag</source>
+      </item>
+  </channel>
+</rss>

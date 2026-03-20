@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Custom routing paths lead to 404 page</title>
+    <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091</link>
+    <description>I made custom paths in my Frontity project and those lead to 404 page. 
+Could you take a look and tell me what I&#39;m missing?
+
+Paths are defined so when I hover over the links to different pages, it shows the paths localhost:3000/about`, but when I go to the page (click or type in the search bar), it shows 404 page.
+
+
+I also created menuHandler in src/index.js, but this is for fetching from the WordPress site not projecting my project path to the WordPress site? Let me know this is wrong.
+
+
+theme/src/components/Index.js - Mentions routings with Switch
+```
+const Root = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;&gt;
+      &lt;GlobalStyles /&gt;
+      &lt;Nav /&gt;
+
+      &lt;Switch&gt;
+        {/* with &#39;when prop&#39; */}
+        &lt;Home when={data.isHome} /&gt;
+
+        {/* custom path */}
+        &lt;About path=&quot;/about&quot; /&gt;
+        &lt;Contact path=&quot;/contact&quot; /&gt;
+        &lt;TermsOfService path=&quot;/terms-of-service&quot; /&gt;
+        &lt;PrivacyPolicy path=&quot;/privacy-policy&quot; /&gt;
+
+        &lt;NotFound /&gt;
+      &lt;/Switch&gt;
+      &lt;Footer /&gt;
+    &lt;/&gt;
+  );
+};
+export default connect(Root);
+```
+
+theme/src/components/Nav.js
+```
+import React from &quot;react&quot;;
+import styled from &quot;styled-components&quot;;
+import { connect } from &quot;frontity&quot;;
+import Link from &quot;@frontity/components/link&quot;;
+
+const Nav = () =&gt; {
+  return (
+    &lt;Styles&gt;
+      &lt;div className=&quot;menu-wrapper&quot;&gt;
+        &lt;Link link=&quot;/about&quot;&gt;About&lt;/Link&gt;
+        &lt;Link link=&quot;/contact&quot;&gt;Contact&lt;/Link&gt;
+        &lt;Link link=&quot;/terms-of-service&quot;&gt;Terms of Service&lt;/Link&gt;
+        &lt;Link link=&quot;/privacy-policy&quot;&gt;Privacy Policy&lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/Styles&gt;
+  );
+};
+
+export default connect(Nav);
+```
+
+
+theme/src/index.js - MenuHandler and custom theme
+```
+import Root from &quot;./components&quot;;
+
+const menuHandler = {
+  name: &quot;menus&quot;,
+  priority: 10,
+  pattern: &quot;/menus/:slug&quot;,
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const { api } = libraries.source;
+    const { id } = params;
+
+    // fetch data from the endpoint page
+    const response = await api.get({
+      endpoint: `/menus/v1/locations/${id}`,
+    });
+
+    // get an array with each item in json format
+    const items = await response.json();
+
+    // add data to source
+    const currentPageData = state.source.data[route];
+
+    Object.assign(currentPageData, {
+      id,
+      items: items.items,
+      isMenu: true,
+    });
+  },
+};
+
+export default {
+  name: &quot;custom-theme&quot;,
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {
+      isMenuOpen: false,
+    },
+  },
+  actions: {
+    theme: {
+      beforeSSR: ({ actions }) =&gt; async () =&gt; {
+        // Adding both menu location menus to beforeSSR
+        await actions.source.fetch(&quot;/menus/primary-menu&quot;);
+        await actions.source.fetch(&quot;/menus/footer-menu&quot;);
+      },
+    },
+  },
+  libraries: {
+    source: {
+      handlers: [menuHandler],
+    },
+  },
+};
+
+```
+
+Thank you!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 26 Feb 2021 18:37:06 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[harpreet.freelance]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes i think its right, but you have 1 more option to get page content with page id in your api url for example</p>
+<p>(<a href="http://your-domain.com/wp-json/wp/v2/pages/41" rel="noopener nofollow ugc">http://your-domain.com/wp-json/wp/v2/pages/41</a>) it return single page content and after that you have to make your own custom handler then fetch and populate content in state.source.get(state.router.link);</p>
+<p>After all of these, you will get if data.isTerms</p>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/14</link>
+        <pubDate>Fri, 26 Feb 2021 18:37:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-14</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[misakimichy]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you for the link!</p>
+<p>I just figured out how to render without leading to 404 page.<br>
+I still don’t have <code>isPage</code> property when I go through <code>state.source.get(state.router.link)</code> but there is <code>id</code> property under <code>state.source.get(state.router.link)</code>  which each pages has different id, and I could use it to specify which component to render.</p>
+<p>This is my routing page looks like:</p>
+<pre><code class="lang-javascript">const Root = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;&gt;
+      &lt;Head&gt;
+        &lt;meta name="description" content={state.frontity.description} /&gt;
+        &lt;html lang="en" /&gt;
+      &lt;/Head&gt;
+      &lt;GlobalStyles /&gt;
+      &lt;Nav /&gt;
+      &lt;Switch&gt;
+        &lt;Loading when={data.isFetching} /&gt;
+
+        &lt;Home when={data.isHome} /&gt;
+        &lt;About when={data.id === 8} /&gt;
+        &lt;Contact when={data.id === 7} /&gt;
+        &lt;TermsOfService when={data.id === 4} /&gt;
+        &lt;PrivacyPolicy when={data.id === 41} /&gt;
+        &lt;NotFound /&gt;
+      &lt;/Switch&gt;
+      &lt;Footer /&gt;
+    &lt;/&gt;
+  );
+};
+export default connect(Root);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/13</link>
+        <pubDate>Fri, 26 Feb 2021 18:28:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-13</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/misakimichy">@misakimichy</a>,</p>
+<p>In the documentation of the <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#state-source-get"><code>state.source.get()</code></a> you can read how this method returns an object that gives you info about the type of that link and related entities.</p>
+<p>The information to distinguish each type of link is based on the <a href="https://wphierarchy.com/">WP Template Hierarchy</a>. So from the content in WordPress you can have posts, categories… and pages</p>
+<p>Posts and Pages are easy to locate in a WordPress backend. If you create a new page in WordPress (let’s say <code>/about</code>), you can access to that page directly with Fronttiy and in the data  of that page (the one you’ll get through <code>state.source.get(state.router.link)</code> ) you’ll get the property <code>isPage: true</code></p>
+<hr>
+<p>I recommend you to watch this video where you can find an explanation of we can directly display a page from wordPress</p>
+<p><a href="https://www.youtube.com/watch?v=3Bab5jLuL1A">Frontity Talks 2020-06 - Custom Post Types</a></p>
+
+<p>and have a look at this demo</p><aside class="onebox githubfolder" data-onebox-src="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+
+      <a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank" rel="noopener">github.com</a>
+  </header>
+
+  <article class="onebox-body">
+    <h3><a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank" rel="noopener">frontity-examples/custom-post-types at master · frontity-demos/frontity-examples</a></h3>
+
+  <p><a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank" rel="noopener">master/custom-post-types</a></p>
+
+  <p><span class="label1">A monorepo consisting of a number of different projects each of which is intended to demonstrate how to achieve a particular task using Frontity. - frontity-examples/custom-post-types at master · f...</span></p>
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/11</link>
+        <pubDate>Fri, 26 Feb 2021 13:37:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-11</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[misakimichy]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you <a class="mention" href="https://community.frontity.org/u/harpreet.freelance">@harpreet.freelance</a> for your reply.</p>
+<p>I don’t see <code>isPage</code> when I <code>console.log(data)</code>, so I’m a little bit confused. <code>data</code> is  <code>state.source.get(state.router.link)</code>.<br>
+This is the screenshot:<br>
+<img src="https://community.frontity.org/uploads/default/original/2X/c/c2918b9f8e9199388ce8d0a1bd9a86e32030543f.png" alt="Screen Shot 2021-02-25 at 10.57.07" data-base62-sha1="rLesrQaHMXFdWQRqZdlpr3oyAP5" width="186" height="105"></p>
+<p>Do you have any idea how to get <code>isPage</code>?</p>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/10</link>
+        <pubDate>Thu, 25 Feb 2021 20:37:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-10</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[harpreet.freelance]]></dc:creator>
+        <description><![CDATA[
+            <p>About is a dynamic page in Wordpress. So in Frontity it render as page. If you want custom components for your page you have to check in switch condition data.isPage(pageid)  for this check you have to console.log(data) which is pass from state.source.get(state.router.link) in theme index.js.</p>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/8</link>
+        <pubDate>Thu, 25 Feb 2021 03:10:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-8</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[misakimichy]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m writing this project for my customer, and their repo is private, so I cannot share this project repo.</p>
+<p>I cannot find the documentation mentioning how to make custom paths with the <code>frontity/tiny-router</code> or  component, so could you give me instructions on how to do that?<br>
+For example, how to add <code>/about</code> path and render  component on click of  component.</p>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/7</link>
+        <pubDate>Wed, 24 Feb 2021 20:05:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-7</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[harpreet.freelance]]></dc:creator>
+        <description><![CDATA[
+            <p>here my git repo</p><aside class="onebox githubfolder">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/harpreet9629/frontity-theme" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:400/400;"><img src="https://avatars.githubusercontent.com/u/26606638?s=400&amp;amp;v=4" class="thumbnail" width="400" height="400"></div>
+
+<h3><a href="https://github.com/harpreet9629/frontity-theme" target="_blank" rel="noopener nofollow ugc">harpreet9629/frontity-theme</a></h3>
+
+
+  <p><span class="label1">Contribute to harpreet9629/frontity-theme development by creating an account on GitHub.</span></p>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/6</link>
+        <pubDate>Wed, 24 Feb 2021 14:54:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-6</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/misakimichy">@misakimichy</a></p>
+<p>Can you please <strong><a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">provide a repo or code-sandbox with your code</a></strong>? This is especially helpful to find solutions of technical issues with specific code</p>
+<p>The <a href="https://api.frontity.org/frontity-packages/collections-packages/components#switch"><code>&lt;Switch&gt;</code> component</a> available from the <a href="https://api.frontity.org/frontity-packages/collections-packages/components"><code>@frontity/components</code></a>  collection package, allows you to define specific React components to be loaded whenever the value provided to the <code>when</code> prop evaluates to <code>true</code></p>
+<p>So, you can use this structure along with the <code>state.source.get(state.router.link)</code> data to load specific components based on the <em>nature</em> of the link</p>
+<pre><code class="lang-javascript">js
+import Switch from "@frontity/components/switch";
+
+const Theme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;Switch&gt;
+      &lt;Loading when={data.isFetching} /&gt;
+      &lt;Home when={data.isHome} /&gt;
+      &lt;Archive when={data.isArchive} /&gt;
+      &lt;Post when={data.isPostType} /&gt;
+      &lt;ErrorPage /&gt; {/* rendered by default */}
+    &lt;/Switch&gt;
+  );
+};
+</code></pre>
+<p>Notice how the React components under this <a href="https://api.frontity.org/frontity-packages/collections-packages/components#switch"><code>&lt;Switch&gt;</code> component</a> are expected to have a <code>when</code> prop and not a <code>path</code> prop</p>
+<p>I guess you’re mixing the  <a href="https://api.frontity.org/frontity-packages/collections-packages/components#switch"><code>&lt;Switch&gt;</code> component</a> component provided by Frontity via its  <a href="https://api.frontity.org/frontity-packages/collections-packages/components"><code>@frontity/components</code></a>  collection package,  with the <a href="https://reactrouter.com/web/api/Switch"><code>&lt;Switch&gt;</code> component used by React Router</a></p>
+<p>The power of Frontity’s <a href="https://api.frontity.org/frontity-packages/collections-packages/components#switch"><code>&lt;Switch&gt;</code> component</a> component is that the routing defined with its system it will automatically work in both CSR /(Client Side Rendering) and SSR (Server Side Rendering), this is, those links will work by using internal React link or by loading directly those pages</p>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/4</link>
+        <pubDate>Wed, 24 Feb 2021 11:50:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-4</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[harpreet.freelance]]></dc:creator>
+        <description><![CDATA[
+            <p>Same issue happened with me <img src="https://community.frontity.org/images/emoji/apple/frowning.png?v=9" title=":frowning:" class="emoji" alt=":frowning:"> i did not get any response</p>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/2</link>
+        <pubDate>Tue, 23 Feb 2021 07:19:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-2</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+      <item>
+        <title>Custom routing paths lead to 404 page</title>
+        <dc:creator><![CDATA[misakimichy]]></dc:creator>
+        <description><![CDATA[
+            <p>I made custom paths in my Frontity project and those lead to 404 page.<br>
+Could you take a look and tell me what I’m missing?</p>
+<p>Paths are defined so when I hover over the links to different pages, it shows the paths localhost:3000/about`, but when I go to the page (click or type in the search bar), it shows 404 page.</p>
+<p>I also created menuHandler in src/index.js, but this is for fetching from the WordPress site not projecting my project path to the WordPress site? Let me know this is wrong.</p>
+<p>theme/src/components/Index.js - Mentions routings with Switch</p>
+<pre><code class="lang-javascript">const Root = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;&gt;
+      &lt;GlobalStyles /&gt;
+      &lt;Nav /&gt;
+
+      &lt;Switch&gt;
+        {/* with 'when prop' */}
+        &lt;Home when={data.isHome} /&gt;
+
+        {/* custom path */}
+        &lt;About path="/about" /&gt;
+        &lt;Contact path="/contact" /&gt;
+        &lt;TermsOfService path="/terms-of-service" /&gt;
+        &lt;PrivacyPolicy path="/privacy-policy" /&gt;
+
+        &lt;NotFound /&gt;
+      &lt;/Switch&gt;
+      &lt;Footer /&gt;
+    &lt;/&gt;
+  );
+};
+export default connect(Root);
+</code></pre>
+<p>theme/src/components/Nav.js</p>
+<pre><code class="lang-javascript">import React from "react";
+import styled from "styled-components";
+import { connect } from "frontity";
+import Link from "@frontity/components/link";
+
+const Nav = () =&gt; {
+  return (
+    &lt;Styles&gt;
+      &lt;div className="menu-wrapper"&gt;
+        &lt;Link link="/about"&gt;About&lt;/Link&gt;
+        &lt;Link link="/contact"&gt;Contact&lt;/Link&gt;
+        &lt;Link link="/terms-of-service"&gt;Terms of Service&lt;/Link&gt;
+        &lt;Link link="/privacy-policy"&gt;Privacy Policy&lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/Styles&gt;
+  );
+};
+
+export default connect(Nav);
+</code></pre>
+<p>theme/src/index.js - MenuHandler and custom theme</p>
+<pre><code class="lang-javascript">import Root from "./components";
+
+const menuHandler = {
+  name: "menus",
+  priority: 10,
+  pattern: "/menus/:slug",
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const { api } = libraries.source;
+    const { id } = params;
+
+    // fetch data from the endpoint page
+    const response = await api.get({
+      endpoint: `/menus/v1/locations/${id}`,
+    });
+
+    // get an array with each item in json format
+    const items = await response.json();
+
+    // add data to source
+    const currentPageData = state.source.data[route];
+
+    Object.assign(currentPageData, {
+      id,
+      items: items.items,
+      isMenu: true,
+    });
+  },
+};
+
+export default {
+  name: "custom-theme",
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {
+      isMenuOpen: false,
+    },
+  },
+  actions: {
+    theme: {
+      beforeSSR: ({ actions }) =&gt; async () =&gt; {
+        // Adding both menu location menus to beforeSSR
+        await actions.source.fetch("/menus/primary-menu");
+        await actions.source.fetch("/menus/footer-menu");
+      },
+    },
+  },
+  libraries: {
+    source: {
+      handlers: [menuHandler],
+    },
+  },
+};
+
+</code></pre>
+<p>Thank you!</p>
+          <p><a href="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091/1</link>
+        <pubDate>Tue, 23 Feb 2021 03:14:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4091-1</guid>
+        <source url="https://community.frontity.org/t/custom-routing-paths-lead-to-404-page/4091.rss">Custom routing paths lead to 404 page</source>
+      </item>
+  </channel>
+</rss>

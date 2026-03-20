@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Execute script tags found in content</title>
+    <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060</link>
+    <description>**--- [Rodmap Card](https://www.notion.so/frontity/Execute-script-tags-found-in-content-b2fdfdfda70b4a059c42535c9514be56)**
+**--- [Status: In Progress](https://github.com/orgs/frontity/projects/2#card-32044424)**
+
+## Description
+React doesn&#39;t execute the code inside a script tag:
+
+```jsx
+const MyScript = () =&gt; (
+  &lt;script src=&quot;https://my-scripts.com/script.js&quot; /&gt;
+);
+```
+
+For that reason, `html2react` doesn&#39;t execute the script tags included in `content`:
+
+```jsx
+const content = &quot;&lt;script src=\&quot;https://my-scripts.com/script.js\&quot; /&gt;&quot;;
+
+const Post = () =&gt; (
+  &lt;Html2React html={content} /&gt;
+);
+```
+
+We need to solve that situation.
+
+## User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **the script tags included in my content to be executed**
+&gt; so that **things work in the same way than in PHP**
+
+## Possible solution
+
+We used to have a component that did this for embed tweets. The trick was to use `appendChild` on component mount.
+
+https://github.com/wp-pwa/h2r/blob/dev/src/components/LazyTweet/index.js#L42-L48
+
+
+## Questions
+
+- Should this work by default or should it require a processor?
+
+```
+libraries: {
+  html2react: {
+    processors: [script, image]
+  }
+}
+```
+
+- Should this work with code scripts, or only external scripts? Using something like `eval()`?
+
+```jsx
+const MyScript = () =&gt; (
+  &lt;script&gt;
+    console.log(&quot;I am not executed&quot;);
+  &lt;/script&gt;
+);
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 09 Mar 2021 10:07:41 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Just wanted to say I saw the newsletter and this seems super dope! This should make it easier to implement things like my planned lightbox gallery component. I can do it easily in PHP but it’s a little hard to figure out how to do it in a React centric way (I’ll still try to do it in a react way if I can but it’s nice to have this option)</p>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/8</link>
+        <pubDate>Fri, 28 Feb 2020 00:25:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-8</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Agreed. Don’t add it then <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/7</link>
+        <pubDate>Mon, 20 Jan 2020 17:47:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-7</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[iamuchejude]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> I really don’t see a use-case for setting <code>allowScripts</code>. I don’t think there is anyone that would want their embedded blocks to come in another form/shape/structure. I mean, I want to see twitter embeds come out as designed.</p>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/6</link>
+        <pubDate>Mon, 20 Jan 2020 10:48:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-6</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/iamuchejude">@iamuchejude</a> has started the work on this PR: <a href="https://github.com/frontity/frontity/pull/266">https://github.com/frontity/frontity/pull/266</a></p>
+<p>Regarding the questions, I’m going to answer them myself but feel free to add your opinion:</p>
+<ul>
+<li>
+<strong>Should this work by default or should it require a processor?</strong><br>
+I think it’s safer to add it by default. After all, we are “fixing something we broke”. Without this processor the content <code>&lt;scripts&gt;</code> won’t work and in WordPress they work fine.</li>
+<li>
+<strong>Should this work with code scripts, or only external scripts? Using something like  <code>eval()</code> ?</strong><br>
+Following the same principle, we should also execute the code inside the <code>&lt;scripts&gt;</code> because that’s the way it works in WordPress.</li>
+</ul>
+<p>We can add a setting to html2react to turn this behavior off:</p>
+<pre><code>const settings = {
+  // ...
+  packages: [
+    // ...
+    {
+      name: "@frontity/html2react",
+      state: {
+        html2react: {
+          allowScripts: false // true by default
+        }
+      }
+  ]
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/5</link>
+        <pubDate>Thu, 16 Jan 2020 13:16:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-5</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You can check if it works going to:</p>
+<ul>
+<li>
+<a href="https://mars.frontity.org/page/3">https://mars.frontity.org/page/3</a> (or <a href="http://localhost:3000/page/3">http://localhost:3000/page/3</a> in local)</li>
+<li>Then clicking on the <strong>Block category: Embeds</strong> post.</li>
+</ul>
+<p>That way, you will be loading the embed <code>&lt;scripts&gt;</code> only with React (no SSR involved).</p>
+<p>This is wrong because the <code>&lt;blockquote&gt;</code> was not processed:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/ae1ab4697a64d2576a09c23eb69b3bf7b048b06f.png" data-download-href="https://community.frontity.org/uploads/default/ae1ab4697a64d2576a09c23eb69b3bf7b048b06f" title="04"><img src="https://community.frontity.org/uploads/default/optimized/1X/ae1ab4697a64d2576a09c23eb69b3bf7b048b06f_2_517x252.png" alt="04" data-base62-sha1="oQcig0HB2OxjnHetPDjk0S7N2y3" width="517" height="252" srcset="https://community.frontity.org/uploads/default/optimized/1X/ae1ab4697a64d2576a09c23eb69b3bf7b048b06f_2_517x252.png, https://community.frontity.org/uploads/default/optimized/1X/ae1ab4697a64d2576a09c23eb69b3bf7b048b06f_2_775x378.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/ae1ab4697a64d2576a09c23eb69b3bf7b048b06f_2_1034x504.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/ae1ab4697a64d2576a09c23eb69b3bf7b048b06f_2_10x10.png"></a></div><p></p>
+<p>And once it’s fixed, it should look like this because the <code>&lt;script&gt;</code> changes the blockquote to a complex tweet:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/5632362523c59f92f7ce4f398dba37fdb14c145e.png" data-download-href="https://community.frontity.org/uploads/default/5632362523c59f92f7ce4f398dba37fdb14c145e" title="17"><img src="https://community.frontity.org/uploads/default/optimized/1X/5632362523c59f92f7ce4f398dba37fdb14c145e_2_443x500.png" alt="17" data-base62-sha1="ciwDGAbYZANtoQVAtk3MNavXbNY" width="443" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/5632362523c59f92f7ce4f398dba37fdb14c145e_2_443x500.png, https://community.frontity.org/uploads/default/optimized/1X/5632362523c59f92f7ce4f398dba37fdb14c145e_2_664x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/5632362523c59f92f7ce4f398dba37fdb14c145e_2_886x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/5632362523c59f92f7ce4f398dba37fdb14c145e_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/4</link>
+        <pubDate>Tue, 14 Jan 2020 18:05:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-4</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[iamuchejude]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> I am on it</p>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/3</link>
+        <pubDate>Tue, 14 Jan 2020 09:51:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-3</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/iamuchejude">@iamuchejude</a> can you work on this? <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/2</link>
+        <pubDate>Mon, 13 Jan 2020 12:56:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-2</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+      <item>
+        <title>Execute script tags found in content</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Execute-script-tags-found-in-content-b2fdfdfda70b4a059c42535c9514be56">Rodmap Card</a></strong><br>
+<strong>— <a href="https://github.com/orgs/frontity/projects/2#card-32044424">Status: In Progress</a></strong></p>
+<h2>Description</h2>
+<p>React doesn’t execute the code inside a script tag:</p>
+<pre><code class="lang-jsx">const MyScript = () =&gt; (
+  &lt;script src="https://my-scripts.com/script.js" /&gt;
+);
+</code></pre>
+<p>For that reason, <code>html2react</code> doesn’t execute the script tags included in <code>content</code>:</p>
+<pre><code class="lang-jsx">const content = "&lt;script src=\"https://my-scripts.com/script.js\" /&gt;";
+
+const Post = () =&gt; (
+  &lt;Html2React html={content} /&gt;
+);
+</code></pre>
+<p>We need to solve that situation.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>the script tags included in my content to be executed</strong><br>
+so that <strong>things work in the same way than in PHP</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<p>We used to have a component that did this for embed tweets. The trick was to use <code>appendChild</code> on component mount.</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/wp-pwa/h2r/blob/dev/src/components/LazyTweet/index.js#L42-L48" target="_blank">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/wp-pwa/h2r/blob/dev/src/components/LazyTweet/index.js#L42-L48" target="_blank">wp-pwa/h2r/blob/dev/src/components/LazyTweet/index.js#L42-L48</a></h4>
+<pre class="onebox"><code class="lang-js"><ol class="start lines" start="42" style="counter-reset: li-counter 41 ;">
+<li>const script = window.document.createElement('script');</li>
+<li>script.id = 'lazy-twitter';</li>
+<li>script.src = '//platform.twitter.com/widgets.js';</li>
+<li>script.async = true;</li>
+<li>script.chartset = 'utf-8';</li>
+<li>
+</li>
+<li>window.document.body.appendChild(script);</li>
+</ol></code></pre>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<h2>Questions</h2>
+<ul>
+<li>Should this work by default or should it require a processor?</li>
+</ul>
+<pre><code class="lang-javascript">libraries: {
+  html2react: {
+    processors: [script, image]
+  }
+}
+</code></pre>
+<ul>
+<li>Should this work with code scripts, or only external scripts? Using something like <code>eval()</code>?</li>
+</ul>
+<pre><code class="lang-jsx">const MyScript = () =&gt; (
+  &lt;script&gt;
+    console.log("I am not executed");
+  &lt;/script&gt;
+);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/execute-script-tags-found-in-content/1060/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/execute-script-tags-found-in-content/1060/1</link>
+        <pubDate>Mon, 13 Jan 2020 10:27:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1060-1</guid>
+        <source url="https://community.frontity.org/t/execute-script-tags-found-in-content/1060.rss">Execute script tags found in content</source>
+      </item>
+  </channel>
+</rss>

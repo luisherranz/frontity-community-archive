@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>__dirname seemingly not working in third party library</title>
+    <link>https://community.frontity.org/t/dirname-seemingly-not-working-in-third-party-library/5805</link>
+    <description>Hello all,
+
+I&#39;m not sure this is specifically an issue with Frontity, but since I&#39;m using it I thought I would ask here first in case there is something Frontity related affecting this issue.
+
+To learn ReactJS as I migrate away from PHP, I&#39;ve been building a small project that takes in stars from the HYG database and displays them in a responsive grid format. I&#39;ll input the data into the components, displaying their mass and color; I hope to build on this as time goes on and add in more functionality later. One of the biggest issues is parsing the stellar classification codes; I tried to do it on my own using Regex, but I was struggling with capturing the right information from the Roman numerals. That&#39;s why I found the [Stellar Classification Parser library from Codebox Software](https://github.com/codebox/stellar-classification-parser). However, I&#39;ve run into a few bugs. 
+
+First, some setup information: I am currently running this on localhost using the &quot;Local&quot; server development tool from Flywheel, and then running `npx frontity dev` in VS Code to test the frontend. I don&#39;t know if that would affect anything, but I thought I should mention it just in case.
+
+The parser library uses the &#39;fs&#39; module to read a text file for a glossary. At first I ran into the &quot;Can&#39;t resolve &#39;fs&#39;&quot; problem, but I think I fixed that by creating a &#39;**frontity.config.js**&#39; file in my theme package. This is that file:
+
+```
+const webpack_1 = require(&quot;webpack&quot;);
+
+export const webpack = ({ config, target }) =&gt; {
+  if (target !== &quot;server&quot;) {
+    config.devtool = &quot;eval-cheap-source-map&quot;;
+    config.plugins.push(new webpack_1.IgnorePlugin(/fs/, /stellar-classification-parser/));
+  }
+  
+};
+```
+
+However, now when I load the project, it tells me that the text file doesn&#39;t exist, though it is very plainly there in the same folder as the script calling it. It is using &quot;**require(&#39;fs&#39;).readFileSync(__dirname +  &#39;/data.txt&#39;).toString()**&quot; to access it, so I suspect the problem is the &quot;**__dirname**&quot; variable. [The specific block of code is this](https://github.com/codebox/stellar-classification-parser/blob/master/data.js):
+
+```
+&quot;use strict&quot;;
+
+const lineObjects = require(&#39;fs&#39;).readFileSync(__dirname +  &#39;/data.txt&#39;).toString()
+    .split(&#39;\n&#39;)
+    .map(l =&gt; l.trim())
+    .filter(l =&gt; l)
+    .filter(l =&gt; l.indexOf(&#39;#&#39;) !== 0)
+    .map(l =&gt; l.split(&#39;,&#39;))
+    .map(a =&gt; {
+        return {
+            letter : a[0],
+            number : Number(a[1]),
+            luminosityClass : a[2],
+            mass : Number(a[3]),
+            luminosityRelative : Number(a[4]),
+            radiusRelative : Number(a[5]),
+            temperature : Number(a[6]),
+            colourIndexBv : Number(a[7]),
+            absoluteMagnitude : Number(a[8]),
+            bolometricCorrection : Number(a[9]),
+            bolometricMagnitude : Number(a[10]),
+            colour : {
+                r : Number(a[11]),
+                g : Number(a[12]),
+                b : Number(a[13])
+            }
+        };
+    });
+```
+
+So then when I start my project, I get the following error:
+
+```
+Error: ENOENT: no such file or directory, open &#39;//data.txt&#39;
+    at Object.openSync (node:fs:585:3)
+    at Object.readFileSync (node:fs:453:35)
+    at Object.eval (webpack-internal:///./node_modules/stellar-classification-parser/data.js:1:1059)
+    at eval (webpack-internal:///./node_modules/stellar-classification-parser/data.js:2:30)
+    at Object../node_modules/stellar-classification-parser/data.js (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:6026:1)
+    at __webpack_require__ (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:27:30)
+    at Object.eval (webpack-internal:///./node_modules/stellar-classification-parser/index.js:1:333)
+    at eval (webpack-internal:///./node_modules/stellar-classification-parser/index.js:6:30)
+    at Object../node_modules/stellar-classification-parser/index.js (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:6038:1)
+    at __webpack_require__ (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:27:30)
+```
+
+My understanding is that **__dirname** resolves to where the script is being executed. I would *think* that would mean the data.js file calling the &#39;fs&#39; module. However, I may be misunderstanding this. So here are my questions:
+
+**1. Is the script *not* being called from within that node_module, but on another level, due to Webpack and/or Frontity?**
+
+**2. Is it because I wrote in frontity.config.js to ignore the &#39;fs&#39; module, in order to get around my earlier error? By ignoring the &#39;fs&#39; module, is that actually ignoring the entire code and thus it cannot find the file, because the call to find the find is piggybacked on the &#39;fs&#39; call?**
+
+**3. The &quot;can&#39;t resolve &#39;fs&#39;&quot; is because you can&#39;t run filesystem code in the browser, but I figured because I&#39;m using `npx frontity dev`, which the docs say creates a dev &quot;server&quot;, that wouldn&#39;t be a problem, but clearly there is something here I am missing. Where can I go or look for more information on this &quot;server&quot; and what it is and isn&#39;t?**
+
+I&#39;m rather weak when it comes to NodeJS and Webpack, so I&#39;m not even sure how to approach fixing this. A buddy of mine suggesting trying to rip the parsing code out of the library, but I&#39;m hoping there&#39;s a simpler fix than doing something which seems so drastic. 
+
+Frontity Info:
+
+```
+## System:
+ - OS: Windows 10 10.0.19042
+ - CPU: (8) x64 Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz
+ - Memory: 20.74 GB / 31.95 GB
+## Binaries:
+ - Node: 16.13.1 - C:\Program Files\nodejs\node.EXE
+ - npm: 8.1.2 - C:\Program Files\nodejs\npm.CMD
+## Browsers:
+ - Chrome: Not Found
+ - Edge: Spartan (44.19041.1266.0), Chromium (98.0.1108.62)
+ - Internet Explorer: 11.0.19041.1202
+## npmPackages:
+ - @frontity/core: ^1.14.3 =&gt; 1.14.3 
+ - @frontity/html2react: ^1.7.0 =&gt; 1.7.0 
+ - @frontity/mars-theme: ./packages/mars-theme =&gt; 1.6.2 
+ - @frontity/tiny-router: ^1.4.4 =&gt; 1.4.4 
+ - @frontity/wp-source: ^1.11.7 =&gt; 1.11.7 
+ - astro-theme: file:packages/astro-theme =&gt; 1.0.0 
+ - frontity: ^1.17.1 =&gt; 1.17.1 
+ - stellar-classification-parser: ^1.1.4 =&gt; 1.1.4 
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+```
+
+My repo (will add a code sandbox when I get that up): https://github.com/jdkolassa/astrographer/tree/frontity
+
+My REST API url is **http://localhost:10004/wp-json/** (because I am running this locally right now.)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 03 Mar 2022 17:36:47 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/dirname-seemingly-not-working-in-third-party-library/5805.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>__dirname seemingly not working in third party library</title>
+        <dc:creator><![CDATA[jdkolassa]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello all,</p>
+<p>I’m not sure this is specifically an issue with Frontity, but since I’m using it I thought I would ask here first in case there is something Frontity related affecting this issue.</p>
+<p>To learn ReactJS as I migrate away from PHP, I’ve been building a small project that takes in stars from the HYG database and displays them in a responsive grid format. I’ll input the data into the components, displaying their mass and color; I hope to build on this as time goes on and add in more functionality later. One of the biggest issues is parsing the stellar classification codes; I tried to do it on my own using Regex, but I was struggling with capturing the right information from the Roman numerals. That’s why I found the <a href="https://github.com/codebox/stellar-classification-parser" rel="noopener nofollow ugc">Stellar Classification Parser library from Codebox Software</a>. However, I’ve run into a few bugs.</p>
+<p>First, some setup information: I am currently running this on localhost using the “Local” server development tool from Flywheel, and then running <code>npx frontity dev</code> in VS Code to test the frontend. I don’t know if that would affect anything, but I thought I should mention it just in case.</p>
+<p>The parser library uses the ‘fs’ module to read a text file for a glossary. At first I ran into the “Can’t resolve ‘fs’” problem, but I think I fixed that by creating a ‘<strong>frontity.config.js</strong>’ file in my theme package. This is that file:</p>
+<pre><code class="lang-javascript">const webpack_1 = require("webpack");
+
+export const webpack = ({ config, target }) =&gt; {
+  if (target !== "server") {
+    config.devtool = "eval-cheap-source-map";
+    config.plugins.push(new webpack_1.IgnorePlugin(/fs/, /stellar-classification-parser/));
+  }
+  
+};
+</code></pre>
+<p>However, now when I load the project, it tells me that the text file doesn’t exist, though it is very plainly there in the same folder as the script calling it. It is using “<strong>require(‘fs’).readFileSync(__dirname +  ‘/data.txt’).toString()</strong>” to access it, so I suspect the problem is the “<strong>__dirname</strong>” variable. <a href="https://github.com/codebox/stellar-classification-parser/blob/master/data.js" rel="noopener nofollow ugc">The specific block of code is this</a>:</p>
+<pre><code class="lang-javascript">"use strict";
+
+const lineObjects = require('fs').readFileSync(__dirname +  '/data.txt').toString()
+    .split('\n')
+    .map(l =&gt; l.trim())
+    .filter(l =&gt; l)
+    .filter(l =&gt; l.indexOf('#') !== 0)
+    .map(l =&gt; l.split(','))
+    .map(a =&gt; {
+        return {
+            letter : a[0],
+            number : Number(a[1]),
+            luminosityClass : a[2],
+            mass : Number(a[3]),
+            luminosityRelative : Number(a[4]),
+            radiusRelative : Number(a[5]),
+            temperature : Number(a[6]),
+            colourIndexBv : Number(a[7]),
+            absoluteMagnitude : Number(a[8]),
+            bolometricCorrection : Number(a[9]),
+            bolometricMagnitude : Number(a[10]),
+            colour : {
+                r : Number(a[11]),
+                g : Number(a[12]),
+                b : Number(a[13])
+            }
+        };
+    });
+</code></pre>
+<p>So then when I start my project, I get the following error:</p>
+<pre><code class="lang-javascript">Error: ENOENT: no such file or directory, open '//data.txt'
+    at Object.openSync (node:fs:585:3)
+    at Object.readFileSync (node:fs:453:35)
+    at Object.eval (webpack-internal:///./node_modules/stellar-classification-parser/data.js:1:1059)
+    at eval (webpack-internal:///./node_modules/stellar-classification-parser/data.js:2:30)
+    at Object../node_modules/stellar-classification-parser/data.js (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:6026:1)
+    at __webpack_require__ (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:27:30)
+    at Object.eval (webpack-internal:///./node_modules/stellar-classification-parser/index.js:1:333)
+    at eval (webpack-internal:///./node_modules/stellar-classification-parser/index.js:6:30)
+    at Object../node_modules/stellar-classification-parser/index.js (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:6038:1)
+    at __webpack_require__ (C:\Users\Arcturus\Local Sites\astrographer\app\public\wp-content\themes\astrographer\build\server.js:27:30)
+</code></pre>
+<p>My understanding is that <strong>__dirname</strong> resolves to where the script is being executed. I would <em>think</em> that would mean the data.js file calling the ‘fs’ module. However, I may be misunderstanding this. So here are my questions:</p>
+<p><strong>1. Is the script <em>not</em> being called from within that node_module, but on another level, due to Webpack and/or Frontity?</strong></p>
+<p><strong>2. Is it because I wrote in frontity.config.js to ignore the ‘fs’ module, in order to get around my earlier error? By ignoring the ‘fs’ module, is that actually ignoring the entire code and thus it cannot find the file, because the call to find the find is piggybacked on the ‘fs’ call?</strong></p>
+<p><strong>3. The “can’t resolve ‘fs’” is because you can’t run filesystem code in the browser, but I figured because I’m using <code>npx frontity dev</code>, which the docs say creates a dev “server”, that wouldn’t be a problem, but clearly there is something here I am missing. Where can I go or look for more information on this “server” and what it is and isn’t?</strong></p>
+<p>I’m rather weak when it comes to NodeJS and Webpack, so I’m not even sure how to approach fixing this. A buddy of mine suggesting trying to rip the parsing code out of the library, but I’m hoping there’s a simpler fix than doing something which seems so drastic.</p>
+<p>Frontity Info:</p>
+<pre><code class="lang-javascript">## System:
+ - OS: Windows 10 10.0.19042
+ - CPU: (8) x64 Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz
+ - Memory: 20.74 GB / 31.95 GB
+## Binaries:
+ - Node: 16.13.1 - C:\Program Files\nodejs\node.EXE
+ - npm: 8.1.2 - C:\Program Files\nodejs\npm.CMD
+## Browsers:
+ - Chrome: Not Found
+ - Edge: Spartan (44.19041.1266.0), Chromium (98.0.1108.62)
+ - Internet Explorer: 11.0.19041.1202
+## npmPackages:
+ - @frontity/core: ^1.14.3 =&gt; 1.14.3 
+ - @frontity/html2react: ^1.7.0 =&gt; 1.7.0 
+ - @frontity/mars-theme: ./packages/mars-theme =&gt; 1.6.2 
+ - @frontity/tiny-router: ^1.4.4 =&gt; 1.4.4 
+ - @frontity/wp-source: ^1.11.7 =&gt; 1.11.7 
+ - astro-theme: file:packages/astro-theme =&gt; 1.0.0 
+ - frontity: ^1.17.1 =&gt; 1.17.1 
+ - stellar-classification-parser: ^1.1.4 =&gt; 1.1.4 
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+</code></pre>
+<p>My repo (will add a code sandbox when I get that up): <a href="https://github.com/jdkolassa/astrographer/tree/frontity" class="inline-onebox" rel="noopener nofollow ugc">GitHub - jdkolassa/astrographer at frontity</a></p>
+<p>My REST API url is <strong><a href="http://localhost:10004/wp-json/" rel="noopener nofollow ugc">http://localhost:10004/wp-json/</a></strong> (because I am running this locally right now.)</p>
+          <p><a href="https://community.frontity.org/t/dirname-seemingly-not-working-in-third-party-library/5805/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/dirname-seemingly-not-working-in-third-party-library/5805/1</link>
+        <pubDate>Thu, 03 Mar 2022 17:36:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5805-1</guid>
+        <source url="https://community.frontity.org/t/dirname-seemingly-not-working-in-third-party-library/5805.rss">__dirname seemingly not working in third party library</source>
+      </item>
+  </channel>
+</rss>

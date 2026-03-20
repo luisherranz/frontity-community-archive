@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Gutenberg Package</title>
+    <link>https://community.frontity.org/t/gutenberg-package/480</link>
+    <description>## Description
+Right now, Frontity works with Gutenberg. However, there are a lot of styles used inside the editor, and passed to the PHP themes, that are supported by Frontity right now.
+
+## User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **import all the css Gutenberg uses in my Frontity project**
+&gt; so that **I can join the experience of working wit Gutenberg blocks and Frontity**
+
+
+&gt; As a **Frontity user**
+&gt; I want to **add just the Gutenberg css needed for the page loaded**
+&gt; so that **I can improve my web performance**
+
+## Initial study
+
+I have been investigating a bit about Gutenberg and how can we implement it on Frontity. We still have to do some research, but I wanted to share what I have found useful until now. Let&#39;s use this topic to discuss the best solution.
+
+---
+
+## How Gutenberg core blocks work
+
+As @luisherranz realized, all the styles of the core blocks of Gutenberg reside in two files. Our test:
+
+* */wp-includes/css/dist/block-library/style.min.css?ver=5.2.2* .
+* */wp-includes/css/dist/block-library/theme.min.css?ver=5.2.2* .
+
+It seems that the content of these files is independent of which blocks you use in each post, or if you change its settings. The files are prepared to support all the block configurations. The  `css`  of these files is always the same, although it may change between versions.
+
+Gutenberg changes block classes depending on the configuration, and each class corresponds to a specific style, defined in these files. For example, while using  `table block`  you can select a background color (blue, green or red). If you choose green it will add a class similar to  `.has-green-background-color`  instead of changing the css. Inside the above files, it will be defined something like:
+
+```
+.has-green-background-color{
+    background-color: green;
+}
+```
+
+From Frontity, as the classes are shown in the REST API, they are included in the content. This way,  **adding somehow the content (css) of these two files, would make Gutenberg core blocks compatible.**
+
+Moreover, while configuring a block, sometimes you can add some custom styles. For example, in  `paragraph block` , you can select  `font-size: normal/big/huge`  and it will change the class to something like  `.has-normal-font-size/ .has-big-font-size/ .has-huge-font-size`  for each case as in the  `table block` . But you can also customize the size and select  `50px` . In this case, it will add an inline style  `&lt;p style=&quot;font-size: 50px&quot;&gt;` , which will be shown in the REST API and Frontity will read it, so no problem here.
+
+I guess the  `htmlPurifier`  could cause troubles, but as Gutenberg is meant to have structured and valid HTML, it won’t be needed right?
+
+Apart from that, each theme should take care of styling the common tags as  `&lt;h1&gt;, &lt;h2&gt;, &lt;p&gt;, &lt;table&gt;, &lt;ol&gt;, &lt;ul&gt;, etc` . Gutenberg blocks don’t style them, and WP themes take care of it, so I guess in Frontity should be the same.
+
+## Wordpress.com
+
+I haven’t tested it too much, but [WP.COM](http://wp.com/) seems to work slightly different. The styles of the blocks reside in a unique file, which also contains more css not related to the blocks.
+
+However, I could see that blocks work the same way as in [wordpress.org](http://wordpress.org/). It changes classes depending on the settings and all the styles (apart from the inline) resides in that file. Moreover, the classes it uses seem to be exactly the same as [wordpress.org](http://wordpress.org/), so if we are able to access [wordpress.org](http://wordpress.org/) files, they may be compatible with [WP.COM](http://wp.com/) too.
+
+Just in case it is useful, the file in our case looks like this:
+
+* `https://s2.wp.com/_static/??-eJydk9tuwjAMQH9oIWIbaHuY9i1JY4ppbopTVfz9nAQYpaMPk6oqdnx8iy2nKLrgM/gs3SiiHXv0JKfYBSfIoYXzg7TpiF7kHaZt6G+gU2mAjL4XWiXJpnPNOjyFZJQh2duglV3Y3uWXwKoMRsRA+UFawywOQPIEOapuEFW6maPv7Gj4uiRtkGpu1Uonlc6S8tnCxqFfBLh670IlSG43W/7unNCm0XpEa57yh9FaQZhBgMHasXYja12cCGVR3TXPj9q1wruQgPUuqlwsHAdQYMGx2Rrm4v5KleNRlVJW7NugaB0TEAn+OxydyEcOtMoxVVJpL1IfYKZpKEofMjJNt8Oazx48pGb+53HBtjRlHLVEbyAC/zgDlrnHR0ji9TID/wBLSZdJ+AfNo9lCi9rg1RdA0wOvBIx8GwYEYdUkM7hYVoSeVDBrWxCcqMoY/EwQB6twucCzpSzbzMe+1vsrFujbfW13+7fdx27/+X76AV2TroI=?cssminify=yes`
+
+## Custom Blocks
+
+I haven&#39;t been able to test too many ways but I have tried:
+
+* [Create-guten-blocks](https://github.com/ahmadawais/create-guten-block)
+* Using [Block Lab](https://wordpress.org/plugins/block-lab/) plugin
+
+They seem to work really similar. They create a new  `file.css`  for each new block with the style needed for it. I supposed these should be added the same way we will add Gutenberg core files.
+
+## How to support Gutenberg in Frontity
+
+Here I am completely lost, you may know better @development-team. I share my insights just in case they help. I have two main questions:
+
+* **How do we get the data from the  `css files` ?**
+Here I can imagine two scenarios:
+  1. As that files don’t change until a new version is released, we could “copy” that code in  `@frontity/gutenberg`  package, so it can be consumed if wanted. We should allow people to choose what version of those files they want to use in order to avoid incompatibilities, but they would have to update it each time they update WordPress right? Apart from that, for supporting custom blocks people should add the css themselves.
+  2. I am not sure if this one is technically possible of it is horrible for performance, but I guess another solution could be getting the files.css directly from WordPress. Maybe with this we could avoid versions incompatibilities. Moreover, if we are able to select more files to get from WordPress, users could select the directories of their custom blocks and support them with the same code. As said, not sure if this is even possible.
+* **How to consume the data we get?**
+I guess the easiest solution would be to add all this css at  `&lt;Global` &gt;, but this way it would be loaded all the  `css`  although it is not used right? Would be a way to look for the  `class`  and add the styles just needed as Emotion  `css prop` ?
+
+## Extra: Elementor
+
+Again, just in case it is useful and it affects the possible solution:
+
+After looking at how Gutenberg works and how this could be supported by Frontity, I took a quick look at Elementor, as it could be similar. What Elementor seems to do, and I maybe more customizers, is adding specific classes to each block, as Gutenberg. From here, they create a  `global.css`  file, containing most of the default values for each block, and then it generates another file for each post/page where you use elementor, with a unique id.
+
+![elementor-test_%E2%80%93_gutenberg-frontity|335x217](upload://acJrzg0xHV1hPtP1ysakGxOFAAV)
+
+So each page or post you create with Elementor will have their blocks, with specific classes, and the styles defined in these two files: one global, common for all the pages and posts, and one for the specific page/post.
+
+The identifier it is also in the API, and it is the  `postId/pageId`  WordPress defines.
+
+Maybe if we are able to get the css files directly from WordPress these integrations are easier in the future? No idea :neutral_face:
+
+---
+
+This is all the research I have made until now, I have to test it deeper. If you have any questions, insights or you think we should consider something else just let us know please :grin:</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 12 Jul 2020 09:16:38 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/gutenberg-package/480.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This will be useful to create different versions of the package that match the different versions of WP/Gutenberg: <a href="https://developer.wordpress.org/block-editor/principles/versions-in-wordpress/">https://developer.wordpress.org/block-editor/principles/versions-in-wordpress/</a></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/26">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/26</link>
+        <pubDate>Sun, 12 Jul 2020 09:16:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-26</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s a great idea <a class="mention" href="https://community.frontity.org/u/nicholasio.oliveira">@nicholasio.oliveira</a>, thanks. I was not aware of this npm package. We can include a build step to compile the <code>scss</code> files from that package and avoid the copy/paste.</p>
+<p>I guess we’d still need to do that build manually and release multiple versions of our package to be able to support old WP and Gutenberg plugin versions, but yes, it seems feasible <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/24">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/24</link>
+        <pubDate>Fri, 26 Jun 2020 10:59:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-24</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I wonder if, instead of copying the compiled css directly we pull in <a href="https://github.com/WordPress/gutenberg/tree/master/packages/block-library" rel="nofollow noopener">@wordpress/block-library</a> which is a npm package and potentially <a href="https://github.com/WordPress/gutenberg/tree/master/packages/base-styles" rel="nofollow noopener">@wordpress/base-styles</a> (which I think would be needed) and compile all the <code>style.scss</code> files within each core block into something we load through the <code>@frontity/gutenberg</code> package.</p>
+<p>Both of these packages would be dev dependencies.</p>
+<p>For reference, this is how Gutenberg compiles its css: <a href="https://github.com/WordPress/gutenberg/blob/master/webpack.config.js#L122" rel="nofollow noopener">https://github.com/WordPress/gutenberg/blob/master/webpack.config.js#L122</a></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/22</link>
+        <pubDate>Tue, 23 Jun 2020 17:04:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-22</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve started working on the Gutenberg package in this PR: <a href="https://github.com/frontity/frontity/pull/255">https://github.com/frontity/frontity/pull/255</a></p>
+<p>I’m going to make a 1.0.0 version for WP 5.0, then a 1.1.0 version for 5.2, a 1.2.0 version for 5.3 and then the same for the different Gutenberg plugin versions.</p>
+<p>Gutenberg has a CSS file for LTR (left to right) and another for RTL (right to left) but they are quite similar so instead of adding both I’ll introduce a setting that then will be read by emotion.</p>
+<p>For the first release I’ll just add the styles to a <code>Global</code> but in the future we can use processors to modify emotion <code>css</code> prop.</p>
+<p>Apart from that, I’ll fix the Image component because right now it’s adding an extra span and that brokes the CSS for alignments. <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> and <a class="mention" href="https://community.frontity.org/u/david">@david</a> maybe I’m going to need help with that <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/20</link>
+        <pubDate>Fri, 10 Jan 2020 13:10:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-20</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Ah I think I might actually be wrong, but my addition of “is-cropped” seems to still be needed.</p>
+<p>Here’s a comparison of two posts to give context on how the editor content output has changed.</p>
+<p><a href="https://www.jackalope.tech/case_study/deep-dimension-branding-virtual-reality/" rel="nofollow noopener">[This one]</a> is a custom post type called “case study” that I made a few years back when I first created my portfolio in wordpress. It was created using the classic editor.<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/83686a3192275f7db66bac12e13bf9bfe2386271.png" data-download-href="https://community.frontity.org/uploads/default/83686a3192275f7db66bac12e13bf9bfe2386271" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/83686a3192275f7db66bac12e13bf9bfe2386271_2_690x371.png" alt="image" data-base62-sha1="iKufToz6dgOgogR2f8yJ6Pk5e6d" width="690" height="371" srcset="https://community.frontity.org/uploads/default/optimized/1X/83686a3192275f7db66bac12e13bf9bfe2386271_2_690x371.png, https://community.frontity.org/uploads/default/optimized/1X/83686a3192275f7db66bac12e13bf9bfe2386271_2_1035x556.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/83686a3192275f7db66bac12e13bf9bfe2386271_2_1380x742.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/83686a3192275f7db66bac12e13bf9bfe2386271_2_10x10.png"></a></div><br>
+editor view:<br>
+<div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/a95adf31782b18c26a59a195b049eba08741bb2a.jpeg" data-download-href="https://community.frontity.org/uploads/default/a95adf31782b18c26a59a195b049eba08741bb2a" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/a95adf31782b18c26a59a195b049eba08741bb2a_2_690x328.jpeg" alt="image" data-base62-sha1="oabnQbviZOJU11OoeDzoKODYBjI" width="690" height="328" srcset="https://community.frontity.org/uploads/default/optimized/1X/a95adf31782b18c26a59a195b049eba08741bb2a_2_690x328.jpeg, https://community.frontity.org/uploads/default/optimized/1X/a95adf31782b18c26a59a195b049eba08741bb2a_2_1035x492.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/1X/a95adf31782b18c26a59a195b049eba08741bb2a_2_1380x656.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/a95adf31782b18c26a59a195b049eba08741bb2a_2_10x10.png"></a></div><p></p>
+<p>and <a href="https://www.jackalope.tech/test_posts/deep-dimension-branding/" rel="nofollow noopener">[this one]</a> is a custom post type called “test_posts” that I recently created to use as a content source for my new portfolio website that I’m building with frontity. It was created using the gutenberg editor.<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/0e05a392de76b69a325dea2bd40435658d9274d1.png" data-download-href="https://community.frontity.org/uploads/default/0e05a392de76b69a325dea2bd40435658d9274d1" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/0e05a392de76b69a325dea2bd40435658d9274d1_2_690x319.png" alt="image" data-base62-sha1="202LuvHOq0ZG8dNvHSa5pqHw2aJ" width="690" height="319" srcset="https://community.frontity.org/uploads/default/optimized/1X/0e05a392de76b69a325dea2bd40435658d9274d1_2_690x319.png, https://community.frontity.org/uploads/default/optimized/1X/0e05a392de76b69a325dea2bd40435658d9274d1_2_1035x478.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/0e05a392de76b69a325dea2bd40435658d9274d1_2_1380x638.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/0e05a392de76b69a325dea2bd40435658d9274d1_2_10x10.png"></a></div><br>
+editor view<br>
+<div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/ea18ad9b92cc2212ab5c43f96535f70d5d4b1c5d.jpeg" data-download-href="https://community.frontity.org/uploads/default/ea18ad9b92cc2212ab5c43f96535f70d5d4b1c5d" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/ea18ad9b92cc2212ab5c43f96535f70d5d4b1c5d_2_690x466.jpeg" alt="image" data-base62-sha1="xoUBfqJCHs8YL17jdBDnp1GoNJP" width="690" height="466" srcset="https://community.frontity.org/uploads/default/optimized/1X/ea18ad9b92cc2212ab5c43f96535f70d5d4b1c5d_2_690x466.jpeg, https://community.frontity.org/uploads/default/optimized/1X/ea18ad9b92cc2212ab5c43f96535f70d5d4b1c5d_2_1035x699.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/1X/ea18ad9b92cc2212ab5c43f96535f70d5d4b1c5d_2_1380x932.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/ea18ad9b92cc2212ab5c43f96535f70d5d4b1c5d_2_10x10.png"></a></div><p></p>
+<p>As you can see the classic editor crops. The Gutenberg editor crops in the admin but not in a square format, and it doesn’t crop on the frontend though that’s probably attributable to my PHP theme not adding any styles for it.</p>
+<p>Either way, I can confirm that running a default mars theme with images that have been set to “crop” and which have the class of “is cropped” does not work.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/19</link>
+        <pubDate>Wed, 11 Dec 2019 19:38:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-19</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="17" data-topic="480">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>I think on wordpress it actually passes it a different image size (it sends a thumbnail rather than a medium or large image).</p>
+</blockquote>
+</aside>
+<p>That’s weird because the HTML content on PHP and the HTML content in <code>content.rendered</code> should exactly the same. Do you have a URL where that is not the case that we could take a look at?</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/18</link>
+        <pubDate>Tue, 10 Dec 2019 14:13:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-18</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Sorry for the delay in replying. I think on wordpress it actually passes it a different image size (it sends a thumbnail rather than a medium or large image). So php themes don’t have to worry about supporting it but anything that’s grabbing the html content via a json request probably will need to, and I don’t think Gutenberg accounts for that.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/17</link>
+        <pubDate>Thu, 05 Dec 2019 18:11:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-17</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>So, isn’t this supported by the Gutenberg CSS? Do PHP themes need to support it themselves?</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/16</link>
+        <pubDate>Fri, 29 Nov 2019 07:12:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-16</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey so yeah that doesn’t work but I did some more research and realized that is-cropped could be supported using just CSS and object fit like so:</p>
+<pre><code class="lang-css">figure.wp-block-gallery {
+
+
+  &amp;.columns-6 {
+    .blocks-gallery-grid {
+      margin: unset !important;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: center;
+      justify-content: center;
+      align-items: baseline;
+
+      .blocks-gallery-item {
+        margin: 10px;
+
+        figure {
+          img {
+            /* max-width: 16vw; */
+          }
+        }
+      }
+    }
+
+    &amp;.is-cropped {
+      li {
+        object-fit: cover;
+        height: 16vw;
+        width: 16vw;
+
+        figure {
+          object-fit: cover;
+          height: 100%;
+          width: 100%;
+
+          img {
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/15</link>
+        <pubDate>Thu, 28 Nov 2019 22:34:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-15</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/thedonquixotic">@thedonquixotic</a>, sorry we haven’t been very responsive lately. I hope that doesn’t happen again.</p>
+<p>Actually, I was taking a look yesterday at this and a I saw your latest issue: <a href="https://github.com/WordPress/gutenberg/issues/18276">https://github.com/WordPress/gutenberg/issues/18276</a></p>
+<p>Let’s see what they say. It makes sense for me although I’m quite bad with CSS actually <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<aside class="quote no-group" data-post="13" data-topic="480">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Is “is-cropped” going to be supported by Frontity for gallery elements?</p>
+</blockquote>
+</aside>
+<p>From a quick look at Gutenberg’s CSS, it looks like there are some support in it:</p>
+<pre><code class="lang-css">.blocks-gallery-grid.is-cropped .blocks-gallery-image a,.blocks-gallery-grid.is-cropped .blocks-gallery-image img,.blocks-gallery-grid.is-cropped .blocks-gallery-item a,.blocks-gallery-grid.is-cropped .blocks-gallery-item img,.wp-block-gallery.is-cropped .blocks-gallery-image a,.wp-block-gallery.is-cropped .blocks-gallery-image img,.wp-block-gallery.is-cropped .blocks-gallery-item a,.wp-block-gallery.is-cropped .blocks-gallery-item img {
+    width: 100%
+}
+
+@supports ((position: -webkit-sticky) or (position:sticky)) {
+    .blocks-gallery-grid.is-cropped .blocks-gallery-image a,.blocks-gallery-grid.is-cropped .blocks-gallery-image img,.blocks-gallery-grid.is-cropped .blocks-gallery-item a,.blocks-gallery-grid.is-cropped .blocks-gallery-item img,.wp-block-gallery.is-cropped .blocks-gallery-image a,.wp-block-gallery.is-cropped .blocks-gallery-image img,.wp-block-gallery.is-cropped .blocks-gallery-item a,.wp-block-gallery.is-cropped .blocks-gallery-item img {
+        height:100%;
+        flex: 1;
+        -o-object-fit: cover;
+        object-fit: cover
+    }
+}
+</code></pre>
+<p>If that’s what you need, then yes, it will be included in the <code>@frontity/gutenberg</code> package.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/14</link>
+        <pubDate>Thu, 28 Nov 2019 11:43:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-14</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey reporting back in on a related issue.</p>
+<p>Is “is-cropped” going to be supported by Frontity for gallery elements? Currently it does not seem to be and I imagine that’s because you’d have to pass in additional logic for the image processor to know to grab the cropped thumbnail right?</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/13</link>
+        <pubDate>Thu, 28 Nov 2019 06:58:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-13</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey this github merge might help clarify some stuff: <a href="https://github.com/WordPress/gutenberg/pull/7721" rel="nofollow noopener">https://github.com/WordPress/gutenberg/pull/7721</a></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/12</link>
+        <pubDate>Wed, 30 Oct 2019 18:37:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-12</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Great to see ya’ll working on this.</p>
+<p>If I can give some quick thoughts.</p>
+<p>Personally I really like the Gutenberg editor but your breakdown here I think reveals some of the oddities of it.</p>
+<p>For instance:</p>
+<aside class="quote group-development-team" data-post="10" data-topic="480">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>With <strong>no-alignment</strong> (nothing selected), the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;figure class="wp-block-image"&gt;
+  &lt;img ...&gt;
+&lt;/figure&gt;
+</code></pre>
+<p>With <strong>align left</strong> , the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;div class="wp-block-image"&gt;
+  &lt;figure class="alignleft"&gt;
+    &lt;img ...&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+</code></pre>
+<p>With <strong>align right</strong> , the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;div class="wp-block-image"&gt;
+  &lt;figure class="alignright"&gt;
+    &lt;img ...&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+</code></pre>
+<p>With <strong>align center</strong> , the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;div class="wp-block-image"&gt;
+  &lt;figure class="aligncenter"&gt;
+    &lt;img ...&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+</code></pre>
+</blockquote>
+</aside>
+<p>but then  for the wide width stuff we get:</p>
+<aside class="quote group-development-team" data-post="10" data-topic="480">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>With <strong>wide width</strong> , the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;figure class="wp-block-image alignwide"&gt;
+  &lt;img ...&gt;
+&lt;/figure&gt;
+</code></pre>
+<p>And finally with <strong>full width</strong> , the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;figure class="wp-block-image alignfull"&gt;
+  &lt;img ...&gt;
+&lt;/figure&gt;
+</code></pre>
+</blockquote>
+</aside>
+<p>When I first started using Gutenberg all images were <code>&lt;figure&gt; class="wp-block-image"&gt;</code> but now all the figures are wrapped in <code>&lt;div class="wp-block-image&gt;</code>… except for the wide and full width images? for… I have no clue what reason. In fact I actually created a github ticket on this very issue last week: <a href="https://github.com/WordPress/gutenberg/issues/18122" rel="nofollow noopener">https://github.com/WordPress/gutenberg/issues/18122</a></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/11</link>
+        <pubDate>Wed, 30 Oct 2019 18:12:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-11</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This part of the <a href="https://developer.wordpress.org/" rel="nofollow noopener">Block Editor Handbook</a> is very interesting:<br>
+<a href="https://developer.wordpress.org/block-editor/developers/themes/theme-support/" class="onebox" target="_blank" rel="nofollow noopener">https://developer.wordpress.org/block-editor/developers/themes/theme-support/</a></p>
+<p>It looks like themes should use <code>add_theme_support()</code> to opt-in to several Gutenberg features. Some for the editor and some for the frontend.</p>
+<p>These are some of the optionns:</p>
+<h2>add_theme_support( ‘wp-block-styles’ );</h2>
+<p>This enqueues the <code>/wp-includes/css/dist/block-library/theme.min.css</code> file.</p>
+<p>The <code>/wp-includes/css/dist/block-library/style.min.css</code> is always enqueued, no matter what.</p>
+<p>The definition of this feature is:</p>
+<blockquote>
+<p>Core blocks include default styles. The styles are enqueued for editing but are not enqueued for viewing unless the theme opts-in to the core styles. If you’d like to use default styles in your theme, add theme support for  <code>wp-block-styles</code>.</p>
+</blockquote>
+<h3>–&gt; What should we do in <code>@frontity/gutenberg</code>?</h3>
+<p>Maybe this could be optional in our package as well.</p>
+<h2>add_theme_support( ‘align-wide’ )</h2>
+<p>This only adds two new options for images.</p>
+<p>If it’s not active, images can be <code>center</code>, <code>aligned right</code> or <code>aligned left</code>:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/5432b1102f234e4c40047b7ee267e7ef5c7f3560.jpeg" data-download-href="https://community.frontity.org/uploads/default/5432b1102f234e4c40047b7ee267e7ef5c7f3560" title="Screen Shot 2019-08-27 at 11.17.56.jpg"><img src="https://community.frontity.org/uploads/default/optimized/1X/5432b1102f234e4c40047b7ee267e7ef5c7f3560_2_690x406.jpeg" alt="56" data-base62-sha1="c0QIgav6ZntAQPYiYRv2OMnpY9q" width="690" height="406" srcset="https://community.frontity.org/uploads/default/optimized/1X/5432b1102f234e4c40047b7ee267e7ef5c7f3560_2_690x406.jpeg, https://community.frontity.org/uploads/default/original/1X/5432b1102f234e4c40047b7ee267e7ef5c7f3560.jpeg 1.5x, https://community.frontity.org/uploads/default/original/1X/5432b1102f234e4c40047b7ee267e7ef5c7f3560.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/5432b1102f234e4c40047b7ee267e7ef5c7f3560_2_10x10.png"></a></div><p></p>
+<p>but if it’s active, two new options appear: <code>width wide</code> and <code>full width</code>:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/7c112ee85d7184d16661ba40205686a2ac70d59f.png" data-download-href="https://community.frontity.org/uploads/default/7c112ee85d7184d16661ba40205686a2ac70d59f" title="Screen Shot 2019-08-27 at 11.19.40.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/7c112ee85d7184d16661ba40205686a2ac70d59f_2_690x407.png" alt="40" data-base62-sha1="hHy1jELbwhNB31HSBnzECghAOqr" width="690" height="407" srcset="https://community.frontity.org/uploads/default/optimized/1X/7c112ee85d7184d16661ba40205686a2ac70d59f_2_690x407.png, https://community.frontity.org/uploads/default/original/1X/7c112ee85d7184d16661ba40205686a2ac70d59f.png 1.5x, https://community.frontity.org/uploads/default/original/1X/7c112ee85d7184d16661ba40205686a2ac70d59f.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/7c112ee85d7184d16661ba40205686a2ac70d59f_2_10x10.png"></a></div><p></p>
+<p>With <strong>no-alignment</strong> (nothing selected), the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;figure class="wp-block-image"&gt;
+  &lt;img ...&gt;
+&lt;/figure&gt;
+</code></pre>
+<p>With <strong>align left</strong>, the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;div class="wp-block-image"&gt;
+  &lt;figure class="alignleft"&gt;
+    &lt;img ...&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+</code></pre>
+<p>With <strong>align right</strong>, the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;div class="wp-block-image"&gt;
+  &lt;figure class="alignright"&gt;
+    &lt;img ...&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+</code></pre>
+<p>With <strong>align center</strong>, the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;div class="wp-block-image"&gt;
+  &lt;figure class="aligncenter"&gt;
+    &lt;img ...&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+</code></pre>
+<p>With <strong>wide width</strong>, the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;figure class="wp-block-image alignwide"&gt;
+  &lt;img ...&gt;
+&lt;/figure&gt;
+</code></pre>
+<p>And finally with <strong>full width</strong>, the HTML of an image is:</p>
+<pre><code class="lang-auto">&lt;figure class="wp-block-image alignfull"&gt;
+  &lt;img ...&gt;
+&lt;/figure&gt;
+</code></pre>
+<p>An example of this styles is in <a href="https://codepen.io/joen/pen/zLWvrW" rel="nofollow noopener">https://codepen.io/joen/pen/zLWvrW</a>.</p>
+<p>I’ve tested all the images with the <code>/wp-includes/css/dist/block-library/style.min.css</code> and all they work fine.</p>
+<h3>–&gt; What should we do in <code>@frontity/gutenberg</code>?</h3>
+<p>This should work out of the box at soon as we include the CSS from <code>block-library/style.min.css</code>.</p>
+<h2>add_theme_support( ‘responsive-embeds’ )</h2>
+<p>This only adds a class <code>wp-embed-responsive</code> to the body. When that class is present, embeds become responsive. The work is done by the <code>/wp-includes/css/dist/block-library/style.min.css</code> styles.</p>
+<h3>–&gt; What should we do in <code>@frontity/gutenberg</code>?</h3>
+<p>This should work out of the box at soon as we include the CSS from <code>block-library/style.min.css</code>.</p>
+<h2>add_theme_support( ‘editor-color-palette’ )</h2>
+<p>A default set of colors is provided, but themes can register their own and optionally lock users into picking from the defined palette.</p>
+<pre><code class="lang-php">function mytheme_setup_theme_supported_features() {
+    add_theme_support( 'editor-color-palette', array(
+        array(
+            'name' =&gt; __( 'strong magenta', 'themeLangDomain' ),
+            'slug' =&gt; 'strong-magenta',
+            'color' =&gt; '#a156b4',
+        ),
+        array(
+            'name' =&gt; __( 'light grayish magenta', 'themeLangDomain' ),
+            'slug' =&gt; 'light-grayish-magenta',
+            'color' =&gt; '#d0a5db',
+        ),
+        array(
+            'name' =&gt; __( 'very light gray', 'themeLangDomain' ),
+            'slug' =&gt; 'very-light-gray',
+            'color' =&gt; '#eee',
+        )
+    ));
+}
+ 
+add_action( 'after_setup_theme', 'mytheme_setup_theme_supported_features' );
+</code></pre>
+<h3>–&gt; What should we do in our <code>frontity-wp-plugin</code>?</h3>
+<p>I’ve tested this code in a plugin (instead of a theme) and it works. That means we can include a color picker in our Frontity plugin and let people create their own Gutenberg color palettes.</p>
+<h2>add_theme_support( ‘editor-font-sizes’ )</h2>
+<p>A default set of sizes is provided, but themes can register their own and optionally lock users into picking from preselected sizes.</p>
+<pre><code class="lang-php">function mytheme_setup_theme_supported_features() {
+    add_theme_support(
+			'editor-font-sizes',
+			array(
+				array(
+					'name'      =&gt; __( 'Small', 'twentynineteen' ),
+					'shortName' =&gt; __( 'S', 'twentynineteen' ),
+					'size'      =&gt; 19.5,
+					'slug'      =&gt; 'small',
+				),
+				array(
+					'name'      =&gt; __( 'Normal', 'twentynineteen' ),
+					'shortName' =&gt; __( 'M', 'twentynineteen' ),
+					'size'      =&gt; 22,
+					'slug'      =&gt; 'normal',
+				),
+				array(
+					'name'      =&gt; __( 'Large', 'twentynineteen' ),
+					'shortName' =&gt; __( 'L', 'twentynineteen' ),
+					'size'      =&gt; 36.5,
+					'slug'      =&gt; 'large',
+				)
+			)
+		);
+
+}
+
+add_action( 'after_setup_theme', 'mytheme_setup_theme_supported_features' );
+</code></pre>
+<h3>–&gt; What should we do in our <code>frontity-wp-plugin</code>?</h3>
+<p>This is similar to the color palette and also works in a plugin, so we can do the same.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/10</link>
+        <pubDate>Tue, 27 Aug 2019 09:52:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-10</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It looks like <a href="https://developer.wordpress.org/block-editor/tutorials/block-tutorial/applying-styles-with-stylesheets/" rel="nofollow noopener">the officially recommended way to include scripts</a> is the <code>register_block_type('name', [ 'style' =&gt; 'name-css-registed', ])</code> one so maybe we should support that.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/9</link>
+        <pubDate>Mon, 19 Aug 2019 08:50:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-9</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I see. Thanks <a class="mention" href="https://community.frontity.org/u/jesus.designer">@jesus.designer</a>!</p>
+<p>Maybe we should add support for the default Gutenberg blocks and then think about how to support custom ones <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/8</link>
+        <pubDate>Tue, 13 Aug 2019 18:20:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-8</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[jesus.designer]]></dc:creator>
+        <description><![CDATA[
+            <p>Many block collections include CSS or JS of the frontend without tied to specific block, I can’t think a simple way to include all assets</p>
+<p>A possible solution could be a wordpress plugin, where the list of assets appears and you can mark which ones you want to include in your frontity frontend</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/7</link>
+        <pubDate>Tue, 13 Aug 2019 10:21:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-7</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[jesus.designer]]></dc:creator>
+        <description><![CDATA[
+            <p>It is possible to enqueue the files from the block registration function</p>
+<p><code>register_block_type('name', [ 'style' =&gt; 'name-css-registed', ])</code></p>
+<p>Another way I use is enqueue the files when you have to render the block through <code>has_block ()</code></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/6</link>
+        <pubDate>Tue, 13 Aug 2019 09:46:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-6</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>One question for <a class="mention" href="https://community.frontity.org/u/jesus.designer">@jesus.designer</a> or any other developer with experience creating Gutenberg blocks:</p>
+<p>How does the CSS of custom blocks work? Does it work the way Mario described or is there something we are still missing?</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/5</link>
+        <pubDate>Tue, 13 Aug 2019 08:41:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-5</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-post="1" data-topic="480">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>they would have to update it each time they update WordPress right?</p>
+</blockquote>
+</aside>
+<p>Yes, that’s right. We can inject the latest CSS by default unless they want to specify a version in the package settings.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/4</link>
+        <pubDate>Tue, 13 Aug 2019 08:38:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-4</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-post="1" data-topic="480">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Would be a way to look for the <code>class</code> and add the styles just needed as Emotion <code>css prop</code> ?</p>
+</blockquote>
+</aside>
+<p>Yes, we can do that with Html2React.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/3</link>
+        <pubDate>Tue, 13 Aug 2019 08:35:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-3</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-post="1" data-topic="480">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I guess the <code>htmlPurifier</code> could cause troubles, but as Gutenberg is meant to have structured and valid HTML, it won’t be needed right?</p>
+</blockquote>
+</aside>
+<p>That’s right, people using Gutenberg don’t need the HTML purifier, although we should now make some things optional, like for example the removal of the inline styles.</p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/2</link>
+        <pubDate>Tue, 13 Aug 2019 08:33:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-2</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+      <item>
+        <title>Gutenberg Package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <h2>Description</h2>
+<p>Right now, Frontity works with Gutenberg. However, there are a lot of styles used inside the editor, and passed to the PHP themes, that are supported by Frontity right now.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>import all the css Gutenberg uses in my Frontity project</strong><br>
+so that <strong>I can join the experience of working wit Gutenberg blocks and Frontity</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>add just the Gutenberg css needed for the page loaded</strong><br>
+so that <strong>I can improve my web performance</strong></p>
+</blockquote>
+<h2>Initial study</h2>
+<p>I have been investigating a bit about Gutenberg and how can we implement it on Frontity. We still have to do some research, but I wanted to share what I have found useful until now. Let’s use this topic to discuss the best solution.</p>
+<hr>
+<h2>How Gutenberg core blocks work</h2>
+<p>As <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> realized, all the styles of the core blocks of Gutenberg reside in two files. Our test:</p>
+<ul>
+<li>
+<em>/wp-includes/css/dist/block-library/style.min.css?ver=5.2.2</em> .</li>
+<li>
+<em>/wp-includes/css/dist/block-library/theme.min.css?ver=5.2.2</em> .</li>
+</ul>
+<p>It seems that the content of these files is independent of which blocks you use in each post, or if you change its settings. The files are prepared to support all the block configurations. The  <code>css</code>  of these files is always the same, although it may change between versions.</p>
+<p>Gutenberg changes block classes depending on the configuration, and each class corresponds to a specific style, defined in these files. For example, while using  <code>table block</code>  you can select a background color (blue, green or red). If you choose green it will add a class similar to  <code>.has-green-background-color</code>  instead of changing the css. Inside the above files, it will be defined something like:</p>
+<pre><code class="lang-javascript">.has-green-background-color{
+    background-color: green;
+}
+</code></pre>
+<p>From Frontity, as the classes are shown in the REST API, they are included in the content. This way,  <strong>adding somehow the content (css) of these two files, would make Gutenberg core blocks compatible.</strong></p>
+<p>Moreover, while configuring a block, sometimes you can add some custom styles. For example, in  <code>paragraph block</code> , you can select  <code>font-size: normal/big/huge</code>  and it will change the class to something like  <code>.has-normal-font-size/ .has-big-font-size/ .has-huge-font-size</code>  for each case as in the  <code>table block</code> . But you can also customize the size and select  <code>50px</code> . In this case, it will add an inline style  <code>&lt;p style="font-size: 50px"&gt;</code> , which will be shown in the REST API and Frontity will read it, so no problem here.</p>
+<p>I guess the  <code>htmlPurifier</code>  could cause troubles, but as Gutenberg is meant to have structured and valid HTML, it won’t be needed right?</p>
+<p>Apart from that, each theme should take care of styling the common tags as  <code>&lt;h1&gt;, &lt;h2&gt;, &lt;p&gt;, &lt;table&gt;, &lt;ol&gt;, &lt;ul&gt;, etc</code> . Gutenberg blocks don’t style them, and WP themes take care of it, so I guess in Frontity should be the same.</p>
+<h2><a href="http://Wordpress.com">Wordpress.com</a></h2>
+<p>I haven’t tested it too much, but <a href="http://wp.com/">WP.COM</a> seems to work slightly different. The styles of the blocks reside in a unique file, which also contains more css not related to the blocks.</p>
+<p>However, I could see that blocks work the same way as in <a href="http://wordpress.org/">wordpress.org</a>. It changes classes depending on the settings and all the styles (apart from the inline) resides in that file. Moreover, the classes it uses seem to be exactly the same as <a href="http://wordpress.org/">wordpress.org</a>, so if we are able to access <a href="http://wordpress.org/">wordpress.org</a> files, they may be compatible with <a href="http://wp.com/">WP.COM</a> too.</p>
+<p>Just in case it is useful, the file in our case looks like this:</p>
+<ul>
+<li><code>https://s2.wp.com/_static/??-eJydk9tuwjAMQH9oIWIbaHuY9i1JY4ppbopTVfz9nAQYpaMPk6oqdnx8iy2nKLrgM/gs3SiiHXv0JKfYBSfIoYXzg7TpiF7kHaZt6G+gU2mAjL4XWiXJpnPNOjyFZJQh2duglV3Y3uWXwKoMRsRA+UFawywOQPIEOapuEFW6maPv7Gj4uiRtkGpu1Uonlc6S8tnCxqFfBLh670IlSG43W/7unNCm0XpEa57yh9FaQZhBgMHasXYja12cCGVR3TXPj9q1wruQgPUuqlwsHAdQYMGx2Rrm4v5KleNRlVJW7NugaB0TEAn+OxydyEcOtMoxVVJpL1IfYKZpKEofMjJNt8Oazx48pGb+53HBtjRlHLVEbyAC/zgDlrnHR0ji9TID/wBLSZdJ+AfNo9lCi9rg1RdA0wOvBIx8GwYEYdUkM7hYVoSeVDBrWxCcqMoY/EwQB6twucCzpSzbzMe+1vsrFujbfW13+7fdx27/+X76AV2TroI=?cssminify=yes</code></li>
+</ul>
+<h2>Custom Blocks</h2>
+<p>I haven’t been able to test too many ways but I have tried:</p>
+<ul>
+<li><a href="https://github.com/ahmadawais/create-guten-block">Create-guten-blocks</a></li>
+<li>Using <a href="https://wordpress.org/plugins/block-lab/">Block Lab</a> plugin</li>
+</ul>
+<p>They seem to work really similar. They create a new  <code>file.css</code>  for each new block with the style needed for it. I supposed these should be added the same way we will add Gutenberg core files.</p>
+<h2>How to support Gutenberg in Frontity</h2>
+<p>Here I am completely lost, you may know better <span class="mention">@development-team</span>. I share my insights just in case they help. I have two main questions:</p>
+<ul>
+<li>
+<strong>How do we get the data from the  <code>css files</code> ?</strong><br>
+Here I can imagine two scenarios:
+<ol>
+<li>As that files don’t change until a new version is released, we could “copy” that code in  <code>@frontity/gutenberg</code>  package, so it can be consumed if wanted. We should allow people to choose what version of those files they want to use in order to avoid incompatibilities, but they would have to update it each time they update WordPress right? Apart from that, for supporting custom blocks people should add the css themselves.</li>
+<li>I am not sure if this one is technically possible of it is horrible for performance, but I guess another solution could be getting the files.css directly from WordPress. Maybe with this we could avoid versions incompatibilities. Moreover, if we are able to select more files to get from WordPress, users could select the directories of their custom blocks and support them with the same code. As said, not sure if this is even possible.</li>
+</ol>
+</li>
+<li>
+<strong>How to consume the data we get?</strong><br>
+I guess the easiest solution would be to add all this css at  <code>&lt;Global</code> &gt;, but this way it would be loaded all the  <code>css</code>  although it is not used right? Would be a way to look for the  <code>class</code>  and add the styles just needed as Emotion  <code>css prop</code> ?</li>
+</ul>
+<h2>Extra: Elementor</h2>
+<p>Again, just in case it is useful and it affects the possible solution:</p>
+<p>After looking at how Gutenberg works and how this could be supported by Frontity, I took a quick look at Elementor, as it could be similar. What Elementor seems to do, and I maybe more customizers, is adding specific classes to each block, as Gutenberg. From here, they create a  <code>global.css</code>  file, containing most of the default values for each block, and then it generates another file for each post/page where you use elementor, with a unique id.</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/478635d69b916520a75e6382b3d1a44acaf644b9.png" alt="elementor-test_%E2%80%93_gutenberg-frontity" data-base62-sha1="acJrzg0xHV1hPtP1ysakGxOFAAV" width="335" height="217"></p>
+<p>So each page or post you create with Elementor will have their blocks, with specific classes, and the styles defined in these two files: one global, common for all the pages and posts, and one for the specific page/post.</p>
+<p>The identifier it is also in the API, and it is the  <code>postId/pageId</code>  WordPress defines.</p>
+<p>Maybe if we are able to get the css files directly from WordPress these integrations are easier in the future? No idea <img src="https://community.frontity.org/images/emoji/apple/neutral_face.png?v=9" title=":neutral_face:" class="emoji" alt=":neutral_face:"></p>
+<hr>
+<p>This is all the research I have made until now, I have to test it deeper. If you have any questions, insights or you think we should consider something else just let us know please <img src="https://community.frontity.org/images/emoji/apple/grin.png?v=9" title=":grin:" class="emoji" alt=":grin:"></p>
+          <p><a href="https://community.frontity.org/t/gutenberg-package/480/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/gutenberg-package/480/1</link>
+        <pubDate>Thu, 08 Aug 2019 13:57:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-480-1</guid>
+        <source url="https://community.frontity.org/t/gutenberg-package/480.rss">Gutenberg Package</source>
+      </item>
+  </channel>
+</rss>

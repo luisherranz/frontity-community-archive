@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to get user-authenticated data from the frontity app when a user has previously logged in and she has a JWT stored as a cookie</title>
+    <link>https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272</link>
+    <description>Hello everyone! 
+
+I think I can phrase my question, generally, as I think this issue applies to many of us.
+
+So, what if I am using [JWT Authentication for WP REST API](https://es.wordpress.org/plugins/jwt-authentication-for-wp-rest-api/) since I need to access user-authenticated data (like the user public name) from the frontend using the API. I have already done that, and it works. I also store the JWT as a cookie so, when someone has already logged in, they don&#39;t have to log in again.
+
+But what if the user has logged in, say, yesterday and they now want to go to my application. They already have a JWT token stored in a cookie, so, when they load the app, I need them to have their user-authenticated data without having to perform a fetch from the client (because that takes time).
+
+Is this possible? Keep in mind that the request goes to the server (and the NodeJS app) with the cookie in an HTTP Header called &quot;Cookie&quot; (the browser sends it automatically) thus, I should be able to access the JWT from the NodeJS app. However, I only have access to the ReactJS code which can&#39;t access http request parameters, right? or...
+
+Is there a way to capture the cookie in the NodeJS server code in such a way that it is accessible from the ReactJS code (and thus, being able to perform a user-authenticated fetch?)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 23 Aug 2022 20:05:46 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to get user-authenticated data from the frontity app when a user has previously logged in and she has a JWT stored as a cookie</title>
+        <dc:creator><![CDATA[kevin.st]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi there!</p>
+<p>Personally, we’ve never stored a JWT token stored in a cookie when working with Frontity+WordPress, since we couldn’t figure out how to get the authentication to work. The plugin we used couldn’t work with cookies for some reason. Therefore we used localstorage instead to save the token, so I can only speak about my experience with handling authentication using this way.</p>
+<p>First thing to ask yourself, because that info is missing, is how the cookie is made. Is it an HTTP only cookie or a normal cookie? You can inspect cookies with javascript using either document.cookie or an npm package like <a href="https://www.npmjs.com/package/cookies" rel="noopener nofollow ugc">cookies - npm (npmjs.com)</a>. You can’t however access HTTP only cookies from javascript.</p>
+<p>I don’t know if you could access the cookies from the NodeJS server. I guess it’s possible, but it’s been a while since I’ve setup a project with Frontity and in the meantime there were quite a few changes which I haven’t looked at yet, so I can’t really help you there. Maybe you could check the cookies through the beforeSSR function by accessing the Koa context: <a href="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067/2">Expose Koa’s context in the beforeSSR method - <img src="https://community.frontity.org/images/emoji/apple/speaking_head.png?v=12" title=":speaking_head:" class="emoji" alt=":speaking_head:" loading="lazy" width="20" height="20"> Feature Discussions / Released - Frontity Community Forum</a></p>
+<p>If you really don’t want to perform a request to check if the user is authenticated, then you could maybe persist the state by, say, storing it in localstorage. Then you could do the following:</p>
+<ol>
+<li>Check if the cookie is valid, if it is, use the persisted state from localstorage;</li>
+<li>In case the cookie isn’t valid, remove the persisted state from localstorage + the cookie and redirect to the login form.</li>
+</ol>
+<p>We did it as follows:</p>
+<ol>
+<li>Store the token in localstorage after a successful login;</li>
+<li>Perform a request in beforeSSR to check if the token is valid when revisiting the app;</li>
+<li>If it’s valid, show the route you requested, otherwise, redirect to the login form (this can all be done in the beforeSSR function).</li>
+</ol>
+<p>Hope this helps!</p>
+          <p><a href="https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272/2</link>
+        <pubDate>Tue, 23 Aug 2022 19:46:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6272-2</guid>
+        <source url="https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272.rss">How to get user-authenticated data from the frontity app when a user has previously logged in and she has a JWT stored as a cookie</source>
+      </item>
+      <item>
+        <title>How to get user-authenticated data from the frontity app when a user has previously logged in and she has a JWT stored as a cookie</title>
+        <dc:creator><![CDATA[hendrys.tobar]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello everyone!</p>
+<p>I think I can phrase my question, generally, as I think this issue applies to many of us.</p>
+<p>So, what if I am using <a href="https://es.wordpress.org/plugins/jwt-authentication-for-wp-rest-api/" rel="noopener nofollow ugc">JWT Authentication for WP REST API</a> since I need to access user-authenticated data (like the user public name) from the frontend using the API. I have already done that, and it works. I also store the JWT as a cookie so, when someone has already logged in, they don’t have to log in again.</p>
+<p>But what if the user has logged in, say, yesterday and they now want to go to my application. They already have a JWT token stored in a cookie, so, when they load the app, I need them to have their user-authenticated data without having to perform a fetch from the client (because that takes time).</p>
+<p>Is this possible? Keep in mind that the request goes to the server (and the NodeJS app) with the cookie in an HTTP Header called “Cookie” (the browser sends it automatically) thus, I should be able to access the JWT from the NodeJS app. However, I only have access to the ReactJS code which can’t access http request parameters, right? or…</p>
+<p>Is there a way to capture the cookie in the NodeJS server code in such a way that it is accessible from the ReactJS code (and thus, being able to perform a user-authenticated fetch?)</p>
+          <p><a href="https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272/1</link>
+        <pubDate>Mon, 22 Aug 2022 23:55:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6272-1</guid>
+        <source url="https://community.frontity.org/t/how-to-get-user-authenticated-data-from-the-frontity-app-when-a-user-has-previously-logged-in-and-she-has-a-jwt-stored-as-a-cookie/6272.rss">How to get user-authenticated data from the frontity app when a user has previously logged in and she has a JWT stored as a cookie</source>
+      </item>
+  </channel>
+</rss>

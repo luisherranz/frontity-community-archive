@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How use window</title>
+    <link>https://community.frontity.org/t/how-use-window/349</link>
+    <description>Hi,
+How can I use the window object inside a theme? for example window.matchMedia
+thx</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 06 Jul 2019 11:41:47 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-use-window/349.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How use window</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome. Looking forward to see your work <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-use-window/349/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-use-window/349/4</link>
+        <pubDate>Sat, 06 Jul 2019 11:41:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-349-4</guid>
+        <source url="https://community.frontity.org/t/how-use-window/349.rss">How use window</source>
+      </item>
+      <item>
+        <title>How use window</title>
+        <dc:creator><![CDATA[jesus.designer]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks Luis, I was building a sidebar but this can be useful in many cases.<br>
+I’m building my personal blog and frontity is really powerful, as soon as I publish it I share it here to receive feedback</p>
+          <p><a href="https://community.frontity.org/t/how-use-window/349/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-use-window/349/3</link>
+        <pubDate>Fri, 05 Jul 2019 20:21:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-349-3</guid>
+        <source url="https://community.frontity.org/t/how-use-window/349.rss">How use window</source>
+      </item>
+      <item>
+        <title>How use window</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You need to take into account that the code is going to be excuted in both Node and the browser, and in Node <code>window</code> is not avaible.</p>
+<p>What it’s usually done is something like this:</p>
+<pre><code class="lang-javascript">const API = typeof window !== 'undefined' ? window.API: NodeAlternative;
+</code></pre>
+<p>For most of the things, there is usually a npm package. For example, our <code>@frontity/wp-source</code> is using <a href="https://www.npmjs.com/package/cross-fetch" rel="nofollow noopener"><code>"cross-fetch"</code></a> to import either the browser <code>fetch</code> or a Node alternative that implements the same API.</p>
+<pre><code class="lang-javascript">import fetch from 'cross-fetch';
+</code></pre>
+<p>It works great <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<hr>
+<p>In case of media queries, you also need to consider that Node doesn’t know the screen size but it needs to generate an HTML anyway.</p>
+<blockquote>
+<p><em>The only information Node has from the browser is the UserAgent, which doesn’t include screen size. Besides, if you want to cache that HTML in a CDN to serve it faster (and you should do that), it can’t use the UserAgent because the same HTML is served by the CDN to all the users.</em></p>
+</blockquote>
+<p>So, for example, if you want to know if the screen is bigger than 600px you do this:</p>
+<pre><code class="lang-javascript">const MyComp = () =&gt; {
+  const bigger = window.matchMedia('(max-width: 600px)');
+  return (
+     &lt;div&gt;{bigger ? "bigger" : "smaller"}&lt;/div&gt;
+  );
+};
+</code></pre>
+<p>But you need to supply a default value in Node:</p>
+<pre><code class="lang-javascript">const MyComp = () =&gt; {
+  const bigger = typeof window !== "undefined"
+    ? window.matchMedia('(max-width: 600px)');
+    : true;  // Assume screen is bigger than 600px in Node (SSR)
+
+  return (
+     &lt;div&gt;{bigger ? "bigger" : "smaller"}&lt;/div&gt;
+  );
+};
+</code></pre>
+<p>Node will generate this HTML:</p>
+<pre><code class="lang-auto">&lt;div&gt;bigger&lt;/div&gt;
+</code></pre>
+<p>If a device with a screen smaller than 600px displays this HTML, it will display <code>"bigger"</code> at first, then when React loads and evaluates <code>window.matchMedia</code>, it will be changed to <code>"smaller"</code> leading to a bad user expirience.</p>
+<p>So depending on what you want to do, sometimes it may not be a good idea to mix media queries with server side rendering.</p>
+<p>What do you want to do by the way? <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-use-window/349/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-use-window/349/2</link>
+        <pubDate>Fri, 05 Jul 2019 16:06:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-349-2</guid>
+        <source url="https://community.frontity.org/t/how-use-window/349.rss">How use window</source>
+      </item>
+      <item>
+        <title>How use window</title>
+        <dc:creator><![CDATA[jesus.designer]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,<br>
+How can I use the window object inside a theme? for example window.matchMedia<br>
+thx</p>
+          <p><a href="https://community.frontity.org/t/how-use-window/349/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-use-window/349/1</link>
+        <pubDate>Thu, 04 Jul 2019 21:18:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-349-1</guid>
+        <source url="https://community.frontity.org/t/how-use-window/349.rss">How use window</source>
+      </item>
+  </channel>
+</rss>

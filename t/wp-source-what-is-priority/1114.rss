@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>[wp-source] What is &quot;priority&quot;?</title>
+    <link>https://community.frontity.org/t/wp-source-what-is-priority/1114</link>
+    <description>Hi, I&#39;m still in the learning stages of Frontity and a little confused about the priority param used in wp-source handlers and redirections. The docs say it&#39;s the order in which the handlers/redirections are run in, which makes sense, but I have a few more questions just to understand it a bit more:
+
+1. Why is `10` used in most/all examples, is there any importance to that?
+2. Are they run in ascending or descending order? I&#39;d assume ascending but confused why the examples use 10 and not 1 when there&#39;s only one handler per example
+3. What&#39;s the community&#39;s usual way of assigning these numbers? Hardcoding? Dynamic basic on array index (which I kind of wish would be the default)?
+4. Do two handlers with the same priority run in parallel?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 22 Jan 2020 17:34:48 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/wp-source-what-is-priority/1114.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>[wp-source] What is &quot;priority&quot;?</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi there! Let’s see if I can help you understand how priority works.</p>
+<aside class="quote no-group" data-post="1" data-topic="1114">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/rissk13/40/635_2.png" class="avatar"> rissk13:</div>
+<blockquote>
+<p>Why is <code>10</code> used in most/all examples, is there any importance to that?</p>
+</blockquote>
+</aside>
+<p>Priority is important when the patterns used to match different handlers might return true for the same route. For example: <code>/category/:slug</code> and <code>/:taxonomy/:slug</code> both will match the route <code>/category/my-category-slug</code>.</p>
+<p>To go into more detail, in this case we have a more specific pattern (<code>/category/:slug</code>), only for the taxonomy <code>category</code>, and a more general pattern (<code>/:taxonomy/:slug</code>), for any other taxonomy, therefore you want to give the more specific pattern a higher priority so it’s tested against the route before the general one, because once a pattern matches, no other handlers will be tested against that route.</p>
+<p>If the handlers can’t collide between them (like <code>/category/:slug</code> and <code>/tag/:slug</code>), they can have the same priority because there is no risk of one handler being used with the wrong route.</p>
+<aside class="quote no-group" data-post="1" data-topic="1114">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/rissk13/40/635_2.png" class="avatar"> rissk13:</div>
+<blockquote>
+<p>Are they run in ascending or descending order? I’d assume ascending but confused why the examples use 10 and not 1 when there’s only one handler per example</p>
+</blockquote>
+</aside>
+<p>The lower the number, the higher the priority. Consequently a handler with priority 5 will be tested before a handler with priority 10.</p>
+<p>The reason why the default handlers have a priority of 20 is because it’s impossible to foresee the cases a developer might run into so, this way there is room for custom handlers to run before or after the default ones as needed.</p>
+<aside class="quote no-group" data-post="1" data-topic="1114">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/rissk13/40/635_2.png" class="avatar"> rissk13:</div>
+<blockquote>
+<p>What’s the community’s usual way of assigning these numbers? Hardcoding? Dynamic basic on array index (which I kind of wish would be the default)?</p>
+</blockquote>
+</aside>
+<p>You hardcode the priority on your custom handler. This mechanism is not something exclusive to Frontity, priority is used in the same way with <a href="https://developer.wordpress.org/plugins/hooks/actions/#priority">WP actions</a>, which is one of the reasons it was adopted in Frontity, we thought it would be familiar to people coming from WP.</p>
+<aside class="quote no-group" data-post="1" data-topic="1114">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/rissk13/40/635_2.png" class="avatar"> rissk13:</div>
+<blockquote>
+<p>Do two handlers with the same priority run in parallel?</p>
+</blockquote>
+</aside>
+<p>No, they run in the order they are defined in the array.</p>
+          <p><a href="https://community.frontity.org/t/wp-source-what-is-priority/1114/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-what-is-priority/1114/2</link>
+        <pubDate>Wed, 22 Jan 2020 17:11:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1114-2</guid>
+        <source url="https://community.frontity.org/t/wp-source-what-is-priority/1114.rss">[wp-source] What is &quot;priority&quot;?</source>
+      </item>
+      <item>
+        <title>[wp-source] What is &quot;priority&quot;?</title>
+        <dc:creator><![CDATA[rissk13]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, I’m still in the learning stages of Frontity and a little confused about the priority param used in wp-source handlers and redirections. The docs say it’s the order in which the handlers/redirections are run in, which makes sense, but I have a few more questions just to understand it a bit more:</p>
+<ol>
+<li>Why is <code>10</code> used in most/all examples, is there any importance to that?</li>
+<li>Are they run in ascending or descending order? I’d assume ascending but confused why the examples use 10 and not 1 when there’s only one handler per example</li>
+<li>What’s the community’s usual way of assigning these numbers? Hardcoding? Dynamic basic on array index (which I kind of wish would be the default)?</li>
+<li>Do two handlers with the same priority run in parallel?</li>
+</ol>
+          <p><a href="https://community.frontity.org/t/wp-source-what-is-priority/1114/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-what-is-priority/1114/1</link>
+        <pubDate>Wed, 22 Jan 2020 14:43:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1114-1</guid>
+        <source url="https://community.frontity.org/t/wp-source-what-is-priority/1114.rss">[wp-source] What is &quot;priority&quot;?</source>
+      </item>
+  </channel>
+</rss>

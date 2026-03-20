@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Deploy frontity.org in Google Cloud Run</title>
+    <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782</link>
+    <description>I wanted to test if it would be possible to deploy our web, frontity.org (https://github.com/frontity/frontity.org), in Google Cloud Run. I still want to do more tests, but I was able to deploy an initial version so I thought it could be interesting to other users as well. This is the current status:
+* Live example -&gt; https://frontity-org-fkikxso7pq-ew.a.run.app/
+* gcloud GitHub branch -&gt; https://github.com/frontity/frontity.org/tree/gcloud
+
+And this is the process I followed:
+
+## 1. Create a project in Google Cloud Run
+The first step is to create a project to deploy our app. You should go to https://console.cloud.google.com and create it there. Select a name and a project ID will be assigned. In our case our project ID is `frontity-org`.
+
+## 2. Enable the proper APIs
+In the project you just have created, you should go to the APIs and enable the ones we will be using: Cloud Run API and Cloud Build API.
+
+## 3. Get your app ready
+You have  to have a Frontity project you want to deploy. You can create one using our quickstart guide. We are using the one we already have for our web - https://github.com/frontity/frontity.org.
+
+Apart from your app code, you have to add two files at the root of your project: `Dockerfile` and `.gcloudignore`.
+
+### Dockerfile
+
+The Dockerfile I used for this first test is:
+
+```
+FROM node:12-alpine
+RUN mkdir -p usr/src/app
+WORKDIR /usr/src/app
+COPY . .
+RUN npm install --only=production
+RUN npx frontity build
+EXPOSE 8080
+CMD [&quot;npx&quot;, &quot;frontity&quot;, &quot;serve&quot;, &quot;--port&quot;, &quot;8080&quot;]
+```
+
+### .gcloudignore
+
+This substitute the common .dockerignore. This is the one used for this first test:
+
+```
+README.md
+node_modules
+npm-debug.log
+.git
+```
+
+## 4. Build you container
+
+&gt;We start using Google Cloud and Docker now, so you should have Docker and Google Cloud SDK [(https://cloud.google.com/sdk/docs/)](https://cloud.google.com/sdk/docs/) installed.
+
+In order to build it, you have to:
+
+### Login in gcloud
+First step, is to authenticate, so you can work in our project. In order to do so you should run:
+```
+gcloud auth login
+```
+It will prompt a new tab in the browser to authenticate.
+
+### Set the project we want to work on
+You have to select the project you want to work on with the following command:
+```
+gcloud config set project PROJECT_ID
+```
+In our case:
+
+```
+gcloud config set project frontity-org
+```
+
+### Build the container
+You have to use the following command, that will read the Dockerfile:
+```
+gcloud builds submit --tag gcr.io/PROJECT_ID/CONTAINER
+```
+In our case:
+```
+gcloud builds submit --tag gcr.io/frontity-org/frontity-org
+```
+
+## 5. Deploy to Google Cloud Run
+Once the build has finished, and it has succeeded, you can deploy it using this command:
+```
+gcloud run deploy --image gcr.io/PROJECT_ID/CONTAINER --platform managed
+```
+In our case:
+```
+gcloud run deploy --image gcr.io/frontity-org/frontity-org --platform managed
+```
+It&#39;ll ask you for the service name, the region, and if you want to allow unauthenticated. You can select any service name and region, but when the CLI ask if you want to allow unauthenticated, you have to select &quot;yes&quot;.
+
+And that&#39;s it! You may need to wait some minutes until the Service works as expected, but with these steps it should be enough.
+
+---
+
+The next test I&#39;d like to run is to use Google Cloud CDN to serve the static files. According to [its docs](https://cloud.google.com/cdn/docs/using-cdn) it seems possible. I&#39;m planning to follow [this guide](https://cloud.google.com/load-balancing/docs/negs/setting-up-serverless-negs) to do it and I&#39;ll post the results here.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 17 Nov 2020 13:37:12 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>The issue with the <code>serve</code> command has been solved in the <a href="https://community.frontity.org/t/frontity-release-new-link-processor-to-manage-the-internal-content-links/3419">latest release</a>. Now, we can use it and the server takes ~1sec to start, so the <code>server.js</code> file is not needed anymore. Now we can use something like this in the Dockerfile:</p>
+<pre><code class="lang-javascript">CMD [ "sh", "-c", "npx frontity serve --port 8080" ]
+</code></pre>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/12</link>
+        <pubDate>Tue, 17 Nov 2020 13:37:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-12</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve opened <a href="https://github.com/frontity/frontity/issues/605">an issue</a> to deal with this. Until we solve it, I guess the best option is to create the <code>server.js</code> file and use <code>node server.js</code> instead of <code>npx frontity serve</code>.</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/11</link>
+        <pubDate>Wed, 21 Oct 2020 07:18:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-11</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It looks like there are more people having problems with <code>commander</code> in <code>serve</code> (<a href="https://community.frontity.org/t/error-did-you-forget-to-run-frontity-build/1426/38" class="inline-onebox">Error: Did you forget to run "frontity build"?</a>) so maybe we have to fix that.</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/10</link>
+        <pubDate>Tue, 20 Oct 2020 11:03:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-10</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>We’ve been running more tests and it seems it’s a problem with the <a href="https://www.npmjs.com/package/commander">commander library</a> we’re using for the CLI. If we skip it and we run the <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/scripts/serve.ts">serve script</a> directly, the cold start takes ~1sec. For this, what we did was creating a <code>server.js</code> file with the following content and running <code>CMD ["node", "server.js"]</code> instead in the Dockerfile.</p>
+<p><em>server.js</em>:</p>
+<pre><code class="lang-javascript">const serve = require("@frontity/core/dist/src/scripts/serve").default;
+
+serve({
+  isHttps: false,
+  port: 8080,
+});
+</code></pre>
+<p>Comparing the different possibilities we have been trying, these are the times of the cold starts:</p>
+<ul>
+<li>Using the common frontity comand it takes 20-30 seconds:</li>
+</ul>
+<pre><code class="lang-javascript">CMD [ "sh", "-c", "npx frontity serve --port 8080" ]
+</code></pre>
+<ul>
+<li>Not using <code>npx</code> just in case it was the problem takes also 20-30 seconds:</li>
+</ul>
+<pre><code class="lang-javascript">CMD ["npm", "run", "serve", "--", "--port", "8080"]
+</code></pre>
+<ul>
+<li>Creating the <code>server.js</code> and skipping commander takes ~1sec:</li>
+</ul>
+<pre><code class="lang-javascript">CMD ["node", "server.js"]
+</code></pre>
+<p>This lead us to think that is commander causing the issues, so we should consider to skip commander for the <code>frontity serve</code>, as it is the most critical step.</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/9</link>
+        <pubDate>Tue, 20 Oct 2020 09:50:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-9</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/frankoonk">@frankoonk</a>, thanks for testing this out! <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<p>The problem is that the “cold start” should take less than a second and right now it’s taking about 30 seconds. We need to keep investigating this.</p>
+<p>Have you tried running the <code>CMD</code> as a shell script?</p>
+<pre><code class="lang-javascript">CMD [ "sh", "-c", "npx frontity serve --port $PORT" ]
+</code></pre>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/8</link>
+        <pubDate>Tue, 13 Oct 2020 15:30:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-8</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[frankoonk]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> . I’ve followed the tutorial step by step and it works. But indeed it takes ages to build and a lang time to start when a user/visitor visits it for the first time.</p>
+<p>I’ve noticed in my log that it starts the server when visited for the first time (in a new session), (i am aware of Cold start):</p>
+<p>SERVER STARTED – Listening @ <a href="http://localhost:8080" rel="nofollow noopener">http://localhost:8080</a></p>
+<p>But when i refresh the page everything seems to be fine and it starts right away (no signs in the logs of starting the server).</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/7</link>
+        <pubDate>Thu, 08 Oct 2020 10:42:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-7</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We could try running the command with the shell. That way we also have access to the env variables:</p>
+<pre><code class="lang-javascript">FROM node:12-alpine
+WORKDIR /usr/src/app
+COPY . .
+RUN npm install --only=production
+RUN npx frontity build
+CMD [ "sh", "-c", "npx frontity serve --port $PORT" ]
+</code></pre>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/6</link>
+        <pubDate>Mon, 14 Sep 2020 12:49:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-6</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="4" data-topic="2782">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>, sometimes it isn’t able and return this error:</p>
+<p><code>Memory limit of 256M exceeded with 295M used.</code></p>
+<p>We could extend the limit, but the time to start would be the same.</p>
+</blockquote>
+</aside>
+<p>I’ve deployed a new version with 512M from the GC Run UI. Let’s see if that solves the problem.</p>
+<p>EDIT: No, it didn’t.</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/5</link>
+        <pubDate>Mon, 14 Sep 2020 10:32:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-5</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="3" data-topic="2782">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>It doesn’t seem to be working fine. It takes ages to start, like if it were doing some work that it shouldn’t be doing. Maybe we’re doing something wrong?</p>
+</blockquote>
+</aside>
+<p>Yes, it doesn’t seem right, but I wasn’t able to find what I was doing wrong. I’ve been taking a look at the logs and, when it tries to start the server, sometimes it isn’t able and return this error:</p>
+<p><code>Memory limit of 256M exceeded with 295M used.</code></p>
+<p>We could extend the limit, but the time to start would be the same.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="3" data-topic="2782">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Maybe change the starting command to <code>"npm run serve -- --port 8080"</code> instead of <code>"npx frontity serve"</code> , just in case what’s taking long is the <code>npx</code> command that for some reason installs <code>frontity</code> each time, instead of using the copy in <code>node_modules</code> ?</p>
+</blockquote>
+</aside>
+<p>I’ve tried this but it doesn’t seem to work. However, taking a look at the logs there is one still saying this before starting the server:</p>
+<pre><code class="lang-javascript">frontity serve "--port" "8080"
+</code></pre>
+<p>Because of this I’m wondering if there could be a cache (or something similar) that still has something that is not correct from the first tests. After running the build command and pushing the image, I get this in the console:</p>
+<pre><code class="lang-javascript">Pushing gcr.io/frontity-org/frontity-org
+The push refers to repository [gcr.io/frontity-org/frontity-org]
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Preparing
+xxxxxxxxxxxxx: Waiting
+xxxxxxxxxxxxx: Waiting
+xxxxxxxxxxxxx: Waiting
+xxxxxxxxxxxxx: Layer already exists
+xxxxxxxxxxxxx: Layer already exists
+xxxxxxxxxxxxx: Layer already exists
+xxxxxxxxxxxxx: Layer already exists
+xxxxxxxxxxxxx: Pushed
+xxxxxxxxxxxxx: Pushed
+xxxxxxxxxxxxx: Pushed
+xxxxxxxxxxxxx: Pushed
+</code></pre>
+<p>The xxx are hashes. It tries to push 8 of these hashes which I guess they are the 8 different steps we have in the Dockerfile. Maybe the ones where it says “Layer already exists” aren’t updated and this is generating issues?</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="3" data-topic="2782">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Doesn’t it work with the <code>.gitignore</code> file?</p>
+</blockquote>
+</aside>
+<p>Not by default, but I think we could use the <a href="https://cloud.google.com/sdk/gcloud/reference/builds/submit"><code>--ignore-file</code> flag</a> to point there.</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/4</link>
+        <pubDate>Fri, 11 Sep 2020 11:37:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-4</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="1" data-topic="2782">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p><a href="https://frontity-org-fkikxso7pq-ew.a.run.app/">https://frontity-org-fkikxso7pq-ew.a.run.app/</a></p>
+</blockquote>
+</aside>
+<p>It doesn’t seem to be working fine. It takes ages to start, like if it were doing some work that it shouldn’t be doing. Maybe we’re doing something wrong?</p>
+<p>For what I see in the <a href="https://cloud.google.com/run/docs/quickstarts/build-and-deploy#node.js">Quick Start Guide</a> everything seems fine… Maybe change the starting command to <code>"npm run serve -- --port 8080"</code> instead of <code>"npx frontity serve"</code>, just in case what’s taking long is the <code>npx</code> command that for some reason installs <code>frontity</code> each time, instead of using the copy in <code>node_modules</code>?</p>
+<pre><code class="lang-javascript">CMD ["npm", "run", "serve", "--", "--port", "8080"]
+</code></pre>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="1" data-topic="2782">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>.gcloudignore</p>
+</blockquote>
+</aside>
+<p>Doesn’t it work with the <code>.gitignore</code> file?</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/3</link>
+        <pubDate>Mon, 07 Sep 2020 07:52:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-3</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+      <item>
+        <title>Deploy frontity.org in Google Cloud Run</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I wanted to test if it would be possible to deploy our web, <a href="http://frontity.org">frontity.org</a> (<a href="https://github.com/frontity/frontity.org">https://github.com/frontity/frontity.org</a>), in Google Cloud Run. I still want to do more tests, but I was able to deploy an initial version so I thought it could be interesting to other users as well. This is the current status:</p>
+<ul>
+<li>Live example -&gt; <a href="https://frontity-org-fkikxso7pq-ew.a.run.app/">https://frontity-org-fkikxso7pq-ew.a.run.app/</a>
+</li>
+<li>gcloud GitHub branch -&gt; <a href="https://github.com/frontity/frontity.org/tree/gcloud">https://github.com/frontity/frontity.org/tree/gcloud</a>
+</li>
+</ul>
+<p>And this is the process I followed:</p>
+<h2>1. Create a project in Google Cloud Run</h2>
+<p>The first step is to create a project to deploy our app. You should go to <a href="https://console.cloud.google.com">https://console.cloud.google.com</a> and create it there. Select a name and a project ID will be assigned. In our case our project ID is <code>frontity-org</code>.</p>
+<h2>2. Enable the proper APIs</h2>
+<p>In the project you just have created, you should go to the APIs and enable the ones we will be using: Cloud Run API and Cloud Build API.</p>
+<h2>3. Get your app ready</h2>
+<p>You have  to have a Frontity project you want to deploy. You can create one using our quickstart guide. We are using the one we already have for our web - <a href="https://github.com/frontity/frontity.org">https://github.com/frontity/frontity.org</a>.</p>
+<p>Apart from your app code, you have to add two files at the root of your project: <code>Dockerfile</code> and <code>.gcloudignore</code>.</p>
+<h3>Dockerfile</h3>
+<p>The Dockerfile I used for this first test is:</p>
+<pre><code class="lang-javascript">FROM node:12-alpine
+RUN mkdir -p usr/src/app
+WORKDIR /usr/src/app
+COPY . .
+RUN npm install --only=production
+RUN npx frontity build
+EXPOSE 8080
+CMD ["npx", "frontity", "serve", "--port", "8080"]
+</code></pre>
+<h3>.gcloudignore</h3>
+<p>This substitute the common .dockerignore. This is the one used for this first test:</p>
+<pre><code class="lang-javascript">README.md
+node_modules
+npm-debug.log
+.git
+</code></pre>
+<h2>4. Build you container</h2>
+<blockquote>
+<p>We start using Google Cloud and Docker now, so you should have Docker and Google Cloud SDK <a href="https://cloud.google.com/sdk/docs/">(https://cloud.google.com/sdk/docs/)</a> installed.</p>
+</blockquote>
+<p>In order to build it, you have to:</p>
+<h3>Login in gcloud</h3>
+<p>First step, is to authenticate, so you can work in our project. In order to do so you should run:</p>
+<pre><code class="lang-javascript">gcloud auth login
+</code></pre>
+<p>It will prompt a new tab in the browser to authenticate.</p>
+<h3>Set the project we want to work on</h3>
+<p>You have to select the project you want to work on with the following command:</p>
+<pre><code class="lang-javascript">gcloud config set project PROJECT_ID
+</code></pre>
+<p>In our case:</p>
+<pre><code class="lang-javascript">gcloud config set project frontity-org
+</code></pre>
+<h3>Build the container</h3>
+<p>You have to use the following command, that will read the Dockerfile:</p>
+<pre><code class="lang-javascript">gcloud builds submit --tag gcr.io/PROJECT_ID/CONTAINER
+</code></pre>
+<p>In our case:</p>
+<pre><code class="lang-javascript">gcloud builds submit --tag gcr.io/frontity-org/frontity-org
+</code></pre>
+<h2>5. Deploy to Google Cloud Run</h2>
+<p>Once the build has finished, and it has succeeded, you can deploy it using this command:</p>
+<pre><code class="lang-javascript">gcloud run deploy --image gcr.io/PROJECT_ID/CONTAINER --platform managed
+</code></pre>
+<p>In our case:</p>
+<pre><code class="lang-javascript">gcloud run deploy --image gcr.io/frontity-org/frontity-org --platform managed
+</code></pre>
+<p>It’ll ask you for the service name, the region, and if you want to allow unauthenticated. You can select any service name and region, but when the CLI ask if you want to allow unauthenticated, you have to select “yes”.</p>
+<p>And that’s it! You may need to wait some minutes until the Service works as expected, but with these steps it should be enough.</p>
+<hr>
+<p>The next test I’d like to run is to use Google Cloud CDN to serve the static files. According to <a href="https://cloud.google.com/cdn/docs/using-cdn">its docs</a> it seems possible. I’m planning to follow <a href="https://cloud.google.com/load-balancing/docs/negs/setting-up-serverless-negs">this guide</a> to do it and I’ll post the results here.</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782/1</link>
+        <pubDate>Mon, 31 Aug 2020 11:14:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2782-1</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-org-in-google-cloud-run/2782.rss">Deploy frontity.org in Google Cloud Run</source>
+      </item>
+  </channel>
+</rss>

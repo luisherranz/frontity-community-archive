@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Change publicPath</title>
+    <link>https://community.frontity.org/t/change-publicpath/1461</link>
+    <description># Description
+
+Right now Webpack&#39;s `publicPath` is hardcoded to `/static`. We need to add a way to change it. We should allow people to change it when they run `npx frontity build`.
+
+# User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want to **change the `publicPath` at build time**
+&gt; so that **I am not restricted to the /static folder**
+
+&gt; &lt;s&gt;As a **Frontity developer**&lt;/s&gt;
+&gt; &lt;s&gt;I want to **change the `publicPath` at runtime**&lt;/s&gt;
+&gt; &lt;s&gt;so that **I am not restricted to the /static folder**&lt;/s&gt;
+
+Moved to: https://community.frontity.org/t/change-publicpath-dynamically-at-runtime/1588
+
+# Possible solution
+
+Even though people will be able to change this once we relesae the [`frontity.config.js` file with support to modify Webpack](https://community.frontity.org/t/customize-webpack-configuration/1324), I think this is important enough to add a CLI arg to change it, like this:
+
+```bash
+&gt; npx frontity build --publicPath=&quot;/other/folder&quot;
+# or
+&gt; npx frontity build --publicPath=&quot;https://external-domain.com/folder&quot;
+```
+
+It should be possible to configure it with ENV variables:
+
+```bash
+&gt; FRONTITY_PUBLIC_PATH=/other/folder &amp;&amp; npx frontity build
+```
+
+# Implementation proposal
+
+https://community.frontity.org/t/change-publicpath/1461/5?u=luisherranz</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 20 Aug 2020 10:46:36 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/change-publicpath/1461.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I made a mistake in my implementation proposal. None of our CLI args are in camelcase (<code>--use-cwd</code> or <code>--no-prompt</code>) and our commands are neither (<code>create-package</code>).</p>
+<p>I think we should rename this to <code>--public-path</code>. I’ll make a PR to fix it while maintaining backward compatibility.</p>
+<p>EDIT: This is the PR: <a href="https://github.com/frontity/frontity/pull/541">https://github.com/frontity/frontity/pull/541</a></p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/15</link>
+        <pubDate>Thu, 20 Aug 2020 09:12:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-15</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>This feature has been included in the <a href="https://community.frontity.org/t/frontity-release-allow-dev-build-and-serve-commands-to-be-configured-using-environment-variables/2147">latest release</a>. It was implemented according to the implementation proposal in <a href="https://github.com/frontity/frontity/pull/458">this Pull Request</a>, and now Frontity allows  <code>dev</code>  ,  <code>build</code>  and  <code>serve</code>  commands to be configured using environment variables.</p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/14</link>
+        <pubDate>Fri, 19 Jun 2020 11:15:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-14</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks guys. I’m going to unblock the issue then <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/13</link>
+        <pubDate>Mon, 08 Jun 2020 16:15:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-13</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Well, to have a stronger opinion here I’ve writen an example of how the <code>.env</code> file would look:</p>
+<pre><code class="lang-bash"># `dev` command variables
+FRONTITY_DEV_TARGET='module'
+FRONTITY_DEV_PORT=3001
+FRONTITY_DEV_HTTPS=false
+FRONTITY_DEV_PRODUCTION=false
+FRONTITY_DEV_PUBLIC_PATH='/public/path'
+FRONTITY_DEV_DONT_OPEN_BROWSER=true
+
+# `build` command variables.
+FRONTITY_BUILD_TARGET='both'
+FRONTITY_BUILD_DEVELOPMENT=false
+FRONTITY_BUILD_PUBLIC_PATH='/public/path'
+
+# `serve` command variables.
+FRONTITY_SERVE_PORT=80
+FRONTITY_SERVE_HTTPS=true
+</code></pre>
+<p>Which I think it looks nice. <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>It would be a problem if you had to use such long names in a command:</p>
+<pre><code class="lang-bash"> FRONTITY_DEV_TARGET='module' FRONTITY_DEV_PORT=3001 FRONTITY_DEV_DONT_OPEN_BROWSER=true npx frontity dev
+</code></pre>
+<p>But why not to use the command arguments in that case?</p>
+<pre><code class="lang-bash">npx frontity dev --target 'module' --port 3001 --dont-open-browser
+</code></pre>
+<p>Also, I understanded that the use case for the env variables is to change the “default” value of each argument so you can call just <code>npx frontity dev</code> and use whatever values you have specified for the env variables. And you can overwrite those values too passing new arguments explicitly.</p>
+<p>My vote is for adding the command to the var names. <img src="https://community.frontity.org/images/emoji/apple/raised_hand.png?v=9" title=":raised_hand:" class="emoji" alt=":raised_hand:"></p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/12</link>
+        <pubDate>Mon, 08 Jun 2020 11:22:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-12</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="10" data-topic="1461">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>The user should always have the chance to set the env variables before running the command, right?</p>
+</blockquote>
+</aside>
+<p>Yes, but I think a lot of people right now is using <code>dotenv</code> to define their env variables in a <code>.env</code> file, so maybe they want to define all of them for different commands and they clash.</p>
+<p>Which, by the way, I think that running <code>dotenv</code> ourselves would be pretty cool. I think is getting the standard. I’ve seen several tools that do it lately, like <code>changesets</code> and <code>docker-compose</code>, and it’s cool not to have to install and run <code>dotenv</code> yourself, just create the <code>.env</code> file.</p>
+<p><a class="mention" href="https://community.frontity.org/u/david">@david</a>, what do you think about the naming?</p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/11</link>
+        <pubDate>Mon, 08 Jun 2020 06:49:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-11</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I think that:</p>
+<ol>
+<li>
+<p>The user should always have the chance to set the env variables before running the command, right? So they could do <code>FRONTITY_PORT=3333; npx frontity dev</code>. This works in npm scripts as well. Is there a use case where that’s not the case?</p>
+</li>
+<li>
+<p>At the same time, we could just go with <code>FRONTITY_DEV_PORT</code>, it’s kinda ugly but it solves the problem and if we think of a better solution we can always still keep backwards compatibility and promote the “new” solution</p>
+</li>
+</ol>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/10</link>
+        <pubDate>Fri, 05 Jun 2020 15:05:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-10</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I wonder if we should add the command name to the ENV variables to avoid collisions:</p>
+<pre><code class="lang-bash">FRONTITY_DEV_PORT=3001
+</code></pre>
+<p>instead of</p>
+<pre><code class="lang-bash">FRONTITY_PORT=3001
+</code></pre>
+<p>We already have some clashing names:</p>
+<ul>
+<li>
+<code>FRONTITY_NAME</code>
+<ul>
+<li><code>npx frontity create</code></li>
+<li><code>npx frontity create-package</code></li>
+</ul>
+</li>
+<li>Most of them for:
+<ul>
+<li><code>npx frontity dev</code></li>
+<li><code>npx frontity build</code></li>
+<li><code>npx frontity serve</code></li>
+</ul>
+</li>
+</ul>
+<p>If we keep adding commands with args, I guess we may get to a point where someone wants to have more than one ENV variable configured for more than one command but they can’t do it.</p>
+<p><a class="mention-group notify" href="https://community.frontity.org/groups/dev-team">@dev-team</a> what do you think?</p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/9</link>
+        <pubDate>Fri, 05 Jun 2020 09:59:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-9</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>The <code>publicPath</code> options it’s implemented just as it was explained in the implementation proposal (code can be reviewed in <a href="https://github.com/frontity/frontity/pull/420">frontity/frontity#420</a>):</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="5" data-topic="1461">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Add a new option called <code>publicPath</code> to the build command in: <a href="https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/index.ts#L80-L88">https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/index.ts#L80-L88</a></p>
+<p>Pass down that option to the real <code>build</code> command. If it’s not present, the default should be <code>/static</code> : <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/scripts/build.ts#L12-L18">https://github.com/frontity/frontity/blob/dev/packages/core/src/scripts/build.ts#L12-L18</a></p>
+<p>Pass down that option to webpack: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/config/webpack/output.ts#L67">https://github.com/frontity/frontity/blob/dev/packages/core/src/config/webpack/output.ts#L67</a></p>
+<p>Repeate the process for the dev command.</p>
+</blockquote>
+</aside>
+<hr>
+<p>The environment variables were added as specified in the implementation proposal.</p>
+<p>Also, an extra env var was added ( <code>FRONTITY_DONT_OPEN_BROWSER</code> ) for the <a href="https://docs.frontity.org/frontity-cli/dev#arguments"> <code>--dont-open-brower</code> </a> argument of the  <code>npx frontity dev</code>  command.</p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/7</link>
+        <pubDate>Tue, 19 May 2020 11:18:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-7</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Implementation Proposal</h1>
+<p>Add a new option called <code>publicPath</code> to the build command in: <a href="https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/index.ts#L80-L88">https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/index.ts#L80-L88</a></p>
+<p>Pass down that option to the real <code>build</code> command. If it’s not present, the default should be <code>/static</code>: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/scripts/build.ts#L12-L18">https://github.com/frontity/frontity/blob/dev/packages/core/src/scripts/build.ts#L12-L18</a></p>
+<p>Pass down that option to webpack: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/config/webpack/output.ts#L67">https://github.com/frontity/frontity/blob/dev/packages/core/src/config/webpack/output.ts#L67</a></p>
+<p>Repeate the process for the dev command.</p>
+<hr>
+<p>We are also going to take this opportunity to add the ENV variables to <code>build</code>, <code>dev</code> and <code>serve</code>, like we did in the last CLI refactor: <a href="https://github.com/frontity/frontity/pull/262">https://github.com/frontity/frontity/pull/262</a></p>
+<p>For that, we need to add <code>build</code>, <code>dev</code> and <code>serve</code> to the CLI folder (<a href="https://github.com/frontity/frontity/tree/dev/packages/frontity/src/cli">https://github.com/frontity/frontity/tree/dev/packages/frontity/src/cli</a>) and create variables for:</p>
+<ul>
+<li>target: <code>FRONTITY_TARGET</code>.</li>
+<li>port: <code>FRONTITY_PORT</code>.</li>
+<li>https: <code>FRONTITY_HTTPS</code>.</li>
+<li>production: <code>FRONTITY_PRODUCTION</code>.</li>
+<li>development: <code>FRONTITY_DEVELOPMENT</code>.</li>
+<li>publicPath: <code>FRONTITY_PUBLIC_PATH</code>.</li>
+</ul>
+<p>It needs to be similar to what we are doing here: <a href="https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/create.ts#L23-L26">https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/create.ts#L23-L26</a></p>
+<h1>Issues Proposal</h1>
+<ul>
+<li>Add <code>publicPath</code> option to CLI and pass it down to Webpack in both the <code>build</code> and <code>dev</code> commands.</li>
+<li>Add ENV variables for the <code>build</code>, <code>dev</code> and <code>serve</code> commands.</li>
+</ul>
+<h1>Documentation</h1>
+<ul>
+<li><a href="https://webpack.js.org/guides/public-path/">https://webpack.js.org/guides/public-path/</a></li>
+</ul>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/5</link>
+        <pubDate>Tue, 21 Apr 2020 11:33:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-5</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="403page" data-post="2" data-topic="1461">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/403page/40/600_2.png" class="avatar"> 403page:</div>
+<blockquote>
+<p>When you had it working as a query string before?</p>
+</blockquote>
+</aside>
+<p>Frontity is not as new as it seems <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>We developed the first version of the framework for our own use during 2017 and 2018. We did it because we were working with some big Spanish publishers and they wanted to improve the performance and UX of their mobile version. It worked great but they didn’t have access to change the code, so at the beginning of 2019, we decided to discontinue the product and launch an open-source framework. This new version is based on the old one, but we took the opportunity to simplify the APIs and do some performance/size optimizations.</p>
+<p>There are still some things we haven’t ported from the all framework, like analytics packages, ads packages, comments packages, AMP support, server extensibility, Slot and Fill extensibility… but all those things were working great in the old version.</p>
+<aside class="quote no-group" data-username="403page" data-post="2" data-topic="1461">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/403page/40/600_2.png" class="avatar"> 403page:</div>
+<blockquote>
+<p><code>frontity_publicPath=/other/folder</code> , was that on each user request (cache notwithstanding)?</p>
+</blockquote>
+</aside>
+<p>Yes, because the HTML changes to accomodate the new <code>publicPath</code>. The <code>publicPath</code> query would need to be removed from the URL of course. I have added a FD for a system called <a href="https://community.frontity.org/t/router-converters/1514">Router Converters</a> which will allow to do so.</p>
+<p>Also, take into account that with the Theme Bridge architecture, WordPress should be the one caching (or using a CDN). You don’t want to cache twice because that could lead to invalidation problems.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/277bd51839661e575ee18ca31366eb0bd9b3180f.png" data-download-href="https://community.frontity.org/uploads/default/277bd51839661e575ee18ca31366eb0bd9b3180f" title="excalidraw-20204194157"><img src="https://community.frontity.org/uploads/default/optimized/1X/277bd51839661e575ee18ca31366eb0bd9b3180f_2_690x383.png" alt="excalidraw-20204194157" data-base62-sha1="5DhVIVzmm6MqSPsOnIptxvR7p71" width="690" height="383" srcset="https://community.frontity.org/uploads/default/optimized/1X/277bd51839661e575ee18ca31366eb0bd9b3180f_2_690x383.png, https://community.frontity.org/uploads/default/optimized/1X/277bd51839661e575ee18ca31366eb0bd9b3180f_2_1035x574.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/277bd51839661e575ee18ca31366eb0bd9b3180f_2_1380x766.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/277bd51839661e575ee18ca31366eb0bd9b3180f_2_10x10.png"></a></div><p></p>
+<p><a href="https://excalidraw.com/#json=5104867139911680,TFDZpowUFKZu1DheCGeOGA">Draw</a></p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/3</link>
+        <pubDate>Wed, 08 Apr 2020 06:37:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-3</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[403page]]></dc:creator>
+        <description><![CDATA[
+            <p>When you had it working as a query string before <code>?frontity_publicPath=/other/folder</code>, was that on each user request (cache notwithstanding)?</p>
+<p>Only reason I ask is that a common configuration of FastCGI cache or Varnish is to exclude ?arg from cache. Just curious more than anything.</p>
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/2</link>
+        <pubDate>Tue, 07 Apr 2020 16:07:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-2</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+      <item>
+        <title>Change publicPath</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>Right now Webpack’s <code>publicPath</code> is hardcoded to <code>/static</code>. We need to add a way to change it. We should allow people to change it when they run <code>npx frontity build</code>.</p>
+<h1>User Stories</h1>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>change the <code>publicPath</code> at build time</strong><br>
+so that <strong>I am not restricted to the /static folder</strong></p>
+</blockquote>
+<blockquote>
+<p><s>As a <strong>Frontity developer</strong></s><br>
+<s>I want to <strong>change the <code>publicPath</code> at runtime</strong></s><br>
+<s>so that <strong>I am not restricted to the /static folder</strong></s></p>
+</blockquote>
+<p>Moved to: <a href="https://community.frontity.org/t/change-publicpath-dynamically-at-runtime/1588" class="inline-onebox">Change publicPath dynamically at runtime</a></p>
+<h1>Possible solution</h1>
+<p>Even though people will be able to change this once we relesae the <a href="https://community.frontity.org/t/customize-webpack-configuration/1324"><code>frontity.config.js</code> file with support to modify Webpack</a>, I think this is important enough to add a CLI arg to change it, like this:</p>
+<pre><code class="lang-bash">&gt; npx frontity build --publicPath="/other/folder"
+# or
+&gt; npx frontity build --publicPath="https://external-domain.com/folder"
+</code></pre>
+<p>It should be possible to configure it with ENV variables:</p>
+<pre><code class="lang-bash">&gt; FRONTITY_PUBLIC_PATH=/other/folder &amp;&amp; npx frontity build
+</code></pre>
+<h1>Implementation proposal</h1>
+<aside class="quote quote-modified" data-post="5" data-topic="1461">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/change-publicpath/1461/5">Change publicPath</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/feature-discussions/released/40"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Features that are ready!">Released</span></a>
+  </div>
+  <blockquote>
+    Implementation Proposal
+Add a new option called publicPath to the build command in: <a href="https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/index.ts#L80-L88">https://github.com/frontity/frontity/blob/dev/packages/frontity/src/cli/index.ts#L80-L88</a> 
+Pass down that option to the real build command. If it’s not present, the default should be /static: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/scripts/build.ts#L12-L18">https://github.com/frontity/frontity/blob/dev/packages/core/src/scripts/build.ts#L12-L18</a> 
+Pass down that option to webpack: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/config/webpack/output.ts#L67">https://github.com/frontity/frontity/blob/dev/packages/core/src/config/webpack/output.ts#L67</a> 
+Repeate…
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/change-publicpath/1461/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/change-publicpath/1461/1</link>
+        <pubDate>Wed, 01 Apr 2020 11:07:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1461-1</guid>
+        <source url="https://community.frontity.org/t/change-publicpath/1461.rss">Change publicPath</source>
+      </item>
+  </channel>
+</rss>

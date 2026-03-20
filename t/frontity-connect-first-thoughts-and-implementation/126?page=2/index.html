@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Frontity Connect - First thoughts and implementation - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="I think it’d be amazing if we could be the creators of our own state manager solution because that would mean we would have absolute control over its implementation and we could craft its API to match our extensibility p&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/frontity-connect-first-thoughts-and-implementation/126" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Frontity Connect - First thoughts and implementation&#39;" href="126.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/frontity-connect-first-thoughts-and-implementation/126?page=2" />
+<meta name="twitter:url" content="/t/frontity-connect-first-thoughts-and-implementation/126?page=2" />
+<meta property="og:title" content="Frontity Connect - First thoughts and implementation" />
+<meta name="twitter:title" content="Frontity Connect - First thoughts and implementation" />
+<meta property="og:description" content="Another idea: what if, instead of comparing the values to get the patches, it iterates over the received object and adds the leaves one by one:  state.user = { name: &quot;Jon&quot;, surname: &quot;Targaryen&quot; }; // This triggers a &quot;set&quot; with: target = state prop = &quot;user&quot; value = { name: &quot;Jon&quot;, surname: &quot;Targaryen&quot; };  // And runs something like: for (let key in value) {   target[prop][key] = value[key] }  This can happen only if there is an existing object in state.user. If it’s not, it just adds it." />
+<meta name="twitter:description" content="Another idea: what if, instead of comparing the values to get the patches, it iterates over the received object and adds the leaves one by one:  state.user = { name: &quot;Jon&quot;, surname: &quot;Targaryen&quot; }; // This triggers a &quot;set&quot; with: target = state prop = &quot;user&quot; value = { name: &quot;Jon&quot;, surname: &quot;Targaryen&quot; };  // And runs something like: for (let key in value) {   target[prop][key] = value[key] }  This can happen only if there is an existing object in state.user. If it’s not, it just adds it." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="9 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="2 ❤" />
+<meta property="article:published_time" content="2019-04-14T14:43:34+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="prev" href="./">
+
+    
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">Frontity Connect - First thoughts and implementation</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Frontity Connect - First thoughts and implementation'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_22' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-14T14:43:34Z' class='post-time'>
+                    14 April 2019 14:43
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-14T14:43:34Z'>
+              <span itemprop='position'>22</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Another idea: what if, instead of comparing the values to get the patches, it iterates over the received object and adds the leaves one by one:</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Targaryen" };
+// This triggers a "set" with:
+target = state
+prop = "user"
+value = { name: "Jon", surname: "Targaryen" };
+
+// And runs something like:
+for (let key in value) {
+  target[prop][key] = value[key]
+}
+</code></pre>
+<p>This can happen only if there is an existing object in <code>state.user</code>. If it’s not, it just adds it.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_23' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-14T14:49:04Z' class='post-time'>
+                    14 April 2019 14:49
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-14T14:49:04Z'>
+              <span itemprop='position'>23</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m also looking at <a href="https://github.com/nx-js/observer-util" rel="nofollow noopener">@nx-js/observer-util</a> and a <a href="https://github.com/solkimicreb/react-easy-state/blob/master/src/view.js" rel="nofollow noopener">view</a> made for React to substitute <code>memoize-state</code>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_24' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-14T15:50:46Z' class='post-time'>
+                    14 April 2019 15:50
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-14T17:50:15Z'>
+              <span itemprop='position'>24</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve found a filter API that I kind of like and it’s possible with <code>observer-util</code>.</p>
+<p>This is the implementation:</p>
+<pre><code class="lang-javascript">const filter = (
+  trigger: ({ state }: { state: State }) =&gt; void,
+  mutation: ({ state, initial }: { state: State; initial: any }) =&gt; void
+) =&gt; {
+  let initial = trigger({ state });
+  const reaction = observe(() =&gt; trigger({ state }), {
+    scheduler: () =&gt; {
+      const current = trigger({ state });
+      unobserve(reaction);
+      mutation({ state: raw(state), initial });
+      const final = trigger({ state });
+      console.log({
+        final,
+        initial,
+        current
+      });
+      initial = final;
+      filter(trigger, mutation);
+    }
+  });
+  return () =&gt; unobserve(reaction);
+};
+</code></pre>
+<p>And this is the actual API:</p>
+<pre><code class="lang-javascript">filter(
+  ({ state }) =&gt; state.user.surname,
+  ({ state }) =&gt; (state.user.surname = "$" + state.user.surname)
+);
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_25' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-14T15:56:09Z' class='post-time'>
+                    14 April 2019 15:56
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-14T16:04:19Z'>
+              <span itemprop='position'>25</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>To abort a mutation just set it back to it’s original value:</p>
+<pre><code class="lang-javascript">filter(
+  ({ state }) =&gt; state.user.surname,
+  ({ state, oldValue }) =&gt; (state.user.surname = oldValue)
+);
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_26' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-14T16:00:50Z' class='post-time'>
+                    14 April 2019 16:00
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-14T16:00:50Z'>
+              <span itemprop='position'>26</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>We can use its system of queues and priorities to trigger the rest of the mutations after the filters have been run. This works well:</p>
+<pre><code class="lang-javascript">const scheduler = new Queue(priorities.HIGH);
+observe(() =&gt; console.log(state.user.surname), { scheduler });
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_27' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-14T16:42:42Z' class='post-time'>
+                    14 April 2019 16:42
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-14T16:42:42Z'>
+              <span itemprop='position'>27</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Even simpler is the addition of reactions:</p>
+<pre><code class="lang-javascript">const reaction = (
+  trigger: ({ state }: { state: State }) =&gt; void,
+  sideEffect: ({ state }: { state: State }) =&gt; void
+) =&gt; {
+  const reaction = observe(() =&gt; trigger({ state }), {
+    scheduler: () =&gt; {
+      sideEffect({ state });
+    }
+  });
+  return () =&gt; unobserve(reaction);
+};
+
+const abortReaction = reaction(
+  ({ state }) =&gt; state.user.name,
+  ({ state }) =&gt; {
+    state.count += 1;
+    console.log(state.count);
+  }
+);
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_28' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-15T06:21:43Z' class='post-time'>
+                    15 April 2019 06:21
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-15T06:31:22Z'>
+              <span itemprop='position'>28</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve been studying the code of <code>observer-util</code> and it is extremely simple and well thought. I think we can make a fork and add:</p>
+<ul>
+<li>The minimal mutation logic.</li>
+<li>The mutations middleware.</li>
+<li>The flushes middleware. We can reuse their scheduler logic.</li>
+<li>The derived state and derived functions.</li>
+</ul>
+<p>It’s pretty much that.</p>
+<p>I love the idea that they don’t proxify everything, just what is being accessed on the fly. We can use that for the proxy actions. Much cheaper.</p>
+<p>I’m also thinking about the filter/reactions API. If it should be more like Mobx or more like normal middleware (redux, express, koa).</p>
+<p>For example, this is another idea:</p>
+<pre><code class="lang-javascript">const state = {
+  name: "Jon",
+  users: []
+}
+const reactions = {
+  // Use reactions for nested derived values.
+  userFullname: {
+    // Mutation is called on each mutation.
+    mutation: ({ paths, op }) =&gt; paths[1] === "users" &amp;&amp; op === "add",
+    // If mutation returns true, the reactions is called.
+    reaction: async ({ path, state, next }) =&gt; {
+      // await until the mutation has finished (Koa style)
+      await next();
+      state.users[path[1]].fullname = ({ self }) =&gt; `${self.name} ${self.surname}`;
+    }
+  },
+  // User reactions for filters.
+  dollarToName: {
+    mutation: ({ paths }) =&gt; paths[1] === "name",
+    reaction: (ctx) =&gt; {
+      // Replace value, Koa style.
+      ctx.value = "$" + ctx.value;
+    }
+  },
+  // Abort mutations.
+  noNameJohn: {
+    mutation: ({ paths }) =&gt; paths[1] === "name",
+    reaction: ({ value, abort }) =&gt; {
+      if (value === "John") abort()
+    }
+  },
+  // React to actions instead of mutations.
+  sendPageview: {
+    action: ({ path }) =&gt; path === "analytics.sendPageview",
+    reaction: ({ actions, args }) =&gt; {
+      // Call my own action.
+      actions.myAnalytics.sendPageview(...args)
+    }
+  },
+  // Abort actions.
+  dontRepeatFetch: {
+    action: ({ path }) =&gt; path === "source.fetch",
+    reaction: ({ state, args, abort }) =&gt; {
+      // Do not trigger fetch again if data is already fetched
+      if (state.source.data[args.name].isFetched) abort();
+    }
+  }, 
+}
+</code></pre>
+<p>It may be more complex than other APIs but with only one concept you have the ultimate hackable tool.</p>
+<p>It can also be used to listen to flushes although I don’t know any good reason yet, except for our devtools.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_29' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-16T06:30:32Z' class='post-time'>
+                    16 April 2019 06:30
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-16T06:30:32Z'>
+              <span itemprop='position'>29</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve been giving more thought to this after Michel’s comment in the issue and he is right, patches are a non-deterministic way to describe mutations. And what we need is:</p>
+<ul>
+<li>Minimize unnecessary rerenders.</li>
+<li>Preserve object/array references on mutations.</li>
+<li>A deterministic way to describe mutations for the middleware.</li>
+</ul>
+<p>Patches are great for tasks like synchronizing two machines or undoing mutations. We don’t really need those features although they are great additions. I’m going to give it a go to see if I can figure out a way to have those 3 features and a patching system out of them.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_30' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-17T08:08:11Z' class='post-time'>
+                    17 April 2019 08:08
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-13T07:56:24Z'>
+              <span itemprop='position'>30</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I think we are going to need different strategies to accomplish all this:</p>
+<ul>
+<li>Minimize unnecessary rerenders.</li>
+<li>Preserve object/array references on mutations.</li>
+<li>A deterministic way to describe mutations for the middleware.</li>
+<li>Patches for devtools, generating immutable snapshots or synchronize clients.</li>
+</ul>
+<p>This is what I thought yesterday:</p>
+<h3>Minimize unnecessary rerenders and preserve object/array references</h3>
+<p>We can achieve this by never replacing an existing object or array. In order to get that, we need to iterate over the added objects/array and take a look at the current state to see if objects/arrays exist in the same positions. If there’s no such object or array, the iteration finishes and the rest of the data is added. This is to ensure we don’t iterate more than we need because iterating objects is pretty slow. This technique may be slow if the dev is constantly adding the same big object over and over again, but that’s not usually the case.</p>
+<p>EDIT: This can be done preserving proxies references. It won’t be slow, at least, it won’t be slower than proxies themselves.</p>
+<h3>A deterministic way to describe mutations for the middleware</h3>
+<p>The problem with patches is that they are not deterministic. If the dev does:</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Snow" }
+// The patch is:
+{ op: "replace", path: "state.user", value: { name: "Jon", surname: "Snow" } }
+</code></pre>
+<p>There’s no way to use that for proper filter of the name value, so I think we need something like “atomic mutation patches” which are deterministic at a scalar level.</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Snow" }
+// The mutations are:
+{ op: "replace", path: "state.user.name", value: "Jon" }
+{ op: "replace", path: "state.user.surname", value: "Snow" }
+</code></pre>
+<p>The problem with this is that in order to emit those atomic mutation patches we would need to iterate over the added object. In case of big objects that can be slow.</p>
+<p>In order to avoid unnecessary iterations, we can use a subscription model:</p>
+<pre><code class="lang-javascript">// Dev subscribes to atomic mutation patch
+subscribe("state.user.name", myCallback);
+
+// Internally, that is saved like this:
+const subscriptions[0] = ["state", "user", "name"];
+</code></pre>
+<p>We can use those arrays to avoid iterating over parts of the object where nobody is subscribed.</p>
+<p>Actually, instead of strings, those should be regexps for more complex filtering:</p>
+<pre><code class="lang-javascript">// Dev subscribes to atomic mutation patch
+subscribe("state.users.\d+.name", myCallback); // i.e. user[0].name
+</code></pre>
+<p>That syntax will allow subscribing to any mutation in a path, something difficult with mobx-like subscriptions:</p>
+<pre><code class="lang-javascript">// Dev subscribes to atomic mutation patch
+subscribe("state.users", myCallback); // any state.user.X.Y.Z mutation
+// This doesn't work because it is listening to the users reference
+reaction(state =&gt; state.users) 
+</code></pre>
+<p>We use strings so we lose typescript in that part, but we can use regexps.</p>
+<h3>Patches for devtools, generating immutable snapshots or synchronize clients</h3>
+<p>We should still generate regular patches when mutations happen. They serve a different purpose and they are very useful as well. If we don’t need them for either minimizing the rerenders or filtering, they can be just regular, non-deterministic patches like those of <code>immer</code>.</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Snow" }
+// Triggers this patch:
+{ op: "replace", path: "state.user", value: { name: "Jon", surname: "Snow" } }
+// And executes callback for these subscriptions:
+["state", "user", "name"]
+["state", "user", "surname"]
+// If the object "user" doesn't exist, this mutation occur:
+state.user = { name: "Jon", surname: "Snow" };
+// If the object "user" exists, these mutations occur:
+state.user.name = "Jon";
+state.user.surname = "Jon";
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_31' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-30T09:05:06Z' class='post-time'>
+                    30 April 2019 09:05
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-13T09:46:04Z'>
+              <span itemprop='position'>31</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This is what we are going to implement for the first version:</p>
+<h2>Actions (without params)</h2>
+<pre><code class="lang-javascript">const actions = {
+  toggleFilter: ({ state }) =&gt; { state.filter = !state.filter },
+  fetchTodos: async ({ state }) =&gt; { state.todos = await api.getTodos() }
+}
+
+actions.toggleFilter()
+actions.fetchTodos()
+
+interface Actions {
+  toggleFilter: Action&lt;MyPkg&gt;
+  fetchTodos: Action&lt;MyPkg&gt;
+}
+</code></pre>
+<h2>Actions (with params)</h2>
+<pre><code class="lang-javascript">const actions = {
+  addTodo: ({ state }) =&gt; name =&gt; { state.todos.push({ name }) }
+  fetchTodo: ({ state }) =&gt; async id =&gt; { state.todos[id] = await api.getTodo(id) }
+}
+
+actions.addTodo("finish the state manager")
+actions.fetchTodo(374)
+
+interface Actions {
+  addTodo: Action&lt;MyPkg, string&gt;
+  fetchTodo: Action&lt;MyPkg, number&gt;
+}
+</code></pre>
+<h2>Derived State</h2>
+<pre><code class="lang-javascript">const state = {
+  todos: [],
+  completedTodos: ({ state }) =&gt; state.todos.filter(todo =&gt; todo.completed)
+}
+
+state.todos
+state.completedTodos
+
+interface State {
+  todos: Todos,
+  completedTodos: Derived&lt;MyPkg, Todos&gt;
+}
+</code></pre>
+<h2>Derived State Functions</h2>
+<pre><code class="lang-javascript">const state = {
+  todos: [],
+  filteredTodos: ({ state }) =&gt; completed =&gt;
+    state.todos.filter(todo =&gt; todo.completed === completed)
+}
+
+state.todos
+state.filteredTodos(false)
+
+interface State {
+  todos: Todos,
+  filteredTodos: Derived&lt;MyPkg, boolean, Todos&gt;
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_32' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-08T07:31:31Z' class='post-time'>
+                    8 May 2019 07:31
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-13T07:58:58Z'>
+              <span itemprop='position'>32</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>We’ve decided to name it <strong>Frontity Connect</strong> to honor it’s only API: <code>connect</code>.</p>
+<pre><code class="lang-javascript">import connect from "@frontity/connect";
+// or...
+import { connect } from "frontity";
+
+const MyComp = ({ state, actions }) =&gt; (
+  &lt;&gt;
+    &lt;button onClick={actions.addSomething}&gt;Add Something&lt;/button&gt;
+    &lt;div&gt;{state.someState}&lt;/div&gt;
+  &lt;/&gt;
+);
+
+export default connect(MyComp);
+</code></pre>
+<p>The <code>connect</code> API makes the component “reactive” to state changes and pass <code>state</code> and <code>actions</code> as props.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_33' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-09T13:44:06Z' class='post-time'>
+                    9 May 2019 13:44
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-09T13:44:06Z'>
+              <span itemprop='position'>33</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/luisherranz">@luisherranz</a> I ran into some doubts while writing the theme. When I am building a component, how do I define the state types in that function, so I can enjoy autocomplete from VSCode?</p>
+<p>Also, does <code>connect()</code> support a mapper function or won’t be necessary?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_34' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-09T13:58:25Z' class='post-time'>
+                    9 May 2019 13:58
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-13T08:00:07Z'>
+              <span itemprop='position'>34</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-post="33" data-topic="126">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>does <code>connect()</code> support a mapper function or won’t be necessary?</p>
+</blockquote>
+</aside>
+<p>At the moment it does not.</p>
+<aside class="quote no-group" data-post="33" data-topic="126">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>how do I define the state types in that function, so I can enjoy autocomplete from VSCode?</p>
+</blockquote>
+</aside>
+<p>Sorry, I forgot to put it here. <code>Connect</code> works like <code>Action</code> or <code>Derived</code>, you pass the entire package type as the first argument and the other props as the second argument.</p>
+<pre><code class="lang-javascript">import MyTheme from "../../../types"; // &lt;- import your package type.
+import { Connect } from "frontity/types";
+
+type Props = Connect&lt;MyTheme, { props... }&gt;
+
+const MyComp: React.FC&lt;Props&gt; = ({ state, actions, props... }) =&gt; (
+...
+);
+
+export default connect(MyComp);
+
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><a rel="prev" itemprop="url" href="./">← previous page</a></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

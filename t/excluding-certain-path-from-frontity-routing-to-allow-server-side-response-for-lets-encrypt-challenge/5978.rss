@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Excluding Certain Path From Frontity Routing To Allow Server Side Response for &quot;Let&#39;s Encrypt&quot; Challenge</title>
+    <link>https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978</link>
+    <description>Hey,
+
+First post, so excuse any faux pas.
+
+I&#39;ve got a pretty good grip of the basics and had deployed my site properly.
+
+That site was hosted on SpinupWP, which for the most part I can&#39;t recommend enough.
+
+They had a pretty handy function to allow you to enable an automated script of Certbot to create and get an authorised SSL certificate from Let&#39;s Encrypt.
+
+However, to allow this to happen, the Let&#39;s Encrypt service needs to send a challenge to a specific sub-directory &#39;example.com/.well-known/acme-challenge/&#39; and expects to find a text file containing a fingerprint on the server.
+
+For the quick amongst you, you can probably already see the issue that I&#39;ve got.
+
+Frontity/React is capturing all URLs and routing it on the client-side - so that path is returning a 404 from the client-side and never reaching the server side.
+
+I need to exclude that directory from the routing of frontity/react otherwise I can&#39;t get an SSL certificate and my website &quot;onepixelwide.co.uk&quot; will not load.
+
+After a couple of days of googling and prodding around to realise it wasn&#39;t an Nginx/Ubuntu server issue, I&#39;m now trying to see if it&#39;s possible to allow certain paths to head to be excluded by Frontity.
+
+Firstly, I hope the above made sense, and secondly, any help would be massively appreciated.
+
+Thanks,
+
+Peter</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 02 May 2022 17:35:29 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Excluding Certain Path From Frontity Routing To Allow Server Side Response for &quot;Let&#39;s Encrypt&quot; Challenge</title>
+        <dc:creator><![CDATA[OnePixelWide]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>, thanks for getting back to me. Funnily enough, I found the discussion about server extensibility after I posted this. I ended up adding an Nginx location rule ahead of the proxy, seems to do the trick, but it’s good to know there is a workaround and the functionality is coming. Thanks for all your effort.</p>
+          <p><a href="https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978/3</link>
+        <pubDate>Mon, 02 May 2022 17:35:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5978-3</guid>
+        <source url="https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978.rss">Excluding Certain Path From Frontity Routing To Allow Server Side Response for &quot;Let&#39;s Encrypt&quot; Challenge</source>
+      </item>
+      <item>
+        <title>Excluding Certain Path From Frontity Routing To Allow Server Side Response for &quot;Let&#39;s Encrypt&quot; Challenge</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/onepixelwide">@OnePixelWide</a>! I’m currently working on the server extensibility, which would allow you to set custom middleware to the Koa server that runs Frontity. In the meanwhile, however, a workaround is to create a <code>node</code> server and set handlers before Frontity. You can access frontity from the server like this:</p>
+<pre><code class="lang-javascript">const frontity = require("./build/server");
+
+server((req, res) =&gt; frontity.default(req, res));
+</code></pre>
+<p>I hope this points you in the right direction, at least until the server extensibility is released.</p>
+          <p><a href="https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978/2</link>
+        <pubDate>Mon, 02 May 2022 10:23:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5978-2</guid>
+        <source url="https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978.rss">Excluding Certain Path From Frontity Routing To Allow Server Side Response for &quot;Let&#39;s Encrypt&quot; Challenge</source>
+      </item>
+      <item>
+        <title>Excluding Certain Path From Frontity Routing To Allow Server Side Response for &quot;Let&#39;s Encrypt&quot; Challenge</title>
+        <dc:creator><![CDATA[OnePixelWide]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey,</p>
+<p>First post, so excuse any faux pas.</p>
+<p>I’ve got a pretty good grip of the basics and had deployed my site properly.</p>
+<p>That site was hosted on SpinupWP, which for the most part I can’t recommend enough.</p>
+<p>They had a pretty handy function to allow you to enable an automated script of Certbot to create and get an authorised SSL certificate from Let’s Encrypt.</p>
+<p>However, to allow this to happen, the Let’s Encrypt service needs to send a challenge to a specific sub-directory ‘<a href="http://example.com/.well-known/acme-challenge/" rel="noopener nofollow ugc">example.com/.well-known/acme-challenge/</a>’ and expects to find a text file containing a fingerprint on the server.</p>
+<p>For the quick amongst you, you can probably already see the issue that I’ve got.</p>
+<p>Frontity/React is capturing all URLs and routing it on the client-side - so that path is returning a 404 from the client-side and never reaching the server side.</p>
+<p>I need to exclude that directory from the routing of frontity/react otherwise I can’t get an SSL certificate and my website “<a href="http://onepixelwide.co.uk" rel="noopener nofollow ugc">onepixelwide.co.uk</a>” will not load.</p>
+<p>After a couple of days of googling and prodding around to realise it wasn’t an Nginx/Ubuntu server issue, I’m now trying to see if it’s possible to allow certain paths to head to be excluded by Frontity.</p>
+<p>Firstly, I hope the above made sense, and secondly, any help would be massively appreciated.</p>
+<p>Thanks,</p>
+<p>Peter</p>
+          <p><a href="https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978/1</link>
+        <pubDate>Sat, 30 Apr 2022 17:37:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5978-1</guid>
+        <source url="https://community.frontity.org/t/excluding-certain-path-from-frontity-routing-to-allow-server-side-response-for-lets-encrypt-challenge/5978.rss">Excluding Certain Path From Frontity Routing To Allow Server Side Response for &quot;Let&#39;s Encrypt&quot; Challenge</source>
+      </item>
+  </channel>
+</rss>

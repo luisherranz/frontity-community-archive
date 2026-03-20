@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to share Html2React processors</title>
+    <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069</link>
+    <description>Hi everyone 🙂
+
+I&#39;d like to start a conversation about the best way to share Gutenberg processors between Frontity projects.
+
+@mmczaplinski did a PR to add syntax highlighting to the Gutenberg `&lt;code&gt;` block using [Prism.js](https://prismjs.com/):
+
+https://github.com/frontity/frontity.org/pull/143
+
+It&#39;s really cool and it works great, but that feature is only in our theme. No other Frontity theme can use it without copy-pasting the code in their own project.
+
+It is in Frontity&#39;s vision that:
+
+- We encourage the community to share the code they create for their projects.
+- We provide extensibility patterns and best-practices to make sharing features easy.
+- People are able to add functionalities without having to modify the code of their themes (like they do in WordPress by installing plugins).
+
+---
+
+So far we have shared some processors in the `@frontity/html2react` package: https://github.com/frontity/frontity/tree/dev/packages/html2react/processors
+
+We have `image` and `iframe` that add native lazy load. I think that we should remove them at some point, because WordPress 5.5 already provides that functionality.
+
+These processors are not included by default and it&#39;s up to the theme to add them or not.
+
+And we have `script`, which is added by default because this is more of a fix: React breaks `&lt;script&gt;` tags and that processor &quot;fixes&quot; them.
+
+---
+
+I think a &quot;Syntax highlighting processor for the Gutenberg `&lt;code&gt;` block&quot; it&#39;s something different, something that doesn&#39;t depend on the theme, but on the type of content you are creating in WordPress.
+
+Ideally, a Frontity user should be able to add that functionality to its project without having to write a single line of code, just by using their `frontity.settings.js` file.
+
+Possible extensibility patterns that come to my mind:
+
+1. Create a package for that processor: `@frontity/prism-code-blocks`.
+2. Add that processor and similar ones to the upcoming `@frontity/gutenberg` package.
+3. Add it to `@frontity/html2react/processors` like the existing ones.
+
+For options 2 and 3 we could expose the processors in the settings so people can choose the ones they want. Something like this:
+
+```js
+const settings = {
+  packages: [
+    {
+      name: &quot;@frontity/html2react&quot;,
+      state: {
+        html2react: {
+          processors: {
+            code: true,
+          },
+        },
+      },
+    },
+  ],
+};
+```
+
+Or even with options:
+
+```js
+const settings = {
+  packages: [
+    {
+      name: &quot;@frontity/html2react&quot;,
+      state: {
+        html2react: {
+          processors: {
+            code: {
+              theme: &quot;funky&quot;,
+              languages: [&quot;javascript&quot;, &quot;json&quot;],
+            },
+          },
+        },
+      },
+    },
+  ],
+};
+```
+
+More ideas are welcomed 😄</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 12 Nov 2020 16:54:29 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to share Html2React processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="nicholasio.oliveira" data-post="6" data-topic="3069">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/nicholasio.oliveira/40/1105_2.png" class="avatar"> nicholasio.oliveira:</div>
+<blockquote>
+<p>would themes always override packages configs if let’s say a theme doesn’t want a processor added by a custom package?</p>
+</blockquote>
+</aside>
+<p>Yes, if a custom package adds a processor by default it could be overwritten by both another package or the <code>frontity.settings.js</code> file. That’s how fills work.</p>
+<p>Let’s imagine the <code>awesome-forms</code> package adds two processors by default: <code>simpleForms</code>, <code>complexForms</code>. If for some reason you don’t want the <code>complexForms</code> to be added, you could simple declare that in your <code>frontity.settings.js</code> file:</p>
+<pre><code class="lang-js">const settings = {
+  // ...
+  packages: [
+    {
+      name: "awesome-forms",
+      state: {
+        html2react: {
+          processors: {
+            awesomeForms: {
+              complexForms: false,
+            },
+          },
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>Also, another package can use its own state definition to overwrite it if it knows that it never wants that processor present:</p>
+<pre><code class="lang-js">const state = {
+  html2react: {
+    processors: {
+      awesomeForms: {
+        complexForms: false,
+      },
+    },
+  },
+};
+</code></pre>
+<p>Although this has the caveat that the order in which the packages are merged together determines which package writes to the state in last position.</p>
+<p>For that you can:</p>
+<ul>
+<li>Move your package to the last position of the array in the <code>packages</code> array of the <code>frontity.settings.js</code> file. This is not very intuitive.</li>
+<li>Wait until we release package priorities, which is part of the <a href="https://community.frontity.org/t/amp-package/388/10">AMP packages</a> and assign the proper priority to each package.</li>
+<li>Do the state mutation in the <code>init</code> function:</li>
+</ul>
+<pre><code class="lang-js">const actions = {
+  myPackage: {
+    init: ({ state }) =&gt; {
+      state.html2react.processors.awesomeForms.complexForms = false;
+    },
+  },
+};
+</code></pre>
+<p>I am open to better ideas on how to organize the order in which packages are merged together by the way <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-share-html2react-processors/3069/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069/7</link>
+        <pubDate>Thu, 12 Nov 2020 16:54:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3069-7</guid>
+        <source url="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss">How to share Html2React processors</source>
+      </item>
+      <item>
+        <title>How to share Html2React processors</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I like the idea of being able to enable/disable processors and also pass options to them.</p>
+<p>I just have one question though - how would this work if packages enable its own processors? would themes always override packages configs if let’s say a theme doesn’t want a processor added by a custom package?</p>
+          <p><a href="https://community.frontity.org/t/how-to-share-html2react-processors/3069/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069/6</link>
+        <pubDate>Wed, 11 Nov 2020 18:58:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3069-6</guid>
+        <source url="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss">How to share Html2React processors</source>
+      </item>
+      <item>
+        <title>How to share Html2React processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, ok. Sorry I didn’t get it before.</p>
+<p>So you mean the configuration of <code>@frontity/prism-code-block</code> would be something like this:</p>
+<pre><code class="lang-js">import code from "./processors/code";
+
+const prismCodeBlock = {
+  state: {
+    html2react: {
+      processors: {
+        code: {
+          // The code of this processor, found in libraries, like Fill components.
+          library: "prismCodeBlock.code",
+          // Priority, like Fill priorities.
+          priority: 10,
+          // Other options passed to the processor, like Fill props.
+          options: {
+            theme: "funky",
+            languages: {
+              javascript: true,
+              php: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  libraries: {
+    html2react: {
+      prismCodeBlock: {
+        code,
+      },
+    },
+  },
+};
+</code></pre>
+<p>And if people want to change something, they can use <code>state</code> in their <code>frontity.settings.js</code> file:</p>
+<pre><code class="lang-js">const settings = {
+  // ...
+  packages: [
+    {
+      name: "@frontity/prism-code-block",
+      state: {
+        html2react: {
+          processors: {
+            code: {
+              options: {
+                theme: "plain",
+                languages: {
+                  typescript: true,
+                  php: false,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>Yes, I think making it as similar as possible to Slot and Fills makes a lot of sense <a class="mention" href="https://community.frontity.org/u/david">@david</a>! <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-share-html2react-processors/3069/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069/5</link>
+        <pubDate>Sat, 31 Oct 2020 09:52:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3069-5</guid>
+        <source url="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss">How to share Html2React processors</source>
+      </item>
+      <item>
+        <title>How to share Html2React processors</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>But we could use that same pattern for option 1 as well, right?</p>
+<p>I mean, the <code>@frontity/prism-code-blocks</code> package can export its own processor in <code>libraries</code>, and users could include and configure it in <code>state.html2react.processors</code>. Does it make sense?</p>
+          <p><a href="https://community.frontity.org/t/how-to-share-html2react-processors/3069/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069/4</link>
+        <pubDate>Tue, 27 Oct 2020 17:00:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3069-4</guid>
+        <source url="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss">How to share Html2React processors</source>
+      </item>
+      <item>
+        <title>How to share Html2React processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes. That is what I am proposing for option 2 and 3 <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-share-html2react-processors/3069/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069/3</link>
+        <pubDate>Tue, 27 Oct 2020 16:55:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3069-3</guid>
+        <source url="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss">How to share Html2React processors</source>
+      </item>
+      <item>
+        <title>How to share Html2React processors</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Would it make sense to make the API for Html2React’s processors similar to our Slot and Fill pattern, regarding how fills are exposed?</p>
+<p>I was thinking of expose processors in <code>libraries.html2react.processors</code> and configure them in <code>state.html2react.processors</code>.</p>
+<p>That way, people could add new processors using Frontity packages and configure them in <code>frontity.settings.js</code></p>
+          <p><a href="https://community.frontity.org/t/how-to-share-html2react-processors/3069/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069/2</link>
+        <pubDate>Mon, 26 Oct 2020 09:34:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3069-2</guid>
+        <source url="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss">How to share Html2React processors</source>
+      </item>
+      <item>
+        <title>How to share Html2React processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi everyone <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>I’d like to start a conversation about the best way to share Gutenberg processors between Frontity projects.</p>
+<p><a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> did a PR to add syntax highlighting to the Gutenberg <code>&lt;code&gt;</code> block using <a href="https://prismjs.com/">Prism.js</a>:</p>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity.org/pull/143" target="_blank" rel="noopener">github.com/frontity/frontity.org</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Pull Request">
+    <svg width="60" height="60" class="github-icon" viewBox="0 0 12 16" aria-hidden="true"><path d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/frontity.org/pull/143" target="_blank" rel="noopener">Add syntax highlighting to the blog</a>
+    </h4>
+
+    <div class="branches">
+      <code>frontity:dev</code> ← <code>frontity:add-syntax-highlight-to-blog</code>
+    </div>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2020-10-03" data-time="19:20:31" data-timezone="UTC">07:20PM - 03 Oct 20 UTC</span>
+      </div>
+
+      <div class="user">
+        <a href="https://github.com/michalczaplinski" target="_blank" rel="noopener">
+          <img alt="michalczaplinski" src="https://community.frontity.org/uploads/default/original/2X/8/83bc38433eff6dbd72ee82c34324b18a1071adef.png" class="onebox-avatar-inline" width="20" height="20">
+          michalczaplinski
+        </a>
+      </div>
+
+      <div class="lines" title="7 commits changed 7 files with 1125 additions and 5 deletions">
+        <a href="https://github.com/frontity/frontity.org/pull/143/files" target="_blank" rel="noopener">
+          <span class="added">+1125</span>
+          <span class="removed">-5</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>It’s really cool and it works great, but that feature is only in our theme. No other Frontity theme can use it without copy-pasting the code in their own project.</p>
+<p>It is in Frontity’s vision that:</p>
+<ul>
+<li>We encourage the community to share the code they create for their projects.</li>
+<li>We provide extensibility patterns and best-practices to make sharing features easy.</li>
+<li>People are able to add functionalities without having to modify the code of their themes (like they do in WordPress by installing plugins).</li>
+</ul>
+<hr>
+<p>So far we have shared some processors in the <code>@frontity/html2react</code> package: <a href="https://github.com/frontity/frontity/tree/dev/packages/html2react/processors">https://github.com/frontity/frontity/tree/dev/packages/html2react/processors</a></p>
+<p>We have <code>image</code> and <code>iframe</code> that add native lazy load. I think that we should remove them at some point, because WordPress 5.5 already provides that functionality.</p>
+<p>These processors are not included by default and it’s up to the theme to add them or not.</p>
+<p>And we have <code>script</code>, which is added by default because this is more of a fix: React breaks <code>&lt;script&gt;</code> tags and that processor “fixes” them.</p>
+<hr>
+<p>I think a “Syntax highlighting processor for the Gutenberg <code>&lt;code&gt;</code> block” it’s something different, something that doesn’t depend on the theme, but on the type of content you are creating in WordPress.</p>
+<p>Ideally, a Frontity user should be able to add that functionality to its project without having to write a single line of code, just by using their <code>frontity.settings.js</code> file.</p>
+<p>Possible extensibility patterns that come to my mind:</p>
+<ol>
+<li>Create a package for that processor: <code>@frontity/prism-code-blocks</code>.</li>
+<li>Add that processor and similar ones to the upcoming <code>@frontity/gutenberg</code> package.</li>
+<li>Add it to <code>@frontity/html2react/processors</code> like the existing ones.</li>
+</ol>
+<p>For options 2 and 3 we could expose the processors in the settings so people can choose the ones they want. Something like this:</p>
+<pre><code class="lang-js">const settings = {
+  packages: [
+    {
+      name: "@frontity/html2react",
+      state: {
+        html2react: {
+          processors: {
+            code: true,
+          },
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>Or even with options:</p>
+<pre><code class="lang-js">const settings = {
+  packages: [
+    {
+      name: "@frontity/html2react",
+      state: {
+        html2react: {
+          processors: {
+            code: {
+              theme: "funky",
+              languages: ["javascript", "json"],
+            },
+          },
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>More ideas are welcomed <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-share-html2react-processors/3069/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-share-html2react-processors/3069/1</link>
+        <pubDate>Tue, 06 Oct 2020 16:25:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3069-1</guid>
+        <source url="https://community.frontity.org/t/how-to-share-html2react-processors/3069.rss">How to share Html2React processors</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Post view count</title>
+    <link>https://community.frontity.org/t/post-view-count/6323</link>
+    <description>Hi,
+
+This forum managed to count the post view, how does this work ? Is there a repo or something ? Does this ofurm uses wordpress also ? Thanks :slight_smile:</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 19 Dec 2022 09:32:23 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/post-view-count/6323.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Yeah the solution I suggested is just running out of the box. Wordpress returns a header with the postcount so you dont need your own endpoint and calculating it yourself.<br>
+<img src="https://community.frontity.org/uploads/default/original/2X/6/633f48f5e2b1f0a073631b98d9f3cba586c3eacd.png" alt="Screenshot 2022-12-19 at 10.31.35" data-base62-sha1="e9YR8yLj0I9C7r2bWicgKEfh1EN" width="483" height="99"></p>
+<p>You can either grab that yourself or use the frontity function i shared above to make your life easier.</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/20</link>
+        <pubDate>Mon, 19 Dec 2022 09:32:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-20</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[calore912]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you very much for your help! I used your solution in combination with local storage</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/19</link>
+        <pubDate>Sun, 18 Dec 2022 10:08:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-19</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>If that works correctly you will see in your post data a new line under meta → views</p>
+<p>example if I do console.log(postData) -which is a variable that contains every data of that specific post - somewhere in that variable i get this in the response :</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/a/a6541d6c04483e09be7ee244ad2c92916fa0d3e6.png" alt="postcount" data-base62-sha1="nJpttOU8DeZRQWaHnYoSGk20ApE" width="323" height="81"></p>
+<p>Which means that I can do  <code>const postCount = state.source.post[id].meta.views,</code> which will return 18 in that case</p>
+<p>But this solutions works great for post count, <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a> solutions might be better and I will be curious to see it</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/18</link>
+        <pubDate>Thu, 27 Oct 2022 16:23:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-18</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, i’m also a self-taught, just practice and it will be clear <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<p>SO for my solution I will start from the beginning:</p>
+<p>The idea is to add a newpost meta in Wordpress so that frontity can tell Wordpress that this post has been seen, and in return on each post Wp will send the post meta and thus the view count.</p>
+<p>Step 1 : Add the “views” post meta</p>
+<pre><code class="lang-javascript">add_action( 'rest_api_init', function () {
+  register_rest_route( 'base', '/views/(?P&lt;id&gt;\d+)', array(
+    'methods' =&gt; 'GET',
+    'callback' =&gt; 'post_view_counter_function',
+  ));
+});function post_view_counter_function( WP_REST_Request $request ) {
+  $post_id = $request['id'];if ( FALSE === get_post_status( $post_id ) ) {
+    return new WP_Error( 'error_no_post', 'Not a post id', array( 'status' =&gt; 404 ) );
+  } else {
+    $current_views = get_post_meta( $post_id, 'views', true );
+    $views = $current_views + 1;
+    update_post_meta( $post_id, 'views', $views );
+    return $views;
+  }
+}
+// Register post_view_count meta data on REST
+$meta_args = array( 
+    'type'                =&gt; 'number',
+    'single'             =&gt; true,
+    'show_in_rest' =&gt; true,
+);
+register_meta( 'post', 'views', $meta_args );
+</code></pre>
+<p>This PHP code ( add it in functions.php or even better in a plugin) will add a new “view” field in the post meta and display it in the REST API</p>
+<p>Step 2 : Add an handler so that Frontity knows where to tell Wp it has one more views</p>
+<pre><code class="lang-javascript">const viewHandler = {
+    name: "viewHandler",
+    priority: 1,
+    pattern: "/base/views/:id/",
+    func: async ({ state, link, params, libraries,type }) =&gt; {
+      // first need convert object to int
+      let id = parseInt(params.id);
+      const post = await libraries.source.api.get({
+        endpoint: `/base/views/${id}`,
+        params: {
+          page: id,
+        },
+      });
+
+    },
+  
+};
+
+export default viewHandler;
+</code></pre>
+<p>Now Frotntiy knows which URL to use when we will call this handler</p>
+<p>Step 3 : tell Frontity to reach the URL in the handler so that Wp can +1 to the correct post meta “views”</p>
+<pre><code class="lang-javascript">  useEffect(() =&gt; {
+ 
+      actions.source.fetch(`/base/views/${postId}`);
+   
+  }, [])
+</code></pre>
+<p>You need to extract the post ID in a variable, mine was “postId”<br>
+If you manage to get it working I can show you how I managed to keep track of which post has been seen to avoid adding +1 on reload or return on that post</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/17</link>
+        <pubDate>Thu, 27 Oct 2022 16:10:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-17</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[calore912]]></dc:creator>
+        <description><![CDATA[
+            <p>I am trying to count and display the number of views. First for a simple post, and then I think the mechanism will become clear to me and I will be able to display views for pages and other types of posts).</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/8/852c5df970169f63457993bfc184a84b8a909d8f.png" data-download-href="https://community.frontity.org/uploads/default/852c5df970169f63457993bfc184a84b8a909d8f" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/8/852c5df970169f63457993bfc184a84b8a909d8f_2_690x76.png" alt="image" data-base62-sha1="j06yHaakCjmFOONo8NGyAFWnlLh" width="690" height="76" srcset="https://community.frontity.org/uploads/default/optimized/2X/8/852c5df970169f63457993bfc184a84b8a909d8f_2_690x76.png, https://community.frontity.org/uploads/default/original/2X/8/852c5df970169f63457993bfc184a84b8a909d8f.png 1.5x, https://community.frontity.org/uploads/default/original/2X/8/852c5df970169f63457993bfc184a84b8a909d8f.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/8/852c5df970169f63457993bfc184a84b8a909d8f_2_10x10.png"></a></div><p></p>
+<p>I will be very grateful if you can help me!</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/16</link>
+        <pubDate>Thu, 27 Oct 2022 14:15:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-16</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>hey <a class="mention" href="https://community.frontity.org/u/calore912">@calore912</a>, I am also self taught, it just takes some experience with Frontity.</p>
+<p>I can take some time to make an example for you so you can better understand how it works. Do you need to know the total for pages or some other postType. Can you share the endpoint of the post type you are trying to find the total pages?</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/15</link>
+        <pubDate>Thu, 27 Oct 2022 13:59:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-15</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[calore912]]></dc:creator>
+        <description><![CDATA[
+            <p>It does not change anything, I still absolutely do not understand what to do with it all and how to use it. I understand that you are a professional and everything is clear to you, but I am self-taught and did a project according to the tutorial</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/14</link>
+        <pubDate>Tue, 25 Oct 2022 08:41:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-14</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Try to check the tsx documentation. Here is what it says</p>
+<pre><code class="lang-javascript">/**
+ * Get the total number of items in an archive or taxonomy response from the
+ * REST API. The number is extracted from the "X-WP-Total" header.
+ *
+ * Official WordPress docs:
+ * https://developer.wordpress.org/rest-api/using-the-rest-api/pagination/.
+ *
+ * @param response - The response object obtained by using `fetch()` on a REST
+ * API URL.
+ * @param valueIfHeaderMissing - The default value if the header is missing.
+ * Defaults to 0.
+ *
+ * @returns The number of items in that archive/taxonomy.
+ */
+</code></pre>
+<p>You can also see how they are using it in the actual handlers coming with wp-source. <a href="https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/handlers/postTypeArchive.ts#L92" class="inline-onebox" rel="noopener nofollow ugc">frontity/postTypeArchive.ts at dev · frontity/frontity · GitHub</a></p>
+<p>Hopefully that helps.</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/13</link>
+        <pubDate>Mon, 24 Oct 2022 11:18:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-13</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[calore912]]></dc:creator>
+        <description><![CDATA[
+            <p>Sorry, but I don’t understand how to use it and I don’t know how to get the number of page views by users from this</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/12</link>
+        <pubDate>Mon, 24 Oct 2022 09:24:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-12</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Not sure why you want to do this manually. Maybe I am missing something. This data is already available in the WP api. Please check my comment from above. Basically any request to a postType endpoint will have the total entries in the response headers. Also frontity already have functions that will give you those values based on the headers.  <a href="https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/response-utils.ts#L17" class="inline-onebox" rel="noopener nofollow ugc">frontity/response-utils.ts at dev · frontity/frontity · GitHub</a><br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/4/400d9007536f0a9ab7ed5e8a5f39c0d3aaa20866.png" data-download-href="https://community.frontity.org/uploads/default/400d9007536f0a9ab7ed5e8a5f39c0d3aaa20866" title="Screenshot 2022-10-24 at 10.52.19"><img src="https://community.frontity.org/uploads/default/optimized/2X/4/400d9007536f0a9ab7ed5e8a5f39c0d3aaa20866_2_690x242.png" alt="Screenshot 2022-10-24 at 10.52.19" data-base62-sha1="98DCbpb4gHILfN6FNUZMUGdUdi6" width="690" height="242" srcset="https://community.frontity.org/uploads/default/optimized/2X/4/400d9007536f0a9ab7ed5e8a5f39c0d3aaa20866_2_690x242.png, https://community.frontity.org/uploads/default/original/2X/4/400d9007536f0a9ab7ed5e8a5f39c0d3aaa20866.png 1.5x, https://community.frontity.org/uploads/default/original/2X/4/400d9007536f0a9ab7ed5e8a5f39c0d3aaa20866.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/4/400d9007536f0a9ab7ed5e8a5f39c0d3aaa20866_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/11</link>
+        <pubDate>Mon, 24 Oct 2022 08:54:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-11</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[calore912]]></dc:creator>
+        <description><![CDATA[
+            <p>There are already a lot of files and structures in my project) I don’t even know how to place it in repo correctly.</p>
+<p>But I will try to describe my actions step by step, please help if it’s not difficult for you!</p>
+<p>First I add the code you sent to function.php of my website theme.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/31f303172e4b2aae4be4e93d19a7e9bbefd15b4f.png" data-download-href="https://community.frontity.org/uploads/default/31f303172e4b2aae4be4e93d19a7e9bbefd15b4f" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/31f303172e4b2aae4be4e93d19a7e9bbefd15b4f_2_690x263.png" alt="image" data-base62-sha1="77S2UJeK1zcSuJo9qjmPJVdK9hd" width="690" height="263" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/31f303172e4b2aae4be4e93d19a7e9bbefd15b4f_2_690x263.png, https://community.frontity.org/uploads/default/optimized/2X/3/31f303172e4b2aae4be4e93d19a7e9bbefd15b4f_2_1035x394.png 1.5x, https://community.frontity.org/uploads/default/original/2X/3/31f303172e4b2aae4be4e93d19a7e9bbefd15b4f.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/31f303172e4b2aae4be4e93d19a7e9bbefd15b4f_2_10x10.png"></a></div><p></p>
+<p>After I create a Handler with the code you wrote</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/9/95de74c9a11cd2d6a57ffa92b6c89d4d1aadf44d.png" data-download-href="https://community.frontity.org/uploads/default/95de74c9a11cd2d6a57ffa92b6c89d4d1aadf44d" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/9/95de74c9a11cd2d6a57ffa92b6c89d4d1aadf44d_2_690x292.png" alt="image" data-base62-sha1="lnNKHJ38QLzqi9S39XyIyLTT7MV" width="690" height="292" srcset="https://community.frontity.org/uploads/default/optimized/2X/9/95de74c9a11cd2d6a57ffa92b6c89d4d1aadf44d_2_690x292.png, https://community.frontity.org/uploads/default/original/2X/9/95de74c9a11cd2d6a57ffa92b6c89d4d1aadf44d.png 1.5x, https://community.frontity.org/uploads/default/original/2X/9/95de74c9a11cd2d6a57ffa92b6c89d4d1aadf44d.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/9/95de74c9a11cd2d6a57ffa92b6c89d4d1aadf44d_2_10x10.png"></a></div><p></p>
+<p>and import it into index.js</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/0/0dd05602ee193935d37c9ca9b8c1dfd6dd1658e2.png" data-download-href="https://community.frontity.org/uploads/default/0dd05602ee193935d37c9ca9b8c1dfd6dd1658e2" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/0/0dd05602ee193935d37c9ca9b8c1dfd6dd1658e2_2_690x72.png" alt="image" data-base62-sha1="1Ycz1thw2ZRnbL4IcvJkPDgku4O" width="690" height="72" srcset="https://community.frontity.org/uploads/default/optimized/2X/0/0dd05602ee193935d37c9ca9b8c1dfd6dd1658e2_2_690x72.png, https://community.frontity.org/uploads/default/original/2X/0/0dd05602ee193935d37c9ca9b8c1dfd6dd1658e2.png 1.5x, https://community.frontity.org/uploads/default/original/2X/0/0dd05602ee193935d37c9ca9b8c1dfd6dd1658e2.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/0/0dd05602ee193935d37c9ca9b8c1dfd6dd1658e2_2_10x10.png"></a></div><p></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/c53c6ac81557c52c443c0b2e346ba151f3070c4a.png" data-download-href="https://community.frontity.org/uploads/default/c53c6ac81557c52c443c0b2e346ba151f3070c4a" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/c53c6ac81557c52c443c0b2e346ba151f3070c4a_2_690x217.png" alt="image" data-base62-sha1="s8PvigpMjQjQxg2VTaHRqixtosW" width="690" height="217" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/c53c6ac81557c52c443c0b2e346ba151f3070c4a_2_690x217.png, https://community.frontity.org/uploads/default/original/2X/c/c53c6ac81557c52c443c0b2e346ba151f3070c4a.png 1.5x, https://community.frontity.org/uploads/default/original/2X/c/c53c6ac81557c52c443c0b2e346ba151f3070c4a.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/c53c6ac81557c52c443c0b2e346ba151f3070c4a_2_10x10.png"></a></div><p></p>
+<p>After I go to my post.js and add actions</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/c/cdfb9282c2d71af8d51b23c5d8a4090ad44282dd.png" alt="image" data-base62-sha1="tocS6n7oEDJaITBeANfJEKvPDlj" width="633" height="196"></p>
+<p>But as a result, state.source.data in /base/views/ is empty and error</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/7/74ab936ac810d65b545f2cbc010642f159de6e0d.png" alt="image" data-base62-sha1="gE6Z8GHxi9hJkDQqB1v5wo1TeRD" width="384" height="352"></p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/10</link>
+        <pubDate>Fri, 21 Oct 2022 07:59:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-10</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Do you have a repo or something ?</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/9</link>
+        <pubDate>Thu, 20 Oct 2022 19:13:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-9</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[calore912]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for your reply!<br>
+But I’m a newbie and unfortunately it still doesn’t work for me. Maybe I’m doing something wrong…</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/8</link>
+        <pubDate>Thu, 20 Oct 2022 08:33:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-8</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Also i’ve set a “view monitor” on localstorage, to only send request on first views, and if the page has been seen localStorage knows it and won’t send another request. Because without it a request is send on every request, even on refresh</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/7</link>
+        <pubDate>Wed, 19 Oct 2022 14:03:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-7</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, Iv’e added this piece of code on a plugin ( can be done in functions.php  also )</p>
+<pre><code class="lang-javascript">add_action( 'rest_api_init', function () {
+  register_rest_route( 'base', '/views/(?P&lt;id&gt;\d+)', array(
+    'methods' =&gt; 'GET',
+    'callback' =&gt; 'post_view_counter_function',
+  ));
+});function post_view_counter_function( WP_REST_Request $request ) {
+  $post_id = $request['id'];if ( FALSE === get_post_status( $post_id ) ) {
+    return new WP_Error( 'error_no_post', 'Not a post id', array( 'status' =&gt; 404 ) );
+  } else {
+    $current_views = get_post_meta( $post_id, 'views', true );
+    $views = $current_views + 1;
+    update_post_meta( $post_id, 'views', $views );
+    return $views;
+  }
+}
+// Register post_view_count meta data on REST
+$meta_args = array( 
+    'type'                =&gt; 'number',
+    'single'             =&gt; true,
+    'show_in_rest' =&gt; true,
+);
+register_meta( 'post', 'views', $meta_args );
+
+</code></pre>
+<p>then everytime you hit this url with the id of the post on last it will add +1 on the new post meta “views” .<br>
+So to get it working you need to add this piece of code on Wp, then in frontity add the handler above and then in a useEffect inside your post file ( or wherever you want to count the views) add the actions.source.fetch from above . that means that everytime you load the post page the useEffect will trigger the handler with the post Id then the handler will send to Wp the corresponding ID, so Wp can add +1 to the correct post meta. I’ve found that this method is quit simple and does not require any authentification</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/6</link>
+        <pubDate>Wed, 19 Oct 2022 14:00:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-6</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[calore912]]></dc:creator>
+        <description><![CDATA[
+            <p>Could you explain in more detail how this solution works? I am unable to implement</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/5</link>
+        <pubDate>Wed, 12 Oct 2022 09:19:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-5</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Find a solution, might not be the best but it works</p>
+<pre><code class="lang-javascript">const viewHandler = {
+    name: "viewHandler",
+    priority: 1,
+    pattern: "/base/views/:id/",
+    func: async ({ state, link, params, libraries,type }) =&gt; {
+      // first need convert object to int
+      let id = parseInt(params.id);
+      const post = await libraries.source.api.get({
+        endpoint: `/base/views/${id}`,
+        params: {
+          page: id,
+        },
+      });
+
+    },
+  
+};
+
+export default viewHandler;
+
+</code></pre>
+<p>in my post.js</p>
+<pre><code class="lang-javascript">    actions.source.fetch(`/base/views`);
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/4</link>
+        <pubDate>Thu, 15 Sep 2022 10:07:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-4</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome, thanks <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=12" title=":+1:" class="emoji" alt=":+1:" loading="lazy" width="20" height="20"></p>
+<p>I will take a look, but in the meantime I’ve tried this <a href="https://medium.com/fiatinsight/find-popular-posts-with-the-wordpress-rest-api-109013bdc5e3" class="inline-onebox" rel="noopener nofollow ugc">Find popular posts with the WordPress REST API | by Ben Zumdahl | Fiat Insight | Medium</a></p>
+<p>It almost work, with a bit of modifications on wp side, I’m able to retrieve the post meta in the state, and add +1 to it when I use the url provided with Postman (/wp-json/base/views/postid) but it does not work when I use this link in Frontity, any idea ? thanks again</p>
+<pre><code class="lang-javascript">useEffect(() =&gt; {
+  actions.source.fetch(`/base/views/${postId}`);
+}, [])
+</code></pre>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/3</link>
+        <pubDate>Thu, 15 Sep 2022 00:58:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-3</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Here it is: <a href="https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/response-utils.ts" class="inline-onebox" rel="noopener nofollow ugc">frontity/response-utils.ts at dev · frontity/frontity · GitHub</a></p>
+<p>Its not documented but its there.</p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/2</link>
+        <pubDate>Wed, 14 Sep 2022 11:59:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-2</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+      <item>
+        <title>Post view count</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>This forum managed to count the post view, how does this work ? Is there a repo or something ? Does this ofurm uses wordpress also ? Thanks <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/post-view-count/6323/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/post-view-count/6323/1</link>
+        <pubDate>Tue, 13 Sep 2022 23:59:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6323-1</guid>
+        <source url="https://community.frontity.org/t/post-view-count/6323.rss">Post view count</source>
+      </item>
+  </channel>
+</rss>

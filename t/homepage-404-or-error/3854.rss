@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Homepage 404 or error</title>
+    <link>https://community.frontity.org/t/homepage-404-or-error/3854</link>
+    <description>Suddenly, I start seeing this error in the console. I am not sure why. 
+
+I went to General -&gt; Settings -&gt; Reading -&gt; Your homepage displays -&gt; A static page (Set home as static page)
+
+When I reload my frontity app this is what appears to be an error: 
+![Screen Shot 2021-01-20 at 9.04.14 PM|690x283](upload://9gUlOfjVW3WQjE2CcaSUG6VU1en.png)
+
+Do I need to create specific template and how for static pages? When I uncheck home page as being static, it works.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 21 Jan 2021 13:12:34 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/homepage-404-or-error/3854.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Homepage 404 or error</title>
+        <dc:creator><![CDATA[mh123]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you for replying. I did what you suggested. Now the posts are pointed to News page and it works fine. When I go to / it loads the home page. However, the error is still present.</p>
+<p><strong>UPDATE</strong>: I’ve found the problem, the cause was wp primary menu that I was fetching from my wp admin. Inside of this menu, there was link that pointed to /home route so I guess the server was trying to pre-load the page of /home which doesn’t exist. Few hours waisted.</p>
+          <p><a href="https://community.frontity.org/t/homepage-404-or-error/3854/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/homepage-404-or-error/3854/7</link>
+        <pubDate>Thu, 21 Jan 2021 12:35:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3854-7</guid>
+        <source url="https://community.frontity.org/t/homepage-404-or-error/3854.rss">Homepage 404 or error</source>
+      </item>
+      <item>
+        <title>Homepage 404 or error</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mh123">@mh123</a></p>
+<p>Try creating a separate page for posts in the WP admin and setting it as the ‘Posts page’:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/cb98d376a465e9b291253a4012726569511db273.png" data-download-href="https://community.frontity.org/uploads/default/cb98d376a465e9b291253a4012726569511db273" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/cb98d376a465e9b291253a4012726569511db273_2_690x263.png" alt="image" data-base62-sha1="t36lZGRbWthEr4QHcXElTVqrSMj" width="690" height="263" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/cb98d376a465e9b291253a4012726569511db273_2_690x263.png, https://community.frontity.org/uploads/default/original/2X/c/cb98d376a465e9b291253a4012726569511db273.png 1.5x, https://community.frontity.org/uploads/default/original/2X/c/cb98d376a465e9b291253a4012726569511db273.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/cb98d376a465e9b291253a4012726569511db273_2_10x10.png"></a></div><p></p>
+<p>Then configure in <code>frontity.settings.js</code>:</p>
+<pre><code class="lang-javascript">postsPage: "news", // or whatever your page slug is
+</code></pre>
+<p>See if actually configuring a posts page (even if you don’t use it) makes that error go away. I think that as you’ve configured <code>/</code> as the homepage Frontity may now be looking for the posts at <code>/home/</code>, so explicitly configuring a posts page may sort it.</p>
+          <p><a href="https://community.frontity.org/t/homepage-404-or-error/3854/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/homepage-404-or-error/3854/6</link>
+        <pubDate>Thu, 21 Jan 2021 12:09:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3854-6</guid>
+        <source url="https://community.frontity.org/t/homepage-404-or-error/3854.rss">Homepage 404 or error</source>
+      </item>
+      <item>
+        <title>Homepage 404 or error</title>
+        <dc:creator><![CDATA[mh123]]></dc:creator>
+        <description><![CDATA[
+            <pre><code>const settings = {
+  name: "some name",
+  state: {
+    frontity: {
+      url: "https://test.frontity.org",
+      title: "Test Frontity Blog",
+      description: "WordPress installation for Frontity development",
+    },
+  },
+  packages: [
+    {
+      name: "@frontity/mars-theme",
+      state: {
+        theme: {
+          menu: [
+            // ["Privacy", "/privacy-policy/"],
+            // ["Home", "/"],
+            ["Services", "/services/"],
+            // ["Nature", "/category/nature/"],
+            // ["Travel", "/category/travel/"],
+            // ["Japan", "/tag/japan/"],
+            // ["About Us", "/about-us/"],
+          ],
+          featured: {
+            showOnList: true,
+            showOnPost: true,
+          },
+        },
+      },
+    },
+    {
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          api: "http://dev.some-api.test/wp-json",
+          homepage: "/",
+          // postsPage: "services",
+          postTypes: [
+            {
+              type: "services",
+              endpoint: "services",
+              archive: "/services",
+            },
+          ],
+          taxonomies: [
+            {
+              taxonomy: "test", // taxonomy slug
+              endpoint: "test", // REST API endpoint
+              postTypeEndpoint: "services", // endpoint from which posts from this taxonomy are fetched
+            },
+          ],
+        },
+      },
+    },
+
+    "@frontity/tiny-router",
+    "@frontity/html2react",
+    "@frontity/head-tags",
+  ],
+};
+
+export default settings;
+</code></pre>
+<p>Even if I put /home/ to menu or comment it out, it doesn’t metter. I get an error. I managed to get rid of an error by disabling home as static page. So, now when I access /home route it renders the page properly. Same with /about.</p>
+<p>But now, when I access the base route / it renders the list of posts instead of my home page. How can I tell frontity which route to point to homepage?</p>
+<p>For example: / route to get content from /home.</p>
+<p>Maybe this is easier to achieve. And maybe I don’t even need static page? But then how can I differentiate home from the other pages?</p>
+          <p><a href="https://community.frontity.org/t/homepage-404-or-error/3854/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/homepage-404-or-error/3854/5</link>
+        <pubDate>Thu, 21 Jan 2021 11:30:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3854-5</guid>
+        <source url="https://community.frontity.org/t/homepage-404-or-error/3854.rss">Homepage 404 or error</source>
+      </item>
+      <item>
+        <title>Homepage 404 or error</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mh123">@mh123</a></p>
+<p>Could you post all of your <code>frontity.settings.js</code> file please. Do you have <code>/home/</code> in your menu configuration?</p>
+          <p><a href="https://community.frontity.org/t/homepage-404-or-error/3854/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/homepage-404-or-error/3854/4</link>
+        <pubDate>Thu, 21 Jan 2021 10:52:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3854-4</guid>
+        <source url="https://community.frontity.org/t/homepage-404-or-error/3854.rss">Homepage 404 or error</source>
+      </item>
+      <item>
+        <title>Homepage 404 or error</title>
+        <dc:creator><![CDATA[mh123]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="mburridge" data-post="2" data-topic="3854">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mburridge/40/1477_2.png" class="avatar"> mburridge:</div>
+<blockquote>
+<p>postsPage</p>
+</blockquote>
+</aside>
+<p>Yes, there is homepage set to point /. In my index page, in Switch statement I’ve added  component to render when the page isHome. It works, it renders my template from Home component. But still I see this error. This is my config:</p>
+<pre><code>{
+  name: "@frontity/wp-source",
+  state: {
+    source: {
+      api: "http://dev.my-domain.test/wp-json",
+      homepage: "/",
+      postTypes: [
+        {
+          type: "services",
+          endpoint: "services",
+          archive: "/services",
+        },
+      ],
+      taxonomies: [
+        {
+          taxonomy: "test", // taxonomy slug
+          endpoint: "test", // REST API endpoint
+          postTypeEndpoint: "services", // endpoint from which posts from this taxonomy are fetched
+        },
+      ],
+    },
+  },
+},
+</code></pre>
+<p>When I print out in the console, this is what I see for source, the data/home/ returns an error. My app is calling the /home/ even when I remove home related stuff.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/9/9fb1000be136add8b6c9872012eca9a10972e5f0.png" data-download-href="https://community.frontity.org/uploads/default/9fb1000be136add8b6c9872012eca9a10972e5f0" title="Screen Shot 2021-01-21 at 10.38.33 AM"><img src="https://community.frontity.org/uploads/default/optimized/2X/9/9fb1000be136add8b6c9872012eca9a10972e5f0_2_690x280.png" alt="Screen Shot 2021-01-21 at 10.38.33 AM" data-base62-sha1="mMH8C5ugWVlaRX7oyyskYM7PX4Q" width="690" height="280" srcset="https://community.frontity.org/uploads/default/optimized/2X/9/9fb1000be136add8b6c9872012eca9a10972e5f0_2_690x280.png, https://community.frontity.org/uploads/default/optimized/2X/9/9fb1000be136add8b6c9872012eca9a10972e5f0_2_1035x420.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/9/9fb1000be136add8b6c9872012eca9a10972e5f0_2_1380x560.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/9/9fb1000be136add8b6c9872012eca9a10972e5f0_2_10x10.png"></a></div><p></p>
+<p>Maybe I don’t need to make homepage as static page in the wp settings at all? or should I? If I don’t have home as static page, how to set main route for home page?</p>
+          <p><a href="https://community.frontity.org/t/homepage-404-or-error/3854/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/homepage-404-or-error/3854/3</link>
+        <pubDate>Thu, 21 Jan 2021 09:32:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3854-3</guid>
+        <source url="https://community.frontity.org/t/homepage-404-or-error/3854.rss">Homepage 404 or error</source>
+      </item>
+      <item>
+        <title>Homepage 404 or error</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mh123">@mh123</a></p>
+<p>Have you set the <code>homepage</code> and <code>postsPage</code> properties for <code>wp-source</code> in <code>frontity.settings.js</code>?</p>
+<p><a href="https://docs.frontity.org/api-reference-1/wordpress-source#state-source-homepage">See here</a> for more info.</p>
+          <p><a href="https://community.frontity.org/t/homepage-404-or-error/3854/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/homepage-404-or-error/3854/2</link>
+        <pubDate>Thu, 21 Jan 2021 08:39:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3854-2</guid>
+        <source url="https://community.frontity.org/t/homepage-404-or-error/3854.rss">Homepage 404 or error</source>
+      </item>
+      <item>
+        <title>Homepage 404 or error</title>
+        <dc:creator><![CDATA[mh123]]></dc:creator>
+        <description><![CDATA[
+            <p>Suddenly, I start seeing this error in the console. I am not sure why.</p>
+<p>I went to General -&gt; Settings -&gt; Reading -&gt; Your homepage displays -&gt; A static page (Set home as static page)</p>
+<p>When I reload my frontity app this is what appears to be an error:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/4/40fce15f455ef1539f65df5bf93312a22bc7fc0f.png" data-download-href="https://community.frontity.org/uploads/default/40fce15f455ef1539f65df5bf93312a22bc7fc0f" title="Screen Shot 2021-01-20 at 9.04.14 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/4/40fce15f455ef1539f65df5bf93312a22bc7fc0f_2_690x283.png" alt="Screen Shot 2021-01-20 at 9.04.14 PM" data-base62-sha1="9gUlOfjVW3WQjE2CcaSUG6VU1en" width="690" height="283" srcset="https://community.frontity.org/uploads/default/optimized/2X/4/40fce15f455ef1539f65df5bf93312a22bc7fc0f_2_690x283.png, https://community.frontity.org/uploads/default/optimized/2X/4/40fce15f455ef1539f65df5bf93312a22bc7fc0f_2_1035x424.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/4/40fce15f455ef1539f65df5bf93312a22bc7fc0f_2_1380x566.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/4/40fce15f455ef1539f65df5bf93312a22bc7fc0f_2_10x10.png"></a></div><p></p>
+<p>Do I need to create specific template and how for static pages? When I uncheck home page as being static, it works.</p>
+          <p><a href="https://community.frontity.org/t/homepage-404-or-error/3854/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/homepage-404-or-error/3854/1</link>
+        <pubDate>Wed, 20 Jan 2021 20:20:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3854-1</guid>
+        <source url="https://community.frontity.org/t/homepage-404-or-error/3854.rss">Homepage 404 or error</source>
+      </item>
+  </channel>
+</rss>

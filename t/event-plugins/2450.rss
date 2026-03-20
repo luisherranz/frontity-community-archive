@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Event Plugins</title>
+    <link>https://community.frontity.org/t/event-plugins/2450</link>
+    <description>Hi
+
+I am planing to add a list of courses (with a registration form). Has anyone used any of the bunch of the WP Event Plugins with frontity yet?
+
+I did try a few of them but none really exposed all the information over the API. The most complete was https://theeventscalendar.com/knowledgebase/k/introduction-to-the-events-calendar-rest-api/ but they are exposing their &quot;own&quot; API on wp-json/tribe/events/v1/events.
+
+Any suggestion on a an event plugin?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 17 Aug 2020 09:44:00 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/event-plugins/2450.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a></p>
+<p>To get an archive listing like the one you describe you just need to add the <code>archive</code> property when you define <code>postTypes</code> in <code>frontity.settings.js</code>. See our <a href="https://docs.frontity.org/api-reference-1/wordpress-source#state-source-posttypes">docs here</a>.</p>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/10</link>
+        <pubDate>Mon, 17 Aug 2020 09:44:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-10</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>I have managed to get a solution with a custom handler:</p>
+<pre><code>export default  {
+pattern: "/kurse/",
+
+func: async ({ route, params, state, libraries }) =&gt; {
+  state.source.data["/kurse/"].isCourseList = true;
+
+  const response = await libraries.source.api.get({
+    endpoint: '/wp/v2/courses/',
+  });
+
+  const items = await libraries.source.populate({ response, state });
+
+    Object.assign(state.source.data[route], {
+      isCourseType: true,
+      items
+    });
+  },
+}</code></pre>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/9</link>
+        <pubDate>Sat, 15 Aug 2020 17:43:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-9</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, I am back with this topic <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=9" title=":laughing:" class="emoji" alt=":laughing:"></p>
+<p>So far, I have created a custom post type for the Events/Courses in WP and added them to the REST API. Now I would like to have an overview page on frontity (like /courses/) with a listing of all posts of the custom post type (and maybe doing some filtering with that list) and ofcourse having a link to the subpage then (eg. /courses/mycourse01/).</p>
+<p>Is there a way in querying all posts of a certain type in frontity? Or should I create an archive page in Wordpress itself and try to show that one on Frontity</p>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/8</link>
+        <pubDate>Fri, 14 Aug 2020 18:55:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-8</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>oh, that plugin looks nice</p>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/7</link>
+        <pubDate>Tue, 21 Jul 2020 16:51:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-7</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a></p>
+<p>I’m guessing what you’re missing are the event dates. Those are probably Custom Fields (also called Post Meta) associated with the Events CPT. They will also need to be exposed in the REST API.</p>
+<p>You could code a solution to this in PHP, but you may want to focus more on the Frontity based front end of your site, so you might find <strong><a href="https://wordpress.org/plugins/wp-rest-api-controller/">this plugin</a></strong> useful.</p>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/6</link>
+        <pubDate>Tue, 21 Jul 2020 09:41:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-6</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> , I’ve tried that now. I can see those custom post_types in the wp-json API now: <a href="https://frontity.hei-schule.ch/wp-json/wp/v2/tribe_events" rel="nofollow noopener">https://frontity.hei-schule.ch/wp-json/wp/v2/tribe_events</a>. But there’s barely anything exposed</p>
+<p>here’ the link to the page on the WP side <a href="https://frontity.hei-schule.ch/event/123/" rel="nofollow noopener">https://frontity.hei-schule.ch/event/123/</a>. Content is rendered on the go. Also do they have a lot of functionality in separate JS files. I might try to use Iframe…</p>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/5</link>
+        <pubDate>Mon, 20 Jul 2020 18:02:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-5</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a></p>
+<p>I’m not too familiar with event plugins so am unable to make a specific recommendation. But if you find one that has the functionality you need but doesn’t expose it’s content in the WP REST API it’s possible to add it by adding a bit of code to your site’s <code>functions.php</code> file or in a custom plugin.</p>
+<p><strong><a href="https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-rest-api-support-for-custom-content-types/#adding-rest-api-support-to-existing-content-types">See here</a></strong> for how to do this.</p>
+<p>Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/3</link>
+        <pubDate>Mon, 20 Jul 2020 16:46:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-3</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+      <item>
+        <title>Event Plugins</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi</p>
+<p>I am planing to add a list of courses (with a registration form). Has anyone used any of the bunch of the WP Event Plugins with frontity yet?</p>
+<p>I did try a few of them but none really exposed all the information over the API. The most complete was <a href="https://theeventscalendar.com/knowledgebase/k/introduction-to-the-events-calendar-rest-api/" rel="nofollow noopener">https://theeventscalendar.com/knowledgebase/k/introduction-to-the-events-calendar-rest-api/</a> but they are exposing their “own” API on wp-json/tribe/events/v1/events.</p>
+<p>Any suggestion on a an event plugin?</p>
+          <p><a href="https://community.frontity.org/t/event-plugins/2450/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/event-plugins/2450/1</link>
+        <pubDate>Mon, 20 Jul 2020 16:25:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2450-1</guid>
+        <source url="https://community.frontity.org/t/event-plugins/2450.rss">Event Plugins</source>
+      </item>
+  </channel>
+</rss>

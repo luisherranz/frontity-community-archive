@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Internal Server Error on POSTS ONLY using Chakra UI #442</title>
+    <link>https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913</link>
+    <description>    ** TypeError: Cannot read property &#39;96&#39; of undefined
+    at Post (webpack-internal:///./node_modules/frontity-chakra-theme/src/components/post/post.js:23:1812)
+    at runAsReaction (webpack-internal:///./node_modules/@frontity/connect/src/reactionRunner.js:16:45)
+    at reaction (webpack-internal:///./node_modules/@frontity/connect/src/observer.js:7:131)
+    at eval (webpack-internal:///./node_modules/@frontity/connect/src/connect.js:18:8)
+    at processChild (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:397:2319)
+    at resolve (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:396:122)
+    at ReactDOMServerRenderer.render (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:1199)
+    at ReactDOMServerRenderer.read (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:55)
+    at renderToString (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:470:116)
+    at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:46:243)**
+
+* I&#39;ve updated both my project and my packages to the latest Frontity versions: https://docs.frontity.org/guides/keep-frontity-updated
+* I&#39;ve searched for existing issues.
+* I&#39;ve checked the documentation: [https://docs.frontity.org](https://docs.frontity.org/)
+* I&#39;ve checked the community forum: [https://community.frontity.org](https://community.frontity.org/)
+
+* *Posts page should open but instead its showing INTERNAL SERVER ERROR*
+
+**Home Page works fine but when i click on any post it gives me INTERNAL SERVER ERROR**
+
+**Steps involved to reproduce the problem**
+You need to use Chakra UI theme and this issue will happen, it wont happen with other themes</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 26 May 2020 18:03:09 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Internal Server Error on POSTS ONLY using Chakra UI #442</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/shehab">@shehab</a>!</p>
+<p>For the problems you had with the Chakra theme take a loot at what I answered you in the issue: <a href="https://github.com/frontity/frontity/issues/442#issuecomment-634166214">frontity/frontity#442</a>.</p>
+<aside class="quote no-group" data-username="shehab" data-post="2" data-topic="1913">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/s/958977/40.png" class="avatar"> shehab:</div>
+<blockquote>
+<p>it is related to this issue: <a href="https://community.frontity.org/t/how-to-remove-category-prefix-from-category-urls/817">How to remove category prefix from category URLs?</a></p>
+<p>However how to add the code, where exactly in the JS file? and what to change since my theme is Chakra not Mars</p>
+</blockquote>
+</aside>
+<p>I think this is related to the issue <a href="https://github.com/frontity/frontity/issues/443">frontity/frontity#443</a> instead, right?</p>
+<p>The file that needs to be modified is <code>packages/frontity-chakra-theme/index.js</code> as you are using the Chakra theme. After adding there the handler mentioned in <a href="https://community.frontity.org/t/how-to-remove-category-prefix-from-category-urls/817">How to remove category prefix from category URLs?</a> it would look something like this:</p>
+<pre><code class="lang-ts">import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+import processors from "./components/styles/processors";
+// import { theme } from "@chakra-ui/core";
+
+const newHandler = {
+  name: "categoryOrPostType",
+  priority: 19,
+  pattern: "/(.*)?/:slug",
+  func: async ({ route, params, state, libraries }) =&gt; {
+    // 1. try with category.
+    try {
+      const category = libraries.source.handlers.find(
+        (handler) =&gt; handler.name == "category"
+      );
+      await category.func({ route, params, state, libraries });
+    } catch (e) {
+      // It's not a category
+      const postType = libraries.source.handlers.find(
+        (handler) =&gt; handler.name == "post type"
+      );
+      await postType.func({ route, params, state, libraries });
+    }
+  },
+};
+
+const chakraTheme = {
+  name: "frontity-chakra-theme",
+  roots: {
+    // In Frontity, any package can add React components to the site.
+    // We use roots for that, scoped to the "theme" namespace.
+    theme: Theme,
+  },
+  state: {
+    // State is where the packages store their default settings and other
+    // relevant state. It is scoped to the "theme" namespace.
+    theme: {
+      /**
+       * The logo can be a text or an image url
+       * logo : "Frontity"
+       * logo: "https://uploads-ssl.webflow.com/5be00771820599586e6bd032/5be0223588110a6dbcac2d05_image.svg",
+       */
+      logo: "Frontity",
+      showBackgroundPattern: true,
+      showSocialLinks: true,
+      /**
+       * socialLinks: [
+            ["pinterest", "https://www.pinterest.com/frontity/"],
+            ["facebook", "https://www.instagram.com/frontity/"],
+            ["twitter", "https://www.twitter.com/frontity/"]
+          ],
+       */
+      socialLinks: [],
+      menu: [],
+      featured: {
+        showOnArchive: false,
+        showOnPost: true,
+      },
+
+      colors: {
+        primary: {
+          50: "#e9f5f2",
+          100: "#d4dcd9",
+          200: "#bbc3be",
+          300: "#a1aba5",
+          400: "#87938b",
+          500: "#6d7972",
+          600: "#555f58",
+          700: "#323c34",
+          800: "#232924",
+          900: "#272727",
+        },
+        accent: {
+          50: "#ede4d3",
+          100: "#fbe3b2",
+          200: "#f6d086",
+          300: "#f1be58",
+          400: "#eca419",
+          500: "#d49212",
+          600: "#a5710b",
+          700: "#775105",
+          800: "#483100",
+          900: "#1d0f00",
+        },
+      },
+      isSearchModalOpen: false,
+      isMobileMenuOpen: false,
+      autoPreFetch: "all",
+    },
+  },
+  // Actions are functions that modify the state or deal with other parts of
+  // Frontity like libraries.
+  actions: {
+    theme: {
+      openMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = true;
+      },
+      closeMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = false;
+      },
+      openSearchModal: ({ state }) =&gt; {
+        state.theme.isSearchModalOpen = true;
+      },
+      closeSearchModal: ({ state }) =&gt; {
+        state.theme.isSearchModalOpen = false;
+      },
+    },
+  },
+  libraries: {
+    html2react: {
+      // Add a processor to html2react so it processes the &lt;img&gt; tags
+      // inside the content HTML. You can add your own processors too.
+      processors: [image, ...processors],
+    },
+    source: {
+      handlers: [newHandler],
+    },
+  },
+};
+
+export default chakraTheme;
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913/3</link>
+        <pubDate>Tue, 26 May 2020 18:03:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1913-3</guid>
+        <source url="https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913.rss">Internal Server Error on POSTS ONLY using Chakra UI #442</source>
+      </item>
+      <item>
+        <title>Internal Server Error on POSTS ONLY using Chakra UI #442</title>
+        <dc:creator><![CDATA[shehab]]></dc:creator>
+        <description><![CDATA[
+            <p>it is related to this issue: <a href="https://community.frontity.org/t/how-to-remove-category-prefix-from-category-urls/817" class="inline-onebox">How to remove category prefix from category URLs?</a></p>
+<p>However how to add the code, where exactly in the JS file? and what to change since my theme is Chakra not Mars</p>
+<p>my current config:</p>
+<pre><code>const settings = {
+  "name": "visit-guide",
+  "state": {
+    "frontity": {
+      "url": "https://www.visit.guide",
+      "title": "دليل السفر",
+      "description": "دليل المسافر العربي"
+    }
+  },
+  "packages": [
+    {
+      "name": "frontity-chakra-theme",
+      "state": {
+        "theme": {
+			// The logo can be a text or an image url
+          logo: "دليل السفر",
+          // show background pattern
+          showBackgroundPattern: false,
+          // show social links
+          showSocialLinks: false,
+          // the top-level navigation labels and links
+			
+          "menu": [
+            [
+              "الرئيسية",
+              "/"
+            ],
+            [
+              "وجهات",
+              "/category/destinations/"
+            ],
+            [
+              "مصر",
+              "/category/egypt/"
+            ],
+            [
+              "شرم الشيخ",
+              "/category/egypt/sharm-el-sheikh/"
+            ],
+            [
+              "القاهرة",
+              "/category/egypt/cairo/"
+            ]
+          ],
+		  
+		    // the social links
+          socialLinks: [
+            ["pinterest", "https://www.pinterest.com/frontity/"],
+            ["facebook", "https://www.instagram.com/frontity/"],
+            ["twitter", "https://www.twitter.com/frontity/"]
+          ],
+		  
+		            // color shades to use in the blog
+          colors: {
+            primary: {
+              "50": "#e9f5f2",
+              "100": "#d4dcd9",
+              "200": "#bbc3be",
+              "300": "#a1aba5",
+              "400": "#87938b",
+              "500": "#6d7972",
+              "600": "#555f58",
+              "700": "#323c34",
+              "800": "#232924",
+              "900": "#272727"
+            },
+            accent: {
+              "50": "#ede4d3",
+              "100": "#fbe3b2",
+              "200": "#f6d086",
+              "300": "#f1be58",
+              "400": "#eca419",
+              "500": "#d49212",
+              "600": "#a5710b",
+              "700": "#775105",
+              "800": "#483100",
+              "900": "#1d0f00"
+            }
+          }
+		  
+
+          }
+        }
+
+    },
+    {
+      "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "api": "https://www.visit.guide/wp-json"
+        }
+      }
+    },
+    "@frontity/tiny-router",
+    "@frontity/html2react",
+	"@frontity/head-tags"
+  ]
+};
+
+export default settings;</code></pre>
+          <p><a href="https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913/2</link>
+        <pubDate>Mon, 25 May 2020 20:43:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1913-2</guid>
+        <source url="https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913.rss">Internal Server Error on POSTS ONLY using Chakra UI #442</source>
+      </item>
+      <item>
+        <title>Internal Server Error on POSTS ONLY using Chakra UI #442</title>
+        <dc:creator><![CDATA[shehab]]></dc:creator>
+        <description><![CDATA[
+            <pre><code>** TypeError: Cannot read property '96' of undefined
+at Post (webpack-internal:///./node_modules/frontity-chakra-theme/src/components/post/post.js:23:1812)
+at runAsReaction (webpack-internal:///./node_modules/@frontity/connect/src/reactionRunner.js:16:45)
+at reaction (webpack-internal:///./node_modules/@frontity/connect/src/observer.js:7:131)
+at eval (webpack-internal:///./node_modules/@frontity/connect/src/connect.js:18:8)
+at processChild (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:397:2319)
+at resolve (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:396:122)
+at ReactDOMServerRenderer.render (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:1199)
+at ReactDOMServerRenderer.read (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:55)
+at renderToString (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:470:116)
+at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:46:243)**
+</code></pre>
+<ul>
+<li>
+<p>I’ve updated both my project and my packages to the latest Frontity versions: <a href="https://docs.frontity.org/guides/keep-frontity-updated" rel="nofollow noopener">https://docs.frontity.org/guides/keep-frontity-updated</a></p>
+</li>
+<li>
+<p>I’ve searched for existing issues.</p>
+</li>
+<li>
+<p>I’ve checked the documentation: <a href="https://docs.frontity.org/" rel="nofollow noopener">https://docs.frontity.org</a></p>
+</li>
+<li>
+<p>I’ve checked the community forum: <a href="https://community.frontity.org/">https://community.frontity.org</a></p>
+</li>
+<li>
+<p><em>Posts page should open but instead its showing INTERNAL SERVER ERROR</em></p>
+</li>
+</ul>
+<p><strong>Home Page works fine but when i click on any post it gives me INTERNAL SERVER ERROR</strong></p>
+<p><strong>Steps involved to reproduce the problem</strong><br>
+You need to use Chakra UI theme and this issue will happen, it wont happen with other themes</p>
+          <p><a href="https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913/1</link>
+        <pubDate>Sun, 24 May 2020 19:08:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1913-1</guid>
+        <source url="https://community.frontity.org/t/internal-server-error-on-posts-only-using-chakra-ui-442/1913.rss">Internal Server Error on POSTS ONLY using Chakra UI #442</source>
+      </item>
+  </channel>
+</rss>

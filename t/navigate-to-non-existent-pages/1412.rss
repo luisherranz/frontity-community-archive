@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Navigate to non-existent pages</title>
+    <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412</link>
+    <description>We&#39;re trying to allow users to navigate between pages within a form but are running into a few issues, the URL structure is something like:
+
+* /contact/
+* /contact/page2/
+* /contact/page3/
+
+(This is an example, the form in question isn&#39;t a contact form :smile:)
+
+Within WP the initial /contact/ page has been created but these &quot;sub-pages&quot; haven&#39;t. I&#39;ve created a handler which will load the page data from the initial /contact/ page, accessing these pages directly works fine but when a user clicks back/forward in their browser we&#39;re noticing within our **Theme** component, the router link is &quot;undefined/&quot; and as such returns no data required for the page e.g. Yoast, ACF, etc. 
+
+Currently when a user navigates to the next page of the form we&#39;re using history.pushState:
+
+    let slug = &quot;page2&quot;; // Slug is created based off the current page the user is viewing
+    window.history.pushState({ data: [..] }, &#39;Page Title&#39;, `/contact/${slug}/`);
+
+We&#39;ve toyed around with both `popstate` and `beforeunload` window events to try and capture this but they seem to either get called too late (if at all) within these events we&#39;ve tried manually setting the router:
+
+    actions.router.set(&quot;/contact/page2/&quot;);
+
+
+But still have the same issue. I&#39;m probably missing something super obvious here, but I&#39;m not really sure what...
+
+Ideally we&#39;d like to just re-render the form with the new page instead of loading an entirely new page.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 24 Mar 2020 08:30:42 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Another idea that just came to my mind is to bypass the Frontity’s routing for those URLs.</p>
+<pre><code>const Theme = ({ state }) =&gt; {
+  // ...
+  const isContatPage = state.router.link.startsWith("/contact/");
+
+  return (
+    &lt;Switch&gt;
+      &lt;ContactPage when={isContactPage} /&gt;
+      &lt;Loading when={isLoading} /&gt;
+      {/* ... */}
+    &lt;/Switch&gt;
+  );
+}
+</code></pre>
+<p>Then, inside <code>ContactPage</code>, extract the page number from the URL:</p>
+<pre><code>const ContactPage = ({ state }) =&gt; {
+  const page = /\/contact\/page(\d)/.exec(state.router.link)[1];
+  // ...
+};
+</code></pre>
+<p>If you do that, I think you can use <code>actions.router.set</code> and forth and the browser back/forward button should work.</p>
+<p>The problem with that approach is that the SSR of the <code>/contact/page2</code> URL will return a 404 because it doesn’t exist on your WordPress but you can create empty pages that match those URLs.</p>
+<aside class="quote no-group" data-username="chris" data-post="9" data-topic="1412">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/c/958977/40.png" class="avatar"> chris:</div>
+<blockquote>
+<p>Now I’m trying to figure out an issue with the form not re-rendering when properties within the Frontity state are changed</p>
+</blockquote>
+</aside>
+<p>Can you show us the code? <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/10</link>
+        <pubDate>Tue, 24 Mar 2020 08:30:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-10</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[chris]]></dc:creator>
+        <description><![CDATA[
+            <p>You’ve hit the nail on the head, that’s exactly what we’re trying to do.</p>
+<p>We’re already using <code>sessionStorage</code> to store the data so we can load it when the user refreshes. We’ve already got back/next buttons within the form but a new requirement that has arisen is to tap into the browser actions so when the user hits the back button, they’re brought to the previous page within the form and not the last page they visited.</p>
+<p>Hence why I thought the initial theory of pushing items into the history would have been an easier way to manage this.</p>
+<p>Fortunately we’ve managed to figure out the errors in my previous post, turns out I was trying to access a property within the state object before it had finished fetching - a quick check with <code>isFetching</code> solved it.</p>
+<p>Now I’m trying to figure out an issue with the form not re-rendering when properties within the Frontity state are changed - this is almost definitely me doing something dumb rather than an actual Frontity issue though.</p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/9</link>
+        <pubDate>Mon, 23 Mar 2020 23:18:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-9</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/chris">@chris</a> I guess what you want is all those Frontity URLs (<code>/contact/</code>, <code>/contact/page2/</code> and <code>/contact/page2/</code>) pointing to the same WordPress URL: <code>/contact</code>, right?</p>
+<p>That’s not something that can be done in the current version of <code>source</code> but we are working on a new version where that configuration will be possible.</p>
+<p>Since we get to that point, my recommendation is to stick to a single URL and save the progress of your form in the client using <code>localStorage</code>, including the subpage the users are currently in. That way, if the user refreshes the page, it will be in the same place where they left off.</p>
+<p>You can use a React hook that works similar to <code>useState</code> but saves the data on <code>localStorage</code> like this one: <a href="https://www.npmjs.com/package/use-persisted-state">https://www.npmjs.com/package/use-persisted-state</a></p>
+<p>Remember to include a reset button so users can go back to the subpage 1.</p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/7</link>
+        <pubDate>Mon, 23 Mar 2020 08:21:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-7</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/chris">@chris</a></p>
+<p>Could you also try to add a breakpoint on the <code>popstate</code> browser event and see if by any chance the <code>state.link</code> inside of that event is null or undefined when you try to navigate back / forth?</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/eaf8e739438dd1f65752d99ded3d24f87b0fca5f.png" data-download-href="https://community.frontity.org/uploads/default/eaf8e739438dd1f65752d99ded3d24f87b0fca5f" title="Screenshot 2020-03-19 at 20.33.42"><img src="https://community.frontity.org/uploads/default/optimized/1X/eaf8e739438dd1f65752d99ded3d24f87b0fca5f_2_690x471.png" alt="Screenshot 2020-03-19 at 20.33.42" data-base62-sha1="xwF02Xk0SJCoXawlzGJjurr88Sr" width="690" height="471" srcset="https://community.frontity.org/uploads/default/optimized/1X/eaf8e739438dd1f65752d99ded3d24f87b0fca5f_2_690x471.png, https://community.frontity.org/uploads/default/optimized/1X/eaf8e739438dd1f65752d99ded3d24f87b0fca5f_2_1035x706.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/eaf8e739438dd1f65752d99ded3d24f87b0fca5f_2_1380x942.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/eaf8e739438dd1f65752d99ded3d24f87b0fca5f_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/6</link>
+        <pubDate>Fri, 20 Mar 2020 01:36:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-6</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/chris">@chris</a>! <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>It’s hard to diagnose this without knowing more details <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>If you are using <code>actions.router.set("/contact/page2/");</code> then the link should definitely not be <code>undefined</code> anymore!</p>
+<p>Would you be able to provide a codesandbox example based a link to a site with the problem that you described or a short video illustrating the problem?</p>
+<p>Could you post the code from your form component where you use your form?</p>
+<p>Is there any error in the console in when the user navigates backwards/forwards?</p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/4</link>
+        <pubDate>Fri, 20 Mar 2020 01:19:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-4</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[chris]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve never had to deal with handling back/forward browser actions before so figured pushing these pages into the history would have been an easier way to manage moving between pages &amp; refreshing pages so the user will land back on that page.</p>
+<p>I’m open to suggestions, nothing is set in stone.</p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/3</link>
+        <pubDate>Wed, 18 Mar 2020 10:16:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-3</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>One question: Why do you need to change the URL of the form?</p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/2</link>
+        <pubDate>Wed, 18 Mar 2020 08:34:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-2</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+      <item>
+        <title>Navigate to non-existent pages</title>
+        <dc:creator><![CDATA[chris]]></dc:creator>
+        <description><![CDATA[
+            <p>We’re trying to allow users to navigate between pages within a form but are running into a few issues, the URL structure is something like:</p>
+<ul>
+<li>/contact/</li>
+<li>/contact/page2/</li>
+<li>/contact/page3/</li>
+</ul>
+<p>(This is an example, the form in question isn’t a contact form <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:">)</p>
+<p>Within WP the initial /contact/ page has been created but these “sub-pages” haven’t. I’ve created a handler which will load the page data from the initial /contact/ page, accessing these pages directly works fine but when a user clicks back/forward in their browser we’re noticing within our <strong>Theme</strong> component, the router link is “undefined/” and as such returns no data required for the page e.g. Yoast, ACF, etc.</p>
+<p>Currently when a user navigates to the next page of the form we’re using history.pushState:</p>
+<pre><code>let slug = "page2"; // Slug is created based off the current page the user is viewing
+window.history.pushState({ data: [..] }, 'Page Title', `/contact/${slug}/`);
+</code></pre>
+<p>We’ve toyed around with both <code>popstate</code> and <code>beforeunload</code> window events to try and capture this but they seem to either get called too late (if at all) within these events we’ve tried manually setting the router:</p>
+<pre><code>actions.router.set("/contact/page2/");
+</code></pre>
+<p>But still have the same issue. I’m probably missing something super obvious here, but I’m not really sure what…</p>
+<p>Ideally we’d like to just re-render the form with the new page instead of loading an entirely new page.</p>
+          <p><a href="https://community.frontity.org/t/navigate-to-non-existent-pages/1412/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/navigate-to-non-existent-pages/1412/1</link>
+        <pubDate>Wed, 18 Mar 2020 04:28:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1412-1</guid>
+        <source url="https://community.frontity.org/t/navigate-to-non-existent-pages/1412.rss">Navigate to non-existent pages</source>
+      </item>
+  </channel>
+</rss>

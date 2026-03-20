@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Cannot read property &#39;split&#39; of undefined when filtering the returned data</title>
+    <link>https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191</link>
+    <description>I&#39;m currently developing a website where i get the all the terms for two taxonomies to display in a list.
+
+I can get the data with a custom handler i created.
+
+    export const termsHandler = {
+      priority: 10,
+      pattern: &quot;terms/:slug&quot;,
+      func: async ({ route, state, params, libraries }) =&gt; {
+        const { api } = libraries.source;
+        const { slug } = params;
+
+        const response = await api.get({
+          endpoint: slug,
+        });
+
+        const items = await response.json();
+        const currentPageData = state.source.data[route];
+
+        Object.assign(currentPageData, {
+          taxonomy: slug,
+          items,
+          isTerms: true,
+        });
+      },
+    };
+
+Then in the [beforeSSR](https://docs.frontity.org/learning-frontity/actions#beforessr-server-only-__) i call them like:
+
+    await actions.source.fetch(&quot;terms/cuisine&quot;);
+    await actions.source.fetch(&quot;terms/type-of-meal&quot;);
+
+This all works fine and the data can be used inside my component. But when I try to filter out some terms I get the following error:
+
+    capitalize.ts?adee:10 Uncaught (in promise) TypeError: Cannot read property &#39;split&#39; of undefined
+        at __webpack_exports__.default (capitalize.ts?adee:10)
+        at Object.eval [as func] (postType.ts?e855:120)
+        at eval (actions.ts?f1c8:116)
+        at eval (create-store.js?81b0:36)
+        at eval (utils.ts?be8a:67)
+        at Array.forEach (&lt;anonymous&gt;)
+        at process (utils.ts?be8a:66)
+        at eval (utils.ts?be8a:73)
+        at eval (scheduler.js?f1c4:10)
+        at batchedUpdates$1 (react-dom.development.js?61bb:22380)
+
+Code of component:
+
+    import React from &quot;react&quot;;
+    import { connect } from &quot;frontity&quot;;
+    import Link from &quot;@frontity/components/link&quot;;
+
+    const Footer = ({ state, typeOfMealIds, cuisineIds }) =&gt; {
+      const typeOfMeals = state.source.get(&quot;terms/type-of-meal&quot;);
+      const cuisines = state.source.get(&quot;terms/cuisine&quot;);
+
+      const getTermLinks = () =&gt; {
+        const foundTypeOfMeals = typeOfMeals.items.filter(({ id }) =&gt;
+          typeOfMealIds.includes(id)
+        );
+
+        const foundCuisines = cuisines.items.filter(({ id }) =&gt;
+          cuisineIds.includes(id)
+        );
+
+        return [...foundTypeOfMeals, ...foundCuisines].map(({ id, name, link }) =&gt; (
+          &lt;Link key={`recipe-term-${id}`} link={link}&gt;
+            {name}
+          &lt;/Link&gt;
+        ));
+      };
+
+      return (
+        &lt;div&gt;
+          &lt;div&gt;{getTermLinks()}&lt;/div&gt;
+        &lt;/div&gt;
+      );
+    };
+
+    export default connect(Footer);
+
+The component only shows the filtered output as expected. But i can&#39;t figure out why i get this error. Is there a reason why this is happening? I&#39;ve already tried updating my project like the [docs](https://docs.frontity.org/guides/keep-frontity-updated) describe but it didn&#39;t fix it.
+
+Code can (temporarily) be found at [GitHub](https://github.com/theblackgigant/temp-frontity).
+
+Issue happens in:
+- src -&gt; components -&gt; archive -&gt; card -&gt; footer -&gt; index.js
+- src -&gt; components -&gt; archive -&gt; sidebar -&gt; list -&gt; index.js</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 09 Mar 2021 15:28:09 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Cannot read property &#39;split&#39; of undefined when filtering the returned data</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/reyno.tekoppele">@reyno.tekoppele</a></p>
+<p>I’m sorry, but your project at <a href="https://github.com/theblackgigant/temp-frontity">https://github.com/theblackgigant/temp-frontity</a> cannot be launched or debugged locally because it relies on some environmental variables that are not available in the project</p>
+<p>I recommend you debug your code to check the value of your variables on each execution.</p>
+<p>You can check this video where we (DevRel team) talk about how to debug a Frontity project</p>
+<p><a href="https://www.youtube.com/watch?v=kRHkf9U3L9A">Frontity Talks 2020-09 - Debugging Frontity Sites</a></p>
+
+          <p><a href="https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191/3</link>
+        <pubDate>Tue, 09 Mar 2021 15:28:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4191-3</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191.rss">Cannot read property &#39;split&#39; of undefined when filtering the returned data</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;split&#39; of undefined when filtering the returned data</title>
+        <dc:creator><![CDATA[reyno.tekoppele]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m currently developing a website where i get the all the terms for two taxonomies to display in a list.</p>
+<p>I can get the data with a custom handler i created.</p>
+<pre><code>export const termsHandler = {
+  priority: 10,
+  pattern: "terms/:slug",
+  func: async ({ route, state, params, libraries }) =&gt; {
+    const { api } = libraries.source;
+    const { slug } = params;
+
+    const response = await api.get({
+      endpoint: slug,
+    });
+
+    const items = await response.json();
+    const currentPageData = state.source.data[route];
+
+    Object.assign(currentPageData, {
+      taxonomy: slug,
+      items,
+      isTerms: true,
+    });
+  },
+};
+</code></pre>
+<p>Then in the <a href="https://docs.frontity.org/learning-frontity/actions#beforessr-server-only-__" rel="noopener nofollow ugc">beforeSSR</a> i call them like:</p>
+<pre><code>await actions.source.fetch("terms/cuisine");
+await actions.source.fetch("terms/type-of-meal");
+</code></pre>
+<p>This all works fine and the data can be used inside my component. But when I try to filter out some terms I get the following error:</p>
+<pre><code>capitalize.ts?adee:10 Uncaught (in promise) TypeError: Cannot read property 'split' of undefined
+    at __webpack_exports__.default (capitalize.ts?adee:10)
+    at Object.eval [as func] (postType.ts?e855:120)
+    at eval (actions.ts?f1c8:116)
+    at eval (create-store.js?81b0:36)
+    at eval (utils.ts?be8a:67)
+    at Array.forEach (&lt;anonymous&gt;)
+    at process (utils.ts?be8a:66)
+    at eval (utils.ts?be8a:73)
+    at eval (scheduler.js?f1c4:10)
+    at batchedUpdates$1 (react-dom.development.js?61bb:22380)
+</code></pre>
+<p>Code of component:</p>
+<pre><code>import React from "react";
+import { connect } from "frontity";
+import Link from "@frontity/components/link";
+
+const Footer = ({ state, typeOfMealIds, cuisineIds }) =&gt; {
+  const typeOfMeals = state.source.get("terms/type-of-meal");
+  const cuisines = state.source.get("terms/cuisine");
+
+  const getTermLinks = () =&gt; {
+    const foundTypeOfMeals = typeOfMeals.items.filter(({ id }) =&gt;
+      typeOfMealIds.includes(id)
+    );
+
+    const foundCuisines = cuisines.items.filter(({ id }) =&gt;
+      cuisineIds.includes(id)
+    );
+
+    return [...foundTypeOfMeals, ...foundCuisines].map(({ id, name, link }) =&gt; (
+      &lt;Link key={`recipe-term-${id}`} link={link}&gt;
+        {name}
+      &lt;/Link&gt;
+    ));
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;div&gt;{getTermLinks()}&lt;/div&gt;
+    &lt;/div&gt;
+  );
+};
+
+export default connect(Footer);
+</code></pre>
+<p>The component only shows the filtered output as expected. But i can’t figure out why i get this error. Is there a reason why this is happening? I’ve already tried updating my project like the <a href="https://docs.frontity.org/guides/keep-frontity-updated" rel="noopener nofollow ugc">docs</a> describe but it didn’t fix it.</p>
+<p>Code can (temporarily) be found at <a href="https://github.com/theblackgigant/temp-frontity" rel="noopener nofollow ugc">GitHub</a>.</p>
+<p>Issue happens in:</p>
+<ul>
+<li>src → components → archive → card → footer → index.js</li>
+<li>src → components → archive → sidebar → list → index.js</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191/1</link>
+        <pubDate>Sat, 06 Mar 2021 13:04:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4191-1</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-split-of-undefined-when-filtering-the-returned-data/4191.rss">Cannot read property &#39;split&#39; of undefined when filtering the returned data</source>
+      </item>
+  </channel>
+</rss>

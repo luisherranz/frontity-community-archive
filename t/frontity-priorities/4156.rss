@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity Priorities</title>
+    <link>https://community.frontity.org/t/frontity-priorities/4156</link>
+    <description>&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# Description
+
+&lt;!-- Try to give a detailed explanation of what do you expect of this feature --&gt;
+
+Many Frontity APIs need priorities. We should figure out a way to deal with priorities that is consistent across all the different Frontity APIs and can be used by both package creators and users.
+
+# Examples
+
+&lt;!-- Do you know examples that could inspire the community? Let us know! --&gt;
+
+A good use case that we could use to figure out how different solutions would look like could be:
+
+- We have two packages: `packageA` and `packageB`.
+
+- Main `packageA` is:
+
+  ```js
+  export default {
+    actions: {
+      packageA: {
+        action1: () =&gt; {
+          // ...
+        },
+      },
+    },
+    server: {
+      packageA: {
+        middlware1: () =&gt; {
+          // Needs to run before middlware2.
+        },
+        middlware2: () =&gt; {
+          // Needs to run after middlware1.
+        },
+      },
+    },
+  };
+  ```
+
+- Main `packageB` is:
+
+  ```js
+  export default {
+    actions: {
+      packageA: {
+        action1: () =&gt; {
+          // Needs to overwrite `actions.packageA.action1`
+        },
+      },
+    },
+    server: {
+      packageB: {
+        middlware3: () =&gt; {
+          // Needs to run in between middlware1 and middlware2.
+        },
+      },
+    },
+  };
+  ```
+
+- The `frontity.config.js` file of `packageA` is:
+
+  ```js
+  export const settings = (prevSettings) =&gt; {
+    // Needs to run after all the settings modifications of other packages.
+  };
+
+  export const webpack = (prevConfig) =&gt; {
+    // Needs to run before all the Webpack modifications of other packages.
+  };
+  ```
+
+- The `frontity.config.js` file of `packageB` is:
+
+  ```js
+  export const settings = (prevSettings) =&gt; {
+    // Needs to run before all the settings modifications of other packages.
+  };
+
+  export const webpack = (prevConfig) =&gt; {
+    // Needs to run after all the Webpack modifications of other packages.
+  };
+  ```
+
+# Functionalities
+
+&lt;!-- Initial list of functionalities that would be nice to include in this feature! --&gt;
+
+Have a single way or API to define the priorities of the different Frontity APIs.
+
+# Requirements
+
+&lt;!-- Initial list of requirements and constraints that need to be met. --&gt;
+
+- They can be configured at a function level.
+- They work consistently across all the different APIs.
+- They work across packages.
+- They can be easily configured by package creators.
+- They can be easily modified by other packages if needed.
+- They are not required. When not set, a default middle priority should be used internally.
+- Ideally, they can be easily modified by final users if needed.
+
+# Dependencies
+
+&lt;!-- List of Feature Discussions that need to be finished before this one. --&gt;
+
+This feature doesn&#39;t have any dependencies, but there are some dependent features that will use this:
+
+- [The AMP package](https://community.frontity.org/t/amp-package/388): It needs priorities because it needs to modify the settings via `frontity.config.js` before any other package runs.
+- [Server Extensibility](https://community.frontity.org/t/server-extensibility/2810): It needs priorities to make sure that the server middlware functions run in the correct order across packages.
+- [Frontity Hooks](https://community.frontity.org/t/frontity-hooks/2811): It needs priorities to make sure that the hooks run in the correct order across packages.
+- [Webpack Customization](https://community.frontity.org/t/customize-webpack-configuration/1324): It needs priorities to make sure that the Webpack modifications run in the correct order across packages.
+
+There are other Frontity APIs that are using priorities right now:
+
+- Source Handlers.
+- Html2React Processors.
+- Fills (Slot and Fill).
+
+What we are using for those is a `priority` property on their configuration objects. If this FD ends up with a different solution to handle priorities in Frontity, we should migrate those APIs as well. Maybe not immediately, but over time, so all the priorities are consistent among Frontity APIs.
+
+# Possible solution
+
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+
+These are some initial ideas.
+
+## Configuration objects
+
+This is what we are already using for Source Handlers, Html2React Processors and Fills.
+
+Instead of a function, the developer needs to create an object that has the function inside a `func`/`processor`/... property. The priority is added as an optional property:
+
+```js
+export default {
+  libraries: {
+    html2react: {
+      processors: [
+        {
+          processor: () =&gt; {
+            // ...
+          },
+          priority: 5,
+        },
+      ],
+    },
+  },
+};
+```
+
+Some pros (non-exhaustive):
+
+- They can be overwritten by other packages and at runtime.
+
+Some cons (non-exhaustive):
+
+- They require an object, although that can be solved by making it optional.
+
+  ```js
+  export default {
+    libraries: {
+      html2react: {
+        processors: [
+          () =&gt; {
+            // Doesn&#39;t require an object with default priority.
+          },
+          {
+            processor: () =&gt; {
+              // Requires an object to set a custom priority.
+            },
+            priority: 5,
+          },
+        ],
+      },
+    },
+  };
+  ```
+
+- The requirement of the object is not that nice with namespaces, although not terrible I guess:
+
+  ```js
+  export default {
+    server: {
+      myPackage: {
+        myFirstMiddleware: () =&gt; {
+          // Default priority middlware.
+        },
+        mySecondMiddleware: {
+          fn: () =&gt; {
+            // Custom priority middlware.
+          },
+          priority: 5,
+        },
+      },
+    },
+  };
+  ```
+
+## Functions
+
+This solution would be something similar to the `add_action` and `add_filter` functions of WordPress, where the first argument is the function and the second is the priority.
+
+Something like this:
+
+```js
+import { server } from &quot;frontity&quot;;
+
+export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: server(() =&gt; {
+        // Default priority middlware.
+      }),
+      mySecondMiddleware: server(() =&gt; {
+        // Custom priority middlware.
+      }, 5),
+    },
+  },
+};
+```
+
+Some cons (non-exhaustive):
+
+- It requires an otherwise unnecessary extra import, although it could be avoided for default priorities.
+
+- It will require a function per API (server, handler, processor, hook...), although maybe it could be centralized with a single API:
+
+```js
+import { priority } from &quot;frontity&quot;;
+
+export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {
+        // Default priority middlware.
+      },
+      mySecondMiddleware: priority(() =&gt; {
+        // Custom priority middlware.
+      }, 5),
+    },
+  },
+};
+```
+
+- Priorities are obscured and cannot be changed by other packages or at runtime.
+
+### Priorities export
+
+Another solution that comes to my mind would be to add a separate export for priorities:
+
+```js
+export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {
+        // Default priority middlware.
+      },
+      mySecondMiddleware: () =&gt; {
+        // Custom priority middlware.
+      },
+    },
+  },
+  priorities: {
+    server: {
+      myPackage: {
+        mySecondMiddleware: 5,
+      },
+    },
+  },
+};
+```
+
+Some pros (non-exhaustive):
+
+- They can be overwritten by other packages and at runtime.
+- All the priorities are stored in the same place (not really sure if that has a real benefit).
+
+Some cons (non-exhaustive):
+
+- I am not sure how this could be integrated with the priorities required for the `frontiy.config.js` file because the store is not initialized at that point. Maybe we could do it with an additional `priorities` export in that file: 
+
+  ```js
+  export const settings = () =&gt; {
+    // Modify settings...
+  }
+
+  export const webpack = () =&gt; {
+    // Modify webpack...
+  }
+
+  export const priorities = {
+    settings: 5,
+    webpack: 1
+  }
+  ```
+
+### Priorities namespace
+
+Similar to the priorities export, but in `state`.
+
+```js
+export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {
+        // Default priority middlware.
+      },
+      mySecondMiddleware: () =&gt; {
+        // Custom priority middlware.
+      },
+    },
+  },
+  state: {
+    priorities: {
+      server: {
+        myPackage: {
+          mySecondMiddleware: 5,
+        },
+      },
+    },
+  },
+};
+```
+
+Some pros (non-exhaustive):
+
+- It can be changed in `frontity.settings.js`, although we could do that
+- Priorities would be reactive, so packages could subscribe to priority changes if they have initialization functions.
+
+Some cons (non-exhaustive):
+
+- I am not sure how this could be integrated with the priorities required for the `frontiy.config.js` file because the store is not initialized at that point.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 08 Mar 2021 11:50:08 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/frontity-priorities/4156.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity Priorities</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That is indeed a very interesting approach to priorities. Thanks for sharing Michal <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="3" data-topic="4156">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I realize that this is approach has an obvious fatal flaw in that some package / middleware might have to, for example, run before <strong>all</strong> packages without knowing what these packages are ahead of time</p>
+</blockquote>
+</aside>
+<p>Yes, this priority system would need an additional name for <code>"all"</code>, like</p>
+<pre><code class="lang-js">runBefore: "all";
+</code></pre>
+<p>But then two of those packages could conflict with each other, and we will be back at numeric priorities…</p>
+<pre><code class="lang-js">// default priority
+priority: 5;
+
+// high-priority
+runBefore: "all";
+priority: 1;
+
+// super high-priority!
+runBefore: "??";
+priority: 0;
+</code></pre>
+<p>To be honest, I’ve always thought that numeric priorities are like Churchill’s quote of Democracies. “The worst system except for all the others” <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+<p>Another thing that came to my mind after reading your proposal was to use derived priorities. Instead of this:</p>
+<pre><code class="lang-js">mySecondMiddleware: {
+  runBefore: "myFirstMiddleware";
+}
+</code></pre>
+<p>A priority could be defined as derived state from another priority, something like this.</p>
+<pre><code class="lang-js">const state = {
+  priorities: {
+    server: {
+      myPackage: {
+        myFirstMiddleware: 5, // Some priority.
+        mySecondMiddleware: ({ state }) =&gt;
+          // Make sure it always runs after myFirstMiddleware, even if
+          // its priority is changed.
+          state.priorities.server.myPackage.myFirstMiddleware + 1,
+      },
+    },
+  },
+};
+</code></pre>
+<p>I don’t know how useful that would be in a real-life situation, but it is interesting 🤷🙂</p>
+          <p><a href="https://community.frontity.org/t/frontity-priorities/4156/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-priorities/4156/4</link>
+        <pubDate>Mon, 08 Mar 2021 11:50:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4156-4</guid>
+        <source url="https://community.frontity.org/t/frontity-priorities/4156.rss">Frontity Priorities</source>
+      </item>
+      <item>
+        <title>Frontity Priorities</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="2" data-topic="4156">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I wonder if you gave some thought to a slightly different API for priorities that is not based on numeric priority but rather allows the user to define which packages should run “before” or “after” some other packages. I’m not writing a full proposal just yet because perhaps you have considered it already <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>.</p>
+</blockquote>
+</aside>
+<p>So, I realize that this is approach has an obvious fatal flaw in that some package / middleware might have to, for example, run before  <strong>all</strong> packages without knowing what these packages are ahead of time…</p>
+<p>I think that numerical priority is the only way to achieve priorities in a world where a package might not know anything about all other packages.</p>
+          <p><a href="https://community.frontity.org/t/frontity-priorities/4156/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-priorities/4156/3</link>
+        <pubDate>Fri, 05 Mar 2021 21:00:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4156-3</guid>
+        <source url="https://community.frontity.org/t/frontity-priorities/4156.rss">Frontity Priorities</source>
+      </item>
+      <item>
+        <title>Frontity Priorities</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I wonder if you gave some thought to a slightly different API for priorities that is not based on numeric priority but rather allows the user to define which packages should run “before” or “after” some other packages. I’m not writing a full proposal just yet because perhaps you have considered it already <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>.</p>
+<p>To borrow your example of <code>packageA</code> and <code>packageB</code> and using the “configuration objects” syntax:</p>
+<pre><code class="lang-javascript">
+export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {},
+      mySecondMiddleware: {
+        fn: () =&gt; {  },
+
+        // Custom priority can be a single item,
+        runBefore: "myFirstMiddleware",
+      },
+      myThirdMiddleware: {
+        fn: () =&gt; {  },
+
+        // Or it can be an array of items. 
+        // (FYI: Specifying myFirstMiddleware is actually redundant in this case) 
+        runBefore: ["myFirstMiddleware", "mySecondMiddleware"],
+      },
+    },
+  },
+};
+</code></pre>
+<p>So in the above case the middleware would execute in the following order:</p>
+<ul>
+<li>myThirdMiddleware</li>
+<li>mySecondMiddleware</li>
+<li>myFirstMiddleware</li>
+</ul>
+<h4>Pros</h4>
+<p>The main benefit that I see of this approach is that the user would not have to know anything about the priorities of other packages. In most cases a user just knows that his code should run before (or after) some specific middleware. This way, they can specify that requirement declaratively and let Frontity figure out the specific order of all of the middlewares.</p>
+<h4>Cons</h4>
+<p>Of course, there would be some additional challenges with this approach.</p>
+<p>For example, you have to check if there is <strong>no infinite loop</strong> because middleware A could try to run before middleware B and middleware B could try to run before middleware A:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/0/041afa47809034859e5ccc25789896a681f80088.png" data-download-href="https://community.frontity.org/uploads/default/041afa47809034859e5ccc25789896a681f80088" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/0/041afa47809034859e5ccc25789896a681f80088_2_456x375.png" alt="image" data-base62-sha1="AjHYjfYHsRyhCIJrQsxBqSQiZW" width="456" height="375" srcset="https://community.frontity.org/uploads/default/optimized/2X/0/041afa47809034859e5ccc25789896a681f80088_2_456x375.png, https://community.frontity.org/uploads/default/optimized/2X/0/041afa47809034859e5ccc25789896a681f80088_2_684x562.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/0/041afa47809034859e5ccc25789896a681f80088_2_912x750.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/0/041afa47809034859e5ccc25789896a681f80088_2_10x10.png"></a></div><p></p>
+<p>However, as far as I can tell, solving this problem is equivalent to <a href="https://www.geeksforgeeks.org/detect-cycle-in-a-graph/">detecting cycles in a directed graph</a> because our middlewares would then be a linked list which is the simplest directed graph.</p>
+          <p><a href="https://community.frontity.org/t/frontity-priorities/4156/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-priorities/4156/2</link>
+        <pubDate>Tue, 02 Mar 2021 18:00:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4156-2</guid>
+        <source url="https://community.frontity.org/t/frontity-priorities/4156.rss">Frontity Priorities</source>
+      </item>
+      <item>
+        <title>Frontity Priorities</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+
+<p>Many Frontity APIs need priorities. We should figure out a way to deal with priorities that is consistent across all the different Frontity APIs and can be used by both package creators and users.</p>
+<h1>Examples</h1>
+
+<p>A good use case that we could use to figure out how different solutions would look like could be:</p>
+<ul>
+<li>
+<p>We have two packages: <code>packageA</code> and <code>packageB</code>.</p>
+</li>
+<li>
+<p>Main <code>packageA</code> is:</p>
+<pre><code class="lang-js">export default {
+  actions: {
+    packageA: {
+      action1: () =&gt; {
+        // ...
+      },
+    },
+  },
+  server: {
+    packageA: {
+      middlware1: () =&gt; {
+        // Needs to run before middlware2.
+      },
+      middlware2: () =&gt; {
+        // Needs to run after middlware1.
+      },
+    },
+  },
+};
+</code></pre>
+</li>
+<li>
+<p>Main <code>packageB</code> is:</p>
+<pre><code class="lang-js">export default {
+  actions: {
+    packageA: {
+      action1: () =&gt; {
+        // Needs to overwrite `actions.packageA.action1`
+      },
+    },
+  },
+  server: {
+    packageB: {
+      middlware3: () =&gt; {
+        // Needs to run in between middlware1 and middlware2.
+      },
+    },
+  },
+};
+</code></pre>
+</li>
+<li>
+<p>The <code>frontity.config.js</code> file of <code>packageA</code> is:</p>
+<pre><code class="lang-js">export const settings = (prevSettings) =&gt; {
+  // Needs to run after all the settings modifications of other packages.
+};
+
+export const webpack = (prevConfig) =&gt; {
+  // Needs to run before all the Webpack modifications of other packages.
+};
+</code></pre>
+</li>
+<li>
+<p>The <code>frontity.config.js</code> file of <code>packageB</code> is:</p>
+<pre><code class="lang-js">export const settings = (prevSettings) =&gt; {
+  // Needs to run before all the settings modifications of other packages.
+};
+
+export const webpack = (prevConfig) =&gt; {
+  // Needs to run after all the Webpack modifications of other packages.
+};
+</code></pre>
+</li>
+</ul>
+<h1>Functionalities</h1>
+
+<p>Have a single way or API to define the priorities of the different Frontity APIs.</p>
+<h1>Requirements</h1>
+
+<ul>
+<li>They can be configured at a function level.</li>
+<li>They work consistently across all the different APIs.</li>
+<li>They work across packages.</li>
+<li>They can be easily configured by package creators.</li>
+<li>They can be easily modified by other packages if needed.</li>
+<li>They are not required. When not set, a default middle priority should be used internally.</li>
+<li>Ideally, they can be easily modified by final users if needed.</li>
+</ul>
+<h1>Dependencies</h1>
+
+<p>This feature doesn’t have any dependencies, but there are some dependent features that will use this:</p>
+<ul>
+<li>
+<a href="https://community.frontity.org/t/amp-package/388">The AMP package</a>: It needs priorities because it needs to modify the settings via <code>frontity.config.js</code> before any other package runs.</li>
+<li>
+<a href="https://community.frontity.org/t/server-extensibility/2810">Server Extensibility</a>: It needs priorities to make sure that the server middlware functions run in the correct order across packages.</li>
+<li>
+<a href="https://community.frontity.org/t/frontity-hooks/2811">Frontity Hooks</a>: It needs priorities to make sure that the hooks run in the correct order across packages.</li>
+<li>
+<a href="https://community.frontity.org/t/customize-webpack-configuration/1324">Webpack Customization</a>: It needs priorities to make sure that the Webpack modifications run in the correct order across packages.</li>
+</ul>
+<p>There are other Frontity APIs that are using priorities right now:</p>
+<ul>
+<li>Source Handlers.</li>
+<li>Html2React Processors.</li>
+<li>Fills (Slot and Fill).</li>
+</ul>
+<p>What we are using for those is a <code>priority</code> property on their configuration objects. If this FD ends up with a different solution to handle priorities in Frontity, we should migrate those APIs as well. Maybe not immediately, but over time, so all the priorities are consistent among Frontity APIs.</p>
+<h1>Possible solution</h1>
+
+<p>These are some initial ideas.</p>
+<h2>Configuration objects</h2>
+<p>This is what we are already using for Source Handlers, Html2React Processors and Fills.</p>
+<p>Instead of a function, the developer needs to create an object that has the function inside a <code>func</code>/<code>processor</code>/… property. The priority is added as an optional property:</p>
+<pre><code class="lang-js">export default {
+  libraries: {
+    html2react: {
+      processors: [
+        {
+          processor: () =&gt; {
+            // ...
+          },
+          priority: 5,
+        },
+      ],
+    },
+  },
+};
+</code></pre>
+<p>Some pros (non-exhaustive):</p>
+<ul>
+<li>They can be overwritten by other packages and at runtime.</li>
+</ul>
+<p>Some cons (non-exhaustive):</p>
+<ul>
+<li>
+<p>They require an object, although that can be solved by making it optional.</p>
+<pre><code class="lang-js">export default {
+  libraries: {
+    html2react: {
+      processors: [
+        () =&gt; {
+          // Doesn't require an object with default priority.
+        },
+        {
+          processor: () =&gt; {
+            // Requires an object to set a custom priority.
+          },
+          priority: 5,
+        },
+      ],
+    },
+  },
+};
+</code></pre>
+</li>
+<li>
+<p>The requirement of the object is not that nice with namespaces, although not terrible I guess:</p>
+<pre><code class="lang-js">export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {
+        // Default priority middlware.
+      },
+      mySecondMiddleware: {
+        fn: () =&gt; {
+          // Custom priority middlware.
+        },
+        priority: 5,
+      },
+    },
+  },
+};
+</code></pre>
+</li>
+</ul>
+<h2>Functions</h2>
+<p>This solution would be something similar to the <code>add_action</code> and <code>add_filter</code> functions of WordPress, where the first argument is the function and the second is the priority.</p>
+<p>Something like this:</p>
+<pre><code class="lang-js">import { server } from "frontity";
+
+export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: server(() =&gt; {
+        // Default priority middlware.
+      }),
+      mySecondMiddleware: server(() =&gt; {
+        // Custom priority middlware.
+      }, 5),
+    },
+  },
+};
+</code></pre>
+<p>Some cons (non-exhaustive):</p>
+<ul>
+<li>
+<p>It requires an otherwise unnecessary extra import, although it could be avoided for default priorities.</p>
+</li>
+<li>
+<p>It will require a function per API (server, handler, processor, hook…), although maybe it could be centralized with a single API:</p>
+</li>
+</ul>
+<pre><code class="lang-js">import { priority } from "frontity";
+
+export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {
+        // Default priority middlware.
+      },
+      mySecondMiddleware: priority(() =&gt; {
+        // Custom priority middlware.
+      }, 5),
+    },
+  },
+};
+</code></pre>
+<ul>
+<li>Priorities are obscured and cannot be changed by other packages or at runtime.</li>
+</ul>
+<h3>Priorities export</h3>
+<p>Another solution that comes to my mind would be to add a separate export for priorities:</p>
+<pre><code class="lang-js">export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {
+        // Default priority middlware.
+      },
+      mySecondMiddleware: () =&gt; {
+        // Custom priority middlware.
+      },
+    },
+  },
+  priorities: {
+    server: {
+      myPackage: {
+        mySecondMiddleware: 5,
+      },
+    },
+  },
+};
+</code></pre>
+<p>Some pros (non-exhaustive):</p>
+<ul>
+<li>They can be overwritten by other packages and at runtime.</li>
+<li>All the priorities are stored in the same place (not really sure if that has a real benefit).</li>
+</ul>
+<p>Some cons (non-exhaustive):</p>
+<ul>
+<li>
+<p>I am not sure how this could be integrated with the priorities required for the <code>frontiy.config.js</code> file because the store is not initialized at that point. Maybe we could do it with an additional <code>priorities</code> export in that file:</p>
+<pre><code class="lang-js">export const settings = () =&gt; {
+  // Modify settings...
+}
+
+export const webpack = () =&gt; {
+  // Modify webpack...
+}
+
+export const priorities = {
+  settings: 5,
+  webpack: 1
+}
+</code></pre>
+</li>
+</ul>
+<h3>Priorities namespace</h3>
+<p>Similar to the priorities export, but in <code>state</code>.</p>
+<pre><code class="lang-js">export default {
+  server: {
+    myPackage: {
+      myFirstMiddleware: () =&gt; {
+        // Default priority middlware.
+      },
+      mySecondMiddleware: () =&gt; {
+        // Custom priority middlware.
+      },
+    },
+  },
+  state: {
+    priorities: {
+      server: {
+        myPackage: {
+          mySecondMiddleware: 5,
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<p>Some pros (non-exhaustive):</p>
+<ul>
+<li>It can be changed in <code>frontity.settings.js</code>, although we could do that</li>
+<li>Priorities would be reactive, so packages could subscribe to priority changes if they have initialization functions.</li>
+</ul>
+<p>Some cons (non-exhaustive):</p>
+<ul>
+<li>I am not sure how this could be integrated with the priorities required for the <code>frontiy.config.js</code> file because the store is not initialized at that point.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/frontity-priorities/4156/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-priorities/4156/1</link>
+        <pubDate>Tue, 02 Mar 2021 13:38:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4156-1</guid>
+        <source url="https://community.frontity.org/t/frontity-priorities/4156.rss">Frontity Priorities</source>
+      </item>
+  </channel>
+</rss>

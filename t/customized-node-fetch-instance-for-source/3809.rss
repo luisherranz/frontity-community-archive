@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Customized node-fetch instance for source?</title>
+    <link>https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809</link>
+    <description>&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# Description
+In our cloud infra, Node.js services (including the ones just for SSR) use standardized basic libraries/middlewares to make sure common DevOps operations such as observability of the service can be enforced, and engineers can achieve this goal by using the internally published such NPM packages.
+
+One example of such libraries is a custom-configured `node-fetch` instance - standardizing things such as logging, universal request id generation, etc.
+
+Looks like Frontity uses `node-fetch` library for the `source` package (implemented by `wp-source`):
+- https://github.com/frontity/frontity/blob/0a976189b5c79ddaaed25482a6526a704307e32a/packages/frontity/src/index.ts#L19
+- https://github.com/frontity/frontity/blob/c7921855c19cb285fd81e06380653642fbe79403/packages/wp-source/src/libraries/api.ts#L1
+
+Currently it doesn&#39;t look like this `node-fetch` instance can be customized officially as a supported feature of Frontity. I&#39;m requesting this for the reasons explained above.
+
+# Examples
+&lt;!-- Do you know examples that could inspire the community? Let us know! --&gt;
+
+# Functionalities
+&lt;!-- Initial list of functionalities that would be nice to include in this feature! --&gt;
+Allow passing in one or more of the following for `node-fetch` customizations:
+- an already configured/wrapped `node-fetch` instance
+- an option object to configure all `node-fetch` supported options
+
+# Requirements
+&lt;!-- Initial list of requirements and constraints that need to be met. --&gt;
+
+# Dependencies
+&lt;!-- List of Feature Discussions that need to be finished before this one. --&gt;
+
+# Possible solution
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+To make such customizations more scalable/flexible, an alternative architecture choice is to allow registering custom Koa middlewares, but it might be tricky since Frontity support both SSR/CSR and it&#39;s hard to make the middlewares isomorphic.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 20 Apr 2021 08:01:23 +0000</lastBuildDate>
+    <category>🗣 Feature Discussions</category>
+    <atom:link href="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Customized node-fetch instance for source?</title>
+        <dc:creator><![CDATA[fancheng33]]></dc:creator>
+        <description><![CDATA[
+            <p>It worked, thanks!<br>
+Looking forward to the official server extensibility project though, then we can use Koa middlewares to wire server-side libraries up more easily.</p>
+          <p><a href="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/6</link>
+        <pubDate>Tue, 20 Apr 2021 08:01:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3809-6</guid>
+        <source url="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809.rss">Customized node-fetch instance for source?</source>
+      </item>
+      <item>
+        <title>Customized node-fetch instance for source?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="fancheng33" data-post="4" data-topic="3809">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/fancheng33/40/1947_2.png" class="avatar"> fancheng33:</div>
+<blockquote>
+<p>Is there a way to only require/import server-side or client-side dependencies</p>
+</blockquote>
+</aside>
+<p>Yes, you can use different entry points for the client and the server: <code>src/client.js</code> and <code>src/server.js</code>.</p>
+<p><a href="https://docs.frontity.org/learning-frontity/packages#entry-points" class="onebox" target="_blank" rel="noopener">https://docs.frontity.org/learning-frontity/packages#entry-points</a></p>
+          <p><a href="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/5</link>
+        <pubDate>Wed, 07 Apr 2021 11:22:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3809-5</guid>
+        <source url="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809.rss">Customized node-fetch instance for source?</source>
+      </item>
+      <item>
+        <title>Customized node-fetch instance for source?</title>
+        <dc:creator><![CDATA[fancheng33]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the tips. I did try this approach, but got the webpack build error because some dependencies related to server-side logging do not work in the browser.</p>
+<pre><code class="lang-javascript">ERROR in ./node_modules/https-proxy-agent/index.js
+Module not found: Error: Can't resolve 'tls'
+</code></pre>
+<p>Similar to an issue in Next.js:</p><aside class="onebox githubissue">
+  <header class="source">
+      <a href="https://github.com/vercel/next.js/issues/7755#issuecomment-508633125" target="_blank" rel="noopener nofollow ugc">github.com/vercel/next.js</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Issue">
+	  <svg width="60" height="60" class="github-icon" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/vercel/next.js/issues/7755#issuecomment-508633125" target="_blank" rel="noopener nofollow ugc">Module not found: Can't resolve 'fs'</a>
+    </h4>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2019-07-05" data-time="05:11:57" data-timezone="UTC">05:11AM - 05 Jul 19 UTC</span>
+      </div>
+
+        <div class="date">
+          closed <span class="discourse-local-date" data-format="ll" data-date="2019-07-05" data-time="05:23:02" data-timezone="UTC">05:23AM - 05 Jul 19 UTC</span>
+        </div>
+
+      <div class="user">
+        <a href="https://github.com/TidyIQ" target="_blank" rel="noopener nofollow ugc">
+          <img alt="TidyIQ" src="https://community.frontity.org/uploads/default/original/2X/b/b8935476ef25558d20f1046dd94b0623a99d3d89.png" class="onebox-avatar-inline" width="20" height="20">
+          TidyIQ
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="github-row">
+  <p class="github-content">Bug report
+Describe the bug
+I'm using the popular find-up npm package, which has locate-path as a dependency. locate-path requires fs within it's...</p>
+</div>
+
+<div class="labels">
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<aside class="onebox stackexchange">
+  <header class="source">
+      <a href="https://stackoverflow.com/questions/54275069/module-not-found-error-cant-resolve-net-in-node-modules-stompjs-lib/63074348#63074348" target="_blank" rel="noopener nofollow ugc">stackoverflow.com</a>
+  </header>
+  <article class="onebox-body">
+      <a href="https://stackoverflow.com/users/2557263/alejandro" target="_blank" rel="noopener nofollow ugc">
+    <img alt="Alejandro" src="https://community.frontity.org/uploads/default/original/2X/f/f90bc9ba775b4d401187362d584139129162bdfb.png" class="thumbnail onebox-avatar" width="128" height="128">
+  </a>
+<h4>
+  <a href="https://stackoverflow.com/questions/54275069/module-not-found-error-cant-resolve-net-in-node-modules-stompjs-lib/63074348#63074348" target="_blank" rel="noopener nofollow ugc">Module not found: Error: Can't resolve 'net' in 'node_modules/stompjs/lib'</a>
+</h4>
+
+<div class="tags">
+  <strong>angular, npm, angular7</strong>
+</div>
+
+<div class="date">
+  
+  answered by
+  <a href="https://stackoverflow.com/users/2557263/alejandro" target="_blank" rel="noopener nofollow ugc">
+    Alejandro
+  </a>
+  on <a href="https://stackoverflow.com/questions/54275069/module-not-found-error-cant-resolve-net-in-node-modules-stompjs-lib/63074348#63074348" target="_blank" rel="noopener nofollow ugc">01:15PM - 24 Jul 20 UTC</a>
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Is there a way to only require/import server-side or client-side dependencies in the code bundled by running <code>frontity dev</code> and <code>frontity build</code>? E.g.: reference an environment variable injected by frontity.</p>
+          <p><a href="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/4</link>
+        <pubDate>Sat, 27 Mar 2021 21:23:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3809-4</guid>
+        <source url="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809.rss">Customized node-fetch instance for source?</source>
+      </item>
+      <item>
+        <title>Customized node-fetch instance for source?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/fancheng33">@fancheng33</a> would something like this help?</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/luisherranz/fetch-wrapper-demo/blob/master/packages/strattic-frontity/src/index.js" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/luisherranz/fetch-wrapper-demo/blob/master/packages/strattic-frontity/src/index.js" target="_blank" rel="noopener">luisherranz/fetch-wrapper-demo/blob/master/packages/strattic-frontity/src/index.js</a></h4>
+<pre><code class="lang-js">import * as frontity from "frontity";
+
+// Save the reference to the original `fetch`.
+const originalFetch = frontity.fetch;
+
+// Send the requested URL to a backend.
+const saveRequest = (backend, args) =&gt; {
+  originalFetch(backend, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ url: args[0], options: args[1] }),
+  });
+};
+
+export default () =&gt; {
+  return {
+    name: "@strattic/frontity",
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/luisherranz/fetch-wrapper-demo/blob/master/packages/strattic-frontity/src/index.js" target="_blank" rel="noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>If so, maybe you can create a Frontity package that does just that and it is abstracted from your other packages, can be installed in multiple projects, and so on.</p>
+          <p><a href="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/3</link>
+        <pubDate>Thu, 11 Feb 2021 18:47:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3809-3</guid>
+        <source url="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809.rss">Customized node-fetch instance for source?</source>
+      </item>
+      <item>
+        <title>Customized node-fetch instance for source?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="fancheng33" data-post="1" data-topic="3809">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/fancheng33/40/1947_2.png" class="avatar"> fancheng33:</div>
+<blockquote>
+<p>To make such customizations more scalable/flexible, an alternative architecture choice is to allow registering custom Koa middlewares, but it might be tricky since Frontity support both SSR/CSR and it’s hard to make the middlewares isomorphic.</p>
+</blockquote>
+</aside>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>  Could this be related to the <a href="https://community.frontity.org/t/server-extensibility/2810">Server Extensibility feature</a> somehow? Is this something that will be covered there or it’s something different?</p>
+          <p><a href="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/2</link>
+        <pubDate>Wed, 10 Feb 2021 13:06:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3809-2</guid>
+        <source url="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809.rss">Customized node-fetch instance for source?</source>
+      </item>
+      <item>
+        <title>Customized node-fetch instance for source?</title>
+        <dc:creator><![CDATA[fancheng33]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>In our cloud infra, Node.js services (including the ones just for SSR) use standardized basic libraries/middlewares to make sure common DevOps operations such as observability of the service can be enforced, and engineers can achieve this goal by using the internally published such NPM packages.</p>
+<p>One example of such libraries is a custom-configured <code>node-fetch</code> instance - standardizing things such as logging, universal request id generation, etc.</p>
+<p>Looks like Frontity uses <code>node-fetch</code> library for the <code>source</code> package (implemented by <code>wp-source</code>):</p>
+<ul>
+<li><a href="https://github.com/frontity/frontity/blob/0a976189b5c79ddaaed25482a6526a704307e32a/packages/frontity/src/index.ts#L19" rel="noopener nofollow ugc">https://github.com/frontity/frontity/blob/0a976189b5c79ddaaed25482a6526a704307e32a/packages/frontity/src/index.ts#L19</a></li>
+<li><a href="https://github.com/frontity/frontity/blob/c7921855c19cb285fd81e06380653642fbe79403/packages/wp-source/src/libraries/api.ts#L1" rel="noopener nofollow ugc">https://github.com/frontity/frontity/blob/c7921855c19cb285fd81e06380653642fbe79403/packages/wp-source/src/libraries/api.ts#L1</a></li>
+</ul>
+<p>Currently it doesn’t look like this <code>node-fetch</code> instance can be customized officially as a supported feature of Frontity. I’m requesting this for the reasons explained above.</p>
+<h1>Examples</h1>
+
+<h1>Functionalities</h1>
+
+<p>Allow passing in one or more of the following for <code>node-fetch</code> customizations:</p>
+<ul>
+<li>an already configured/wrapped <code>node-fetch</code> instance</li>
+<li>an option object to configure all <code>node-fetch</code> supported options</li>
+</ul>
+<h1>Requirements</h1>
+
+<h1>Dependencies</h1>
+
+<h1>Possible solution</h1>
+
+<p>To make such customizations more scalable/flexible, an alternative architecture choice is to allow registering custom Koa middlewares, but it might be tricky since Frontity support both SSR/CSR and it’s hard to make the middlewares isomorphic.</p>
+          <p><a href="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809/1</link>
+        <pubDate>Sat, 16 Jan 2021 20:32:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3809-1</guid>
+        <source url="https://community.frontity.org/t/customized-node-fetch-instance-for-source/3809.rss">Customized node-fetch instance for source?</source>
+      </item>
+  </channel>
+</rss>

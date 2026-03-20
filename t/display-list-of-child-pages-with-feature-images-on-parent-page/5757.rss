@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Display list of child pages with feature images on parent page</title>
+    <link>https://community.frontity.org/t/display-list-of-child-pages-with-feature-images-on-parent-page/5757</link>
+    <description>EDIT It turned out everything works correctly, the images were assigned to posts that were moved to trash and as soon as I delete the posts the issue disappeared. Not sure what the issue is now.
+
+Hi guys I&#39;m quite new here, I just discovered this project and it looks amazing. I&#39;m trying to create a parent page with a list of subpages and I think more or less I found out how to do, I&#39;m prefetching everything in a beforeSSR action in my theme. For now I need this on a single specific page so for now I&#39;m hardcoding url and id, if I can do better I&#39;m happy to improve.
+
+I&#39;ll share what I&#39;ve done so far since it might be useful to understand better and I believe it might be useful for others since I struggled a little to understand how to achieve this.
+
+```
+const marsTheme = {
+  name: &quot;@frontity/mars-theme&quot;,
+  roots: {...},
+  state: {...},
+
+  /**
+   * Actions are functions that modify the state or deal with other parts of
+   * Frontity like libraries.
+   */
+  actions: {
+    theme: {
+      beforeSSR: async ({ state, actions, libraries }) =&gt; {
+          // prefetch  extra content from dummy holder page
+          const response = await libraries.source.api.get({
+            endpoint: &quot;pages&quot;,
+            params: {
+              _embed: true,
+              parent: 33, // This is the hardcoded parent id
+            },
+          });
+          const res = await response.json();
+
+          // add the content to our data
+          Object.assign(state.source.data[state.router.link], {
+            childrenPages: res.sort((a, b) =&gt; a.menu_order - b.menu_order),
+            isPageWithChildren: true,
+          });
+          await Promise.all(
+            res.map((r) =&gt; actions.source.fetch(`/my-specific-url/${r.slug}`))
+          );
+        } else if (state.router.link.includes(&quot;/my-specific-url/&quot;)) {
+          await actions.source.fetch(state.router.link);
+          Object.assign(state.source.data[state.router.link], {
+            isChildPage: true,
+          });
+        }
+      },
+  },
+  libraries: { ... }
+}
+```
+
+So first question does the above makes sense? Do you think it can be improved?
+
+My real question is about images because right now images are not being loaded because I think those pages are not included in any other list, so I&#39;m trying to figure out how to load the feature images. Any hints?
+
+Thank you!
+
+P.S. This is the page I&#39;m trying to build and all the boxes below are supposed to have a feature image but for some reason the image is not loaded. https://il-dedalo.vercel.app/i-nostri-corsi/ I&#39;m wondering if the issue is elsewhere since the image will not be loaded even when I&#39;m visiting the page.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 19 Feb 2022 23:46:55 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/display-list-of-child-pages-with-feature-images-on-parent-page/5757.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Display list of child pages with feature images on parent page</title>
+        <dc:creator><![CDATA[daniele.bertella]]></dc:creator>
+        <description><![CDATA[
+            <p>EDIT It turned out everything works correctly, the images were assigned to posts that were moved to trash and as soon as I delete the posts the issue disappeared. Not sure what the issue is now.</p>
+<p>Hi guys I’m quite new here, I just discovered this project and it looks amazing. I’m trying to create a parent page with a list of subpages and I think more or less I found out how to do, I’m prefetching everything in a beforeSSR action in my theme. For now I need this on a single specific page so for now I’m hardcoding url and id, if I can do better I’m happy to improve.</p>
+<p>I’ll share what I’ve done so far since it might be useful to understand better and I believe it might be useful for others since I struggled a little to understand how to achieve this.</p>
+<pre><code class="lang-javascript">const marsTheme = {
+  name: "@frontity/mars-theme",
+  roots: {...},
+  state: {...},
+
+  /**
+   * Actions are functions that modify the state or deal with other parts of
+   * Frontity like libraries.
+   */
+  actions: {
+    theme: {
+      beforeSSR: async ({ state, actions, libraries }) =&gt; {
+          // prefetch  extra content from dummy holder page
+          const response = await libraries.source.api.get({
+            endpoint: "pages",
+            params: {
+              _embed: true,
+              parent: 33, // This is the hardcoded parent id
+            },
+          });
+          const res = await response.json();
+
+          // add the content to our data
+          Object.assign(state.source.data[state.router.link], {
+            childrenPages: res.sort((a, b) =&gt; a.menu_order - b.menu_order),
+            isPageWithChildren: true,
+          });
+          await Promise.all(
+            res.map((r) =&gt; actions.source.fetch(`/my-specific-url/${r.slug}`))
+          );
+        } else if (state.router.link.includes("/my-specific-url/")) {
+          await actions.source.fetch(state.router.link);
+          Object.assign(state.source.data[state.router.link], {
+            isChildPage: true,
+          });
+        }
+      },
+  },
+  libraries: { ... }
+}
+</code></pre>
+<p>So first question does the above makes sense? Do you think it can be improved?</p>
+<p>My real question is about images because right now images are not being loaded because I think those pages are not included in any other list, so I’m trying to figure out how to load the feature images. Any hints?</p>
+<p>Thank you!</p>
+<p>P.S. This is the page I’m trying to build and all the boxes below are supposed to have a feature image but for some reason the image is not loaded. <a href="https://il-dedalo.vercel.app/i-nostri-corsi/" class="inline-onebox" rel="noopener nofollow ugc">I Nostri Corsi - Il Dedalo 🌿 Soul Space</a> I’m wondering if the issue is elsewhere since the image will not be loaded even when I’m visiting the page.</p>
+          <p><a href="https://community.frontity.org/t/display-list-of-child-pages-with-feature-images-on-parent-page/5757/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/display-list-of-child-pages-with-feature-images-on-parent-page/5757/1</link>
+        <pubDate>Sat, 19 Feb 2022 21:51:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5757-1</guid>
+        <source url="https://community.frontity.org/t/display-list-of-child-pages-with-feature-images-on-parent-page/5757.rss">Display list of child pages with feature images on parent page</source>
+      </item>
+  </channel>
+</rss>

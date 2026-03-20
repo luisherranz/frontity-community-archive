@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Wpml language switch to related post</title>
+    <link>https://community.frontity.org/t/wpml-language-switch-to-related-post/5847</link>
+    <description>Hi everyone! 
+I don&#39;t knew if there&#39;s just a similar source but i think it&#39;s important to share thath.
+
+I create a custom language switch from posts, page, custom post type, categories, custom taxonomies translations.
+I&#39;m using Wpml as wordpress plugin.
+
+It&#39;s not very clean code, but it&#39;s working :tada: :tada: :tada: :tada:
+
+**First i need to do some modify to the Rest Api**
+
+```
+&lt;?php
+//functions.php -&gt; wordpress
+//register the translate id in Rest Api post, page, custom post type
+
+add_action( &#39;rest_api_init&#39;, function () {
+	register_rest_field( &#39;post&#39;, &#39;translate_api&#39;, mol_related_translation_api() );
+    register_rest_field( &#39;page&#39;, &#39;translate_api&#39;, mol_related_translation_api() );
+	register_rest_field( &#39;mostre&#39;, &#39;translate_api&#39;, mol_related_translation_api() ); // Optional: Custom posttype
+	register_rest_field( &#39;eventi&#39;, &#39;translate_api&#39;, mol_related_translation_api() ); // Optional: Custom posttype
+});
+
+function mol_related_translation_api() {
+	return array(
+		&#39;methods&#39;         =&gt; &#39;GET&#39;,
+		&#39;get_callback&#39;    =&gt; &#39;related_translate_api&#39;,
+		&#39;schema&#39;          =&gt; null,
+	);
+}
+
+function related_translate_api( $data ) {
+	$post_id = $data[&#39;id&#39;];
+    $currentLang = apply_filters( &#39;wpml_post_language_details&#39;, &#39;&#39;, $post_id )[&#39;language_code&#39;];
+    if($currentLang === &#39;it&#39;) {
+        $otherLang = &#39;en&#39;;
+    } else {
+        $otherLang = &#39;it&#39;;
+    }
+
+    $postData = apply_filters( &#39;wpml_object_id&#39;, $post_id, get_post_type(), false, $otherLang );
+    $langArray = array(
+        &#39;key&#39;   =&gt; apply_filters( &#39;wpml_post_language_details&#39;, &#39;&#39;, $postData )[&#39;language_code&#39;],
+        &#39;id&#39;    =&gt; $postData,
+        &#39;slug&#39;  =&gt; get_post($postData)-&gt;post_name,
+        &#39;path&#39;  =&gt; wp_make_link_relative(get_the_permalink($postData))
+    );
+
+    return $langArray;
+}
+
+
+///register the is_home attribute in a page post type
+
+add_action( &#39;rest_api_init&#39;, function () {
+    register_rest_field( &#39;page&#39;, &#39;is_home&#39;, mol_is_site_home_page() );
+});
+
+function mol_is_site_home_page() {
+	return array(
+		&#39;methods&#39;         =&gt; &#39;GET&#39;,
+		&#39;get_callback&#39;    =&gt; &#39;register_is_site_home_api_rest&#39;,
+		&#39;schema&#39;          =&gt; null,
+	);
+}
+
+function register_is_site_home_api_rest( $data ) {
+	$post_id = $data[&#39;id&#39;];
+    
+    if ( intval(get_option( &#39;page_on_front&#39; )) === $post_id ) {
+        $PPPosts = true;
+    } else {
+        $PPPosts = false;
+    }
+
+    
+    return $PPPosts;
+}
+
+
+
+/// register translate params for all used taxonomies and categories
+
+add_action( &#39;rest_api_init&#39;, function () {
+    register_rest_field( &#39;category&#39;, &#39;taxonomy_translate&#39;, mol_test_category() );
+    register_rest_field( &#39;tipodievento&#39;, &#39;taxonomy_translate&#39;, mol_test_category() );
+});
+
+function mol_test_category() {
+	return array(
+		&#39;methods&#39;         =&gt; &#39;GET&#39;,
+		&#39;get_callback&#39;    =&gt; &#39;register_test_category&#39;,
+		&#39;schema&#39;          =&gt; null,
+	);
+}
+
+function register_test_category( $data ) {
+	$term_id = $data[&#39;id&#39;];
+
+
+    $term = get_term( $term_id );
+    $taxonomy = $term-&gt;taxonomy;
+
+    $currentLang = apply_filters( &#39;wpml_current_language&#39;, null );
+    if($currentLang === &#39;it&#39;) {
+        $otherLang = &#39;en&#39;;
+    } else {
+        $otherLang = &#39;it&#39;;
+    }
+
+    global $translateId;
+    $translateId = apply_filters( &#39;wpml_object_id&#39;, $term_id, $taxonomy, true , $otherLang );
+    
+
+    $translated_url = apply_filters( &#39;wpml_permalink&#39;, get_term_link($term_id) , $otherLang, true);
+    $slugParts = explode(&quot;/&quot;, $translated_url);
+
+    if($translateId !== $term_id) {
+        $langArray = array(
+            &#39;key&#39;   =&gt; $otherLang,
+            &#39;id&#39;    =&gt; $translateId,
+            &#39;slug&#39;  =&gt; $slugParts[count($slugParts) - 2],
+            &#39;path&#39;  =&gt; wp_make_link_relative($translated_url)
+        );
+    } else {
+        $langArray = array(
+            &#39;key&#39;   =&gt; null,
+            &#39;id&#39;    =&gt; null,
+            &#39;slug&#39;  =&gt; null,
+            &#39;path&#39;  =&gt; null
+        );
+    }
+
+    
+    return $langArray;
+}
+
+
+?&gt;
+```
+
+In my index.js i need to set a couple of parameters to determinate language and current navigation.
+
+```
+const myTheme = {
+  name: &quot;my-theme&quot;,
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {
+      ...
+      lang: &quot;it&quot;,
+      rapidNavIta:&#39;navigazione-rapida&#39;,
+      rapidNavEng:&#39;rapid-navigation&#39;,
+      relativePathEng:&#39;&#39;,
+      relativePathIta:&#39;&#39;,
+      isInEng:false,
+      isInIta:false,
+      ...
+    },
+  },
+  actions: {
+    theme: {
+      toggleLang:({state}) =&gt; {
+        state.theme.lang = state.lang
+      },
+      toggleUrl:({state}) =&gt; {
+        state.theme.isUrlVisible = !state.theme.isUrlVisible
+      },
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await actions.source.fetch(&quot;/pages&quot;);
+        await actions.source.fetch(&quot;/posts&quot;)
+        await actions.source.fetch(&quot;/eventi&quot;);
+      },
+    },
+  },
+  libraries: {
+    html2react: {
+      processors: [...]
+    },
+    source: {
+      handlers: [...],
+    },
+  }
+}
+
+
+export default myTheme
+```
+
+The language switcher
+```
+const LanguageSwitch = ({ actions, state }) =&gt; {
+    const { lang } = state.theme;
+    return (
+        &lt;&gt;
+            &lt;Box&gt;      
+                {state.theme.isInEng &amp;&amp; 
+                    &lt;a
+                        href={state.theme.relativePathEng !== &#39;&#39; ? `${state.theme.relativePathEng}` : &#39;/en/&#39;}
+                        className=&quot;toggleicon&quot;  
+                        onClick={actions.theme.toggleLang}
+                    &gt;EN&lt;/a&gt;
+                }
+                {state.theme.isInIta &amp;&amp; 
+                    &lt;a 
+                    // href=&quot;/&quot; 
+                    href={state.theme.relativePathIta !== &#39;&#39; ? `${state.theme.relativePathIta}` : &#39;/&#39;}
+                    className=&quot;toggleicon&quot;&gt;
+                        IT
+                    &lt;/a&gt;
+                }
+            &lt;/Box&gt;
+        &lt;/&gt;
+    )
+}
+```
+I made a function to set the language switcher to related translated post. After i call thath function in useEffect in every template (Page, Post, Archive, Tax)
+```
+export const setLanguageInfos = (endpoint, state) =&gt; {
+    console.log(&#39;SOURCE&#39;)
+    if(endpoint[&#39;translate_api&#39;][&#39;id&#39;] !== null) {
+        if(endpoint[&#39;translate_api&#39;][&#39;key&#39;] == &#39;en&#39;) {
+          state.isInIta=false
+          state.isInEng=true
+          if(endpoint[&#39;is_home&#39;]) {
+                state.relativePathEng=&#39;/en&#39;;
+          } else {
+                state.relativePathEng=endpoint[&#39;translate_api&#39;][&#39;path&#39;]
+          }
+        } else {
+          state.isInIta=true;
+          state.isInEng=false
+          state.relativePathIta=endpoint[&#39;translate_api&#39;][&#39;path&#39;]
+          if(endpoint[&#39;is_home&#39;]) {
+            state.relativePathIta=&#39;/&#39;
+            } else {
+                state.relativePathIta=endpoint[&#39;translate_api&#39;][&#39;path&#39;]
+            }
+        }
+    } else {
+        state.isInIta=false
+        state.isInEng=false
+    }
+}
+```
+
+The post.js call a useEffect and pass parameters to function setLanguageInfos to get the translate version of post and set the language switcher. 
+```
+import React, {useEffect} from &quot;react&quot;
+import { connect } from &quot;frontity&quot;
+import dayjs from &quot;dayjs&quot;
+
+
+const Post = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const post = state.source[data.type][data.id]
+  const formattedDate = dayjs(post.date).format(&quot;DD MMMM YYYY&quot;)
+  const Html2React = libraries.html2react.Component
+
+  useEffect(() =&gt; {
+    setLanguageInfos(post, state.theme)
+  },[])
+
+  return (
+    &lt;div&gt;
+        &lt;p&gt;
+            &lt;strong&gt;Posted: &lt;/strong&gt;
+            {formattedDate}
+        &lt;/p&gt;
+        &lt;h2&gt;{post.title.rendered}&lt;/h2&gt;
+        &lt;Html2React html={post.content.rendered} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(Post)
+```
+
+This is a page.js how i set the lang switch like as post.js
+```
+import React, {useEffect} from &quot;react&quot;
+import { connect } from &quot;frontity&quot;
+
+//functions 
+import { setLanguageInfos } from &quot;./functions/setLanguageInfos&quot;
+
+const Page = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const page = state.source[data.type][data.id]
+  const Html2React = libraries.html2react.Component
+  const dataPosts = state.source.get(&#39;/&#39;)
+  
+
+  useEffect(() =&gt; {
+    setLanguageInfos(page, state.theme)
+  },[])
+
+  return (
+    &lt;div&gt;
+      PAGE
+       &lt;h2&gt;{page.title.rendered}&lt;/h2&gt;
+        &lt;Html2React html={page.content.rendered} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(Page)
+```
+
+This is the Archive.js / Taxonomy.js
+```
+
+import React, {useEffect} from &quot;react&quot;
+import { connect } from &quot;frontity&quot;
+import Link from &quot;@frontity/components/link&quot;
+
+import List from &quot;./List&quot;
+
+const IsArchive = ({ state, actions }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const postTypes = state.source.postTypes
+  const taxonomy = state.source[data.taxonomy][data.id]
+  
+
+
+    const setRelativePath = () =&gt; {
+      if(data.isTerm) {
+          if(taxonomy[&#39;key&#39;] !== null) {
+              state.theme.relativePathEng=`${taxonomy[&#39;taxonomy_translate&#39;][&#39;path&#39;]}`
+              state.theme.relativePathIta=`${taxonomy[&#39;taxonomy_translate&#39;][&#39;path&#39;]}`
+
+            if(state.lang === &#39;en&#39;) {
+              state.theme.isInIta=true
+              state.theme.isInEng=false
+            } else {
+              state.theme.isInIta=false
+              state.theme.isInEng=true
+            }
+          } else {
+              state.theme.isInIta=false
+              state.theme.isInEng=false
+          }
+      } else {
+        if(data.route === &#39;/news/&#39; || data.route === &#39;/en/news/&#39;) {
+            state.theme.relativePathEng=&#39;/en/news&#39;
+            state.theme.relativePathIta=&#39;/news&#39;
+            if(state.lang === &#39;en&#39;) {
+              state.theme.isInIta=true
+              state.theme.isInEng=false
+            } else {
+              state.theme.isInIta=false
+              state.theme.isInEng=true
+            }
+        } else {
+            postTypes &amp;&amp; postTypes.map(postType =&gt; {
+                if(data.route === `/${postType.endpoint}/` || data.route === `/en/${postType.endpoint}/`) {
+                    state.theme.relativePathEng=`/en/${postType.endpoint}`
+                    state.theme.relativePathIta=`/${postType.endpoint}`
+                    if(state.lang === &#39;en&#39;) {
+                      state.theme.isInIta=true
+                      state.theme.isInEng=false
+                    } else {
+                      state.theme.isInIta=false
+                      state.theme.isInEng=true
+                    }
+                }
+            })
+        }
+      }
+    }
+
+    useEffect(() =&gt; {
+        setRelativePath()
+    },[])
+
+  useEffect(() =&gt; {
+    setRelativePath()
+  },[state.lang])
+
+
+  return (
+    &lt;div&gt;
+        PFP
+      &lt;List/&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(IsArchive)
+```
+
+Enjoy :slight_smile:</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 13 Feb 2023 16:52:29 +0000</lastBuildDate>
+    <category>📚 Resources</category>
+    <atom:link href="https://community.frontity.org/t/wpml-language-switch-to-related-post/5847.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Wpml language switch to related post</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi!<br>
+You can see the frontity repository at this link: <a href="https://bitbucket.org/MatteoLcd/frontityreact/src/master/" class="inline-onebox" rel="noopener nofollow ugc">Bitbucket</a> , unfortunately I can’t share the wordpress repository because it’s a private project.<br>
+This repository is no longer in use and there are probably many errors within the code. I developed this (never finished) theme as an experiment, later I preferred to develop directly in react. If you want to keep experimenting the code is yours <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/wpml-language-switch-to-related-post/5847/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpml-language-switch-to-related-post/5847/3</link>
+        <pubDate>Mon, 13 Feb 2023 16:52:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5847-3</guid>
+        <source url="https://community.frontity.org/t/wpml-language-switch-to-related-post/5847.rss">Wpml language switch to related post</source>
+      </item>
+      <item>
+        <title>Wpml language switch to related post</title>
+        <dc:creator><![CDATA[andre]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello, could you make the repository of this project available?</p>
+          <p><a href="https://community.frontity.org/t/wpml-language-switch-to-related-post/5847/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpml-language-switch-to-related-post/5847/2</link>
+        <pubDate>Mon, 13 Feb 2023 08:26:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5847-2</guid>
+        <source url="https://community.frontity.org/t/wpml-language-switch-to-related-post/5847.rss">Wpml language switch to related post</source>
+      </item>
+      <item>
+        <title>Wpml language switch to related post</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi everyone!<br>
+I don’t knew if there’s just a similar source but i think it’s important to share thath.</p>
+<p>I create a custom language switch from posts, page, custom post type, categories, custom taxonomies translations.<br>
+I’m using Wpml as wordpress plugin.</p>
+<p>It’s not very clean code, but it’s working <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"> <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"> <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"> <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"></p>
+<p><strong>First i need to do some modify to the Rest Api</strong></p>
+<pre><code class="lang-javascript">&lt;?php
+//functions.php -&gt; wordpress
+//register the translate id in Rest Api post, page, custom post type
+
+add_action( 'rest_api_init', function () {
+	register_rest_field( 'post', 'translate_api', mol_related_translation_api() );
+    register_rest_field( 'page', 'translate_api', mol_related_translation_api() );
+	register_rest_field( 'mostre', 'translate_api', mol_related_translation_api() ); // Optional: Custom posttype
+	register_rest_field( 'eventi', 'translate_api', mol_related_translation_api() ); // Optional: Custom posttype
+});
+
+function mol_related_translation_api() {
+	return array(
+		'methods'         =&gt; 'GET',
+		'get_callback'    =&gt; 'related_translate_api',
+		'schema'          =&gt; null,
+	);
+}
+
+function related_translate_api( $data ) {
+	$post_id = $data['id'];
+    $currentLang = apply_filters( 'wpml_post_language_details', '', $post_id )['language_code'];
+    if($currentLang === 'it') {
+        $otherLang = 'en';
+    } else {
+        $otherLang = 'it';
+    }
+
+    $postData = apply_filters( 'wpml_object_id', $post_id, get_post_type(), false, $otherLang );
+    $langArray = array(
+        'key'   =&gt; apply_filters( 'wpml_post_language_details', '', $postData )['language_code'],
+        'id'    =&gt; $postData,
+        'slug'  =&gt; get_post($postData)-&gt;post_name,
+        'path'  =&gt; wp_make_link_relative(get_the_permalink($postData))
+    );
+
+    return $langArray;
+}
+
+
+///register the is_home attribute in a page post type
+
+add_action( 'rest_api_init', function () {
+    register_rest_field( 'page', 'is_home', mol_is_site_home_page() );
+});
+
+function mol_is_site_home_page() {
+	return array(
+		'methods'         =&gt; 'GET',
+		'get_callback'    =&gt; 'register_is_site_home_api_rest',
+		'schema'          =&gt; null,
+	);
+}
+
+function register_is_site_home_api_rest( $data ) {
+	$post_id = $data['id'];
+    
+    if ( intval(get_option( 'page_on_front' )) === $post_id ) {
+        $PPPosts = true;
+    } else {
+        $PPPosts = false;
+    }
+
+    
+    return $PPPosts;
+}
+
+
+
+/// register translate params for all used taxonomies and categories
+
+add_action( 'rest_api_init', function () {
+    register_rest_field( 'category', 'taxonomy_translate', mol_test_category() );
+    register_rest_field( 'tipodievento', 'taxonomy_translate', mol_test_category() );
+});
+
+function mol_test_category() {
+	return array(
+		'methods'         =&gt; 'GET',
+		'get_callback'    =&gt; 'register_test_category',
+		'schema'          =&gt; null,
+	);
+}
+
+function register_test_category( $data ) {
+	$term_id = $data['id'];
+
+
+    $term = get_term( $term_id );
+    $taxonomy = $term-&gt;taxonomy;
+
+    $currentLang = apply_filters( 'wpml_current_language', null );
+    if($currentLang === 'it') {
+        $otherLang = 'en';
+    } else {
+        $otherLang = 'it';
+    }
+
+    global $translateId;
+    $translateId = apply_filters( 'wpml_object_id', $term_id, $taxonomy, true , $otherLang );
+    
+
+    $translated_url = apply_filters( 'wpml_permalink', get_term_link($term_id) , $otherLang, true);
+    $slugParts = explode("/", $translated_url);
+
+    if($translateId !== $term_id) {
+        $langArray = array(
+            'key'   =&gt; $otherLang,
+            'id'    =&gt; $translateId,
+            'slug'  =&gt; $slugParts[count($slugParts) - 2],
+            'path'  =&gt; wp_make_link_relative($translated_url)
+        );
+    } else {
+        $langArray = array(
+            'key'   =&gt; null,
+            'id'    =&gt; null,
+            'slug'  =&gt; null,
+            'path'  =&gt; null
+        );
+    }
+
+    
+    return $langArray;
+}
+
+
+?&gt;
+</code></pre>
+<p>In my index.js i need to set a couple of parameters to determinate language and current navigation.</p>
+<pre><code class="lang-javascript">const myTheme = {
+  name: "my-theme",
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {
+      ...
+      lang: "it",
+      rapidNavIta:'navigazione-rapida',
+      rapidNavEng:'rapid-navigation',
+      relativePathEng:'',
+      relativePathIta:'',
+      isInEng:false,
+      isInIta:false,
+      ...
+    },
+  },
+  actions: {
+    theme: {
+      toggleLang:({state}) =&gt; {
+        state.theme.lang = state.lang
+      },
+      toggleUrl:({state}) =&gt; {
+        state.theme.isUrlVisible = !state.theme.isUrlVisible
+      },
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await actions.source.fetch("/pages");
+        await actions.source.fetch("/posts")
+        await actions.source.fetch("/eventi");
+      },
+    },
+  },
+  libraries: {
+    html2react: {
+      processors: [...]
+    },
+    source: {
+      handlers: [...],
+    },
+  }
+}
+
+
+export default myTheme
+</code></pre>
+<p>The language switcher</p>
+<pre><code class="lang-javascript">const LanguageSwitch = ({ actions, state }) =&gt; {
+    const { lang } = state.theme;
+    return (
+        &lt;&gt;
+            &lt;Box&gt;      
+                {state.theme.isInEng &amp;&amp; 
+                    &lt;a
+                        href={state.theme.relativePathEng !== '' ? `${state.theme.relativePathEng}` : '/en/'}
+                        className="toggleicon"  
+                        onClick={actions.theme.toggleLang}
+                    &gt;EN&lt;/a&gt;
+                }
+                {state.theme.isInIta &amp;&amp; 
+                    &lt;a 
+                    // href="/" 
+                    href={state.theme.relativePathIta !== '' ? `${state.theme.relativePathIta}` : '/'}
+                    className="toggleicon"&gt;
+                        IT
+                    &lt;/a&gt;
+                }
+            &lt;/Box&gt;
+        &lt;/&gt;
+    )
+}
+</code></pre>
+<p>I made a function to set the language switcher to related translated post. After i call thath function in useEffect in every template (Page, Post, Archive, Tax)</p>
+<pre><code class="lang-javascript">export const setLanguageInfos = (endpoint, state) =&gt; {
+    console.log('SOURCE')
+    if(endpoint['translate_api']['id'] !== null) {
+        if(endpoint['translate_api']['key'] == 'en') {
+          state.isInIta=false
+          state.isInEng=true
+          if(endpoint['is_home']) {
+                state.relativePathEng='/en';
+          } else {
+                state.relativePathEng=endpoint['translate_api']['path']
+          }
+        } else {
+          state.isInIta=true;
+          state.isInEng=false
+          state.relativePathIta=endpoint['translate_api']['path']
+          if(endpoint['is_home']) {
+            state.relativePathIta='/'
+            } else {
+                state.relativePathIta=endpoint['translate_api']['path']
+            }
+        }
+    } else {
+        state.isInIta=false
+        state.isInEng=false
+    }
+}
+</code></pre>
+<p>The post.js call a useEffect and pass parameters to function setLanguageInfos to get the translate version of post and set the language switcher.</p>
+<pre><code class="lang-javascript">import React, {useEffect} from "react"
+import { connect } from "frontity"
+import dayjs from "dayjs"
+
+
+const Post = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const post = state.source[data.type][data.id]
+  const formattedDate = dayjs(post.date).format("DD MMMM YYYY")
+  const Html2React = libraries.html2react.Component
+
+  useEffect(() =&gt; {
+    setLanguageInfos(post, state.theme)
+  },[])
+
+  return (
+    &lt;div&gt;
+        &lt;p&gt;
+            &lt;strong&gt;Posted: &lt;/strong&gt;
+            {formattedDate}
+        &lt;/p&gt;
+        &lt;h2&gt;{post.title.rendered}&lt;/h2&gt;
+        &lt;Html2React html={post.content.rendered} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(Post)
+</code></pre>
+<p>This is a page.js how i set the lang switch like as post.js</p>
+<pre><code class="lang-javascript">import React, {useEffect} from "react"
+import { connect } from "frontity"
+
+//functions 
+import { setLanguageInfos } from "./functions/setLanguageInfos"
+
+const Page = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const page = state.source[data.type][data.id]
+  const Html2React = libraries.html2react.Component
+  const dataPosts = state.source.get('/')
+  
+
+  useEffect(() =&gt; {
+    setLanguageInfos(page, state.theme)
+  },[])
+
+  return (
+    &lt;div&gt;
+      PAGE
+       &lt;h2&gt;{page.title.rendered}&lt;/h2&gt;
+        &lt;Html2React html={page.content.rendered} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(Page)
+</code></pre>
+<p>This is the Archive.js / Taxonomy.js</p>
+<pre><code class="lang-javascript">
+import React, {useEffect} from "react"
+import { connect } from "frontity"
+import Link from "@frontity/components/link"
+
+import List from "./List"
+
+const IsArchive = ({ state, actions }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const postTypes = state.source.postTypes
+  const taxonomy = state.source[data.taxonomy][data.id]
+  
+
+
+    const setRelativePath = () =&gt; {
+      if(data.isTerm) {
+          if(taxonomy['key'] !== null) {
+              state.theme.relativePathEng=`${taxonomy['taxonomy_translate']['path']}`
+              state.theme.relativePathIta=`${taxonomy['taxonomy_translate']['path']}`
+
+            if(state.lang === 'en') {
+              state.theme.isInIta=true
+              state.theme.isInEng=false
+            } else {
+              state.theme.isInIta=false
+              state.theme.isInEng=true
+            }
+          } else {
+              state.theme.isInIta=false
+              state.theme.isInEng=false
+          }
+      } else {
+        if(data.route === '/news/' || data.route === '/en/news/') {
+            state.theme.relativePathEng='/en/news'
+            state.theme.relativePathIta='/news'
+            if(state.lang === 'en') {
+              state.theme.isInIta=true
+              state.theme.isInEng=false
+            } else {
+              state.theme.isInIta=false
+              state.theme.isInEng=true
+            }
+        } else {
+            postTypes &amp;&amp; postTypes.map(postType =&gt; {
+                if(data.route === `/${postType.endpoint}/` || data.route === `/en/${postType.endpoint}/`) {
+                    state.theme.relativePathEng=`/en/${postType.endpoint}`
+                    state.theme.relativePathIta=`/${postType.endpoint}`
+                    if(state.lang === 'en') {
+                      state.theme.isInIta=true
+                      state.theme.isInEng=false
+                    } else {
+                      state.theme.isInIta=false
+                      state.theme.isInEng=true
+                    }
+                }
+            })
+        }
+      }
+    }
+
+    useEffect(() =&gt; {
+        setRelativePath()
+    },[])
+
+  useEffect(() =&gt; {
+    setRelativePath()
+  },[state.lang])
+
+
+  return (
+    &lt;div&gt;
+        PFP
+      &lt;List/&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(IsArchive)
+</code></pre>
+<p>Enjoy <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/wpml-language-switch-to-related-post/5847/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpml-language-switch-to-related-post/5847/1</link>
+        <pubDate>Wed, 23 Mar 2022 15:38:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5847-1</guid>
+        <source url="https://community.frontity.org/t/wpml-language-switch-to-related-post/5847.rss">Wpml language switch to related post</source>
+      </item>
+  </channel>
+</rss>

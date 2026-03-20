@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Clarifying How to Get Data from WordPress</title>
+    <link>https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317</link>
+    <description>Hi all,
+I&#39;ve been working with Fronity for a few months now and love it so far. Each time a try to do a task though I find myself re-reading how to work with the `@frontity/wp-source`
+
+I&#39;m hoping to get to the point where I just know that if I need to get X data out of WordPress, then this is the flow. Anyway to clarify something to this end:
+
+* The only data that is available at a given time is what was automatically fetched from the current route - `state.router.link` -  Is this correct?
+
+Let&#39;s say I&#39;m on the homepage or `&#39;/&#39;` but I need to get data for a list of posts filtered by a certain category. If that data is not available at `&#39;/&#39;` - do I need to then request that data using `actions.source.fetch(&quot;/category/somecategory/&quot;);`
+
+Thanks and if that is true then I think the documentation could be updated to be more explicit for newbs like me :blush:</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 05 Apr 2021 07:18:59 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Clarifying How to Get Data from WordPress</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>. I ended up looking at that demo project for a bit and got the gist of it but using a handler was simpler code for me.</p>
+<p>For now I just created this handler:</p>
+<pre><code class="lang-javascript">export const featuredPostHandler = {
+  name: "featuredPost",
+  priority: 10,
+  pattern: "featured-post",
+  func: async ({ route, params, state, libraries, force }) ={
+    // 1. fetch the data you want from the endpoint page
+    const response = await libraries.source.api.get({ 
+      endpoint: 'posts',
+      params: { 
+        categories: "1417", // posts in featured category
+        orderby: "date" // ordered by date
+      },
+      per_page: 1 // this seems to return a whole page of results not just 1 item
+    });
+    // this is where we get the actual data
+    // 2. get our featured post object in json format
+    const featuredPost = await response.json();
+    // 3. add data to source
+    const currentPageData = state.source.data[route];
+    Object.assign(currentPageData, {
+      ...featuredPost[0]
+    });
+  }
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/7</link>
+        <pubDate>Thu, 01 Apr 2021 04:15:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4317-7</guid>
+        <source url="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317.rss">Clarifying How to Get Data from WordPress</source>
+      </item>
+      <item>
+        <title>Clarifying How to Get Data from WordPress</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<p>If you have a specific use case for displaying posts then take a look at <a href="https://github.com/frontity-demos/frontity-examples/tree/master/homepage-categories-widgets">this demo project</a> which does something similar and which should steer you in the right direction - though feel free to ask here if you have anymore questions or need clarification on anything.</p>
+<aside class="quote no-group" data-username="sattley" data-post="3" data-topic="4317">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sattley/40/2057_2.png" class="avatar"> sattley:</div>
+<blockquote>
+<p>Thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> and hope you are getting some sleep <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+</blockquote>
+</aside>
+<p>What do you mean by that!!! <img src="https://community.frontity.org/images/emoji/apple/man_shrugging.png?v=9" title=":man_shrugging:" class="emoji" alt=":man_shrugging:"></p>
+          <p><a href="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/5</link>
+        <pubDate>Wed, 31 Mar 2021 14:24:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4317-5</guid>
+        <source url="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317.rss">Clarifying How to Get Data from WordPress</source>
+      </item>
+      <item>
+        <title>Clarifying How to Get Data from WordPress</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+As always thanks for the prompt follow up. This answers a good bit but I’m still confused as to how to get data for a specific scenario. Here is the scenario:</p>
+<p>On my posts archive page I’d like to show a featured post above the archive - basically some information about a certain post that categorized as ‘featured’. I know I can access this type of post by viewing the following endpoint from my wp source - <code>wp-json/wp/v2/posts?categories=1417</code></p>
+<p>Right now I’m trying to get the data using <code>libraries.source.api.get</code>. More specifically:</p>
+<blockquote>
+<p>const featuredPosts = libraries.source.api.get({<br>
+endpoint: “posts”,<br>
+params: { _embed: true, categories: “1417” }<br>
+});</p>
+</blockquote>
+<p>Is this the correct approach?</p>
+<p>Thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> and hope you are getting some sleep <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+          <p><a href="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/3</link>
+        <pubDate>Mon, 29 Mar 2021 16:36:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4317-3</guid>
+        <source url="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317.rss">Clarifying How to Get Data from WordPress</source>
+      </item>
+      <item>
+        <title>Clarifying How to Get Data from WordPress</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<aside class="quote no-group" data-username="sattley" data-post="1" data-topic="4317">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sattley/40/2057_2.png" class="avatar"> sattley:</div>
+<blockquote>
+<p>The only data that is available at a given time is what was automatically fetched from the current route - <code>state.router.link</code> - Is this correct?</p>
+</blockquote>
+</aside>
+<p>That isn’t completely correct, the data available at any given time is the data fetched for the current route <strong>and</strong> all the data that has previously been fetched for pages that have already been visited.</p>
+<p>So, for example, if you land on a post archive page that data is fetched in SSR. If you then click a post link on the archive page in order to visit a single post page then the data for that page is fetched by the client (though it may not need to be fetched, it may already exist in the state - see paragraph below on pre-fetching **). Then if you return to the post archive page the data doesn’t need to be fetched again, it’s all already in the state.</p>
+<aside class="quote no-group" data-username="sattley" data-post="1" data-topic="4317">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sattley/40/2057_2.png" class="avatar"> sattley:</div>
+<blockquote>
+<p>If that data is not available at <code>'/'</code> - do I need to then request that data using <code>actions.source.fetch("/category/somecategory/");</code></p>
+</blockquote>
+</aside>
+<p>You shouldn’t need to use <code>actions.source.fetch()</code> unless you need to do something special. Just providing a link to the category archive should fetch the data for you.</p>
+<p>** If you’re using the <code>&lt;Link&gt;</code> component then you can define a pre-fetching strategy for links on a page. <a href="https://api.frontity.org/frontity-packages/collections-packages/components#auto-prefetch">See here</a> for more info on the auto-prefetch options.</p>
+<p>Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/2</link>
+        <pubDate>Mon, 29 Mar 2021 09:25:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4317-2</guid>
+        <source url="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317.rss">Clarifying How to Get Data from WordPress</source>
+      </item>
+      <item>
+        <title>Clarifying How to Get Data from WordPress</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi all,<br>
+I’ve been working with Fronity for a few months now and love it so far. Each time a try to do a task though I find myself re-reading how to work with the <code>@frontity/wp-source</code></p>
+<p>I’m hoping to get to the point where I just know that if I need to get X data out of WordPress, then this is the flow. Anyway to clarify something to this end:</p>
+<ul>
+<li>The only data that is available at a given time is what was automatically fetched from the current route - <code>state.router.link</code> -  Is this correct?</li>
+</ul>
+<p>Let’s say I’m on the homepage or <code>'/'</code> but I need to get data for a list of posts filtered by a certain category. If that data is not available at <code>'/'</code> - do I need to then request that data using <code>actions.source.fetch("/category/somecategory/");</code></p>
+<p>Thanks and if that is true then I think the documentation could be updated to be more explicit for newbs like me <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317/1</link>
+        <pubDate>Fri, 26 Mar 2021 18:34:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4317-1</guid>
+        <source url="https://community.frontity.org/t/clarifying-how-to-get-data-from-wordpress/4317.rss">Clarifying How to Get Data from WordPress</source>
+      </item>
+  </channel>
+</rss>

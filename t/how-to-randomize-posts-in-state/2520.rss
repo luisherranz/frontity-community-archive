@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to randomize posts in state</title>
+    <link>https://community.frontity.org/t/how-to-randomize-posts-in-state/2520</link>
+    <description>As I understand, by default, it&#39;s not possible to get random results from wp-json. Maybe this isn&#39;t so bad either, because I would like the results to be cached. But how can I randomize fetched data in Frontity?
+
+This is a component I&#39;m using:
+
+```
+const Team = ({ state, actions, libraries }) =&gt; {
+   // 1. fetch data from the post type
+   useEffect(() =&gt; {
+      actions.source.fetch(&quot;/team/&quot;);
+   });
+
+   // 2. get data from frontity state
+   const data = state.source.get(&quot;/team/&quot;);
+
+   if (data.isReady &amp;&amp; !data.isError) {
+
+      return (
+         &lt;&gt;
+            &lt;h1&gt;Team&lt;/h1&gt;
+            &lt;MemberContainer&gt;
+               {
+                  data.items.map(({ type, id }, index) =&gt; {
+                     const item = state.source[type][id];
+                     // Render one Item component for each one.
+                     return &lt;Member item={item} /&gt;;
+
+                  })
+               }
+            &lt;/MemberContainer&gt;
+         &lt;/&gt;
+      );
+   }
+
+   if (data.isError) {
+      console.log(data);
+   }
+
+   return null;
+}
+```
+
+And I tried using something like this, before the return statement:
+```
+data.items.sort(() =&gt; Math.random() - 0.5);
+```
+
+But when doing that, I get the following error in my Terminal:
+`Error: Too many re-renders. React limits the number of renders to prevent an infinite loop.`
+
+So I guess that I&#39;m not handling this the way I should, but what would be the correct approach?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 04 Aug 2020 21:02:45 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-randomize-posts-in-state/2520.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to randomize posts in state</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,</p>
+<p>Thanks for your suggestion. The shuffling works fine, but something very weird happens to the <code>FeaturedMedia</code> element in the <code>Member</code> component. The shown image doesn’t match the item, it’s from another one. This happens even though the passed ID of the featured image is actually correct.</p>
+<p>I can see an error in the console:<br>
+<code>Warning: Prop </code>alt<code> did not match. Server: "NIJ-portret-Jean_Paul-2" Client: "dominique"</code></p>
+<p>This is what I did:</p>
+<pre><code class="lang-javascript">const shuffledData = data.items.map((a) =&gt; ({ sort: Math.random(), value: a })).sort((a, b) =&gt; a.sort - b.sort).map((a) =&gt; a.value)
+
+const slides = [];
+
+shuffledData.map(({ type, id }, index) =&gt; {
+   const item = state.source[type][id];
+   // Render one Item component for each one.
+   slides.push(&lt;Member item={item} /&gt;);
+});
+</code></pre>
+<p>I reckon this doesn’t only happen with my data, but always. However, if you’d like to test with my data, you can clone my repo: <a href="https://bitbucket.org/noesteijver/frontity/src/master/" rel="nofollow noopener">https://bitbucket.org/noesteijver/frontity/src/master/</a>, the template-part is called <code>team.js</code>.</p>
+          <p><a href="https://community.frontity.org/t/how-to-randomize-posts-in-state/2520/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-randomize-posts-in-state/2520/3</link>
+        <pubDate>Tue, 04 Aug 2020 21:02:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2520-3</guid>
+        <source url="https://community.frontity.org/t/how-to-randomize-posts-in-state/2520.rss">How to randomize posts in state</source>
+      </item>
+      <item>
+        <title>How to randomize posts in state</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>I don’t have your data to work with so haven’t tested this, but I think I would use <code>data.items.map</code> before the <code>return</code> statement to get the id’s of the posts into an array and then randomise that array. You could then iterate over the array of id’s to perform the action you want with the corresponding member of the <code>data</code> array.</p>
+<p>I hope I’ve understood your issue correctly.</p>
+          <p><a href="https://community.frontity.org/t/how-to-randomize-posts-in-state/2520/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-randomize-posts-in-state/2520/2</link>
+        <pubDate>Tue, 04 Aug 2020 17:27:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2520-2</guid>
+        <source url="https://community.frontity.org/t/how-to-randomize-posts-in-state/2520.rss">How to randomize posts in state</source>
+      </item>
+      <item>
+        <title>How to randomize posts in state</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>As I understand, by default, it’s not possible to get random results from wp-json. Maybe this isn’t so bad either, because I would like the results to be cached. But how can I randomize fetched data in Frontity?</p>
+<p>This is a component I’m using:</p>
+<pre><code class="lang-javascript">const Team = ({ state, actions, libraries }) =&gt; {
+   // 1. fetch data from the post type
+   useEffect(() =&gt; {
+      actions.source.fetch("/team/");
+   });
+
+   // 2. get data from frontity state
+   const data = state.source.get("/team/");
+
+   if (data.isReady &amp;&amp; !data.isError) {
+
+      return (
+         &lt;&gt;
+            &lt;h1&gt;Team&lt;/h1&gt;
+            &lt;MemberContainer&gt;
+               {
+                  data.items.map(({ type, id }, index) =&gt; {
+                     const item = state.source[type][id];
+                     // Render one Item component for each one.
+                     return &lt;Member item={item} /&gt;;
+
+                  })
+               }
+            &lt;/MemberContainer&gt;
+         &lt;/&gt;
+      );
+   }
+
+   if (data.isError) {
+      console.log(data);
+   }
+
+   return null;
+}
+</code></pre>
+<p>And I tried using something like this, before the return statement:</p>
+<pre><code class="lang-javascript">data.items.sort(() =&gt; Math.random() - 0.5);
+</code></pre>
+<p>But when doing that, I get the following error in my Terminal:<br>
+<code>Error: Too many re-renders. React limits the number of renders to prevent an infinite loop.</code></p>
+<p>So I guess that I’m not handling this the way I should, but what would be the correct approach?</p>
+          <p><a href="https://community.frontity.org/t/how-to-randomize-posts-in-state/2520/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-randomize-posts-in-state/2520/1</link>
+        <pubDate>Tue, 28 Jul 2020 16:30:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2520-1</guid>
+        <source url="https://community.frontity.org/t/how-to-randomize-posts-in-state/2520.rss">How to randomize posts in state</source>
+      </item>
+  </channel>
+</rss>

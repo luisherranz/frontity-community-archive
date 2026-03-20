@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+    <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275</link>
+    <description>I am writing some stuff for my [&lt;Archive&gt;](https://github.com/jcklpe/desert-jackalope/blob/master/src/components/Archive/archive-item.js) component. I am grabbing the excerpt from and trying to render it in a paragraph element. 
+
+I know of a couple of ways to do this but none of them are sufficient to my needs and I&#39;m curious if other people have suggestions. 
+
+First there is the use of [dangerouslySetInnerHTML](https://zhenyong.github.io/react/tips/dangerously-set-inner-html.html). The problem with this is that it creates a `&lt;div&gt;` with the `&lt;p&gt;` tag inside it and I don&#39;t want this. It&#39;s clunky and adds unnecessary nodes to the DOM tree. I need a better solution. 
+
+
+ Second, there is the [html2react](https://docs.frontity.org/api-reference-1/frontity-html2react) component included with frontity. 
+
+`html2react` is a solid component, and it parses and returns correctly a single `&lt;p&gt;` element containing the sanitized text. However there are two things I don&#39;t like about using it. 
+1. I can&#39;t add a `className=excerpt` to the component like I&#39;d like. Maybe your response is &quot;why do you want to do this&quot; and let&#39;s just say &quot;I do because that&#39;s how I like to work&quot;. I like having easy to access CSS classes even when using Styled Components etc. 
+2. I&#39;d prefer to use a more semantic component name than `&lt;html2React html={item.excerpt.rendered}&gt;`. I could just import the component under a different name but the fact remains that I&#39;m using a component to perform imperative operations and that doesn&#39;t sit right with me. Maybe this is just aesthetics on my part, or style or something, but I would prefer to have a clearer demarcation between mark up and processing of the content of markup. 
+
+Maybe neither of these reasons make sense to you. That&#39;s fine. If nothing else I&#39;m asking this question to better understand frontity and to push myself to understand React better and how and why things are built the way they are. 
+
+The last solution I&#39;ve considered doesn&#39;t work. I had a tutoring session today with a mentor and we were going over the different ways that content can be fetched and then inserted into the DOM. They used [element.textContent](https://www.w3schools.com/jsref/prop_node_textcontent.asp) to insert some text content into an element. That seemed like what I wanted to do so I tried the same thing as follows:
+
+```
+&lt;p key={item.index} className=&quot;excerpt&quot;&gt;
+            {item.excerpt.textContent}
+          &lt;/p&gt;
+```
+
+And this does not work. I don&#39;t know why. I&#39;d be curious if someone could tell me. It does properly produce a `&lt;p&gt;` tag but it doesn&#39;t actually return the content. 
+
+I&#39;m wondering if perhaps this is something specific to react or perhaps it&#39;s something specific to frontity? 
+
+Any clues would be super appreciated. I hope my question and thinking is clear. I know that perhaps some of what I&#39;m wanting to do differs from the way other people are used to doing things, but even if I end up just adopting the methods already used by others, I want to know why the methods I instinctively prefer won&#39;t work. This project is primarily meant as a means to learn :slight_smile:</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 28 Mar 2020 21:11:23 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Right but the whole point of my question is how to do this without creating extra non-semantic HTML divs, which doing this like this does.</p>
+<p>The output of</p>
+<pre><code>&lt;StyledExcerpt className="excerpt"&gt;
+  &lt;Html2React html={item.excerpt.rendered} /&gt;
+&lt;/StyledExcerpt&gt;
+</code></pre>
+<p>is</p>
+<pre><code>&lt;div class="exerpt"&gt;
+   &lt;p&gt; this is the santized text &lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<p>And what I’m trying to get is something morel like this:</p>
+<pre><code>&lt;p class="excerpt"&gt; this is the santized text &lt;/p&gt;
+</code></pre>
+<p>I’m going to try to further componentize the date and excerpt stuff and see what I can get on that from there.</p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/16</link>
+        <pubDate>Sat, 28 Mar 2020 21:11:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-16</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>You can’t use Styled Components directly to the Html2React component. You could include it inside a StyledComponent. Something like this:</p>
+<pre><code>const Html2React=libraries.html2react.Component;
+...
+
+&lt;StyledExcerpt className="excerpt"&gt;
+  &lt;Html2React html={item.excerpt.rendered} /&gt;
+&lt;/StyledExcerpt&gt;
+
+...
+const StyledExcerpt= styled.div`
+  color:black;
+`
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/14</link>
+        <pubDate>Thu, 05 Mar 2020 11:51:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-14</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Is it possible to style stuff using the styled component, or would I do that in the sub component Excerpt?</p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/12</link>
+        <pubDate>Thu, 05 Mar 2020 07:40:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-12</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="thedonquixotic" data-post="7" data-topic="1275">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p><strong>why</strong> the <code>item.excerpt.textContent</code> doesn’t work?</p>
+</blockquote>
+</aside>
+<p>As far as I know <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent"><code>node.textContent</code></a> doesn’t work with React, as React doesn’t have any nodes. Apart from that, they have an official way, written in their docs, to replace innerHTML, which is the <a href="https://reactjs.org/docs/dom-elements.html#dangerouslysetinnerhtml"><code>dangerouslySetInnerHTML</code></a> we are using, but they don’t say anything about <code>textContent</code>.</p>
+<p>Having said that, I’d recommend you to using one of the two methods mentioned before, <code>dangerouslySetInnerHTML</code> or using <code>html2react</code>. Regarding this last one, you can separate the <code>&lt;Excerpt/&gt;</code> and the <code>&lt;Date /&gt;</code> component as you suggest, but I think the problem is that you are defining the const <code>Excerpt</code> twice:</p>
+<ul>
+<li>once at the beginning when you define</li>
+</ul>
+<pre><code>const Excerpt = libraries.html2react.Component;
+</code></pre>
+<ul>
+<li>other at the end using styled components</li>
+</ul>
+<pre><code>const Excerpt = styled.p`
+  color: black;
+`;
+</code></pre>
+<p>You should delete the Styled Component in order to make it work. Let us know if that solves the problem <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/10</link>
+        <pubDate>Wed, 04 Mar 2020 08:47:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-10</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>actually I just tried adding on the class=“excerpt” solution and it’s not rendering out anything.</p>
+<p>Here’s the full component file</p>
+<pre><code>import React from "react";
+import { connect, styled } from "frontity";
+import Link from "../Link";
+import FeaturedMedia from "../FeaturedMedia";
+import { dateFromItem } from "../../utilities";
+
+const ArchiveItem = ({ state, item, libraries }) =&gt; {
+  const excerptHTML = `&lt;div class="excerpt"&gt;${item.excerpt.rendered}&lt;/div&gt;`;
+  const Excerpt = libraries.html2react.Component;
+  const Date = libraries.html2react.Component;
+  return (
+    &lt;section className="post-link"&gt;
+      &lt;Link link={item.link}&gt;
+        &lt;Title dangerouslySetInnerHTML={{ __html: item.title.rendered }} /&gt;
+
+        {/* //TODO: This seems like it should be separated into a separate component */}
+        {state.theme.isBlog &amp;&amp; &lt;p className="date"&gt;{dateFromItem(item)}&lt;/p&gt;}
+
+        &lt;FeaturedMedia id={item.featured_media} /&gt;
+
+        {/* //TODO: This too  */}
+        {state.theme.isBlog &amp;&amp; item.excerpt &amp;&amp; (
+          &lt;Excerpt html={excerptHTML} /&gt;
+          // &lt;Excerpt key={item.index} className="excerpt"&gt;
+          //   {item.excerpt.textContent}
+          // &lt;/Excerpt&gt;
+        )}
+      &lt;/Link&gt;
+    &lt;/section&gt;
+  );
+};
+
+export default connect(ArchiveItem);
+
+//-  𝗖𝗦𝗦
+const Title = styled.h1`
+  font-size: 4rem;
+  position: relative;
+  display: inline;
+  z-index: 10;
+  font-weight: 700;
+  color: black;
+  margin: 0;
+  padding-top: 24px;
+  /* margin-bottom: -40px; */
+  padding: 25px 25px 0 25px;
+  box-sizing: border-box;
+  vertical-align: bottom;
+`;
+
+const Excerpt = styled.p`
+  color: black;
+`;
+
+
+</code></pre>
+<p>Actually the way I think I might solve this is by pulling the date and excerpt into their own components. That way I don’t have the ternary logic junking up the mark up and I think that will actually allow me to add the classes via the lower level component.</p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/8</link>
+        <pubDate>Tue, 03 Mar 2020 07:28:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-8</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>I wanted to keep things more semantic in their presentation, so  I ended up just renaming it  <code>const Excerpt = libraries.html2react.Component;</code></p>
+<p>but I’m more interested in learning <strong>why</strong> the <code>item.excerpt.textContent</code> doesn’t work?</p>
+<p>It’s textContent a standard vanilla Javascript function?</p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/7</link>
+        <pubDate>Tue, 03 Mar 2020 03:37:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-7</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You can add a top div with the class name:</p>
+<pre><code>const excerpt = `&lt;div class="excerpt"&gt;${item.excerpt.rendered}&lt;/div&gt;`;
+</code></pre>
+<p>then pass it down to either  <code>Html2React</code>  or  <code>dangerouslySetInnerHTML</code> .</p>
+<p>And you can name  <code>html2React</code>  whatever he wants when by assigning it to a variable:</p>
+<pre><code>const Html = libraries.html2react.Component;
+</code></pre>
+<aside class="quote no-group" data-username="thedonquixotic" data-post="4" data-topic="1275">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Would decode help in solving this issue I’m facing?</p>
+</blockquote>
+</aside>
+<p>No, <code>decode</code> is just an entity decoder. Sorry for the lack of description in the documentation. I have just fixed that.</p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/5</link>
+        <pubDate>Mon, 02 Mar 2020 06:47:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-5</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi I don’t want to bother anyone but I was just going through the newsletter release notes and saw that “decode” had been added: <a href="https://docs.frontity.org/api-reference-1/frontity#decode" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/frontity#decode</a></p>
+<p>Would decode help in solving this issue I’m facing? Am I understanding the issue correctly?</p>
+<p>There was no feature thread but I read the docs and it seems like it’s a function that processes text containing HTML and returns the raw text results, which sounds like what I want, but I wasn’t sure.</p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/4</link>
+        <pubDate>Fri, 28 Feb 2020 00:33:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-4</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+      <item>
+        <title>How to best deal with HTML content returned that should be parsed as plain text?</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>I am writing some stuff for my <a href="https://github.com/jcklpe/desert-jackalope/blob/master/src/components/Archive/archive-item.js" rel="nofollow noopener"></a> component. I am grabbing the excerpt from and trying to render it in a paragraph element.</p>
+<p>I know of a couple of ways to do this but none of them are sufficient to my needs and I’m curious if other people have suggestions.</p>
+<p>First there is the use of <a href="https://zhenyong.github.io/react/tips/dangerously-set-inner-html.html" rel="nofollow noopener">dangerouslySetInnerHTML</a>. The problem with this is that it creates a <code>&lt;div&gt;</code> with the <code>&lt;p&gt;</code> tag inside it and I don’t want this. It’s clunky and adds unnecessary nodes to the DOM tree. I need a better solution.</p>
+<p>Second, there is the <a href="https://docs.frontity.org/api-reference-1/frontity-html2react" rel="nofollow noopener">html2react</a> component included with frontity.</p>
+<p><code>html2react</code> is a solid component, and it parses and returns correctly a single <code>&lt;p&gt;</code> element containing the sanitized text. However there are two things I don’t like about using it.</p>
+<ol>
+<li>I can’t add a <code>className=excerpt</code> to the component like I’d like. Maybe your response is “why do you want to do this” and let’s just say “I do because that’s how I like to work”. I like having easy to access CSS classes even when using Styled Components etc.</li>
+<li>I’d prefer to use a more semantic component name than <code>&lt;html2React html={item.excerpt.rendered}&gt;</code>. I could just import the component under a different name but the fact remains that I’m using a component to perform imperative operations and that doesn’t sit right with me. Maybe this is just aesthetics on my part, or style or something, but I would prefer to have a clearer demarcation between mark up and processing of the content of markup.</li>
+</ol>
+<p>Maybe neither of these reasons make sense to you. That’s fine. If nothing else I’m asking this question to better understand frontity and to push myself to understand React better and how and why things are built the way they are.</p>
+<p>The last solution I’ve considered doesn’t work. I had a tutoring session today with a mentor and we were going over the different ways that content can be fetched and then inserted into the DOM. They used <a href="https://www.w3schools.com/jsref/prop_node_textcontent.asp" rel="nofollow noopener">element.textContent</a> to insert some text content into an element. That seemed like what I wanted to do so I tried the same thing as follows:</p>
+<pre><code>&lt;p key={item.index} className="excerpt"&gt;
+            {item.excerpt.textContent}
+          &lt;/p&gt;
+</code></pre>
+<p>And this does not work. I don’t know why. I’d be curious if someone could tell me. It does properly produce a <code>&lt;p&gt;</code> tag but it doesn’t actually return the content.</p>
+<p>I’m wondering if perhaps this is something specific to react or perhaps it’s something specific to frontity?</p>
+<p>Any clues would be super appreciated. I hope my question and thinking is clear. I know that perhaps some of what I’m wanting to do differs from the way other people are used to doing things, but even if I end up just adopting the methods already used by others, I want to know why the methods I instinctively prefer won’t work. This project is primarily meant as a means to learn <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275/1</link>
+        <pubDate>Sat, 22 Feb 2020 22:17:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1275-1</guid>
+        <source url="https://community.frontity.org/t/how-to-best-deal-with-html-content-returned-that-should-be-parsed-as-plain-text/1275.rss">How to best deal with HTML content returned that should be parsed as plain text?</source>
+      </item>
+  </channel>
+</rss>

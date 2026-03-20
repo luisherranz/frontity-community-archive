@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Cannot access state.theme in styled components</title>
+    <link>https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140</link>
+    <description>I am facing the problem of not being able to access the main theme object from my styled components. Here is example, in my src/index.js I have theme object as bellow:
+
+    const marsTheme = {
+      name: &quot;@frontity/mars-theme&quot;,
+      roots: {
+        /**
+         * In Frontity, any package can add React components to the site.
+         * We use roots for that, scoped to the `theme` namespace.
+         */
+        theme: Theme,
+      },
+      state: {
+        /**
+         * State is where the packages store their default settings and other
+         * relevant state. It is scoped to the `theme` namespace.
+         */
+
+        theme: {
+          colors: {
+            primary: &quot;pink&quot;,
+            secondary: &quot;orange&quot;,
+          }, 
+    ...
+
+Now, when I try to these theme.colors for example in my footer.js file like this:
+
+    const FooterContainer = styled.div`
+      color: ${(props) =&gt; {
+        console.log({ props }); // prints out { children: { some data.. }, theme: {} }
+        return &quot;red&quot;;
+      }}
+
+As you can see, the props here doesn&#39;t provide theme object. 
+
+I tried adding some kind of theme provider with both styled-components and @emotion/react inside of my components/index.js (Theme component) like this:
+
+    &lt;ThemeProvider theme={{ someField: &quot;ciao&quot; }}&gt;
+       ....
+      &lt;Footer /&gt;
+    &lt;/ThemeProvider&gt;
+
+The result of the output is the same. 
+
+How can I link my theme properties to all of my components / styled-components?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 01 Mar 2021 16:00:10 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Cannot access state.theme in styled components</title>
+        <dc:creator><![CDATA[mh123]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="mburridge" data-post="2" data-topic="4140">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mburridge/40/1477_2.png" class="avatar"> mburridge:</div>
+<blockquote>
+<p><code>fontcolor="{state.theme.colors.primary}"</code></p>
+</blockquote>
+</aside>
+<p>Thank you for replying.</p>
+<p>I see, but that’s how you pass a basic prop into your Styled Component. However, I want theme object to be available on all Styled Components.</p>
+<p>In my theme config, I have for example breakpoints, colors, fonts, etc. Why would I for example pass down manually theme.breakpoints prop to every single component? I need this to be available on all components.</p>
+<p>As I can remember, when you define a theme in styled-component and wrap the app with the  <code>&lt;ThemeProvider theme={myTheme}&gt; ... &lt;/Theme&gt;</code> the theme prop will be available in all elements wrapped by the ThemeProvider.</p>
+<p>I am looking forward to achieving this in Frontity app as well.</p>
+          <p><a href="https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140/3</link>
+        <pubDate>Mon, 01 Mar 2021 16:00:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4140-3</guid>
+        <source url="https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140.rss">Cannot access state.theme in styled components</source>
+      </item>
+      <item>
+        <title>Cannot access state.theme in styled components</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mh123">@mh123</a></p>
+<p>When you use the <code>&lt;FooterContainer&gt;</code> component you should add one or more props, something like:</p>
+<pre><code class="lang-javascript">&lt;FooterContainer fontcolor="{state.theme.colors.primary}" bg="{state.theme.colors.secondary}"&gt;
+  ...
+&lt;/FooterContainer&gt;
+</code></pre>
+<p>Then in the styled div you would access it like this:</p>
+<pre><code class="lang-javascript">const FooterContainer = styled.div`
+  color: ${(props) =&gt; props.fontcolor};
+  background-color: ${(props) =&gt; props.bg};
+`
+</code></pre>
+<p>See the <a href="https://github.com/frontity/frontity/tree/107d3543ce5463186809b7e6f50ca31ffbdc107d/packages/twentytwenty-theme"><code>@frontity/twentytwenty-theme</code></a> for an example. The colours are defined in <a href="https://github.com/frontity/frontity/blob/107d3543ce/packages/twentytwenty-theme/src/index.js"><code>index.js</code></a> and an example where they’re being used is in <a href="https://github.com/frontity/frontity/blob/107d3543ce/packages/twentytwenty-theme/src/components/header.js"><code>header.js</code></a>.</p>
+<p>Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140/2</link>
+        <pubDate>Mon, 01 Mar 2021 13:19:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4140-2</guid>
+        <source url="https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140.rss">Cannot access state.theme in styled components</source>
+      </item>
+      <item>
+        <title>Cannot access state.theme in styled components</title>
+        <dc:creator><![CDATA[mh123]]></dc:creator>
+        <description><![CDATA[
+            <p>I am facing the problem of not being able to access the main theme object from my styled components. Here is example, in my src/index.js I have theme object as bellow:</p>
+<pre><code>const marsTheme = {
+  name: "@frontity/mars-theme",
+  roots: {
+    /**
+     * In Frontity, any package can add React components to the site.
+     * We use roots for that, scoped to the `theme` namespace.
+     */
+    theme: Theme,
+  },
+  state: {
+    /**
+     * State is where the packages store their default settings and other
+     * relevant state. It is scoped to the `theme` namespace.
+     */
+
+    theme: {
+      colors: {
+        primary: "pink",
+        secondary: "orange",
+      }, 
+...
+</code></pre>
+<p>Now, when I try to these theme.colors for example in my footer.js file like this:</p>
+<pre><code>const FooterContainer = styled.div`
+  color: ${(props) =&gt; {
+    console.log({ props }); // prints out { children: { some data.. }, theme: {} }
+    return "red";
+  }}
+</code></pre>
+<p>As you can see, the props here doesn’t provide theme object.</p>
+<p>I tried adding some kind of theme provider with both styled-components and <span class="mention">@emotion</span>/react inside of my components/index.js (Theme component) like this:</p>
+<pre><code>&lt;ThemeProvider theme={{ someField: "ciao" }}&gt;
+   ....
+  &lt;Footer /&gt;
+&lt;/ThemeProvider&gt;
+</code></pre>
+<p>The result of the output is the same.</p>
+<p>How can I link my theme properties to all of my components / styled-components?</p>
+          <p><a href="https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140/1</link>
+        <pubDate>Sat, 27 Feb 2021 11:39:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4140-1</guid>
+        <source url="https://community.frontity.org/t/cannot-access-state-theme-in-styled-components/4140.rss">Cannot access state.theme in styled components</source>
+      </item>
+  </channel>
+</rss>

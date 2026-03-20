@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Passing props into an action to update state</title>
+    <link>https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337</link>
+    <description>Hi all, 
+
+I am trying to update the state to a value sent by a button click (in this case a url), I am new to react so I&#39;m having trouble working out what is the best practice here, if anyone could help explain I would be most grateful. I&#39;m getting a &quot;url is not defined&quot; error so assuming the way I&#39;m sending the props is not correct? 
+
+![Screenshot 2021-09-29 at 13.28.50|690x327](upload://n47HY7KgTtLHHOOuHbeCS4i2Snn.png)
+![Screenshot 2021-09-29 at 13.32.01|690x475](upload://cVS9ylfyJ1gboncVHgKVfbQ1DK3.png)
+
+Thanks in advance,
+
+Leon.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 30 Sep 2021 13:28:05 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Passing props into an action to update state</title>
+        <dc:creator><![CDATA[leonnockolds]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a> Nikolay, thank you so much for your help with this! This was the final piece I needed in order to finish up my site. All done and working exactly as I want it to <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=10" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/5</link>
+        <pubDate>Thu, 30 Sep 2021 13:28:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5337-5</guid>
+        <source url="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337.rss">Passing props into an action to update state</source>
+      </item>
+      <item>
+        <title>Passing props into an action to update state</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/leonnockolds">@leonnockolds</a>,</p>
+<p>i think you are confusing your component props with your action(function) arguments.</p>
+<p>So, your function called <code>updateMixcloudLink</code> expect to receive 1, argument, named as <code>url</code>.</p>
+<p>So here is what you need to do:<br>
+Slightly update your action:</p>
+<pre><code class="lang-javascript">actions: {
+    theme: {
+      updateMixcloudLink: ({ state }) =&gt; (url) =&gt; {
+        state.theme.mixcloudLink = url;
+      },
+    },
+  },
+</code></pre>
+<p>Then when you want to use the action, you can do it like this:</p>
+<pre><code class="lang-javascript">const { updateMixcloudLink }  = actions.theme
+&lt;Button onClick={() =&gt; updateMixcloudLink("this-is-the-url-i-want-to-send-to-the-state")}&gt;
+      CHANGE MIXCLOUD URL
+&lt;/Button&gt;
+</code></pre>
+<p>1 small note. When your function requires a argument, you have to always pass an arrow function that invokes your function like this:</p>
+<pre><code class="lang-javascript"> onClick={() =&gt; updateMixcloudLink("this-is-the-url-i-want-to-send-to-the-state")}
+</code></pre>
+<p>If you just do this:</p>
+<pre><code class="lang-javascript"> onClick={updateMixcloudLink("this-is-the-url-i-want-to-send-to-the-state")}
+</code></pre>
+<p>then updateMixCloudLink will be invoked as the component is rendered, not when you click it.<br>
+I hope that is not adding extra confusion.</p>
+<p>Good luck</p>
+          <p><a href="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/4</link>
+        <pubDate>Thu, 30 Sep 2021 12:58:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5337-4</guid>
+        <source url="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337.rss">Passing props into an action to update state</source>
+      </item>
+      <item>
+        <title>Passing props into an action to update state</title>
+        <dc:creator><![CDATA[leonnockolds]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a> Thankyou so much for taking the time to help, if you could be so kind to explain a bit further, is the syntax correct that I’m using on the button to send the props?</p>
+<pre><code class="lang-javascript">&lt;Button onClick={actions.theme.updateMixcloudLink} url="this-is-the-url-i-want-to-send-to-the-state"&gt;
+      CHANGE MIXCLOUD URL
+&lt;/Button&gt;
+</code></pre>
+<pre><code class="lang-javascript">state: {
+    theme: {
+      mixcloudLink: "https://www.mixcloud.com/sohoradio/chris-p-cuts-30082021/",
+    },
+  },
+  actions: {
+    theme: {
+      updateMixcloudLink: ({ state }) =&gt; (url) =&gt; {
+        state.theme.mixcloudLink = { url };
+      },
+    },
+  },
+</code></pre>
+          <p><a href="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/3</link>
+        <pubDate>Thu, 30 Sep 2021 12:41:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5337-3</guid>
+        <source url="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337.rss">Passing props into an action to update state</source>
+      </item>
+      <item>
+        <title>Passing props into an action to update state</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/leonnockolds">@leonnockolds</a>,</p>
+<p>I also had that issue when I started with frontity. Its actually quite simple. All you need to do is this:</p>
+<pre><code class="lang-javascript">actions: {
+  theme: {
+    updateMixcloudLink: ({ state }) =&gt; (props) =&gt; {
+    //Do your thing with props
+
+   } 
+  }
+}
+</code></pre>
+<p>GL. Let me know if we can help with something else.</p>
+          <p><a href="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/2</link>
+        <pubDate>Wed, 29 Sep 2021 15:59:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5337-2</guid>
+        <source url="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337.rss">Passing props into an action to update state</source>
+      </item>
+      <item>
+        <title>Passing props into an action to update state</title>
+        <dc:creator><![CDATA[leonnockolds]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi all,</p>
+<p>I am trying to update the state to a value sent by a button click (in this case a url), I am new to react so I’m having trouble working out what is the best practice here, if anyone could help explain I would be most grateful. I’m getting a “url is not defined” error so assuming the way I’m sending the props is not correct?</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/a/a1a95a495a6dc6339ff0a70cf5ef6422afae4591.png" data-download-href="https://community.frontity.org/uploads/default/a1a95a495a6dc6339ff0a70cf5ef6422afae4591" title="Screenshot 2021-09-29 at 13.28.50"><img src="https://community.frontity.org/uploads/default/optimized/2X/a/a1a95a495a6dc6339ff0a70cf5ef6422afae4591_2_690x327.png" alt="Screenshot 2021-09-29 at 13.28.50" data-base62-sha1="n47HY7KgTtLHHOOuHbeCS4i2Snn" width="690" height="327" srcset="https://community.frontity.org/uploads/default/optimized/2X/a/a1a95a495a6dc6339ff0a70cf5ef6422afae4591_2_690x327.png, https://community.frontity.org/uploads/default/optimized/2X/a/a1a95a495a6dc6339ff0a70cf5ef6422afae4591_2_1035x490.png 1.5x, https://community.frontity.org/uploads/default/original/2X/a/a1a95a495a6dc6339ff0a70cf5ef6422afae4591.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/a/a1a95a495a6dc6339ff0a70cf5ef6422afae4591_2_10x10.png"></a></div><br>
+<div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/5/5aa4d8accf35370a99ce666f99382f3da9b68edb.png" data-download-href="https://community.frontity.org/uploads/default/5aa4d8accf35370a99ce666f99382f3da9b68edb" title="Screenshot 2021-09-29 at 13.32.01"><img src="https://community.frontity.org/uploads/default/optimized/2X/5/5aa4d8accf35370a99ce666f99382f3da9b68edb_2_690x475.png" alt="Screenshot 2021-09-29 at 13.32.01" data-base62-sha1="cVS9ylfyJ1gboncVHgKVfbQ1DK3" width="690" height="475" srcset="https://community.frontity.org/uploads/default/optimized/2X/5/5aa4d8accf35370a99ce666f99382f3da9b68edb_2_690x475.png, https://community.frontity.org/uploads/default/optimized/2X/5/5aa4d8accf35370a99ce666f99382f3da9b68edb_2_1035x712.png 1.5x, https://community.frontity.org/uploads/default/original/2X/5/5aa4d8accf35370a99ce666f99382f3da9b68edb.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/5/5aa4d8accf35370a99ce666f99382f3da9b68edb_2_10x10.png"></a></div><p></p>
+<p>Thanks in advance,</p>
+<p>Leon.</p>
+          <p><a href="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337/1</link>
+        <pubDate>Wed, 29 Sep 2021 12:49:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5337-1</guid>
+        <source url="https://community.frontity.org/t/passing-props-into-an-action-to-update-state/5337.rss">Passing props into an action to update state</source>
+      </item>
+  </channel>
+</rss>

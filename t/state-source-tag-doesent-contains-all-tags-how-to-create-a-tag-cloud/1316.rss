@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+    <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316</link>
+    <description>I try to create a tag cloud. I&#39;ve seen in the `twentytwenty-theme` and in other themes, that you use a function like this, to get tags:
+
+     const allTags = state.source.tag;
+     const tags = post.tags &amp;&amp; post.tags.map(tagId =&gt; allTags[tagId]);
+
+I tried to implement something similar, but it did not wanted to work.
+My WP site has 785 Tags at the moment. If I type `console.log(Object.keys(allTags).length);` then I get a number like 182. This number is growing as I visit different pages.
+If I try: `state.source.tag[someID]`, than it&#39;s working for tags, appearing on my frontpage, but if I write a TagID, what is not related to posts on my frontpage, then I get `undefined`.
+So how could I create a TagCloud?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 09 Mar 2020 14:54:04 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks again <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> I modified my ACF Option page handler, to instantly get the ACF fields of my Tags, like this:</p>
+<pre><code>const acfOptionsHandler = {
+  pattern: "acf-options-page",
+  func: async ({ route, state, libraries }) =&gt; {
+    // 1. Get ACF option page from REST API.
+    const response = await libraries.source.api.get({
+      endpoint: `/acf/v3/options/options`,
+      head_tags: false
+    });
+    let option = await response.json();
+    const data = state.source.get(route);
+
+    //Get the Tags included in the option page Tag cloud
+    const tagIds = option.acf.tag_cloud.map(tag =&gt; tag.term_id);
+    const response2 = await libraries.source.api.get({
+      endpoint: "tags",
+      params: {
+        include: tagIds,
+        head_tags: false
+      }
+    });
+    //Add the values to original tag entities
+    const tags = await response2.json();
+    option.acf.tag_cloud.map(tag =&gt; {
+      const obj = tags.find(obj =&gt; obj.id == tag.term_id);
+      Object.assign(tag, obj);
+    });
+    Object.assign(data, { ...option, isAcfOptionsPage: true });
+  }
+};
+</code></pre>
+<p>Now I don’t need to make any other fetch, just use it like:</p>
+<pre><code>const TagCloud = ({ state }) =&gt; {
+  const options = state.source.get("acf-options-page");
+  return (
+    &lt;Box&gt;
+      {options.acf.tag_cloud.map(({ slug, term_id, name, acf }) =&gt; {
+        const color = acf.tax_color ? acf.tax_color : "#eda407";
+        return &lt;Tag key={term_id} slug={slug} name={name} color={color} /&gt;;
+      })}
+    &lt;/Box&gt;
+  );
+};
+</code></pre>
+<p>Thanks again all the help!</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/9</link>
+        <pubDate>Mon, 09 Mar 2020 14:54:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-9</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m glad you made it work <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>In order to get all the specific tags you should do a fetch similar to <code>https://mysite.com/wp-json/wp/v2/tags?slug=slug-1,slug-2,slug-3...</code>, so in your case you could try fetching this directly this way, maybe in a handler. If you want to fetch all the tags, not a selection of them, you could fetch the tags as Orballo suggested <a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/3">here</a>.</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/8</link>
+        <pubDate>Mon, 09 Mar 2020 10:54:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-8</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a>, an importent piece of the Frontity-puzzle clicked into it’s place in my mind.</p>
+<p>There is still one thing, I dont understand: How could I fetch all the tags at once? Now I fetch them in the <code>Tag</code> component, one-by-one as you can see in my previous comment. I tried something like:</p>
+<pre><code> React.useEffect(() =&gt; {
+    actions.source.fetch("/tag/" + slugs.join());
+  }, []);
+</code></pre>
+<p>in my <code>TagCloud</code> component, but it seems  not working that way. Thanks for your patience!</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/7</link>
+        <pubDate>Mon, 09 Mar 2020 10:31:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-7</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Once you use <code>source.get</code> you get the minimal info about the tag and from there you can navigate through Frontity state. This means that when you do this:</p>
+<pre><code>const data = state.source.get("/tag/" + slug);
+</code></pre>
+<p>you can find some info, including the <code>id</code> of the tag. With this <code>id</code> you can access <code>state.source.tag[id]</code> and you’d find there the whole REST API response, where the ACF fields are included. This way, you should be able to get the color.</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/6</link>
+        <pubDate>Mon, 09 Mar 2020 06:50:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-6</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> and <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>! No, I definitely don’t need all the tags. I have an ACF Option Page, from where I fetch the tags.<br>
+My Tags have an ACF Field (Taxonomy Color), so they should appear in that color. My problem is that I can not reach this ACF Field.<br>
+Here is my code so far:</p>
+<pre><code>const Tag = connect(({ actions, state, slug, name }) =&gt; {
+  React.useEffect(() =&gt; {
+    actions.source.fetch("/tag/" + slug);  
+  }, []);
+  const data = state.source.get("/tag/" + slug);
+  //I hoped that the data after fetch and get will contain the ACF field,
+  //but it contains the posts (I guess that surprise only me... :P
+  if (data.isReady) {
+    return &lt;Link link={"/tag/" + slug}&gt;{name}&lt;/Link&gt;;
+  }
+  return null;
+});
+
+const TagCloud = ({ state, libraries, item }) =&gt; {
+  const options = state.source.get("acf-options-page");
+  return (
+    &lt;Box&gt;
+      {options.acf.tag_cloud.map(({ slug, term_id, name }) =&gt; {
+        return &lt;Tag key={term_id} slug={slug} name={name} /&gt;;
+      })}
+    &lt;/Box&gt;
+  );
+};
+export default connect(TagCloud);
+</code></pre>
+<p>So everything is working, exept that I can not get that ACF field.<br>
+My rest api contains it, e.g.: <a href="https://wp.szinhaz.online/wp-json/wp/v2/tags/31" rel="nofollow noopener">https://wp.szinhaz.online/wp-json/wp/v2/tags/31</a>  -&gt; acf -&gt; tax_color<br>
+I could also use it by Tags fetched for Posts, where my Theme use this helper:</p>
+<pre><code>export function getPostTags(state, post) {
+  const allTags = state.source.tag;
+  const tags = post.tags &amp;&amp; post.tags.map(tagId =&gt; allTags[tagId]);
+  return tags ? tags.filter(Boolean) : [];
+}
+</code></pre>
+<p>Thats why I tried to use allTags too…</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/4</link>
+        <pubDate>Fri, 06 Mar 2020 13:01:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-4</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>In addition to what Mario said, if you want to get absolutely all the tags for one route I’d do something like this in the handler that will need the data of all the tags:</p>
+<pre><code>const response = await libraries.source.api.get({
+  endpoint: "tags",
+  params: {
+    per_page: 100
+  }
+});
+
+const pages = libraries.source.getTotalPages(response);
+
+await libraries.source.populate({ state, response });
+
+const requests = [];
+
+for (let page = 2; page &lt;= pages; page++) {
+  requests.push(
+    libraries.source.api.get({
+      enpoint: "tags",
+      params: {
+        per_page: 100,
+        page
+      }
+    })
+  );
+}
+
+const responses = await Promise.all(requests);
+
+await Promise.all(responses.map(response =&gt;
+  libraries.source.populate({ state, response })
+));
+
+</code></pre>
+<p>The code is not tested, not sure if I messed up something there, but hopefully you get the idea.</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/3</link>
+        <pubDate>Thu, 05 Mar 2020 02:08:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-3</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>You are having that problem because some tags you are looking for aren’t actually in the <code>state</code>. The way the fetches are made on twentytwenty-theme and mars-theme, and in your theme probably too, tags are not fetched directly unless you go directly to a tag url like <code>mars.frontity.org/tag/tag-slug</code>.</p>
+<p>However, we use the embedded field of the posts to populate the state with categories, tags or author of that posts. I mean, if you fetch <code>https://mysite.com/wp-json/wp/v2/posts?_embed=true</code> (as you do for your homepage for example), you can find information of the author, categories or tags inside the <code>_embedded</code> field, and Frontity uses that information to populate the state with these categories or tags. This is the reason why the tags appearing in your homepage are working.</p>
+<p>If you want to get information about a specific tag that is not in the state, you have to make sure to do the fetch first:</p>
+<pre><code>// 1. fetch data related to the tag you need
+  actions.source.fetch("/tag/tag-slug/");
+
+  // 2. get data from frontity state
+  const data = state.source.get("/tag/tag-slug/");
+</code></pre>
+<aside class="quote no-group" data-username="koli14" data-post="1" data-topic="1316">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/koli14/40/691_2.png" class="avatar"> koli14:</div>
+<blockquote>
+<p>I’ve seen in the <code>twentytwenty-theme</code> and in other themes, that you use a function like this, to get tags:</p>
+<pre><code> const allTags = state.source.tag;
+ const tags = post.tags &amp;&amp; post.tags.map(tagId =&gt; allTags[tagId]);
+</code></pre>
+</blockquote>
+</aside>
+<p>We use this inside a posts because, as I explained before, all the tags of a post are already in the state.</p>
+<p>If you really need to populate the state with all the tags of your web, you’d need to fetch them from the <code>https://mysite.com/wp-json/wp/v2/tags</code> endpoint, having in mind that WP REST API is restricted to 100 items per page, so you’ll need to do 8 different fetches at least if you have 785.</p>
+<p>Maybe you could try to think of a different solution, adding pagination, just showing some of them or fetching the tag once they click on a specific link. I don’t know what’s exactly your case.</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/2</link>
+        <pubDate>Tue, 03 Mar 2020 09:34:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-2</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+      <item>
+        <title>State.source.tag doesent contains all tags - How to create a tag-cloud?</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I try to create a tag cloud. I’ve seen in the <code>twentytwenty-theme</code> and in other themes, that you use a function like this, to get tags:</p>
+<pre><code> const allTags = state.source.tag;
+ const tags = post.tags &amp;&amp; post.tags.map(tagId =&gt; allTags[tagId]);
+</code></pre>
+<p>I tried to implement something similar, but it did not wanted to work.<br>
+My WP site has 785 Tags at the moment. If I type <code>console.log(Object.keys(allTags).length);</code> then I get a number like 182. This number is growing as I visit different pages.<br>
+If I try: <code>state.source.tag[someID]</code>, than it’s working for tags, appearing on my frontpage, but if I write a TagID, what is not related to posts on my frontpage, then I get <code>undefined</code>.<br>
+So how could I create a TagCloud?</p>
+          <p><a href="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316/1</link>
+        <pubDate>Mon, 02 Mar 2020 15:37:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1316-1</guid>
+        <source url="https://community.frontity.org/t/state-source-tag-doesent-contains-all-tags-how-to-create-a-tag-cloud/1316.rss">State.source.tag doesent contains all tags - How to create a tag-cloud?</source>
+      </item>
+  </channel>
+</rss>

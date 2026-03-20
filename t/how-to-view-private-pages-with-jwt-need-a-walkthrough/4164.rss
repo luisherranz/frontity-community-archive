@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to view private pages with JWT, need a walkthrough</title>
+    <link>https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164</link>
+    <description>Hi everyone,
+
+Junior Front End Developer here and also very new to frontity.
+
+I&#39;m aware that there are some topics discussing this topic, but after looking through these places:
+https://community.frontity.org/t/jwt-with-frontity/618
+https://community.frontity.org/t/protected-routes-with-frontity/2097/12
+https://github.com/frontity/docs/issues/228
+and everything else that turns up on google searching for &quot;frontity jwt auth&quot; and similar. ;)
+
+We still cannot understand how to make it work.
+
+We use the suggested plugin https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/
+We can with postman and a normal fetch request get a token, validate that token and also view private pages with same token through the REST API.
+But when we get to frontity, we get stuck.
+
+With an action, we set state.source.auth to the token ( &quot;Bearer xxxx.xxxx.xxxx&quot;), but we still cannot view the private pages. We only get a 404.
+
+Sadly, since we&#39;re under an NDA, we can&#39;t share a published version of the code or a deployed site.
+But I will share with you what I think are the appropriate snippets.
+
+package.json dependencies:
+
+      &quot;dependencies&quot;: {
+    &quot;@frontity/core&quot;: &quot;^1.10.1&quot;,
+    &quot;@frontity/html2react&quot;: &quot;^1.6.1&quot;,
+    &quot;@frontity/tiny-router&quot;: &quot;^1.3.2&quot;,
+    &quot;@frontity/wp-source&quot;: &quot;^1.11.1&quot;,
+    &quot;dotenv&quot;: &quot;^8.2.0&quot;,
+    &quot;frontity&quot;: &quot;^1.14.1&quot;,
+    &quot;gol-theme&quot;: &quot;file:packages/gol-theme&quot;,
+    &quot;react-svg&quot;: &quot;^11.2.4&quot;
+      },
+
+
+frontity.settings.js:
+
+        const settings = {
+      name: &#39;gol-frontity&#39;,
+      state: {
+        frontity: {
+          url: process.env.WP_BACKEND,
+          title: &#39;XX&#39;,
+          description: &#39;XX&#39;,
+        },
+      },
+      packages: [
+        {
+          name: &#39;gol-theme&#39;,
+          state: {
+            theme: {
+              featured: {
+                showOnList: false,
+                showOnPost: false,
+              },
+            },
+          },
+        },
+        {
+          name: &#39;@frontity/wp-source&#39;,
+          state: {
+            source: {
+              url: process.env.WP_BACKEND,
+              homepage: &#39;/startsida&#39;,
+              postTypes: [
+                {
+                  type: &#39;kontaktperson&#39;,
+                  endpoint: &#39;kontaktperson&#39;,
+                  archive: &#39;/kontaktperson&#39;,
+                },
+              ],
+              // USED FOR TESTING ONLY, SHOULD NOT BE USED IN FINAL AS WE WANT USER TO ENTER THEIR TOKEN AND THIS VALUE WILL NOT BE CHANGEABLE
+              // auth:
+              //   &#39;Bearer xxx.xxx.xxx&#39;,
+            },
+          },
+        },
+        &#39;@frontity/tiny-router&#39;,
+        &#39;@frontity/html2react&#39;,
+      ],
+    };
+
+    export default settings;
+
+
+
+src/index.js:
+
+    import Root from &#39;./components&#39;;
+
+    export default {
+      name: &#39;gol-theme&#39;,
+      roots: {
+        theme: Root,
+      },
+      state: {
+        theme: {
+          user: {
+          },
+        },
+      },
+      actions: {
+        theme: {
+          },
+        },
+        source: {
+          auth: {
+            setToken: ({ state }) =&gt; value =&gt; {
+              state.source.auth = `Bearer ${value}`;
+            },
+          },
+        },
+      },
+    };
+
+
+
+The form submit handler:
+
+    const handleSubmit = async event =&gt; {
+        event.preventDefault();
+
+        const formdata = new FormData();
+        formdata.append(&#39;username&#39;, username);
+        formdata.append(&#39;password&#39;, password);
+
+        const requestOptions = {
+          method: &#39;POST&#39;,
+          body: formdata,
+          redirect: &#39;follow&#39;,
+        };
+
+        let response = await fetch(
+          `${state.frontity.url}/wp-json/jwt-auth/v1/token`,
+          requestOptions
+        );
+        response = await response.json();
+
+        if (response.token) {
+          // sessionStorage.setItem(&#39;gol-token&#39;, response.token);
+          actions.source.auth.setToken(response.token); // SEE ACTION in components/index.jsx
+          actions.router.set(&#39;/dashboard/&#39;);
+        } else {
+          // TODO: Proper error handling
+          console.log(response);
+        }
+      };
+
+
+The corresponding component that should get the data from the private page:
+
+    import React, { useEffect } from &#39;react&#39;;
+    import { connect } from &#39;frontity&#39;;
+
+    const Dashboard = ({ state }) =&gt; {
+      const data = state.source.get(state.router.link);
+      const page = state.source.page[data.id];
+
+      console.log(page);
+
+      /* 
+      In browser console, frontity.state.source.data should have a &quot;/dashboard/&quot; item, which it has, but it still shows isError = true and contains no data,
+      which we think has to do with it not using auth for the request
+      */
+
+      return &lt;p&gt;Dashboard&lt;/p&gt;;
+    };
+
+    export default connect(Dashboard);
+
+
+We get a 404 with all the ways we tried.
+In the github issue regarding the docs surrounding this, it says that the auth object should disappear clientside, but we can see it in frontity.state.source.auth when we check the console in the browser.
+
+A complete walkthrough of how to, within our form submit handler function, set the state.source.auth to be used in all subsequent requests and make it work, would be what we&#39;re after. :slight_smile: 
+
+Best regards,
+Daniel</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 17 Mar 2021 11:12:54 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to view private pages with JWT, need a walkthrough</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/daniel">@daniel</a></p>
+<p>Have you checked out <a href="https://community.frontity.org/t/how-to-read-environment-variables/1495/16">this post</a> which you may find useful?</p>
+          <p><a href="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/5</link>
+        <pubDate>Wed, 17 Mar 2021 11:12:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4164-5</guid>
+        <source url="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164.rss">How to view private pages with JWT, need a walkthrough</source>
+      </item>
+      <item>
+        <title>How to view private pages with JWT, need a walkthrough</title>
+        <dc:creator><![CDATA[Hussein]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi! I’m just guessing, but in state-&gt;frontity-&gt;url, shouldn’t the url be the front-end url?</p>
+          <p><a href="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/4</link>
+        <pubDate>Mon, 08 Mar 2021 12:52:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4164-4</guid>
+        <source url="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164.rss">How to view private pages with JWT, need a walkthrough</source>
+      </item>
+      <item>
+        <title>How to view private pages with JWT, need a walkthrough</title>
+        <dc:creator><![CDATA[daniel]]></dc:creator>
+        <description><![CDATA[
+            <p>Corrected the formatting of the code blocks. <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/3</link>
+        <pubDate>Thu, 04 Mar 2021 10:51:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4164-3</guid>
+        <source url="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164.rss">How to view private pages with JWT, need a walkthrough</source>
+      </item>
+      <item>
+        <title>How to view private pages with JWT, need a walkthrough</title>
+        <dc:creator><![CDATA[daniel]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi everyone,</p>
+<p>Junior Front End Developer here and also very new to frontity.</p>
+<p>I’m aware that there are some topics discussing this topic, but after looking through these places:</p><aside class="quote" data-post="1" data-topic="618">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/zelamedia/40/272_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/jwt-with-frontity/618">JWT with Frontity</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="The “Get Help” category is the place for asking generic technical questions about Frontity
+or about how to solve a specific issue you’re having in your Frontity project.
+You can contribute to the project by providing support to these current unanswered questions">🙋Get Help</span></a>
+  </div>
+  <blockquote>
+    Do Frontity have JWT Feature, so we can build out Login forms and protected routes?
+  </blockquote>
+</aside>
+<aside class="quote" data-post="12" data-topic="2097">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/hugsaf2132/40/1263_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/protected-routes-with-frontity/2097/12">Protected routes with Frontity</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="The “Get Help” category is the place for asking generic technical questions about Frontity
+or about how to solve a specific issue you’re having in your Frontity project.
+You can contribute to the project by providing support to these current unanswered questions">🙋Get Help</span></a>
+  </div>
+  <blockquote>
+    145/5000 
+Hi thanks for answering, I have already managed to find a solution that I will put on git so that the whole community has access and give your opinion.
+  </blockquote>
+</aside>
+<aside class="onebox githubissue">
+  <header class="source">
+      <a href="https://github.com/frontity/docs/issues/228" target="_blank" rel="noopener nofollow ugc">github.com/frontity/docs</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Issue">
+	  <svg width="60" height="60" class="github-icon" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/docs/issues/228" target="_blank" rel="noopener nofollow ugc">Source auth header and Frontity Query Options</a>
+    </h4>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2020-09-21" data-time="23:59:22" data-timezone="UTC">11:59PM - 21 Sep 20 UTC</span>
+      </div>
+
+
+      <div class="user">
+        <a href="https://github.com/michalczaplinski" target="_blank" rel="noopener nofollow ugc">
+          <img alt="michalczaplinski" src="https://community.frontity.org/uploads/default/original/2X/8/83bc38433eff6dbd72ee82c34324b18a1071adef.png" class="onebox-avatar-inline" width="20" height="20">
+          michalczaplinski
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="github-row">
+  <p class="github-content">wp-source now supports adding an Authorization header to requests to the REST API by adding it to state.source.auth!
+Feature Discussion: https://community.frontity.org/t/support-for-auth-header-in-source-packages/2678/12
+PR: frontity/frontity#568
+The...</p>
+</div>
+
+<div class="labels">
+    <span style="display:inline-block;margin-top:2px;background-color: #B8B8B8;padding: 2px;border-radius: 4px;color: #fff;margin-left: 3px;">topic: packages</span>
+    <span style="display:inline-block;margin-top:2px;background-color: #B8B8B8;padding: 2px;border-radius: 4px;color: #fff;margin-left: 3px;">topic: wp-source</span>
+    <span style="display:inline-block;margin-top:2px;background-color: #B8B8B8;padding: 2px;border-radius: 4px;color: #fff;margin-left: 3px;">type: code release</span>
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<p>
+and everything else that turns up on google searching for “frontity jwt auth” and similar. <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+<p>We still cannot understand how to make it work.</p>
+<p>We use the suggested plugin <a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/" class="inline-onebox" rel="noopener nofollow ugc">JWT Authentication for WP REST API – WordPress plugin | WordPress.org</a><br>
+We can with postman and a normal fetch request get a token, validate that token and also view private pages with same token through the REST API.<br>
+But when we get to frontity, we get stuck.</p>
+<p>With an action, we set state.source.auth to the token ( “Bearer xxxx.xxxx.xxxx”), but we still cannot view the private pages. We only get a 404.</p>
+<p>Sadly, since we’re under an NDA, we can’t share a published version of the code or a deployed site.<br>
+But I will share with you what I think are the appropriate snippets.</p>
+<p>package.json dependencies:</p>
+<pre><code>  "dependencies": {
+"@frontity/core": "^1.10.1",
+"@frontity/html2react": "^1.6.1",
+"@frontity/tiny-router": "^1.3.2",
+"@frontity/wp-source": "^1.11.1",
+"dotenv": "^8.2.0",
+"frontity": "^1.14.1",
+"gol-theme": "file:packages/gol-theme",
+"react-svg": "^11.2.4"
+  },
+</code></pre>
+<p>frontity.settings.js:</p>
+<pre><code>    const settings = {
+  name: 'gol-frontity',
+  state: {
+    frontity: {
+      url: process.env.WP_BACKEND,
+      title: 'XX',
+      description: 'XX',
+    },
+  },
+  packages: [
+    {
+      name: 'gol-theme',
+      state: {
+        theme: {
+          featured: {
+            showOnList: false,
+            showOnPost: false,
+          },
+        },
+      },
+    },
+    {
+      name: '@frontity/wp-source',
+      state: {
+        source: {
+          url: process.env.WP_BACKEND,
+          homepage: '/startsida',
+          postTypes: [
+            {
+              type: 'kontaktperson',
+              endpoint: 'kontaktperson',
+              archive: '/kontaktperson',
+            },
+          ],
+          // USED FOR TESTING ONLY, SHOULD NOT BE USED IN FINAL AS WE WANT USER TO ENTER THEIR TOKEN AND THIS VALUE WILL NOT BE CHANGEABLE
+          // auth:
+          //   'Bearer xxx.xxx.xxx',
+        },
+      },
+    },
+    '@frontity/tiny-router',
+    '@frontity/html2react',
+  ],
+};
+
+export default settings;
+</code></pre>
+<p>src/index.js:</p>
+<pre><code>import Root from './components';
+
+export default {
+  name: 'gol-theme',
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {
+      user: {
+      },
+    },
+  },
+  actions: {
+    theme: {
+      },
+    },
+    source: {
+      auth: {
+        setToken: ({ state }) =&gt; value =&gt; {
+          state.source.auth = `Bearer ${value}`;
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<p>The form submit handler:</p>
+<pre><code>const handleSubmit = async event =&gt; {
+    event.preventDefault();
+
+    const formdata = new FormData();
+    formdata.append('username', username);
+    formdata.append('password', password);
+
+    const requestOptions = {
+      method: 'POST',
+      body: formdata,
+      redirect: 'follow',
+    };
+
+    let response = await fetch(
+      `${state.frontity.url}/wp-json/jwt-auth/v1/token`,
+      requestOptions
+    );
+    response = await response.json();
+
+    if (response.token) {
+      // sessionStorage.setItem('gol-token', response.token);
+      actions.source.auth.setToken(response.token); // SEE ACTION in components/index.jsx
+      actions.router.set('/dashboard/');
+    } else {
+      // TODO: Proper error handling
+      console.log(response);
+    }
+  };
+</code></pre>
+<p>The corresponding component that should get the data from the private page:</p>
+<pre><code>import React, { useEffect } from 'react';
+import { connect } from 'frontity';
+
+const Dashboard = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+  const page = state.source.page[data.id];
+
+  console.log(page);
+
+  /* 
+  In browser console, frontity.state.source.data should have a "/dashboard/" item, which it has, but it still shows isError = true and contains no data,
+  which we think has to do with it not using auth for the request
+  */
+
+  return &lt;p&gt;Dashboard&lt;/p&gt;;
+};
+
+export default connect(Dashboard);
+</code></pre>
+<p>We get a 404 with all the ways we tried.<br>
+In the github issue regarding the docs surrounding this, it says that the auth object should disappear clientside, but we can see it in frontity.state.source.auth when we check the console in the browser.</p>
+<p>A complete walkthrough of how to, within our form submit handler function, set the state.source.auth to be used in all subsequent requests and make it work, would be what we’re after. <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Best regards,<br>
+Daniel</p>
+          <p><a href="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164/1</link>
+        <pubDate>Wed, 03 Mar 2021 10:56:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4164-1</guid>
+        <source url="https://community.frontity.org/t/how-to-view-private-pages-with-jwt-need-a-walkthrough/4164.rss">How to view private pages with JWT, need a walkthrough</source>
+      </item>
+  </channel>
+</rss>

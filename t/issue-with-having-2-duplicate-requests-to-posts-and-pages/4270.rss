@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Issue with having 2 duplicate requests to posts and pages</title>
+    <link>https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270</link>
+    <description>Hi all! I&#39;m wondering, why I have 2 same requests when looking in the network. See example
+
+![Screenshot 2021-03-17 at 10.25.22|690x92](upload://lkx5tUXBgfnP2wFgfLcdFhcCOzJ.png) 
+
+
+Contact - is a page. So the request  ```https://test.silverrailtech.com/home/wp-json/wp/v2/posts?_embed=true&amp;slug=contact``` returns just an empty array ```[]``` and request 
+ ```https://test.silverrailtech.com/home/wp-json/wp/v2/pages?_embed=true&amp;slug=contact``` returns json with all the info.
+So I don&#39;t understand why the posts request is there at all. Also I have these behaviour on all the pages.
+
+Is it something wrong with my set up or is it a normal thing? 
+
+Thanks!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 24 Mar 2021 09:22:49 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Issue with having 2 duplicate requests to posts and pages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Just so you know, yes this was intentional.</p>
+<p>I’ve shared my thoughts in the PR: <a href="https://github.com/frontity/frontity/pull/758#pullrequestreview-619482575" class="inline-onebox">Fetch data asynchronously in the postType handler by michalczaplinski · Pull Request #758 · frontity/frontity · GitHub</a></p>
+<blockquote>
+<p>Hey Michal, could you please add a setting to opt-in to this?</p>
+<p>Just so you know, we didn’t do parallel requests in the first place because it’s faster, but it is also less efficient.</p>
+<p>The number of pages vs posts on big sites is usually very low. Pages are only for static content, like contact pages, landing pages, privacy, about us and so on. When sites grow, they usually do it with posts.</p>
+<p>A big site can have 100.000-500.000 posts, but it will rarely have more than 1000 pages.</p>
+<p>The same happens with media/attachment pages. They exist, but they are rarely used and rarely linked.</p>
+<p>Now, imagine we push this change to Frontity. A blog with 100.000 post requests per day will get 200.000 additional daily requests to their REST API to check for pages and media. That’s not good. If they have 100 pages, only ~0.05% of those 200.000 extra requests will be useful. That’s a lot of wasted bandwidth.</p>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/8</link>
+        <pubDate>Wed, 24 Mar 2021 09:22:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4270-8</guid>
+        <source url="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270.rss">Issue with having 2 duplicate requests to posts and pages</source>
+      </item>
+      <item>
+        <title>Issue with having 2 duplicate requests to posts and pages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="David" data-post="5" data-topic="4270">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>OK, I have to admit I’ve never thought of using <code>Promise.race()</code> in that way. So, you are returning the fastest promise and, if the requested entity is not included there, removed it from the list and repeat the same process, waiting for the next fastest response. That would make Frontity to fetch the entity in the shortest possible time, which is awesome. <img src="https://community.frontity.org/images/emoji/apple/100.png?v=9" title=":100:" class="emoji" alt=":100:"></p>
+</blockquote>
+</aside>
+<p>yup, exactly <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+<p>I’ve finished the PR now (there were some more details than originally in the first draft plus fixing some tests): <a href="https://github.com/frontity/frontity/pull/758" class="inline-onebox">Fetch data asynchronously in the postType handler by michalczaplinski · Pull Request #758 · frontity/frontity · GitHub</a></p>
+          <p><a href="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/7</link>
+        <pubDate>Wed, 24 Mar 2021 04:24:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4270-7</guid>
+        <source url="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270.rss">Issue with having 2 duplicate requests to posts and pages</source>
+      </item>
+      <item>
+        <title>Issue with having 2 duplicate requests to posts and pages</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="3" data-topic="4270">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>n the <code>postType</code> handler we are fetching the data serially from each endpoint (<code>post</code>, then <code>page</code> and then <code>media</code>). Is <a href="https://github.com/frontity/frontity/blob/9bcf71c1296459e76defcfa3a1c5f7dfb1633bed/packages/wp-source/src/libraries/handlers/index.ts#L13-L13">the order of the <code>endpoints</code> in the <code>postType</code> handler</a> intentional or not?</p>
+</blockquote>
+</aside>
+<p>Well, it was intentional in order to avoid as many unnecesary requests to the WP REST API as possible and because we thought we would have to wait for all the responses to check in which one the requested entity appears.</p>
+<p>But looking at your proposed solution I guess we were wrong, haha. <img src="https://community.frontity.org/images/emoji/apple/raised_hands.png?v=9" title=":raised_hands:" class="emoji" alt=":raised_hands:"></p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="3" data-topic="4270">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<pre><code class="lang-javascript">// Turn an array of promises into a generator. 
+// This allows us to iterate over them with `for await...of`
+async function* getData(promises: Promise&lt;any&gt;[]) {
+  const map = new Map(
+    promises.map((p, i) =&gt; [i, p.then((res) =&gt; [i, res])])
+  );
+  while (map.size) {
+    const [key, result] = await Promise.race(map.values());
+    yield result;
+    map.delete(key);
+  }
+}
+</code></pre>
+</blockquote>
+</aside>
+<p>OK, I have to admit I’ve never thought of using <code>Promise.race()</code> in that way. So, you are returning the fastest promise and, if the requested entity is not included there, removed it from the list and repeat the same process, waiting for the next fastest response. That would make Frontity to fetch the entity in the shortest possible time, which is awesome. <img src="https://community.frontity.org/images/emoji/apple/100.png?v=9" title=":100:" class="emoji" alt=":100:"></p>
+<p>My only concern would be that WordPress would have to serve more responses in this case (expending more CPU time) but that shouldn’t be a problem once those responses are cached.</p>
+<p>EDIT: <s><a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> would you mind if you open a PR with your proposal?</s></p>
+<p>EDIT 2: Nevermind, I just saw that you already did that <img src="https://community.frontity.org/images/emoji/apple/point_right.png?v=9" title=":point_right:" class="emoji" alt=":point_right:">  <a href="https://github.com/frontity/frontity/pull/758" class="inline-onebox">[test] Fetch data asynchronously in the postType handler by michalczaplinski · Pull Request #758 · frontity/frontity · GitHub</a></p>
+          <p><a href="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/5</link>
+        <pubDate>Tue, 23 Mar 2021 10:48:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4270-5</guid>
+        <source url="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270.rss">Issue with having 2 duplicate requests to posts and pages</source>
+      </item>
+      <item>
+        <title>Issue with having 2 duplicate requests to posts and pages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, your hunch is correct! <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>In some circumstances, Frontity cannot know just based on the slug if the entity that you are requesting is a <code>post</code> or a <code>page</code>. If you go to <a href="https://my-site/about-us">https://my-site/about-us</a>, it’s both a valid page URL and a valid post URL.</p>
+<p>For this reason we have to make a request to both endpoints in order to know which one it is.</p>
+<p>You check out <a href="https://github.com/frontity/frontity/blob/9bcf71c1296459e76defcfa3a1c5f7dfb1633bed/packages/wp-source/src/libraries/patterns/wp-org.ts#L75-L80">the relevant source code</a> where we match the link with a pattern and then invoke the <code>postType</code> handler for that link (which could be a post, page or attachement).</p>
+<p>The <code>postType</code> handler is created via a “generator function” <a href="https://github.com/frontity/frontity/blob/9bcf71c1296459e76defcfa3a1c5f7dfb1633bed/packages/wp-source/src/libraries/handlers/index.ts#L12-L14">here</a></p>
+<p>That “generator function” will <a href="https://github.com/frontity/frontity/blob/301370530b09a4b370b0c5c2d242e3df803cbbd9/packages/wp-source/src/libraries/handlers/postType.ts#L66-L69">iterate over post, page and media endpoints</a> fetching the data from each.</p>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/david">@David</a> :</p>
+<p>There’s one thing that I’m not certain about. In the <code>postType</code> handler we are fetching the data serially from each endpoint (<code>post</code>, then <code>page</code> and then <code>media</code>). Is <a href="https://github.com/frontity/frontity/blob/9bcf71c1296459e76defcfa3a1c5f7dfb1633bed/packages/wp-source/src/libraries/handlers/index.ts#L13-L13">the order of the <code>endpoints</code> in the <code>postType</code> handler</a> intentional or not? In other words, do we intentionally check <code>post</code> before <code>page</code> and <code>page</code> before <code>media</code>?</p>
+<p>If it is <strong>not</strong> intentional, we could optimize that part and fetch the data in parallel. I’ve just done a little modification which fetches in parallel and it seems to work just fine with the mars-theme:</p>
+<h3>libraries/handlers/postType.ts</h3>
+<pre><code class="lang-ts">// Turn an array of promises into a generator. 
+// This allows us to iterate over them with `for await...of`
+async function* getData(promises: Promise&lt;any&gt;[]) {
+  const map = new Map(
+    promises.map((p, i) =&gt; [i, p.then((res) =&gt; [i, res])])
+  );
+  while (map.size) {
+    const [key, result] = await Promise.race(map.values());
+    yield result;
+    map.delete(key);
+  }
+}
+
+const promises = finalEndpoints.map((endpoint) =&gt;
+  libraries.source.api.get({
+    endpoint,
+    params: { slug, _embed: true, ...state.source.params },
+  })
+);
+
+const responses = getData(promises);
+
+// Here we iterate asynchronously. This means that we 
+// pull the new response from `responses` as soon as it is received.
+for await (const response of responses) {
+  const populated = await libraries.source.populate({
+    response,
+    state,
+    force,
+  });
+
+  // exit loop if this endpoint returns an entity!
+  if (populated.length &gt; 0) {
+    // We have to check if the link property in the data that we
+    // populated is the same as the current route.
+
+    if (populated[0].link === route) {
+      isHandled = true;
+      isMismatched = false;
+      matchedEndpoint = populated[0].type;
+      break;
+    } else {
+      isMismatched = true;
+    }
+  }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/3</link>
+        <pubDate>Thu, 18 Mar 2021 19:05:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4270-3</guid>
+        <source url="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270.rss">Issue with having 2 duplicate requests to posts and pages</source>
+      </item>
+      <item>
+        <title>Issue with having 2 duplicate requests to posts and pages</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dev_person">@dev_person</a></p>
+<p>Welcome to the Frontity community.</p>
+<p>Interesting, I’ve never spotted that before - but then I don’t really spend much time looking at the network tab in dev-tools.</p>
+<p>I’ve tried it with a couple of different themes and they both do this. I think it could be because Frontity only has the slug to work with, and doesn’t know whether it’s a post or a page, so it requests a post with that slug and if that fails it requests a page with that slug.</p>
+<p>TBH that’s speculation on my part, so perhaps <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> can either confirm or refute that? If that’s the case I wonder what happens with CPT’s - does Frontity try post first, then page, then CPT? <img src="https://community.frontity.org/images/emoji/apple/man_shrugging.png?v=9" title=":man_shrugging:" class="emoji" alt=":man_shrugging:"></p>
+          <p><a href="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/2</link>
+        <pubDate>Thu, 18 Mar 2021 09:13:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4270-2</guid>
+        <source url="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270.rss">Issue with having 2 duplicate requests to posts and pages</source>
+      </item>
+      <item>
+        <title>Issue with having 2 duplicate requests to posts and pages</title>
+        <dc:creator><![CDATA[dev_person]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi all! I’m wondering, why I have 2 same requests when looking in the network. See example</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/9/957fdcf128c1489a1edc7ac61ff5a2e2e07ed89f.png" data-download-href="https://community.frontity.org/uploads/default/957fdcf128c1489a1edc7ac61ff5a2e2e07ed89f" title="Screenshot 2021-03-17 at 10.25.22"><img src="https://community.frontity.org/uploads/default/original/2X/9/957fdcf128c1489a1edc7ac61ff5a2e2e07ed89f.png" alt="Screenshot 2021-03-17 at 10.25.22" data-base62-sha1="lkx5tUXBgfnP2wFgfLcdFhcCOzJ" width="690" height="92" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/9/957fdcf128c1489a1edc7ac61ff5a2e2e07ed89f_2_10x10.png"></a></div><p></p>
+<p>Contact - is a page. So the request  <code>https://test.silverrailtech.com/home/wp-json/wp/v2/posts?_embed=true&amp;slug=contact</code> returns just an empty array <code>[]</code> and request<br>
+<code>https://test.silverrailtech.com/home/wp-json/wp/v2/pages?_embed=true&amp;slug=contact</code> returns json with all the info.<br>
+So I don’t understand why the posts request is there at all. Also I have these behaviour on all the pages.</p>
+<p>Is it something wrong with my set up or is it a normal thing?</p>
+<p>Thanks!</p>
+          <p><a href="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270/1</link>
+        <pubDate>Wed, 17 Mar 2021 08:33:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4270-1</guid>
+        <source url="https://community.frontity.org/t/issue-with-having-2-duplicate-requests-to-posts-and-pages/4270.rss">Issue with having 2 duplicate requests to posts and pages</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Trying to add Ligthbox effect in Chakra Theme</title>
+    <link>https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180</link>
+    <description>Hi, i need help to add Lightbox react effect to frontity-chackra-theme images.
+This is the React component:
+[react-lightbox-component](https://www.npmjs.com/package/react-lightbox-component)
+I search in chakra theme code and found this in src/helpers.js:
+
+    export function getMediaAttributes(state, id) {
+      const media = state.source.attachment[id];
+      if (!media) return {};
+      const srcSet = getSrcSet(media);
+      return {
+        id,
+        alt: media.title.rendered,
+        src: media.source_url,
+        srcSet
+      };
+    }
+
+And this is the demo code of the Lightbox react component:
+
+    import Lightbox from &#39;react-lightbox-component&#39;;
+    const App = () =&gt; (
+      &lt;div&gt;
+        &lt;Lightbox images={
+          [
+            {
+              src: &#39;some image url&#39;,
+              title: &#39;image title&#39;,
+              description: &#39;image description&#39;
+            }
+          ]
+        }/&gt;
+      &lt;/div&gt;
+    );
+
+Is possible to merge these codes to put all images in a lightbox component?
+Maybe in another file? html2react? processors/image.js?
+
+Thanks so much</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 12 Oct 2020 15:53:11 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Trying to add Ligthbox effect in Chakra Theme</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>In case anyone interested:</p>
+<p>I had the same error on the specified lightbox plugin. I decided to switch to this one instead: <a href="https://www.npmjs.com/package/simple-react-lightbox" rel="nofollow noopener">https://www.npmjs.com/package/simple-react-lightbox</a></p>
+          <p><a href="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/10</link>
+        <pubDate>Mon, 12 Oct 2020 15:53:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1180-10</guid>
+        <source url="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180.rss">Trying to add Ligthbox effect in Chakra Theme</source>
+      </item>
+      <item>
+        <title>Trying to add Ligthbox effect in Chakra Theme</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>It seems that the error is returned because the LightBox component is not properly configured. Could you share it with us in order to take a look?</p>
+<p>Just to clarify, you may need something like this:</p>
+<h3>A LightboxImage component</h3>
+<p>Inside this component you’ll use the Lightbox from the library you share, and it gets the props from the <code>&lt;img&gt;</code> tag attributes. You have to make sure you pass the correct parameters to the <code>&lt;Lightbox&gt;</code> component. It could be similar to this:</p>
+<pre><code>import Lightbox from 'react-lightbox-component';
+import { connect } from "frontity";
+
+const LightboxImage = (props) =&gt; (
+  &lt;div&gt;
+    &lt;Lightbox images={
+      [
+        {
+          src: props.src,
+          title: props.alt,
+          description: props.description
+        }
+      ]
+    }/&gt;
+  &lt;/div&gt;
+);
+
+export default connect(LightboxImage);
+</code></pre>
+<p>Not sure if inside the Lightbox library, title and description are mandatory fields. But if not, you could make that optional.</p>
+<h3>A new processor for the images</h3>
+<p>You have create a new processor for the images in order to use your new component instead of the default one. It could be something like the current one, adapting it to your own needs, but using your component.</p>
+<pre><code>import LightboxImage from "../your-new-component";
+
+const lightboxImage = {
+  // We can add a name to identify it later.
+  name: "image",
+
+  // We can add a priority so it executes before or after other processors.
+  priority: 5,
+
+  // Only process the node it if it's an image.
+  test: node =&gt; node.component === "img",
+  
+  process: node =&gt; {
+    // If the image is inside a &lt;noscript&gt; tag, we don't want to process it.
+    if (node.parent.component === "noscript") return null;
+
+    // Many WP lazy load plugins move the real "src" to "data-src", so we move it back.
+    if (node.props["data-src"])
+      node.props.src = node.props["data-src"];
+    if (node.props["data-srcset"])
+      node.props.srcSet = node.props["data-srcset"];
+      
+    // We tell Html2React that it should use the &lt;LightboxImage /&gt; component
+    node.component = LightboxImage;
+
+    return node;
+  }
+};
+
+export default lightboxImage;
+</code></pre>
+<h3>Add the new processor to your theme</h3>
+<p>You need to include the new processor in your settings so it’s executed by <code>@frontity/html2react</code> package. You’ll need to include it in the <code>index.js</code> file of your theme.</p>
+<pre><code>import lightboxImage from "../your-processor-file";
+
+const marsTheme = {
+  ...
+  libraries: {
+    html2react: {
+      processors: [lightboxImage]
+    }
+  }
+  ...
+};
+
+export default marsTheme;
+</code></pre>
+<p>Hope this helps, let us know if you solve the problem!</p>
+          <p><a href="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/8</link>
+        <pubDate>Thu, 06 Feb 2020 16:41:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1180-8</guid>
+        <source url="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180.rss">Trying to add Ligthbox effect in Chakra Theme</source>
+      </item>
+      <item>
+        <title>Trying to add Ligthbox effect in Chakra Theme</title>
+        <dc:creator><![CDATA[jozuaugusto]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for your help <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a>.<br>
+I have an error:<br>
+ReferenceError: Image is not defined<br>
+at Object.eval (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:32903)<br>
+at t (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:327)<br>
+at Object.eval (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:12145)<br>
+at t (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:327)<br>
+at Object.eval (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:9125)<br>
+at t (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:327)<br>
+at Object.eval (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:8458)<br>
+at t (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:327)<br>
+at Object.eval (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:8366)<br>
+at t (webpack-internal:///./node_modules/react-lightbox-component/build/index.js:1:327)</p>
+<p>Maybe lightbox module is waiting for this parameter:<br>
+src: ‘some image url’,<br>
+and the code is not passing the parameter correctly.</p>
+          <p><a href="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/4</link>
+        <pubDate>Wed, 05 Feb 2020 07:45:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1180-4</guid>
+        <source url="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180.rss">Trying to add Ligthbox effect in Chakra Theme</source>
+      </item>
+      <item>
+        <title>Trying to add Ligthbox effect in Chakra Theme</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I think the best option would be to create a <code>Lightbox</code> component as show in the demo, and a processor to use that component in all the images of the theme. This processor may be similar to the <code>image</code> processor but loading your new component instead of the <code>Image</code> one we built.</p>
+<p>You can find more info about how to create a processor at <a href="https://docs.frontity.org/api-reference-1/frontity-html2react#create-your-own-processors">our docs</a>, but it should be something similar to this:</p>
+<pre><code>import LightboxImage from "../your-folder";
+
+const image = {
+  // We can add a name to identify it later.
+  name: "image",
+
+  // We can add a priority so it executes before or after other processors.
+  priority: 10,
+
+  // Only process the node it if it's an image.
+  test: node =&gt; node.component === "img",
+  
+  process: node =&gt; {
+    // If the image is inside a &lt;noscript&gt; tag, we don't want to process it.
+    if (node.parent.component === "noscript") return null;
+
+    // Many WP lazy load plugins move the real "src" to "data-src", so we move it back.
+    if (node.props["data-src"])
+      node.props.src = node.props["data-src"];
+    if (node.props["data-srcset"])
+      node.props.srcSet = node.props["data-srcset"];
+      
+    // We tell Html2React that it should use the &lt;LightboxImage /&gt; component
+    node.component = LightboxImage;
+
+    return node;
+  }
+};
+
+export default image;
+</code></pre>
+<p>Once you’ve created your processor, you have to load it in your theme. Again, you can check <a href="https://docs.frontity.org/api-reference-1/frontity-html2react#load-processors">our docs</a>, and here you have a quick example:</p>
+<p>At the <code>index.js</code> file of your theme</p>
+<pre><code>import image from "../your-processor-file";
+
+const marsTheme = {
+  ...
+  actions: {
+    theme: {
+      init: ({ libraries }) =&gt; {
+        // Add the Html2React processor for the &lt;img&gt; tags.
+        libraries.html2react.processors.push(image);
+      }
+    }
+  }
+  ...
+};
+
+export default marsTheme;
+</code></pre>
+<p>Keep us posted if it works in your case and feel free to share more questions <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/3</link>
+        <pubDate>Tue, 04 Feb 2020 16:17:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1180-3</guid>
+        <source url="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180.rss">Trying to add Ligthbox effect in Chakra Theme</source>
+      </item>
+      <item>
+        <title>Trying to add Ligthbox effect in Chakra Theme</title>
+        <dc:creator><![CDATA[jozuaugusto]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, i need help to add Lightbox react effect to frontity-chackra-theme images.<br>
+This is the React component:<br>
+<a href="https://www.npmjs.com/package/react-lightbox-component" rel="nofollow noopener">react-lightbox-component</a><br>
+I search in chakra theme code and found this in src/helpers.js:</p>
+<pre><code>export function getMediaAttributes(state, id) {
+  const media = state.source.attachment[id];
+  if (!media) return {};
+  const srcSet = getSrcSet(media);
+  return {
+    id,
+    alt: media.title.rendered,
+    src: media.source_url,
+    srcSet
+  };
+}
+</code></pre>
+<p>And this is the demo code of the Lightbox react component:</p>
+<pre><code>import Lightbox from 'react-lightbox-component';
+const App = () =&gt; (
+  &lt;div&gt;
+    &lt;Lightbox images={
+      [
+        {
+          src: 'some image url',
+          title: 'image title',
+          description: 'image description'
+        }
+      ]
+    }/&gt;
+  &lt;/div&gt;
+);
+</code></pre>
+<p>Is possible to merge these codes to put all images in a lightbox component?<br>
+Maybe in another file? html2react? processors/image.js?</p>
+<p>Thanks so much</p>
+          <p><a href="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180/1</link>
+        <pubDate>Mon, 03 Feb 2020 17:13:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1180-1</guid>
+        <source url="https://community.frontity.org/t/trying-to-add-ligthbox-effect-in-chakra-theme/1180.rss">Trying to add Ligthbox effect in Chakra Theme</source>
+      </item>
+  </channel>
+</rss>

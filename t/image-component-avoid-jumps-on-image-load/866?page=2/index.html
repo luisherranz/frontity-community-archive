@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Image component: Avoid layout shift on image load - 🗣 Feature Discussions - Frontity Community Forum</title>
+    <meta name="description" content="Description
+We want developers who use frontity to prevent images from pushing the content under them when they load, whenever possible. We should provide clear options for the different uses cases. 
+The possible cases f&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/image-component-avoid-layout-shift-on-image-load/866" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Image component: Avoid layout shift on image load&#39;" href="866.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/image-component-avoid-layout-shift-on-image-load/866?page=2" />
+<meta name="twitter:url" content="/t/image-component-avoid-layout-shift-on-image-load/866?page=2" />
+<meta property="og:title" content="Image component: Avoid layout shift on image load" />
+<meta name="twitter:title" content="Image component: Avoid layout shift on image load" />
+<meta property="og:description" content="The library lazysizes has some recommendations to solve this:    It also has a plugin to use an aspectratio attribute. We can take a look at the code to understand what it does." />
+<meta name="twitter:description" content="The library lazysizes has some recommendations to solve this:    It also has a plugin to use an aspectratio attribute. We can take a look at the code to understand what it does." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:tag" content="packages" />
+<meta property="og:article:tag" content="components" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="7 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="6 ❤" />
+<meta property="article:published_time" content="2020-02-24T08:05:51+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="prev" href="./">
+
+    
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">Image component: Avoid layout shift on image load</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/packages' class='discourse-tag' rel="tag">packages</a>, 
+            <a href='/tag/components' class='discourse-tag' rel="tag">components</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Image component: Avoid layout shift on image load'>
+        <meta itemprop='articleSection' content='🗣 Feature Discussions'>
+      <meta itemprop='keywords' content='packages, components'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_23' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-24T08:05:51Z' class='post-time'>
+                    24 February 2020 08:05
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-24T08:05:51Z'>
+              <span itemprop='position'>23</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The library <code>lazysizes</code> has some recommendations to solve this:</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/aFarkas/lazysizes#tip-specifying-image-dimensions-minimizing-reflows-and-avoiding-page-jumps" target="_blank">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="../../../uploads/default/original/1X/280e03a902bc9ef4baa48702bcb6ac95f6fb3b83.jpeg" class="thumbnail onebox-avatar" width="273" height="273">
+
+<h3><a href="https://github.com/aFarkas/lazysizes#tip-specifying-image-dimensions-minimizing-reflows-and-avoiding-page-jumps" target="_blank">aFarkas/lazysizes</a></h3>
+
+<p>High performance and SEO friendly lazy loader for images (responsive and normal), iframes and more, that detects any visibility changes triggered through user interaction, CSS or JavaScript without...</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>It also has a plugin to use an <code>aspectratio</code> attribute. We can take a look at the code to understand what it does.</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/aFarkas/lazysizes/tree/gh-pages/plugins/aspectratio" target="_blank">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="../../../uploads/default/original/1X/280e03a902bc9ef4baa48702bcb6ac95f6fb3b83.jpeg" class="thumbnail onebox-avatar" width="273" height="273">
+
+<h3><a href="https://github.com/aFarkas/lazysizes/tree/gh-pages/plugins/aspectratio" target="_blank">aFarkas/lazysizes</a></h3>
+
+<p>High performance and SEO friendly lazy loader for images (responsive and normal), iframes and more, that detects any visibility changes triggered through user interaction, CSS or JavaScript without...</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_24' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-03-05T17:25:57Z' class='post-time'>
+                    5 March 2020 17:25
+                  </time>
+                  <meta itemprop='dateModified' content='2020-03-05T17:25:57Z'>
+              <span itemprop='position'>24</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It looks like the Gutenberg team is going to solve the markup mess of the Image block: <a href="https://github.com/WordPress/gutenberg/issues/20650">https://github.com/WordPress/gutenberg/issues/20650</a></p>
+<p>I guess this will simplify the implementation for the fact that the aspect ratio can’t be applied directly to the <code>img</code> tag.</p>
+<ul>
+<li>No Gutenberg -&gt; add wrapper</li>
+<li>Gutenberg -&gt; use <code>wp-block-image</code> wrapper</li>
+</ul>
+<p>Is that right guys?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/html2react-breaks-images-within-figure/2674">Html2React breaks images within &lt;figure&gt;</a>
+                        <meta itemprop='position' content='2'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_25' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-01-28T16:32:51Z' class='post-time'>
+                    28 January 2021 16:32
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-28T16:32:51Z'>
+              <span itemprop='position'>25</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It seems like there has not been much movement in this issue since November: <a href="https://github.com/WordPress/gutenberg/issues/20650">https://github.com/WordPress/gutenberg/issues/20650</a> so maybe we should not wait anymore and try to fix this, as <a class="mention" href="/u/orballo">@orballo</a> has proposed <a href="/t/html2react-breaks-images-within-figure/2674">in this other thread</a></p>
+<aside class="quote no-group" data-username="orballo" data-post="25" data-topic="2674" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"><a href="/t/html2react-breaks-images-within-figure/2674">Html2React breaks images within &lt;figure&gt;</a>
+</div>
+<blockquote>
+<p>If I remember correctly, that logic is needed for the padding hack to work, as in some contents, the image might not arrive inside a <code>&lt;figure&gt;</code>, and <code>&lt;img&gt;</code> needs to have position relative to parent.</p>
+<p>Maybe the processor can be improved covering the case where the content has a <code>&lt;figure&gt;&lt;img /&gt;&lt;/figure&gt;</code>, adding the <code>&lt;span&gt;</code> only when <code>&lt;img&gt;</code> is alone, and using <code>&lt;figure&gt;</code> as an absolute parent in the first case.</p>
+</blockquote>
+</aside>
+<p><a class="mention" href="/u/cielosky42">@cielosky42</a>, could you help us here by making a list of the different variations of the current Gutenberg Image block, similar to the one I did a year ago here: <a href="/t/image-component-avoid-jumps-on-image-load/866" class="inline-onebox">Image component: avoid jumps on image load</a>? Thanks!! <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_26' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cielosky42'><span itemprop='name'>cielosky42</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-01-28T18:57:00Z' class='post-time'>
+                    28 January 2021 18:57
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-28T18:57:00Z'>
+              <span itemprop='position'>26</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi <a class="mention" href="/u/luisherranz">@luisherranz</a>,</p>
+<p>I will work on that. Thanks for looking into this.</p>
+<p>Best,<br>
+Sky</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_27' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-01-29T08:40:30Z' class='post-time'>
+                    29 January 2021 08:40
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-29T08:40:30Z'>
+              <span itemprop='position'>27</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Awesome, thanks <img src="../../../images/emoji/apple/grinning_face_with_smiling_eyes.png%3Fv=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_28' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-01-30T15:19:24Z' class='post-time'>
+                    30 January 2021 15:19
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-30T15:19:24Z'>
+              <span itemprop='position'>28</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I just run into this today. Maybe it’s a thing to take into account:<br>
+</p><aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://web.dev/images/favicon.ico" class="site-icon" width="48" height="48">
+      <a href="https://web.dev/aspect-ratio/" target="_blank" rel="noopener">web.dev</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/206;"><img src="../../../uploads/default/optimized/2X/f/f4688288034add815a429747e401746d35dc35f9_2_690x206.jpeg" class="thumbnail" width="690" height="206" srcset="../../../uploads/default/optimized/2X/f/f4688288034add815a429747e401746d35dc35f9_2_690x206.jpeg, ../../uploads/default/optimized/2X/f/f4688288034add815a429747e401746d35dc35f9_2_1035x309.jpeg 1.5x, ../../uploads/default/original/2X/f/f4688288034add815a429747e401746d35dc35f9.jpeg 2x" data-small-upload="/uploads/default/optimized/2X/f/f4688288034add815a429747e401746d35dc35f9_2_10x10.png"></div>
+
+<h3><a href="https://web.dev/aspect-ratio/" target="_blank" rel="noopener">New aspect-ratio CSS property supported in Chromium, Safari Technology...</a></h3>
+
+<p>Maintaining aspect ratio within images and elements is now easier to achieve with the new aspect-ratio CSS property.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_29' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cielosky42'><span itemprop='name'>cielosky42</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-01-31T17:48:03Z' class='post-time'>
+                    31 January 2021 17:48
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-31T17:48:03Z'>
+              <span itemprop='position'>29</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/luisherranz">@luisherranz</a> After going over this again, it does not appear that there have been any changes to the standard image markup since you documented it above. I think I was confused by the inconsistent image markup that depends on alignment.</p>
+<p>I’ve further narrowed down issues with align left/right/center and non-aligned images.</p>
+<p><strong>For align left/right:</strong></p>
+<p>The images don’t display when floated left or right. The images themselves are absolutely positioned, and none of its parents have an explicit width set. If I set an explicit width on the wrapping figure element, the image is visible and is able to scale as needed when the constrained by the screen width.</p>
+<p>The span in between the figure and img elements has both “width” and “height” properties set. However, this syntax is not valid on spans, only images. Was this meant to be added as CSS properties instead?</p>
+<p>If so, I am seeing issues when trying to set the CSS of the span with the width and height. If I try going that route, the image does not display in the right aspect ratio as soon as there isn’t enough room for the full image size. It becomes distorted, or doesn’t scale, or has a bunch of extra padding, depending on other CSS added.</p>
+<p>I’m not sure about all the other scenarios listed at the top of this thread, but as far as just adding an image block with left or right alignment, the only thing that works for me without running into the issues I mentioned is if I set an explicit width on the figure with a max width of 100%.</p>
+<p><strong>For aligncenter and images with no alignment:</strong></p>
+<p>Aligncenter and images with no alignment are filling the entire available space, greater than the width should be for the given size. Setting an explicit width on the figure also resolves the problem here.</p>
+<p>Looking at the HTML2react image processor, I don’t see a way to modify the wrapping figure element, nor a way to target the image markup differently based on alignment.</p>
+<p>Other than the previously mentioned CSS that overrides the “padding hack”, I was also able to “fix” this by targeting the size classes added by Gutenberg, which get added to the figure element. However, this requires adding specific styles for each avaialable image size. It would be nice if these extra steps weren’t necessary.</p>
+<p>Here’s example CSS to fix things for the “medium” image size:</p>
+<pre><code>figure.wp-block-image.size-medium,
+div.wp-block-image .size-medium {
+  width: 300px;
+  max-width: 100%;
+}
+</code></pre>
+<p>Lastly, the images in the Gallery block suffer from these same issues. I was not able to apply the same fix as above with the gallery, because there aren’t image size classnames added to the figures in this case. The only solution I found here was to override the “padding hack”.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_30' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-02-16T10:34:03Z' class='post-time'>
+                    16 February 2021 10:34
+                  </time>
+                  <meta itemprop='dateModified' content='2021-02-16T11:15:40Z'>
+              <span itemprop='position'>30</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thanks a lot for the detailed analysis <a class="mention" href="/u/cielosky42">@cielosky42</a> <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Thanks to you as well <a class="mention" href="/u/orballo">@orballo</a>. Very interesting, although it seems like we would have to wait a while until all major browsers have support for this, right?</p>
+<hr>
+<p>In my opinion, we have two different use cases here:</p>
+<ol>
+<li>The Gutenberg images inside of <code>content</code>.</li>
+<li>The other images added by the theme in React, like the Feature Image in a post or an archive.</li>
+</ol>
+<p>For case 1, I see no reason right now to do anything on top of what WordPress+Gutenberg is already doing.</p>
+<p>I’ve been taking a look and it seems like Felix Arntz added a fix to WordPress 5.5 to always include the image dimensions and avoid a layout shift:</p>
+<ul>
+<li><a href="https://github.com/WordPress/gutenberg/issues/23244" class="inline-onebox">Images should always provide dimensions · Issue #23244 · WordPress/gutenberg · GitHub</a></li>
+<li><a href="https://core.trac.wordpress.org/ticket/50367" class="inline-onebox">#50367 (Avoid layout shifting due to images not having dimension attributes) – WordPress Trac</a></li>
+</ul>
+<p>I am not sure this is a 100% solved problem yet and there are still some related issues open in Gutenberg:</p>
+<ul>
+<li><a href="https://github.com/WordPress/gutenberg/issues/23244" class="inline-onebox">Images should always provide dimensions · Issue #23244 · WordPress/gutenberg · GitHub</a></li>
+<li><a href="https://github.com/WordPress/gutenberg/issues/6177" class="inline-onebox">Enhancement: images handling · Issue #6177 · WordPress/gutenberg · GitHub</a></li>
+<li><a href="https://github.com/WordPress/gutenberg/issues/20650" class="inline-onebox">Block Alignments Rethinking · Issue #20650 · WordPress/gutenberg · GitHub</a></li>
+</ul>
+<p>But my point here is: Why should we spend time solving an issue on top of WordPress if it can be solved in WordPress and there are people already working on solving it in WordPress? 🤷</p>
+<p><a class="mention" href="/u/santosguillamot">@santosguillamot</a> <a class="mention" href="/u/cielosky42">@cielosky42</a>: what happens if we remove the <code>image</code> processor and simply use the Gutenberg CSS? Are the problems solved?</p>
+<hr>
+<p>For case 2, I think we could provide an <code>Image</code> component that solves this for the rest of the images. Maybe we can design it to make it impossible to cause a layout shift.</p>
+<p>I am not sure about the requirements for that, but I guess it would require at least one prop that it can use to figure out the space that needs to be reserved:</p>
+<ul>
+<li>
+<p><strong>A fixed <code>height</code>.</strong><br>
+Used in conjunction with <code>width: 100%</code> to calculate the responsive size.</p>
+</li>
+<li>
+<p><strong>An aspect ratio.</strong><br>
+With the same value as the upcoming CSS prop (<a href="https://web.dev/aspect-ratio/">https://web.dev/aspect-ratio/</a>) but used internally to calculate the padding hack value.</p>
+</li>
+<li>
+<p><strong>A media ID.</strong><br>
+So the <code>Image</code> component can access <code>state.source.media[id]</code> and get the <code>width</code> and <code>height</code> from there.</p>
+</li>
+</ul>
+<p>This is just an example. I am not a CSS expert by any means and less with this image size sorcery, so maybe I am wrong in my assumptions.</p>
+<p>EDIT: This seems like a great resource to learn how to calculate the padding hack using an aspect ratio input: <a href="https://css-tricks.com/aspect-ratio-boxes/" class="inline-onebox">Aspect Ratio Boxes | CSS-Tricks</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/amp-package/388">AMP package</a>
+                        <meta itemprop='position' content='7'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_31' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/bhagvan.vrinsofts'><span itemprop='name'>bhagvan.vrinsofts</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-06-30T10:53:26Z' class='post-time'>
+                    30 June 2021 10:53
+                  </time>
+                  <meta itemprop='dateModified' content='2021-06-30T13:03:52Z'>
+              <span itemprop='position'>31</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Can we use this one code for ACF fields in image . because i have passed id value but i didn’t  get attachment data from  <code>state.source.attachment[id]</code> API.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_33' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/ericbejlic'><span itemprop='name'>ericbejlic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2024-02-12T07:37:33Z' class='post-time'>
+                    12 February 2024 07:37
+                  </time>
+                  <meta itemprop='dateModified' content='2024-02-12T07:37:33Z'>
+              <span itemprop='position'>33</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group quote-modified" data-username="ericbejlic" data-post="32" data-topic="866" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img loading="lazy" alt="" width="20" height="20" src="../../../letter_avatar_proxy/v4/letter/e/c0e974/40.png" class="avatar"> ericbejlic:</div>
+<blockquote>
+<p>Implement lazy loading for images, which defers the loading of offscreen images until the user scrolls near them. This can significantly improve page load performance and minimize layout shifts by loading images only when <a href="https://www.thegeometrydashapk.com/en/geometry-dash-android/" rel="noopener nofollow ugc">Geometry Dash Full Version APK</a>  are needed.</p>
+</blockquote>
+</aside>
+<p>Implement lazy loading for images, which defers the loading of offscreen images until the user scrolls near them. This can significantly improve page load performance and minimize layout shifts by loading images only when they are needed.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><a rel="prev" itemprop="url" href="./">← previous page</a></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

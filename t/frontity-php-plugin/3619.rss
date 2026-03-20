@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity PHP plugin</title>
+    <link>https://community.frontity.org/t/frontity-php-plugin/3619</link>
+    <description>&lt;div data-theme-toc=&quot;true&quot;&gt;&lt;/div&gt;
+
+&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# Description
+The idea of the Frontity PHP plugin is to ease the integration between WordPress and Frontity. It will include functionalities that are common to most Frontity projects and need PHP to be solved. One good example could be the [support for the WordPress preview](https://community.frontity.org/t/wordpress-preview-support/2419).
+
+Apart from that, the idea is to include the first stable version of the new [Embedded mode](https://community.frontity.org/t/embedded-mode/1432).
+
+Right now, there is only one official Frontity mode, the Decoupled mode. But, as part of this plugin, we want to release the first stable version of the [Embedded mode](https://community.frontity.org/t/embedded-mode/1432). We will support these two modes and users can decide which one fits their needs.
+
+Although the plugin won&#39;t be 100% necessary if users use the Decoupled mode, the idea is to convert this plugin into the recommended way to use WordPress and Frontity.
+
+## Decoupled mode
+Users have WordPress and Frontity in two different domains. Visitors will arrive to the node.js server, which will communicate with WordPress REST API to get the content needed, and the node.js server will output the HTML.
+
+![Screenshot from 2020-12-17 11-11-29|690x445](upload://sTNuUcaTWeVWPz3tdi18jo5Z8gc.jpeg) 
+
+## Embedded mode
+Users have WordPress and Frontity in the same domain. The Frontity plugin will take care of overriding the PHP Theme and do instead an HTTP call to the Frontity server to retrieve the HTML and output that. 
+
+There is already a working proof of concept of this, which we are using in frontity.org and it&#39;s working great, at [this repository](https://github.com/frontity/frontity-embedded-proof-of-concept). For more information about this, we have been discussing about it in this other [Featured Disucssion](https://community.frontity.org/t/embedded-mode/1432).
+
+![Screenshot from 2020-12-17 11-11-48|690x444](upload://ukz9gqP5zWfdwlkK7l6331AZzhu.jpeg) 
+
+# Possible functionalities
+We still have to do a deeper research about which functionalities could be lacking, if the ones stated here make sense and if they should belong to this plugin or not.
+
+As the initial idea is that this plugin will be used for both modes, Decoupled and Embedded, there will be some common functionalities for both, but there will also be others that will just apply to a specific one.
+
+## Common functionalities
+### WordPress preview support
+We have already been talking about this in this [Feature Discussion](https://community.frontity.org/t/wordpress-preview-support/2419), and it is included in the [Embedded mode proof of concept](https://github.com/frontity/frontity-embedded-proof-of-concept). Basically, just by installing this plugin, the WordPress preview should work as it works right now, even keeping the admin bar. For users using the Decouple mode, the preview functionality will use the Embedded mode under the hood.
+
+### Install other Frontity plugins / Code Snippets from this main plugin
+
+There will be some PHP functionalities that won&#39;t apply to all the projects and they will probably have their own plugin, like the [REST API - Head Tags plugin](https://wordpress.org/plugins/rest-api-head-tags/) for example. It could be nice to allow users to add these functionalities directly from the main plugins.
+
+Other examples could be [this PHP code](https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/29?u=santosguillamot) you need if you are using the [@frontity/yoast package](https://github.com/frontity/frontity/tree/dev/packages/yoast), or [this other piece](https://community.frontity.org/t/wordpress-comments-package/1267/62?u=santosguillamot) if you are using the [@frontity/wp-comments](https://github.com/frontity/frontity/tree/dev/packages/wp-comments).
+
+### Handle the cache
+We always recommend users to use a good cache system. We could provide, or at least recommend, a good way to deal with the cache of both the HTML output of WordPress and the REST API. We could create a new plugin to do so, include it directly in the Frontity plugin and make it optional, or just recommend another solution.
+
+@luisherranz forked the [Simple Cache plugin ](https://wordpress.org/plugins/simple-cache/) to adapt it for serving static assets apart from HTML files, load times are minimal.
+
+## Embedded mode specific functionalities
+### Handle 404s
+
+One of the benefits of this mode, is that sitemaps generated from WordPress would work, as the domain is always the same one. However, we have to decide how to handle the 404s.
+
+It could happen that one page is a 404 in WordPress (because it hasn’t been created there) but not in the frontend (because it’s created directly from Frontity). For example if we create a “hardcoded” page or if we are fetching data from a different API. It’s great to have this flexibility, but ,in this case, that page created directly from Frontity wouldn’t be included in a sitemap generated from WordPress.
+
+Users should have the same content in WordPress and in Frontity, but we should allow the other approach as well. To solve this, users can also create empty pages for the ones they are hardcoding or getting from a different API, and they would be included in the sitemaps. This is something WooCommerce is doing and it could work.
+
+From the Frontity plugin, our first idea is to add a setting where users can select between two options:
+
+* All the content not included in WordPress must return a 404 in Frontity (default).
+* 404s are handled by Frontity and it doesn’t require to exist in Wordpress.
+
+We could add a warning while changing the settings advising the users to create empty pages instead of handling the errors from Frontity.
+
+
+### Bypass the Frontity plugin
+Sometimes users will want to bypass the plugin and see the PHP theme, so we should provide that option.
+
+### Exclude urls
+We could allow users to fallback to the PHP Theme for some pages. Sometimes, users could find easier to build a page using the PHP Theme, or even exclude some URLs while they fully migrate them to Frontity.
+
+We were using it in the old Frontity PRO and it proved to be really useful for landing pages using plugins like Contact Form 7.
+
+## Decoupled mode specific functionalities
+### Redirect WordPress front-end urls to Frontity
+If users use the decoupled mode, they will still have the WordPress urls - `wp.mysite.com/page`. These pages don&#39;t make sense because the visitor will visit the Frontity side - `mysite.com/page`.
+
+We could redirect directly from the WordPress frontend urls to Frontity, while keeping backend urls like `wp-admin` or the REST API in WordPress. This way, if robots like Google or any users land in WordPress frontend urls, they are redirected to the correct Frontity url.
+
+### Show 404&#39;s in WordPress frontend urls
+Another alternative to the previous functionality could be to throw a 404 page in WordPress frontend urls.
+
+# Possible requirements
+Right now, the only requirement I can think of is that all the settings should be configurable with ENV variables.
+
+# Possible dependencies
+* Finish the [embedded mode](https://community.frontity.org/t/embedded-mode/1432) with a final version as it will be part of the plugin.
+* Finish the [preview](https://community.frontity.org/t/wordpress-preview-support/2419) as it will be part of the plugin.
+* [Change publicPath dynamically](https://community.frontity.org/t/change-publicpath-dynamically-at-runtime/1588), which will be needed for the final version of the Embedded mode.
+* Before releasing the first stable version of the plugin, we will need to design and implement a proper e2e tests system for WordPress plugins.
+
+# Possible solution
+It could be an evolution of the [Embedded proof of concept](https://github.com/frontity/frontity-embedded-proof-of-concept), as even for the Decouple mode, we will use the proof of concept for some functionalities like the preview.
+
+We could create an intergaface where users could select which Frontity mode they want to use and the it will show the different settings depending on it.
+
+Imagine a configuration screen that starts with this question:
+
+### Which Frontity mode do you want to use?
+
+1. Embedded mode.
+2. Decoupled mode.
+
+Then, more settings will appear when they choose one option or the other.
+
+### Possible common settings
+* **Frontity mode**: Select between Decoupled or Embedded.
+* **URL of the Frontity server**: The URL of your Frontity server.
+* **URL of the statics**: Sometimes users may need to differentiate between the server URL and the `/static` assets.
+* **Choose which Frontity site you want to use** : This could be useful for multisite configurations. The Theme Bridge would simple add that `?name=XXX` query to the request.
+* **Cache** : Maybe this should be handled by another plugin, but if we integrate this in the Frontity plugin, we’d need to add a setting to activate/deactivate it.
+
+### Possible Embedded mode settings
+
+* **Bypass WordPress 404s**: As explained previously, it could be useful to let the users decide if they want Frontity to bypass WordPress 404s.
+* **Exclude URLs** : List of URLs to fallback to the PHP theme.
+* **Bypass Frontity plugin** : Not sure if this should be a setting or just a query.
+
+### Possible Decoupled mode settings
+* **What do you want to do with the WordPress front-end?**
+  * Show 404s.
+  * Redirect to the external domain.
+  * Nothing.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 20 Mar 2021 16:26:58 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/frontity-php-plugin/3619.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity PHP plugin</title>
+        <dc:creator><![CDATA[bjoluc]]></dc:creator>
+        <description><![CDATA[
+            <p>Just dropping a link to <a href="https://github.com/htmlburger/carbon-fields" rel="noopener nofollow ugc">Carbon Fields <img src="https://community.frontity.org/images/emoji/apple/smiling_face_with_three_hearts.png?v=9" title=":smiling_face_with_three_hearts:" class="emoji" alt=":smiling_face_with_three_hearts:"></a>  here, in case there’s any doubt about how to most elegantly implement the Frontity Plugin settings page <img src="https://community.frontity.org/images/emoji/apple/stuck_out_tongue_winking_eye.png?v=9" title=":stuck_out_tongue_winking_eye:" class="emoji" alt=":stuck_out_tongue_winking_eye:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-php-plugin/3619/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-php-plugin/3619/4</link>
+        <pubDate>Sat, 20 Mar 2021 16:26:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3619-4</guid>
+        <source url="https://community.frontity.org/t/frontity-php-plugin/3619.rss">Frontity PHP plugin</source>
+      </item>
+      <item>
+        <title>Frontity PHP plugin</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>We have been testing the <a href="https://github.com/frontity/frontity-embedded-proof-of-concept/">embedded mode proof of concept</a> for a while and we feel comfortable releasing an initial version of the plugin. We are planning to work on it in the coming months and, to be as agile as possible, our initial idea is to release a first version with a proper interface where users can define the Frontity urls and it will include the functionalities that are working right now, like the <a href="https://community.frontity.org/t/wordpress-preview-support/2419">Preview</a> for example. From there, we could start adding new settings as mentioned in the opening post.</p>
+          <p><a href="https://community.frontity.org/t/frontity-php-plugin/3619/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-php-plugin/3619/3</link>
+        <pubDate>Thu, 11 Feb 2021 09:34:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3619-3</guid>
+        <source url="https://community.frontity.org/t/frontity-php-plugin/3619.rss">Frontity PHP plugin</source>
+      </item>
+      <item>
+        <title>Frontity PHP plugin</title>
+        <dc:creator><![CDATA[Kent]]></dc:creator>
+        <description><![CDATA[
+            <p>How far have you come with the development of the WordPress plugin?</p>
+<p>When can we expect a stable release?</p>
+          <p><a href="https://community.frontity.org/t/frontity-php-plugin/3619/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-php-plugin/3619/2</link>
+        <pubDate>Sat, 30 Jan 2021 21:38:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3619-2</guid>
+        <source url="https://community.frontity.org/t/frontity-php-plugin/3619.rss">Frontity PHP plugin</source>
+      </item>
+      <item>
+        <title>Frontity PHP plugin</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <div data-theme-toc="true"></div>
+
+<h1>Description</h1>
+<p>The idea of the Frontity PHP plugin is to ease the integration between WordPress and Frontity. It will include functionalities that are common to most Frontity projects and need PHP to be solved. One good example could be the <a href="https://community.frontity.org/t/wordpress-preview-support/2419">support for the WordPress preview</a>.</p>
+<p>Apart from that, the idea is to include the first stable version of the new <a href="https://community.frontity.org/t/embedded-mode/1432">Embedded mode</a>.</p>
+<p>Right now, there is only one official Frontity mode, the Decoupled mode. But, as part of this plugin, we want to release the first stable version of the <a href="https://community.frontity.org/t/embedded-mode/1432">Embedded mode</a>. We will support these two modes and users can decide which one fits their needs.</p>
+<p>Although the plugin won’t be 100% necessary if users use the Decoupled mode, the idea is to convert this plugin into the recommended way to use WordPress and Frontity.</p>
+<h2>Decoupled mode</h2>
+<p>Users have WordPress and Frontity in two different domains. Visitors will arrive to the node.js server, which will communicate with WordPress REST API to get the content needed, and the node.js server will output the HTML.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/ca8b948ff251effdf33a03fedbb630efadddb034.jpeg" data-download-href="https://community.frontity.org/uploads/default/ca8b948ff251effdf33a03fedbb630efadddb034" title="Screenshot from 2020-12-17 11-11-29"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/ca8b948ff251effdf33a03fedbb630efadddb034_2_690x445.jpeg" alt="Screenshot from 2020-12-17 11-11-29" data-base62-sha1="sTNuUcaTWeVWPz3tdi18jo5Z8gc" width="690" height="445" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/ca8b948ff251effdf33a03fedbb630efadddb034_2_690x445.jpeg, https://community.frontity.org/uploads/default/original/2X/c/ca8b948ff251effdf33a03fedbb630efadddb034.jpeg 1.5x, https://community.frontity.org/uploads/default/original/2X/c/ca8b948ff251effdf33a03fedbb630efadddb034.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/ca8b948ff251effdf33a03fedbb630efadddb034_2_10x10.png"></a></div><p></p>
+<h2>Embedded mode</h2>
+<p>Users have WordPress and Frontity in the same domain. The Frontity plugin will take care of overriding the PHP Theme and do instead an HTTP call to the Frontity server to retrieve the HTML and output that.</p>
+<p>There is already a working proof of concept of this, which we are using in <a href="http://frontity.org">frontity.org</a> and it’s working great, at <a href="https://github.com/frontity/frontity-embedded-proof-of-concept">this repository</a>. For more information about this, we have been discussing about it in this other <a href="https://community.frontity.org/t/embedded-mode/1432">Featured Disucssion</a>.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/d/d4946407be79d4ee3ba92bd1d3c76c3c2a918440.jpeg" data-download-href="https://community.frontity.org/uploads/default/d4946407be79d4ee3ba92bd1d3c76c3c2a918440" title="Screenshot from 2020-12-17 11-11-48"><img src="https://community.frontity.org/uploads/default/optimized/2X/d/d4946407be79d4ee3ba92bd1d3c76c3c2a918440_2_690x444.jpeg" alt="Screenshot from 2020-12-17 11-11-48" data-base62-sha1="ukz9gqP5zWfdwlkK7l6331AZzhu" width="690" height="444" srcset="https://community.frontity.org/uploads/default/optimized/2X/d/d4946407be79d4ee3ba92bd1d3c76c3c2a918440_2_690x444.jpeg, https://community.frontity.org/uploads/default/original/2X/d/d4946407be79d4ee3ba92bd1d3c76c3c2a918440.jpeg 1.5x, https://community.frontity.org/uploads/default/original/2X/d/d4946407be79d4ee3ba92bd1d3c76c3c2a918440.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/d/d4946407be79d4ee3ba92bd1d3c76c3c2a918440_2_10x10.png"></a></div><p></p>
+<h1>Possible functionalities</h1>
+<p>We still have to do a deeper research about which functionalities could be lacking, if the ones stated here make sense and if they should belong to this plugin or not.</p>
+<p>As the initial idea is that this plugin will be used for both modes, Decoupled and Embedded, there will be some common functionalities for both, but there will also be others that will just apply to a specific one.</p>
+<h2>Common functionalities</h2>
+<h3>WordPress preview support</h3>
+<p>We have already been talking about this in this <a href="https://community.frontity.org/t/wordpress-preview-support/2419">Feature Discussion</a>, and it is included in the <a href="https://github.com/frontity/frontity-embedded-proof-of-concept">Embedded mode proof of concept</a>. Basically, just by installing this plugin, the WordPress preview should work as it works right now, even keeping the admin bar. For users using the Decouple mode, the preview functionality will use the Embedded mode under the hood.</p>
+<h3>Install other Frontity plugins / Code Snippets from this main plugin</h3>
+<p>There will be some PHP functionalities that won’t apply to all the projects and they will probably have their own plugin, like the <a href="https://wordpress.org/plugins/rest-api-head-tags/">REST API - Head Tags plugin</a> for example. It could be nice to allow users to add these functionalities directly from the main plugins.</p>
+<p>Other examples could be <a href="https://community.frontity.org/t/support-for-yoast-plugin-rest-api-fields/2626/29">this PHP code</a> you need if you are using the <a href="https://github.com/frontity/frontity/tree/dev/packages/yoast">@frontity/yoast package</a>, or <a href="https://community.frontity.org/t/wordpress-comments-package/1267/62">this other piece</a> if you are using the <a href="https://github.com/frontity/frontity/tree/dev/packages/wp-comments">@frontity/wp-comments</a>.</p>
+<h3>Handle the cache</h3>
+<p>We always recommend users to use a good cache system. We could provide, or at least recommend, a good way to deal with the cache of both the HTML output of WordPress and the REST API. We could create a new plugin to do so, include it directly in the Frontity plugin and make it optional, or just recommend another solution.</p>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> forked the <a href="https://wordpress.org/plugins/simple-cache/">Simple Cache plugin </a> to adapt it for serving static assets apart from HTML files, load times are minimal.</p>
+<h2>Embedded mode specific functionalities</h2>
+<h3>Handle 404s</h3>
+<p>One of the benefits of this mode, is that sitemaps generated from WordPress would work, as the domain is always the same one. However, we have to decide how to handle the 404s.</p>
+<p>It could happen that one page is a 404 in WordPress (because it hasn’t been created there) but not in the frontend (because it’s created directly from Frontity). For example if we create a “hardcoded” page or if we are fetching data from a different API. It’s great to have this flexibility, but ,in this case, that page created directly from Frontity wouldn’t be included in a sitemap generated from WordPress.</p>
+<p>Users should have the same content in WordPress and in Frontity, but we should allow the other approach as well. To solve this, users can also create empty pages for the ones they are hardcoding or getting from a different API, and they would be included in the sitemaps. This is something WooCommerce is doing and it could work.</p>
+<p>From the Frontity plugin, our first idea is to add a setting where users can select between two options:</p>
+<ul>
+<li>All the content not included in WordPress must return a 404 in Frontity (default).</li>
+<li>404s are handled by Frontity and it doesn’t require to exist in Wordpress.</li>
+</ul>
+<p>We could add a warning while changing the settings advising the users to create empty pages instead of handling the errors from Frontity.</p>
+<h3>Bypass the Frontity plugin</h3>
+<p>Sometimes users will want to bypass the plugin and see the PHP theme, so we should provide that option.</p>
+<h3>Exclude urls</h3>
+<p>We could allow users to fallback to the PHP Theme for some pages. Sometimes, users could find easier to build a page using the PHP Theme, or even exclude some URLs while they fully migrate them to Frontity.</p>
+<p>We were using it in the old Frontity PRO and it proved to be really useful for landing pages using plugins like Contact Form 7.</p>
+<h2>Decoupled mode specific functionalities</h2>
+<h3>Redirect WordPress front-end urls to Frontity</h3>
+<p>If users use the decoupled mode, they will still have the WordPress urls - <code>wp.mysite.com/page</code>. These pages don’t make sense because the visitor will visit the Frontity side - <code>mysite.com/page</code>.</p>
+<p>We could redirect directly from the WordPress frontend urls to Frontity, while keeping backend urls like <code>wp-admin</code> or the REST API in WordPress. This way, if robots like Google or any users land in WordPress frontend urls, they are redirected to the correct Frontity url.</p>
+<h3>Show 404’s in WordPress frontend urls</h3>
+<p>Another alternative to the previous functionality could be to throw a 404 page in WordPress frontend urls.</p>
+<h1>Possible requirements</h1>
+<p>Right now, the only requirement I can think of is that all the settings should be configurable with ENV variables.</p>
+<h1>Possible dependencies</h1>
+<ul>
+<li>Finish the <a href="https://community.frontity.org/t/embedded-mode/1432">embedded mode</a> with a final version as it will be part of the plugin.</li>
+<li>Finish the <a href="https://community.frontity.org/t/wordpress-preview-support/2419">preview</a> as it will be part of the plugin.</li>
+<li>
+<a href="https://community.frontity.org/t/change-publicpath-dynamically-at-runtime/1588">Change publicPath dynamically</a>, which will be needed for the final version of the Embedded mode.</li>
+<li>Before releasing the first stable version of the plugin, we will need to design and implement a proper e2e tests system for WordPress plugins.</li>
+</ul>
+<h1>Possible solution</h1>
+<p>It could be an evolution of the <a href="https://github.com/frontity/frontity-embedded-proof-of-concept">Embedded proof of concept</a>, as even for the Decouple mode, we will use the proof of concept for some functionalities like the preview.</p>
+<p>We could create an intergaface where users could select which Frontity mode they want to use and the it will show the different settings depending on it.</p>
+<p>Imagine a configuration screen that starts with this question:</p>
+<h3>Which Frontity mode do you want to use?</h3>
+<ol>
+<li>Embedded mode.</li>
+<li>Decoupled mode.</li>
+</ol>
+<p>Then, more settings will appear when they choose one option or the other.</p>
+<h3>Possible common settings</h3>
+<ul>
+<li>
+<strong>Frontity mode</strong>: Select between Decoupled or Embedded.</li>
+<li>
+<strong>URL of the Frontity server</strong>: The URL of your Frontity server.</li>
+<li>
+<strong>URL of the statics</strong>: Sometimes users may need to differentiate between the server URL and the <code>/static</code> assets.</li>
+<li>
+<strong>Choose which Frontity site you want to use</strong> : This could be useful for multisite configurations. The Theme Bridge would simple add that <code>?name=XXX</code> query to the request.</li>
+<li>
+<strong>Cache</strong> : Maybe this should be handled by another plugin, but if we integrate this in the Frontity plugin, we’d need to add a setting to activate/deactivate it.</li>
+</ul>
+<h3>Possible Embedded mode settings</h3>
+<ul>
+<li>
+<strong>Bypass WordPress 404s</strong>: As explained previously, it could be useful to let the users decide if they want Frontity to bypass WordPress 404s.</li>
+<li>
+<strong>Exclude URLs</strong> : List of URLs to fallback to the PHP theme.</li>
+<li>
+<strong>Bypass Frontity plugin</strong> : Not sure if this should be a setting or just a query.</li>
+</ul>
+<h3>Possible Decoupled mode settings</h3>
+<ul>
+<li>
+<strong>What do you want to do with the WordPress front-end?</strong>
+<ul>
+<li>Show 404s.</li>
+<li>Redirect to the external domain.</li>
+<li>Nothing.</li>
+</ul>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/frontity-php-plugin/3619/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-php-plugin/3619/1</link>
+        <pubDate>Thu, 17 Dec 2020 11:55:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3619-1</guid>
+        <source url="https://community.frontity.org/t/frontity-php-plugin/3619.rss">Frontity PHP plugin</source>
+      </item>
+  </channel>
+</rss>

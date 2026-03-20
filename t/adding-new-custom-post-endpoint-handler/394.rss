@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Adding new custom post endpoint handler</title>
+    <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394</link>
+    <description>Hi there,
+
+Frontity looks like a really compelling solution; thank you so much. I am keen to give it a go.
+
+I am trying to add lists and post endpoints for a new custom post type, and I found this handler for a product post type in the documentation: https://docs.frontity.org/api-reference-1/wordpress-source#example-1
+
+I placed this code block in `mars-theme/src/index.js` within the mars-theme’s `before` constant, so it is called in the `beforeSSR` action. Unfortunately, when loading the new `products` endpoint, I see a 404 error in the browser and in the terminal this error:
+
+&gt; TypeError: Cannot destructure property `id` of &#39;undefined&#39; or &#39;null&#39;.
+    at attachmentHandler (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/attachment.ts:4:129)
+    at processTicksAndRejections (internal/process/task_queues.js:85:5)
+    at Object.postType [as func] (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:5:262)
+    at eval (webpack-internal:///./node_modules/@frontity/wp-source/src/actions.ts:13:100)
+
+I have been able to get a small Create React App to list these CPTs no problem, so I know the REST API is open, and can see the JSON, but would love to better understand how Frontity works to get this working. Any help or tips hugely appreciated.
+
+Cheers,
+Toby</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 07 Sep 2019 12:38:53 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="12" data-topic="394">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/lincolnlemos/40/363_2.png" class="avatar"> lincolnlemos:</div>
+<blockquote>
+<p>I believe that will be cool to have some CPT/CustomPage example code at the mars-theme.</p>
+<p>What do you think guys?</p>
+</blockquote>
+</aside>
+<p>Absolutely. I’ve added it to our documentation roadmap.</p>
+<aside class="quote no-group" data-post="13" data-topic="394">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/lincolnlemos/40/363_2.png" class="avatar"> lincolnlemos:</div>
+<blockquote>
+<p>I’m also having CORS issues. Any help with this? Sorry, I’m new to React.</p>
+</blockquote>
+</aside>
+<p>We’ll have that functionality in <a href="https://community.frontity.org/t/potential-supported-features-of-the-frontity-wp-plugin/21">our PHP plugin</a> but until we release it, you can use this other plugin: <a href="https://github.com/ahmadawais/WP-REST-Allow-All-CORS" rel="nofollow noopener">https://github.com/ahmadawais/WP-REST-Allow-All-CORS</a></p>
+<aside class="quote no-group" data-post="13" data-topic="394">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/lincolnlemos/40/363_2.png" class="avatar"> lincolnlemos:</div>
+<blockquote>
+<p>I uploaded my code at <a href="https://github.com/lincolnlemos/frontity" rel="nofollow noopener">https://github.com/lincolnlemos/frontity </a><br>
+Can you check if is something wrong?</p>
+</blockquote>
+</aside>
+<p>Your code is fine. The handler is perfect.</p>
+<p>Be aware that your CPT doesn’t have a <code>content</code> property. If you use <code>&lt;Post&gt;</code>, you’d have to make that conditional:</p>
+<pre><code class="lang-javascript">&lt;Body&gt;
+  {post.content &amp;&amp; &lt;libraries.html2react.Component html={post.content.rendered} /&gt;}
+&lt;/Body&gt;
+</code></pre>
+<p>But there’s a bug right now with CPT population. We have already fixed and it’s merged and it’s ready to be released.<br>
+</p><aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/185" target="_blank" rel="nofollow noopener">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+      <a href="https://github.com/luisherranz" target="_blank" rel="nofollow noopener">
+    <img alt="luisherranz" src="https://community.frontity.org/uploads/default/original/1X/4c7a19e85291ee3cdcdab03aaf7ec4a4613b936f.jpeg" class="thumbnail onebox-avatar" width="90" height="90">
+  </a>
+
+<h4>
+  <a href="https://github.com/frontity/frontity/pull/185" target="_blank" rel="nofollow noopener">Fix custom post type and custom taxonomies population</a>
+</h4>
+
+<div class="date">
+  by <a href="https://github.com/luisherranz" target="_blank" rel="nofollow noopener">luisherranz</a>
+  on <a href="https://github.com/frontity/frontity/pull/185" target="_blank" rel="nofollow noopener">09:34AM - 02 Sep 19 UTC</a>
+</div>
+
+<div class="github-commit-stats">
+  <strong>2 commits</strong>
+  changed <strong>6 files</strong>
+  with <strong>407 additions</strong>
+  and <strong>38 deletions</strong>.
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<p></p>
+<p>We hope to release a new version on Monday, with this fix. Once that’s ready, you should be able to see your CPTs.</p>
+<p>I’ve just tested your code with the fix and it works fine with ACF as well:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/407c597db528e479b9b3eb5fe37c626b489af4a4.png" data-download-href="https://community.frontity.org/uploads/default/407c597db528e479b9b3eb5fe37c626b489af4a4" title="Screen Shot 2019-09-07 at 14.28.39.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_345x241.png" alt="39" data-base62-sha1="9csYv8KGSah8JoKF3LQABoMGr5i" width="345" height="241" srcset="https://community.frontity.org/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_345x241.png, https://community.frontity.org/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_517x361.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_690x482.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/15</link>
+        <pubDate>Sat, 07 Sep 2019 12:38:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-15</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[lincolnlemos]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a><br>
+I uploaded my code at <a href="https://github.com/lincolnlemos/frontity" rel="nofollow noopener">https://github.com/lincolnlemos/frontity</a><br>
+Can you check if is something wrong?</p>
+<p>I struggling to get the whole data from the CPT endpoint.<br>
+I can see only this at frontity.state.source</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/24686b417a7de310972db0532057b31e318e4ab0.png" data-download-href="https://community.frontity.org/uploads/default/24686b417a7de310972db0532057b31e318e4ab0" title="Screenshot 2019-09-05 10.57.39.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/24686b417a7de310972db0532057b31e318e4ab0_2_587x500.png" alt="39" data-base62-sha1="5c4U8Ugyn6o49ytCmPHrKlwhjPO" width="587" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/24686b417a7de310972db0532057b31e318e4ab0_2_587x500.png, https://community.frontity.org/uploads/default/original/1X/24686b417a7de310972db0532057b31e318e4ab0.png 1.5x, https://community.frontity.org/uploads/default/original/1X/24686b417a7de310972db0532057b31e318e4ab0.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/24686b417a7de310972db0532057b31e318e4ab0_2_10x10.png"></a></div><p></p>
+<p>I’m also having CORS issues. Any help with this? Sorry, I’m new to React.</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/13</link>
+        <pubDate>Thu, 05 Sep 2019 14:13:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-13</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[lincolnlemos]]></dc:creator>
+        <description><![CDATA[
+            <p>My error was coming from the place that I was adding the handler function.</p>
+<p>I was adding at the beforeSSR/beforeCSR action. It worked after I change the code for the init action.</p>
+<p>Looks like is a common error as we have the same questions at the <a href="https://community.frontity.org/t/how-to-create-custom-pages/435" class="inline-onebox">How to create Custom Pages?</a></p>
+<p>Create custom pages and CPT’s are the main work from a lot of WP developers. I believe it’s very important to make this super clear at the docs. I struggled to create my custom page and add my CPT route at frontity. I believe that will be cool to have some CPT/CustomPage example code at the mars-theme.</p>
+<p>What do you think guys?</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/12</link>
+        <pubDate>Thu, 05 Sep 2019 13:26:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-12</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>The endpoint is defined in the <code>libraries.source.api.get</code> call:</p>
+<pre><code class="lang-auto">const response = await libraries.source.api.get({
+  endpoint: "products", // &lt;- this is the endpoint Frontity tries to reach.
+  params: { slug: params.slug }
+});
+</code></pre>
+<p>If the <code>"endpoint"</code> value doesn’t start wih <code>"/"</code>, it will add <code>"/wp/v2"</code> first:</p>
+<ul>
+<li>
+<code>"products"</code>: <code>https://domain.com/wp-json/wp/v2/products</code>
+</li>
+<li>
+<code>"/products"</code>: <code>https://domain.com/wp-json/products</code>
+</li>
+</ul>
+<p>Let me know if that solves the problem.</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/11</link>
+        <pubDate>Thu, 05 Sep 2019 08:53:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-11</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[lincolnlemos]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+<p>I tried to add my handler using the <a href="https://docs.frontity.org/api-reference-1/wordpress-source#example-1" rel="nofollow noopener">ref at docs </a>.</p>
+<p>At the line 20/21, we have:</p>
+<pre><code>  isPostType: true,
+  isProduct: true
+</code></pre>
+<p>I did the same thing for my handler, but I get an error. Looking at my network console, I see that frontity was looking at my rest-api-url/post?slug=dummy instead of rest-api-url/product?slug=dummy.</p>
+<p>As “Product” is also a “PostType”, why this is happening?</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/10</link>
+        <pubDate>Wed, 04 Sep 2019 20:41:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-10</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Could you please share the code of your handler? Also, how are you dealing with it in your theme? Using something like <code>data.isProduct</code>? Or maybe put the whole repo in GitHub so we can take a look here <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Oh, and handlers give you more flexibility, but support for custom post types and taxonomies with a simple <code>wp-source</code> setting is almost finished, I think. Right <a class="mention" href="https://community.frontity.org/u/david">@david</a>?</p>
+<p>By the way, here you have an example of two handlers working fine:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js" target="_blank" rel="nofollow noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js" target="_blank" rel="nofollow noopener">annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js</a></h4>
+<pre><code class="lang-js">export const players = {
+  priority: 8,
+  pattern: "/players/",
+  func: async ({ route, params, state, libraries }) =&gt; {
+    // 1. get all pages with parent "players".
+    const playersList = await libraries.source.api.get({
+      endpoint: "pages",
+      params: { parent: 48 }
+    });
+
+    // 1. get "players" page itself.
+    const playersPage = await libraries.source.api.get({
+      endpoint: "pages",
+      params: { include: 48 }
+    });
+
+    // 2. add everything to the state.
+    const items = await libraries.source.populate({
+      response: playersList,
+      state
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js" target="_blank" rel="nofollow noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/8</link>
+        <pubDate>Sat, 20 Jul 2019 15:52:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-8</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[toby]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david">@David</a>, thanks yes I had already changed the endpoint value to singular <code>product</code>. Before then, when using the value as in the example, it was always returning 404. The 500 internal server error at least shows something is catching – but it’s not clear what is going on. At least to me it’s not <img src="https://community.frontity.org/images/emoji/apple/confused.png?v=9" title=":confused:" class="emoji" alt=":confused:"></p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/7</link>
+        <pubDate>Sat, 20 Jul 2019 13:41:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-7</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, that means some error happenend while running the product handler (but at least it was executed).</p>
+<p>The problem could be the <code>endpoint</code> used when calling <code>libraries.source.api.get</code> inside the handler. That <code>endpoint</code> should match the endpoint of your WP REST API, and in your case it seems to be <code>product</code> instead of <code>products</code> (the value we set in the example).</p>
+<p>Try changing that value and tell me if it works!</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/6</link>
+        <pubDate>Fri, 19 Jul 2019 17:51:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-6</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[toby]]></dc:creator>
+        <description><![CDATA[
+            <p>When I enter a slug for a product that exists, the website shows “Internal Server Error”</p>
+<p>1 GET <a href="http://localhost:3000/product/pig-fiddle/" rel="nofollow noopener">http://localhost:3000/product/pig-fiddle/</a> 500 (Internal Server Error)</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/5</link>
+        <pubDate>Fri, 19 Jul 2019 17:03:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-5</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[toby]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david">@David</a>, thanks for responding. I can see the “product” handler is there:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4.png" data-download-href="https://community.frontity.org/uploads/default/5a49c752c8e7507a99d6f929b6087f1e83e087e4" title="Screenshot 2019-07-19 at 17.14.13.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_690x234.png" alt="13" data-base62-sha1="cSJ2CvJYxfmiQviu9EsfcOtnMMI" width="690" height="234" srcset="https://community.frontity.org/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_690x234.png, https://community.frontity.org/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_1035x351.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_1380x468.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_10x10.png"></a></div><p></p>
+<p>But there’s still nothing found in the browser, just 404.</p>
+<p>If I get <a href="http://wp.local/wp-json/wp/v2/product" rel="nofollow noopener">http://wp.local/wp-json/wp/v2/product</a> in Postman I can see the products listed in a json file</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/4</link>
+        <pubDate>Fri, 19 Jul 2019 16:23:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-4</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/toby">@toby</a>, and welcome! <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>I see the error occurs inside the attachment handler. This means that you may have tried to fetch a link that doesn’t match the pattern of the product handler (<code>/product/:slug</code>), or for some reason the product handler hasn’t been added to <code>libraries.source.handlers</code>.</p>
+<p>What’s the content of <code>window.frontity.libraries.source.handlers</code> in the browser?</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/3</link>
+        <pubDate>Fri, 19 Jul 2019 09:34:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-3</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+      <item>
+        <title>Adding new custom post endpoint handler</title>
+        <dc:creator><![CDATA[toby]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi there,</p>
+<p>Frontity looks like a really compelling solution; thank you so much. I am keen to give it a go.</p>
+<p>I am trying to add lists and post endpoints for a new custom post type, and I found this handler for a product post type in the documentation: <a href="https://docs.frontity.org/api-reference-1/wordpress-source#example-1" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/wordpress-source#example-1</a></p>
+<p>I placed this code block in <code>mars-theme/src/index.js</code> within the mars-theme’s <code>before</code> constant, so it is called in the <code>beforeSSR</code> action. Unfortunately, when loading the new <code>products</code> endpoint, I see a 404 error in the browser and in the terminal this error:</p>
+<blockquote>
+<p>TypeError: Cannot destructure property <code>id</code> of ‘undefined’ or ‘null’.<br>
+at attachmentHandler (webpack-internal:///./node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source/src/libraries/handlers/attachment.ts:4:129)<br>
+at processTicksAndRejections (internal/process/task_queues.js:85:5)<br>
+at Object.postType [as func] (webpack-internal:///./node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source/src/libraries/handlers/postType.ts:5:262)<br>
+at eval (webpack-internal:///./node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source/src/actions.ts:13:100)</p>
+</blockquote>
+<p>I have been able to get a small Create React App to list these CPTs no problem, so I know the REST API is open, and can see the JSON, but would love to better understand how Frontity works to get this working. Any help or tips hugely appreciated.</p>
+<p>Cheers,<br>
+Toby</p>
+          <p><a href="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394/1</link>
+        <pubDate>Thu, 18 Jul 2019 17:27:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-394-1</guid>
+        <source url="https://community.frontity.org/t/adding-new-custom-post-endpoint-handler/394.rss">Adding new custom post endpoint handler</source>
+      </item>
+  </channel>
+</rss>

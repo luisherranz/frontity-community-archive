@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Issue with rendering &lt;script&gt; returned in page html</title>
+    <link>https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615</link>
+    <description>We checked for updates and updated our packages after a few months of not doing it and it caused a string of errors. I have fixed all issues related to external packages but at this point I have hit a wall, as there seems to be an error with some core frontity components.
+
+Errors from browser console:
+```
+12:15:35.224 Uncaught TypeError: setting getter-only property &quot;children&quot;
+    Script script.tsx:90
+    React 5
+    unstable_runWithPriority scheduler.development.js:468
+    React 3
+    workLoop scheduler.development.js:417
+    flushWork scheduler.development.js:390
+    performWorkUntilDeadline scheduler.development.js:157
+    EventHandlerNonNull* scheduler.development.js:180
+    &lt;anonymous&gt; scheduler.development.js:13
+    js koenighaus-webshop.module.js:6372
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.js:6
+    js koenighaus-webshop.module.js:6384
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    React 2
+    js koenighaus-webshop.module.js:6061
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; React
+    js koenighaus-webshop.module.js:6073
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.tsx:8
+    node_modules koenighaus-webshop.module.js:1367
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; client.ts:1
+    ts koenighaus-webshop.module.js:984
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    0 koenighaus-webshop.module.js:7698
+    __webpack_require__ koenighaus-webshop.module.js:833
+    &lt;anonymous&gt; koenighaus-webshop.module.js:971
+    &lt;anonymous&gt; koenighaus-webshop.module.js:974
+script.tsx:90:10
+
+12:15:35.235 The above error occurred in the &lt;Script&gt; component:
+
+Script@webpack-internal:///./node_modules/@frontity/components/script.tsx:14:41
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+div
+Container@webpack-internal:///./packages/koenighaus-theme/src/components/Layout/shared/Grid.js:6:997
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+InnerLoadable@webpack-internal:///./node_modules/@loadable/component/dist/loadable.esm.js:32:117
+LoadableWithChunkExtractor
+Loadable
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+div
+withEmotionCache/&lt;@webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-a8309070.browser.esm.js:31:67
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+r@webpack-internal:///./node_modules/react-helmet-async/lib/index.module.js:26:5441
+App@webpack-internal:///./node_modules/@frontity/core/src/app/index.tsx:19:14
+FrontityApp
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. react-dom.development.js:20085:14
+12:15:35.239 Uncaught TypeError: setting getter-only property &quot;children&quot;
+    Script script.tsx:90
+    React 5
+    unstable_runWithPriority scheduler.development.js:468
+    React 3
+    workLoop scheduler.development.js:417
+    flushWork scheduler.development.js:390
+    performWorkUntilDeadline scheduler.development.js:157
+    EventHandlerNonNull* scheduler.development.js:180
+    &lt;anonymous&gt; scheduler.development.js:13
+    js koenighaus-webshop.module.js:6372
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.js:6
+    js koenighaus-webshop.module.js:6384
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    React 2
+    js koenighaus-webshop.module.js:6061
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; React
+    js koenighaus-webshop.module.js:6073
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.tsx:8
+    node_modules koenighaus-webshop.module.js:1367
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; client.ts:1
+    ts koenighaus-webshop.module.js:984
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    0 koenighaus-webshop.module.js:7698
+    __webpack_require__ koenighaus-webshop.module.js:833
+    &lt;anonymous&gt; koenighaus-webshop.module.js:971
+    &lt;anonymous&gt; koenighaus-webshop.module.js:974
+script.tsx:90:10
+```
+
+In the error there are mentioned just 2 components, which are some general page structure components I have, namely Container and Grid. Here is how they look like:
+
+```jsx
+export const Container = ({ children, size, style }) =&gt; {
+  // Size can be either &#39;full&#39; or &#39;fluid&#39;. Refer to XYGrid documentation
+  let styles = {
+    ...style,
+    width: &quot;100%&quot;,
+  }
+
+  return (
+    &lt;div
+      className={`grid-container ${size ? size : &#39;&#39;}`}
+      style={styles}
+    &gt;
+      {children}
+    &lt;/div&gt;
+  );
+};
+
+
+export const Grid = ({ 
+  children, 
+  direction = &#39;x&#39;, 
+  align,
+  spacing,
+  css,
+  style
+}) =&gt; {
+  return (
+    &lt;div 
+      className={`grid-${direction} ${align ? align : &#39;&#39;} ${spacing &amp;&amp; `grid-${spacing}-${direction}`} ${direction === &#39;y&#39; &amp;&amp; &#39;grid-frame&#39;}`}
+      css={css ? css : &#39;&#39;}
+      style={style}
+    &gt;
+      {children}
+    &lt;/div&gt;
+  )
+}
+
+export const Cell = ({
+  children,
+  size = &#39;auto&#39;,
+  offset,
+  textAlign,
+  style,
+  css
+}) =&gt; {
+  return (
+    &lt;div className={`cell ${size} ${offset ? offset : &#39;&#39;} ${textAlign ? `text-${textAlign}` : &#39;&#39;}`} style={style} css={css}&gt;
+      {children}
+    &lt;/div&gt;
+  )
+}
+```
+
+As you can see there is nothing special in those components, they are actually quite simple.
+
+Here is the output of frontity info:
+
+```
+## System:
+ - OS: macOS 11.2.3
+ - CPU: (8) x64 Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz
+ - Memory: 173.48 MB / 8.00 GB
+ - Shell: 5.1.4 - /usr/local/bin/bash
+## Binaries:
+ - Node: 15.12.0 - ~/.nvm/versions/node/v15.12.0/bin/node
+ - npm: 7.6.3 - ~/.nvm/versions/node/v15.12.0/bin/npm
+## Browsers:
+ - Chrome: 90.0.4430.212
+ - Edge: 90.0.818.62
+ - Firefox: 70.0.1
+ - Safari: 14.0.3
+## npmPackages:
+ - @aamodtgroup/frontity-contact-form-7: ^0.2.3 =&gt; 0.2.3 
+ - @frontity/core: ^1.14.0 =&gt; 1.14.0 
+ - @frontity/head-tags: ^1.1.1 =&gt; 1.1.1 
+ - @frontity/html2react: ^1.7.0 =&gt; 1.7.0 
+ - @frontity/koenighaus-theme: ./packages/koenighaus-theme =&gt; 1.4.2 
+ - @frontity/tiny-router: ^1.4.2 =&gt; 1.4.2 
+ - @frontity/wp-source: ^1.11.4 =&gt; 1.11.4 
+ - @hookform/error-message: 0.0.5 =&gt; 0.0.5 
+ - axios: ^0.21.1 =&gt; 0.21.1 
+ - frontity: ^1.15.0 =&gt; 1.15.0 
+ - js-cookie: ^2.2.1 =&gt; 2.2.1 
+ - kh-calculator: file:packages/kh-calculator =&gt; 0.0.1 
+ - libphonenumber-js: ^1.9.18 =&gt; 1.9.18 
+ - libphonenumber-js-core:  1.0.0 
+ - libphonenumber-js-max:  1.0.0 
+ - libphonenumber-js-min:  1.0.0 
+ - libphonenumber-js-mobile:  1.0.0 
+ - react-hook-form: ^6.15.7 =&gt; 6.15.7 
+ - react-modal: ^3.13.1 =&gt; 3.13.1 
+ - react-scroll: ^1.8.2 =&gt; 1.8.2 
+ - react-select: ^3.2.0 =&gt; 3.2.0 
+ - react-spring: ^8.0.27 =&gt; 8.0.27 
+ - woocommerce-shop: file:packages/woocommerce-shop =&gt; 1.0.0 
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+```
+
+I cannot provide a repository at the moment as this is a private project, so I am looking for any tips, direction and suggestions on how to solve this.
+
+Thank you in advance.
+
+**EDIT**: 
+After looking a bit deeper into it I think i found the culprit. On my homepage I have a instagram widget that comes from the on-page content. Here is how the script looks:
+
+```html
+&lt;script src=&quot;https://cdn.lightwidget.com/widgets/lightwidget.js&quot;&gt;&lt;/script&gt;
+&lt;iframe src=&quot;https://cdn.lightwidget.com/widgets/somePrivateKeyWasHere.html&quot; scrolling=&quot;no&quot; allowtransparency=&quot;true&quot; class=&quot;lightwidget-widget&quot; style=&quot;width:100%;border:0;overflow:hidden;&quot;&gt;&lt;/iframe&gt;
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 28 May 2021 12:01:19 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Issue with rendering &lt;script&gt; returned in page html</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a> &amp; <a class="mention" href="https://community.frontity.org/u/cobra">@cobra</a>. I can confirm after updating it all works as expected now.</p>
+          <p><a href="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/6</link>
+        <pubDate>Fri, 28 May 2021 12:01:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4615-6</guid>
+        <source url="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615.rss">Issue with rendering &lt;script&gt; returned in page html</source>
+      </item>
+      <item>
+        <title>Issue with rendering &lt;script&gt; returned in page html</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/cobra">@cobra</a> and <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a> you can find more info in the PR description <a href="https://github.com/frontity/frontity/pull/823" class="inline-onebox">Script component should not define the children prop by cristianbote · Pull Request #823 · frontity/frontity · GitHub</a>. If this is not enough I can add in here more details.</p>
+          <p><a href="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/5</link>
+        <pubDate>Fri, 28 May 2021 07:31:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4615-5</guid>
+        <source url="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615.rss">Issue with rendering &lt;script&gt; returned in page html</source>
+      </item>
+      <item>
+        <title>Issue with rendering &lt;script&gt; returned in page html</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a> I updated my frontity core version locally to 1.14.0 (not 1.14.1 since I experienced another issue with core-js, but will have a look at that later). With 1.14.0, it is working now! I think the PR actually fixed the issue as my version was not up to date.</p>
+          <p><a href="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/4</link>
+        <pubDate>Thu, 27 May 2021 07:26:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4615-4</guid>
+        <source url="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615.rss">Issue with rendering &lt;script&gt; returned in page html</source>
+      </item>
+      <item>
+        <title>Issue with rendering &lt;script&gt; returned in page html</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, looking at the commit, that is exactly the problematic code. Unfortunatelly I dont fully understand the error. Any suggestions how we can solve this. Mentioning <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> as I think its an important one to look into.</p>
+          <p><a href="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/3</link>
+        <pubDate>Wed, 26 May 2021 13:21:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4615-3</guid>
+        <source url="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615.rss">Issue with rendering &lt;script&gt; returned in page html</source>
+      </item>
+      <item>
+        <title>Issue with rendering &lt;script&gt; returned in page html</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey! I can confirm the issue regarding the widget. There was an update on dev in script.tsx branch 5 days ago: <a href="https://github.com/frontity/frontity/commit/4717f9490e56fd75450e38d22a0bc9a2600b4e26" class="inline-onebox" rel="noopener nofollow ugc">Merge branch 'dev' of github.com:frontity/frontity into dev · frontity/frontity@4717f94 · GitHub</a> Could this fix be related to that problem?</p>
+          <p><a href="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/2</link>
+        <pubDate>Wed, 26 May 2021 13:05:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4615-2</guid>
+        <source url="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615.rss">Issue with rendering &lt;script&gt; returned in page html</source>
+      </item>
+      <item>
+        <title>Issue with rendering &lt;script&gt; returned in page html</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>We checked for updates and updated our packages after a few months of not doing it and it caused a string of errors. I have fixed all issues related to external packages but at this point I have hit a wall, as there seems to be an error with some core frontity components.</p>
+<p>Errors from browser console:</p>
+<pre><code class="lang-javascript">12:15:35.224 Uncaught TypeError: setting getter-only property "children"
+    Script script.tsx:90
+    React 5
+    unstable_runWithPriority scheduler.development.js:468
+    React 3
+    workLoop scheduler.development.js:417
+    flushWork scheduler.development.js:390
+    performWorkUntilDeadline scheduler.development.js:157
+    EventHandlerNonNull* scheduler.development.js:180
+    &lt;anonymous&gt; scheduler.development.js:13
+    js koenighaus-webshop.module.js:6372
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.js:6
+    js koenighaus-webshop.module.js:6384
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    React 2
+    js koenighaus-webshop.module.js:6061
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; React
+    js koenighaus-webshop.module.js:6073
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.tsx:8
+    node_modules koenighaus-webshop.module.js:1367
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; client.ts:1
+    ts koenighaus-webshop.module.js:984
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    0 koenighaus-webshop.module.js:7698
+    __webpack_require__ koenighaus-webshop.module.js:833
+    &lt;anonymous&gt; koenighaus-webshop.module.js:971
+    &lt;anonymous&gt; koenighaus-webshop.module.js:974
+script.tsx:90:10
+
+12:15:35.235 The above error occurred in the &lt;Script&gt; component:
+
+Script@webpack-internal:///./node_modules/@frontity/components/script.tsx:14:41
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+div
+Container@webpack-internal:///./packages/koenighaus-theme/src/components/Layout/shared/Grid.js:6:997
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+InnerLoadable@webpack-internal:///./node_modules/@loadable/component/dist/loadable.esm.js:32:117
+LoadableWithChunkExtractor
+Loadable
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+div
+withEmotionCache/&lt;@webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-a8309070.browser.esm.js:31:67
+ReactiveComp@webpack-internal:///./node_modules/@frontity/connect/src/connect.js:40:72
+r@webpack-internal:///./node_modules/react-helmet-async/lib/index.module.js:26:5441
+App@webpack-internal:///./node_modules/@frontity/core/src/app/index.tsx:19:14
+FrontityApp
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. react-dom.development.js:20085:14
+12:15:35.239 Uncaught TypeError: setting getter-only property "children"
+    Script script.tsx:90
+    React 5
+    unstable_runWithPriority scheduler.development.js:468
+    React 3
+    workLoop scheduler.development.js:417
+    flushWork scheduler.development.js:390
+    performWorkUntilDeadline scheduler.development.js:157
+    EventHandlerNonNull* scheduler.development.js:180
+    &lt;anonymous&gt; scheduler.development.js:13
+    js koenighaus-webshop.module.js:6372
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.js:6
+    js koenighaus-webshop.module.js:6384
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    React 2
+    js koenighaus-webshop.module.js:6061
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; React
+    js koenighaus-webshop.module.js:6073
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; index.tsx:8
+    node_modules koenighaus-webshop.module.js:1367
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    &lt;anonymous&gt; client.ts:1
+    ts koenighaus-webshop.module.js:984
+    __webpack_require__ koenighaus-webshop.module.js:833
+    fn koenighaus-webshop.module.js:130
+    0 koenighaus-webshop.module.js:7698
+    __webpack_require__ koenighaus-webshop.module.js:833
+    &lt;anonymous&gt; koenighaus-webshop.module.js:971
+    &lt;anonymous&gt; koenighaus-webshop.module.js:974
+script.tsx:90:10
+</code></pre>
+<p>In the error there are mentioned just 2 components, which are some general page structure components I have, namely Container and Grid. Here is how they look like:</p>
+<pre><code class="lang-jsx">export const Container = ({ children, size, style }) =&gt; {
+  // Size can be either 'full' or 'fluid'. Refer to XYGrid documentation
+  let styles = {
+    ...style,
+    width: "100%",
+  }
+
+  return (
+    &lt;div
+      className={`grid-container ${size ? size : ''}`}
+      style={styles}
+    &gt;
+      {children}
+    &lt;/div&gt;
+  );
+};
+
+
+export const Grid = ({ 
+  children, 
+  direction = 'x', 
+  align,
+  spacing,
+  css,
+  style
+}) =&gt; {
+  return (
+    &lt;div 
+      className={`grid-${direction} ${align ? align : ''} ${spacing &amp;&amp; `grid-${spacing}-${direction}`} ${direction === 'y' &amp;&amp; 'grid-frame'}`}
+      css={css ? css : ''}
+      style={style}
+    &gt;
+      {children}
+    &lt;/div&gt;
+  )
+}
+
+export const Cell = ({
+  children,
+  size = 'auto',
+  offset,
+  textAlign,
+  style,
+  css
+}) =&gt; {
+  return (
+    &lt;div className={`cell ${size} ${offset ? offset : ''} ${textAlign ? `text-${textAlign}` : ''}`} style={style} css={css}&gt;
+      {children}
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+<p>As you can see there is nothing special in those components, they are actually quite simple.</p>
+<p>Here is the output of frontity info:</p>
+<pre><code class="lang-javascript">## System:
+ - OS: macOS 11.2.3
+ - CPU: (8) x64 Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz
+ - Memory: 173.48 MB / 8.00 GB
+ - Shell: 5.1.4 - /usr/local/bin/bash
+## Binaries:
+ - Node: 15.12.0 - ~/.nvm/versions/node/v15.12.0/bin/node
+ - npm: 7.6.3 - ~/.nvm/versions/node/v15.12.0/bin/npm
+## Browsers:
+ - Chrome: 90.0.4430.212
+ - Edge: 90.0.818.62
+ - Firefox: 70.0.1
+ - Safari: 14.0.3
+## npmPackages:
+ - @aamodtgroup/frontity-contact-form-7: ^0.2.3 =&gt; 0.2.3 
+ - @frontity/core: ^1.14.0 =&gt; 1.14.0 
+ - @frontity/head-tags: ^1.1.1 =&gt; 1.1.1 
+ - @frontity/html2react: ^1.7.0 =&gt; 1.7.0 
+ - @frontity/koenighaus-theme: ./packages/koenighaus-theme =&gt; 1.4.2 
+ - @frontity/tiny-router: ^1.4.2 =&gt; 1.4.2 
+ - @frontity/wp-source: ^1.11.4 =&gt; 1.11.4 
+ - @hookform/error-message: 0.0.5 =&gt; 0.0.5 
+ - axios: ^0.21.1 =&gt; 0.21.1 
+ - frontity: ^1.15.0 =&gt; 1.15.0 
+ - js-cookie: ^2.2.1 =&gt; 2.2.1 
+ - kh-calculator: file:packages/kh-calculator =&gt; 0.0.1 
+ - libphonenumber-js: ^1.9.18 =&gt; 1.9.18 
+ - libphonenumber-js-core:  1.0.0 
+ - libphonenumber-js-max:  1.0.0 
+ - libphonenumber-js-min:  1.0.0 
+ - libphonenumber-js-mobile:  1.0.0 
+ - react-hook-form: ^6.15.7 =&gt; 6.15.7 
+ - react-modal: ^3.13.1 =&gt; 3.13.1 
+ - react-scroll: ^1.8.2 =&gt; 1.8.2 
+ - react-select: ^3.2.0 =&gt; 3.2.0 
+ - react-spring: ^8.0.27 =&gt; 8.0.27 
+ - woocommerce-shop: file:packages/woocommerce-shop =&gt; 1.0.0 
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+</code></pre>
+<p>I cannot provide a repository at the moment as this is a private project, so I am looking for any tips, direction and suggestions on how to solve this.</p>
+<p>Thank you in advance.</p>
+<p><strong>EDIT</strong>:<br>
+After looking a bit deeper into it I think i found the culprit. On my homepage I have a instagram widget that comes from the on-page content. Here is how the script looks:</p>
+<pre><code class="lang-html">&lt;script src="https://cdn.lightwidget.com/widgets/lightwidget.js"&gt;&lt;/script&gt;
+&lt;iframe src="https://cdn.lightwidget.com/widgets/somePrivateKeyWasHere.html" scrolling="no" allowtransparency="true" class="lightwidget-widget" style="width:100%;border:0;overflow:hidden;"&gt;&lt;/iframe&gt;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615/1</link>
+        <pubDate>Fri, 21 May 2021 10:31:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4615-1</guid>
+        <source url="https://community.frontity.org/t/issue-with-rendering-script-returned-in-page-html/4615.rss">Issue with rendering &lt;script&gt; returned in page html</source>
+      </item>
+  </channel>
+</rss>

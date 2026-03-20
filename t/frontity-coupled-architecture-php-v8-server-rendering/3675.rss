@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity Coupled Architecture + PHP/V8 Server Rendering</title>
+    <link>https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675</link>
+    <description>This is rambling experimental post, and I want to warn you I have very little to no experience in Frontity. These ideas may have been explored already/before -- so apologies for the duplication if so.
+
+As it happens, I was recently working on a prototype in essentially re-implementing the WordPress theming system in React -- a highly coupled / embedded approach to writing WordPress React sites. I&#39;ve pushed some non-working (well, works for me only) code to https://github.com/joehoyle/r/ and /joehoyle/r-example-theme if anyone is over-curious. In doing so, Ryan McCue recommended I might want to check out Frontity to see if efforts could be combined.
+
+My main goals were essentially to have a WordPress theming framework that allows you to create `Header.tsx` just as you would `header.php`. R supports SSR only, Client only or hydrated. It basically maps WordPress rewrites to react-router automatically and implements the WP template hierarchy. A (maybe) novell thing with the approach is to run the v8 engine embedded in PHP via the v8js PHP extension which means there&#39;s no need for a Node server for SSR, and you can cross-call between JS and PHP. The main advantage to _that_ is being able to locally route REST API requests to not actually use the network in SSR mode (via `rest_do_request()`).
+
+So, long story to say I essentially tried to go down the same route with Frontity: Implement a Frontity server in PHP/v8 that can provide SSR with your existing WP server alone, providing tighter coupling / integration (shock!) between the WordPress site and Frontity. Probably a major aside: I personally don&#39;t find decoupled highly attractive, running two services (WP + node), caches, deploy workflows etc isn&#39;t that appealing to _me_. I still want to build _WordPress sites_, but in React and have JS as first-class, not &quot;progressively enhance&quot;.
+
+How did it go? Well I spend a few hours on building a new server that uses v8 in PHP-- I guess it&#39;s not really a server per-say, more like a simple script that will render the page for a given context/url and return it back to PHP (with all the `fetch` shimming to internally service REST requests).
+
+I got to the point where I was able to build a bundle (using `esbuild` (more on that in a bit)) that is able to execute in v8 -- no small feat, as anyone that might have had to work in a non-node, non-browser JS context before. Essentially this means building for the browser context, but polyfilling missing libraries like `URL`, `fetch` etc.
+
+It was all going swimmingly until I hit a snag with the components that use `loadable`. Again, I don&#39;t know much/anything about loadable (there&#39;s a theme here), but from what I gather it&#39;s hard-tied to Babel and there&#39;s some trickery needed to load `loadable` components synchronously. I wasn&#39;t able to get any further yet -- I have SSR working for the header / menu parts of the mars theme. The pre-population of data over the v8/php bridge is working too. I&#39;m currently using `renderToStaticMarkup` as hydration requires a lot more complexity in grabbing the `loadable` chunks etc.
+
+Here&#39;s where I got too (no client rendering, server rendered in php-v8js)
+
+![](upload://rvXgrA9QdzeZ9tqjy8ByLNY3pVD.jpeg)
+
+At the moment I&#39;m using `esbuild` to bundle Frontity and all the deps (side note: has anyone used https://esbuild.github.io/, it is AMAZING!. Unbelievably fast, and a simple but powerful plugin API). However, there does appear to be the blocker that `loadable` requires babel, so it looks like I might need to switch over to that and downgrade from 120ms total build times to more like 2 minutes with webpack+babel!
+
+I do wonder if maybe I am doing something wrong with `loadable`, as when using `renderToStaticMarkup` I _think_ it&#39;s meant to sync resolve the modules (which are in my bundle), but alas, I didn&#39;t work that out yet.
+
+So, that&#39;s where I got to. I also just discovered this community forum so I thought it was probably time to ask if this has all been tried before, or if it&#39;s at all an interesting direction to pursue. I did stumble on `frontity/frontity-embedded-proof-of-concept`, which _looks_ like it might have similar goals to more tightly integrate Frontity with the WP site. That&#39;s kinda also what I&#39;m looking at -- but ultimately I think a lot tighter with doing SSR via PHP too.
+
+I didn&#39;t push up any of this code yet -- it basically ended up being a fork of R but instead of rolling my own react layer, it attempts to switch in Frontity to do what it does best. The code is in _even worse_ shape than R (and that&#39;s saying something!)
+
+Happy holiday hacking!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 27 Jan 2021 15:01:15 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity Coupled Architecture + PHP/V8 Server Rendering</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group quote-modified" data-username="joehoyle" data-post="3" data-topic="3675">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/joehoyle/40/2067_2.png" class="avatar"> joehoyle:</div>
+<blockquote>
+<p>Projects like esbuild, and I hope my experiments with V8/PHP linking and others challenge the norms and try to prove potential paths forward. […] It’s quite possibly not practical to adopt just things yet, but on an infinite timescale <em>things will get better!</em></p>
+</blockquote>
+</aside>
+<p>Touché! <a href="https://github.com/privatenumber/esbuild-loader">https://github.com/privatenumber/esbuild-loader</a> <img src="https://community.frontity.org/images/emoji/apple/exploding_head.png?v=9" title=":exploding_head:" class="emoji" alt=":exploding_head:"><img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"><img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/5</link>
+        <pubDate>Wed, 27 Jan 2021 15:01:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3675-5</guid>
+        <source url="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675.rss">Frontity Coupled Architecture + PHP/V8 Server Rendering</source>
+      </item>
+      <item>
+        <title>Frontity Coupled Architecture + PHP/V8 Server Rendering</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="joehoyle" data-post="3" data-topic="3675">
+<div class="title">
+<div class="quote-controls"></div>
+<img loading="lazy" alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/joehoyle/40/2067_2.png" class="avatar"> joehoyle:</div>
+<blockquote>
+<p>Sorry for the delay in response <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>, Xmas and all that!</p>
+</blockquote>
+</aside>
+<p>Happy Christmas and New Year <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=12" title=":smile:" class="emoji" alt=":smile:" loading="lazy" width="20" height="20"></p>
+<aside class="quote no-group" data-username="joehoyle" data-post="3" data-topic="3675">
+<div class="title">
+<div class="quote-controls"></div>
+<img loading="lazy" alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/joehoyle/40/2067_2.png" class="avatar"> joehoyle:</div>
+<blockquote>
+<p>I still think this is one advantage of the V8 route: a page that might make 15 API requests is a <em>lot</em> of load on the PHP system, but 15 calls to <code>rest_do_request</code> is perhaps 1/2 of the work. Granted with another caching layer in between this isn’t the case for every page load.</p>
+</blockquote>
+</aside>
+<p>Yeah, good point.</p>
+<aside class="quote no-group" data-username="joehoyle" data-post="3" data-topic="3675">
+<div class="title">
+<div class="quote-controls"></div>
+<img loading="lazy" alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/joehoyle/40/2067_2.png" class="avatar"> joehoyle:</div>
+<blockquote>
+<p>For things like logged-in user experiences where you don’t want a cache layer, whereby the WP application “behind” the front-end node system is making changes then you will end up having more backend live API requests and thus suffer from the overhead of all those API requests</p>
+</blockquote>
+</aside>
+<p>That’s true. Although there is actually an interesting angle to that, I wonder what is your opinion about it.</p>
+<p>Once you move to a technology that is capable to do client-side navigation, you are only interested in SSR to improve the performance of the first load (both for SEO and for user experience) because the subsequent navigations are handled on the client-side.</p>
+<p>Logged-in pages don’t benefit from SEO, so the only SSR benefit that remains is the user-perceived performance of the first load.</p>
+<p>Also, logged-in applications don’t usually need to handle much deep-linking. The first page users see is usually either the login screen or a home screen. After that point, the rest is client-side navigation. It’s true that there can be some deep-linking between coworkers/friends that share links to internal resources, but not much more.</p>
+<p>I think that is the reason very few logged-in applications use SSR anymore. Most of them are simply client-side SPAs.</p>
+<p>There are also applications that have both public content (that is indexed and deep-linked, so it benefits from SSR) and logged-in content. A good example is e-commerce: products are public and cart/checkout pages are kind of “logged-in”.</p>
+<p>In that regard, we did a preliminary proof-of-concept of a possible <code>@frontity/woocommerce</code> package that would abstract the API connection (similar to what <code>@frontity/wp-source</code> does for the regular REST API). This is the result:</p>
+<p><a href="https://www.youtube.com/watch?v=8qlRxc1KL5s">WooCommerce PoC - First Summary</a></p>
+
+<ul>
+<li>Site: <a href="https://woocommerce.frontity.org/">https://woocommerce.frontity.org/</a>
+</li>
+<li>Repository: <a href="https://github.com/frontity/woocommerce-proof-of-concept" class="inline-onebox">GitHub - frontity/woocommerce-proof-of-concept: Proof of concept of a possible Frontity integration with WooCommerce.</a>
+</li>
+</ul>
+<p>Part of the experiment was to learn how much of the site could be aggressively cached using this approach. We were able to cache:</p>
+<ul>
+<li>All the HTML files.</li>
+<li>All the REST API requests, except the <code>/wp-json/store/cart</code> and <code>/wp-json/store/checkout</code> endpoints.</li>
+</ul>
+<p>For the cart and the checkout pages, which are our “logged-in” pages, we served a cached HTML that renders a loader, so the user sees something in the screen fast. Thanks to the loader, she/he knows that the site is working and the cart is coming. <em>This is somehow similar to the “<a href="https://developers.google.com/web/fundamentals/architecture/app-shell">app shell model</a>”.</em></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/f/f682d68d812fe67888c4bb5fe1536d2eeb2c4451.png" data-download-href="https://community.frontity.org/uploads/default/f682d68d812fe67888c4bb5fe1536d2eeb2c4451" title="Screenshot 2021-01-18 at 11.59.36"><img src="https://community.frontity.org/uploads/default/optimized/2X/f/f682d68d812fe67888c4bb5fe1536d2eeb2c4451_2_345x201.png" alt="Screenshot 2021-01-18 at 11.59.36" data-base62-sha1="zaJMb16LXI069XCLY2g521ikg6Z" width="345" height="201" srcset="https://community.frontity.org/uploads/default/optimized/2X/f/f682d68d812fe67888c4bb5fe1536d2eeb2c4451_2_345x201.png, https://community.frontity.org/uploads/default/optimized/2X/f/f682d68d812fe67888c4bb5fe1536d2eeb2c4451_2_517x301.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/f/f682d68d812fe67888c4bb5fe1536d2eeb2c4451_2_690x402.png 2x" data-dominant-color="909CD2"></a></div><p></p>
+<p>With this approach, once the site is cached you can serve static files for all the HTML/REST API requests, and the WordPress server load is reduced to handling the cart and checkout through the REST API.</p>
+<p>I wonder what’s your opinion about this new trend of not doing SSR for the logged-in parts of a site, and what drawbacks do you see <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=12" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:" loading="lazy" width="20" height="20"></p>
+<aside class="quote no-group quote-modified" data-username="joehoyle" data-post="3" data-topic="3675">
+<div class="title">
+<div class="quote-controls"></div>
+<img loading="lazy" alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/joehoyle/40/2067_2.png" class="avatar"> joehoyle:</div>
+<blockquote>
+<p>Personally I am in “prototype the future” mode, where user adoption, and really any real-world practicalities don’t apply so much!</p>
+<p>…</p>
+<p>It’s quite possibly not practical to adopt just things yet, but on an infinite timescale <em>things will get better!</em></p>
+</blockquote>
+</aside>
+<p>Haha, I love that. Absolutely true. And that is also usually more fun too <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=12" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:" loading="lazy" width="20" height="20"></p>
+<hr>
+<p>By the way, after I answered you, I had another interesting conversation about if it would be possible to do SSR of Server Components with Gutenberg Full Site Editing, no NodeJS/V8 server required.</p>
+<p>It’s a crazy idea and we are still years away from something like that happening, but it made me think about the relation between the WordPress community and the rest of the web development community, especially the JS/React ecosystem.</p>
+<p>I realized that, even though WordPress is so big that we can always do things <em>the WordPress way</em>, there is still a huge benefit in connecting WordPress more closely with the rest of the web development ecosystem. I’ve always felt like WordPress was too separate from the rest of the community, and this decoupled architecture is a great opportunity to join forces again.</p>
+<p>In that sense, what we are trying to do at Frontity is to do things <em>the Node/npm way</em>, so people using Frontity can leverage the full potential of the JS/React ecosystem without restrictions, and the power of WordPress at the same time. If we continue doing things <em>the WordPress way</em>, we will be creating gaps and constraints between us and the JS/React community again.</p>
+<p>And I think it would be beneficial, not only because WordPress devs using JS/React tools like Frontity can take advantage of the potential of the JS/React ecosystem, but also because, at some point, we should start attracting JS/React web developers to WordPress. And that will happen only if these new frontend tools belong to the JS/React ecosystem.</p>
+<p>So this could make a kind of an extra point:<br>
+<strong>7. Do things the Node/npm way to leverage the full potential of the JS/React ecosystem and attract JS/React developers.</strong></p>
+<p>Well, that’s kind of a horrible title but I guess the point is clear <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=12" title=":laughing:" class="emoji" alt=":laughing:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/4</link>
+        <pubDate>Mon, 18 Jan 2021 11:15:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3675-4</guid>
+        <source url="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675.rss">Frontity Coupled Architecture + PHP/V8 Server Rendering</source>
+      </item>
+      <item>
+        <title>Frontity Coupled Architecture + PHP/V8 Server Rendering</title>
+        <dc:creator><![CDATA[joehoyle]]></dc:creator>
+        <description><![CDATA[
+            <p>Sorry for the delay in response <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>, Xmas and all that!</p>
+<p>Thanks for sharing your motivations and thoughts around the nodeJS vs V8 approach. I think you’ve made the right decisions here for the Frontity project that probably suits the most users. The ReverseProxy mode also looks quite interesting.</p>
+<p>On 5: Universal code: I totally agree – <code>rest_do_request</code> <em>is</em> the REST API, it just means internally routed <em>to the rest API</em>, so it should always be the case that clientside and decoupled SSR can use all the same stuff, it’s just a more direct way to make API requests. As it happens, there’s significant overhead in a REST API request in WordPress, so I still think this is one advantage of the V8 route: a page that might make 15 API requests is a <em>lot</em> of load on the PHP system, but 15 calls to <code>rest_do_request</code> is perhaps 1/2 of the work. Granted with another caching layer in between this isn’t the case for every page load.</p>
+<p>That is one issue I have with the decoupled approach though, for pure “viewer” experiences of static-style websites it’s ok to have a cache. For things like logged-in user experiences where you don’t want a cache layer, whereby the WP application “behind” the front-end node system is making changes then you will end up having more backend live API requests and thus suffer from the overhead of all those API requests. However, this is a trade-off depending on use case of course.</p>
+<p>I think you hit the nail on the head with 6: v8js adoption. It’s not Frontity’s battle to get adoption of V8js. Given that the extension is virtually unsupported really doesn’t help my case <img src="https://community.frontity.org/images/emoji/apple/stuck_out_tongue.png?v=9" title=":stuck_out_tongue:" class="emoji" alt=":stuck_out_tongue:"> I dream for a new supported extension that embeds V8 with support for things like the v8 debugger protocol, ESM and the like. Again, I think you have absolutely made the correct decision by not pursuing this as Frontity. Personally I am in “prototype the future” mode, where user adoption, and really any real-world practicalities don’t apply so much!</p>
+<p>This applies the same with esbuild and the like, I hope at some point in the future projects like this push the industry forward. While acknowledging how much progress has been made over past years in things like front-end bundling, decoupled architectures, and many things in the JS ecosystem, it’s also all pretty terrible. Am I mean that in a “things can be so much better” kind of way! Projects like esbuild, and I hope my experiments with V8/PHP linking and others challenge the norms and try to prove potential paths forward. I’m equally interested in adoption of Deno, first-class support for TypeScript for example I think moves what people expect from the Node workflow. It’s quite possibly not practical to adopt just things yet, but on an infinite timescale <em>things will get better!</em></p>
+          <p><a href="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/3</link>
+        <pubDate>Tue, 12 Jan 2021 21:08:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3675-3</guid>
+        <source url="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675.rss">Frontity Coupled Architecture + PHP/V8 Server Rendering</source>
+      </item>
+      <item>
+        <title>Frontity Coupled Architecture + PHP/V8 Server Rendering</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Wow, <a class="mention" href="https://community.frontity.org/u/joehoyle">@joehoyle</a>, I am glad and honored to have you here! Welcome to our forum and many thanks for sharing your work with us. I can’t believe you made Frontity somehow work with PHP/V8! Really interesting <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+<p>We did explore the PHP/V8 approach years ago but we decided not to use it for the Frontity framework. I will try to elaborate on the reasons why we decided that.</p>
+<p><em>I know Human Made doesn’t have the same requirements/constraints as Frontity, so some of these points may not apply. I hope at least that they give you an idea of our point of view.</em></p>
+<h2>1. Using PHP/V8 requires WordPress server access</h2>
+<p>Relying on the fact that PHP/V8 is available in the WordPress server is not ideal because it means that:</p>
+<ul>
+<li>People using managed WordPress hosting services couldn’t use Frontity because they don’t have server access to install PHP/V8.</li>
+<li>Even for those who have server access, it would mean that setting up Frontity would require some “sysadmin” skills.</li>
+</ul>
+<p>By relying on an external NodeJS server instead, people don’t need any change in their WordPress server and can use whatever NodeJS server they prefer for Frontity, like Vercel, Heroku, or even serverless services like AWS Lambdas or Google Functions.</p>
+<p>But relying on an external NodeJS server doesn’t mean that the users will need to use a NodeJS-only server like those I mentioned. WordPress hosting providers can still provide solutions to host both WordPress + NodeJS and we are currently working with Pantheon, WP Engine, and VIP in that regard.</p>
+<p>And people can also run NodeJS locally in their WordPress if they want (section 2).</p>
+<p><strong><em>My point here is that PHP/V8 is a much more restricting constraint than a NodeJS server.</em></strong></p>
+<h2>2. Local access to NodeJS/WordPress is still possible</h2>
+<p>If people want to run Frontity in their own WordPress server, they can install and run NodeJS instead of PHP/V8, and run it locally.</p>
+<p>If they don’t want to use the network, WordPress and Frontity can call each other using <code>localhost</code>.</p>
+<p>How faster is using PHP/V8 instead of doing a request to localhost is something I don’t know, but it is certainly not the bottleneck of the system. So even if a request to localhost is somehow slower, I doubt it will be relevant in the final picture.</p>
+<p>Actually, going over the network and the cache system for the REST API requests can have benefits because a decoupled system like Frontity can benefit from a “two-layer cache system” (section 3) and makes the code compatible between different server/client and different modes (section 5).</p>
+<p><strong><em>My point here is that even without PHP/V8 you can still run NodeJS and WordPress on the same server with a similar setup.</em></strong></p>
+<h2>3. Accessing the REST API over the network can be a good pattern</h2>
+<p>When working with decoupled architectures, it can be interesting to divide the cache into two different layers: markup (HTML) and data (REST API) and invalidate them independently.</p>
+<p>This is a video I did to explain this “two-layer cache” pattern to the VIP team to start exploring it with them: <a href="https://www.youtube.com/watch?v=A-aDdX0mTL0">https://www.youtube.com/watch?v=A-aDdX0mTL0</a>. The idea is to cache the REST API aggressively and invalidate only the HTML files after a deployment.</p>
+<p>A big publisher (+10M pageviews, +300k indexed pages) we collaborate closely with is already using this two-layer cache pattern with Frontity and the results are impressive so this is something we want to keep working on and encourage.</p>
+<p><strong><em>My point here is that accessing the REST API locally during the SSR is not that important, or can even be less useful in some scenarios.</em></strong></p>
+<h2>4. The Decoupled and ReverseProxy modes</h2>
+<p>We totally agree with you that an ideal “WordPress theming system in React” needs to be tightly integrated and as less disturbing to the WordPress workflow as possible. And you are right, that is the whole reason for the Embedded mode, where Frontity is just used to replace the PHP theme.</p>
+<p>The PHP/V8 approach is similar to using Frontity in Embedded mode, which is great. But the Embedded mode is only one of the three modes we support in Frontity:</p>
+<ul>
+<li>
+<strong>Decoupled mode</strong>: The normal, two domain/stacks, headless approach.</li>
+<li>
+<strong>Embedded mode</strong>: Single domain. Replace the PHP theme execution with an HTTP request to the Frontity server.</li>
+<li>
+<strong>ReverseProxy mode</strong>: Single domain. A reverse proxy like NGINX manages the routing between WordPress and NodeJS.</li>
+</ul>
+<p>The problem with PHP/V8 or the Embedded mode is that you cannot take advantage of the fact that you don’t need to run the whole WordPress code to generate the HTML anymore.</p>
+<p>I don’t mean that the Embedded mode is bad. <strong>For most of the Frontity users, we think Embedded mode should be the way to go.</strong> But for big publishers or big hosting providers where keeping a low server load is critical, we have started recommending the ReverseProxy mode.</p>
+<p><em>This is a more detailed explanation of the three modes and their differences: <a href="https://www.notion.so/The-Frontity-Modes-72a61c1aef7a45a6931b0db54612e489">https://www.notion.so/The-Frontity-Modes-72a61c1aef7a45a6931b0db54612e489</a></em></p>
+<p><em>And this is a demo of the ReverseProxy configuration: <a href="https://www.youtube.com/watch?v=YpNJb4Lq44E">https://www.youtube.com/watch?v=YpNJb4Lq44E</a></em></p>
+<p><strong><em>My point here is that using an external NodeJS server is more flexible than using PHP/V8, which only allows the Embedded mode.</em></strong></p>
+<h2>5. Code should be as universal as possible</h2>
+<p>There is another point in favor of accessing the data using an HTTP request to the REST API: even though using PHP/V8 or the Embedded mode opens the possibility of injecting the WordPress content directly (for example by using <code>rest_do_request</code> as you mention) that implementation would be exclusive of “SSR in Embedded mode”. It won’t work for:</p>
+<ul>
+<li>Client-side navigations.</li>
+<li>SSR in Decoupled or ReverseProxy modes.</li>
+</ul>
+<p>For that reason, we try to make everything accessible through the REST API and encourage people to have a good REST API caching strategy instead.</p>
+<p>Also, using an HTTP request to get the HTML in Embedded mode means that we can reuse the very same HTTP request to get the HTML in both Decoupled and ReverseProxy mode. Frontity doesn’t know in which mode is being used, and we think that is a good thing.</p>
+<p><strong><em>My point here is that using code universal to any server configuration and client-rendering makes it more simple and flexible at the same time.</em></strong></p>
+<h2>6. PHP/V8 is not widely adopted</h2>
+<p>The sad truth is that PHP/V8, <strong>even though it is an awesome project</strong>, is not widely adopted/used yet, and therefore the risk of ending up with a discontinued technology is higher than going with a simple NodeJS server.</p>
+<p><strong>I hope that changes in the near future, they start seeing a lot of adoption and I wish them all the best</strong>. I really do, because making open source software is not easy. But that risk is something that needs to be taken into account from a business perspective.</p>
+<p>In Spanish we describe this situation as “a snake that eats its own tail” because the fact that is not widely adopted means that projects won’t bet for it, which turns into less adoption.</p>
+<p>All projects suffer from this situation at the beginning of course, this is not exclusive of PHP/V8, and it affects Frontity as well. For that reason, we have raised funding and we now have a team of very talented people working on this full-time. Also, each step we make in our partnerships with WordPress hosting providers, WordPress agencies, and each new site running Frontity makes it less likely to fail so we will continue working to increase the adoption.</p>
+<p>This is a bit the same situation with esbuild (or Parcel, Snowpack…) vs Webpack. At this point, even though these new builders can do some things better than Webpack (like the startup time), they are not the standard solution and that means it is easier to find things that are not compatible with them yet.</p>
+<p><strong><em>My point here is that for a framework like Frontity, it makes sense to stay close to the industry standards and reduce this type of risk as much as possible.</em></strong></p>
+<hr>
+<p>So, as you can see, it was not a single point, but a sum of small points that made it not worth it for a framework like Frontity.</p>
+<p>I would love to know which of these points make sense to you and which don’t to understand better the Human Made point of view.</p>
+<p>Oh, and please send my regards to Ryan <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"><img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/2</link>
+        <pubDate>Mon, 28 Dec 2020 18:06:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3675-2</guid>
+        <source url="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675.rss">Frontity Coupled Architecture + PHP/V8 Server Rendering</source>
+      </item>
+      <item>
+        <title>Frontity Coupled Architecture + PHP/V8 Server Rendering</title>
+        <dc:creator><![CDATA[joehoyle]]></dc:creator>
+        <description><![CDATA[
+            <p>This is rambling experimental post, and I want to warn you I have very little to no experience in Frontity. These ideas may have been explored already/before – so apologies for the duplication if so.</p>
+<p>As it happens, I was recently working on a prototype in essentially re-implementing the WordPress theming system in React – a highly coupled / embedded approach to writing WordPress React sites. I’ve pushed some non-working (well, works for me only) code to <a href="https://github.com/joehoyle/r/" rel="noopener nofollow ugc">https://github.com/joehoyle/r/</a> and /joehoyle/r-example-theme if anyone is over-curious. In doing so, Ryan McCue recommended I might want to check out Frontity to see if efforts could be combined.</p>
+<p>My main goals were essentially to have a WordPress theming framework that allows you to create <code>Header.tsx</code> just as you would <code>header.php</code>. R supports SSR only, Client only or hydrated. It basically maps WordPress rewrites to react-router automatically and implements the WP template hierarchy. A (maybe) novell thing with the approach is to run the v8 engine embedded in PHP via the v8js PHP extension which means there’s no need for a Node server for SSR, and you can cross-call between JS and PHP. The main advantage to <em>that</em> is being able to locally route REST API requests to not actually use the network in SSR mode (via <code>rest_do_request()</code>).</p>
+<p>So, long story to say I essentially tried to go down the same route with Frontity: Implement a Frontity server in PHP/v8 that can provide SSR with your existing WP server alone, providing tighter coupling / integration (shock!) between the WordPress site and Frontity. Probably a major aside: I personally don’t find decoupled highly attractive, running two services (WP + node), caches, deploy workflows etc isn’t that appealing to <em>me</em>. I still want to build <em>WordPress sites</em>, but in React and have JS as first-class, not “progressively enhance”.</p>
+<p>How did it go? Well I spend a few hours on building a new server that uses v8 in PHP-- I guess it’s not really a server per-say, more like a simple script that will render the page for a given context/url and return it back to PHP (with all the <code>fetch</code> shimming to internally service REST requests).</p>
+<p>I got to the point where I was able to build a bundle (using <code>esbuild</code> (more on that in a bit)) that is able to execute in v8 – no small feat, as anyone that might have had to work in a non-node, non-browser JS context before. Essentially this means building for the browser context, but polyfilling missing libraries like <code>URL</code>, <code>fetch</code> etc.</p>
+<p>It was all going swimmingly until I hit a snag with the components that use <code>loadable</code>. Again, I don’t know much/anything about loadable (there’s a theme here), but from what I gather it’s hard-tied to Babel and there’s some trickery needed to load <code>loadable</code> components synchronously. I wasn’t able to get any further yet – I have SSR working for the header / menu parts of the mars theme. The pre-population of data over the v8/php bridge is working too. I’m currently using <code>renderToStaticMarkup</code> as hydration requires a lot more complexity in grabbing the <code>loadable</code> chunks etc.</p>
+<p>Here’s where I got too (no client rendering, server rendered in php-v8js)</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/c0d7722caeadac91b36c358c177e7eeecf8c2fa1.jpeg" data-download-href="https://community.frontity.org/uploads/default/c0d7722caeadac91b36c358c177e7eeecf8c2fa1" title=""><img src="https://community.frontity.org/uploads/default/optimized/2X/c/c0d7722caeadac91b36c358c177e7eeecf8c2fa1_2_690x472.jpeg" alt="" data-base62-sha1="rvXgrA9QdzeZ9tqjy8ByLNY3pVD" width="690" height="472" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/c0d7722caeadac91b36c358c177e7eeecf8c2fa1_2_690x472.jpeg, https://community.frontity.org/uploads/default/optimized/2X/c/c0d7722caeadac91b36c358c177e7eeecf8c2fa1_2_1035x708.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/2X/c/c0d7722caeadac91b36c358c177e7eeecf8c2fa1_2_1380x944.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/c0d7722caeadac91b36c358c177e7eeecf8c2fa1_2_10x10.png"></a></div><p></p>
+<p>At the moment I’m using <code>esbuild</code> to bundle Frontity and all the deps (side note: has anyone used <a href="https://esbuild.github.io/" rel="noopener nofollow ugc">https://esbuild.github.io/</a>, it is AMAZING!. Unbelievably fast, and a simple but powerful plugin API). However, there does appear to be the blocker that <code>loadable</code> requires babel, so it looks like I might need to switch over to that and downgrade from 120ms total build times to more like 2 minutes with webpack+babel!</p>
+<p>I do wonder if maybe I am doing something wrong with <code>loadable</code>, as when using <code>renderToStaticMarkup</code> I <em>think</em> it’s meant to sync resolve the modules (which are in my bundle), but alas, I didn’t work that out yet.</p>
+<p>So, that’s where I got to. I also just discovered this community forum so I thought it was probably time to ask if this has all been tried before, or if it’s at all an interesting direction to pursue. I did stumble on <code>frontity/frontity-embedded-proof-of-concept</code>, which <em>looks</em> like it might have similar goals to more tightly integrate Frontity with the WP site. That’s kinda also what I’m looking at – but ultimately I think a lot tighter with doing SSR via PHP too.</p>
+<p>I didn’t push up any of this code yet – it basically ended up being a fork of R but instead of rolling my own react layer, it attempts to switch in Frontity to do what it does best. The code is in <em>even worse</em> shape than R (and that’s saying something!)</p>
+<p>Happy holiday hacking!</p>
+          <p><a href="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675/1</link>
+        <pubDate>Thu, 24 Dec 2020 00:00:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3675-1</guid>
+        <source url="https://community.frontity.org/t/frontity-coupled-architecture-php-v8-server-rendering/3675.rss">Frontity Coupled Architecture + PHP/V8 Server Rendering</source>
+      </item>
+  </channel>
+</rss>

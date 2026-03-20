@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Using .includes() with state.theme array</title>
+    <link>https://community.frontity.org/t/using-includes-with-state-theme-array/5026</link>
+    <description>Hey everyone,
+
+Another day, another question :grin: thanks as always for any time anyone can spare to help me with this. I think this is a pretty straight forward one.
+
+I&#39;m setting an array in my theme state, like this:
+
+```js
+export default {
+  // ...
+  state: {
+    theme: {
+      samples: {
+        ids: [&#39;test&#39;, &#39;example&#39;, &#39;etc&#39;],
+      },
+    },
+  },
+  // ...
+}
+```
+
+And in a `connect`-ed component, I&#39;m doing something like this:
+
+```js
+import React from &#39;react&#39;
+import { connect } from &#39;frontity&#39;
+
+const MyComponent = ({ state }) =&gt; {
+  const { samples } = state.theme
+  
+  if(samples.ids.includes(&#39;test&#39;)) {
+    console.log(&#39;It includes test&#39;)
+  } else {
+    console.log(&#39;It doesn\&#39;t include test&#39;)
+  }
+
+  return &lt;p&gt;This is just an example&lt;/p&gt;
+}
+
+export default connect(MyComponent)
+```
+But this results in an error, as technically `samples` is an object not an array; it&#39;s the result of the returned promise that includes the array.
+
+So my question is, how do I access the array in [[Target]] to check if it includes something?
+
+Thanks</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 22 Jul 2021 13:24:09 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/using-includes-with-state-theme-array/5026.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Using .includes() with state.theme array</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Okay… stupid mistake on my part <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>The <code>ids</code> IS an array, until I run my action, where <code>ids: id</code> is changing it from an array to an object <img src="https://community.frontity.org/images/emoji/apple/roll_eyes.png?v=9" title=":roll_eyes:" class="emoji" alt=":roll_eyes:"></p>
+<p>It should look like this:</p>
+<pre><code class="lang-js">  actions: {
+    theme: {
+      addSample:
+        ({ state }) =&gt;
+        (id) =&gt; {
+          state.theme.samples = {
+            ...state.theme.samples,
+            ids: [...state.theme.samples.ids, id],
+          };
+        },
+      // ...
+    },
+  },
+</code></pre>
+<p>And that solves the problem. Apologies for wasting time <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/using-includes-with-state-theme-array/5026/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-includes-with-state-theme-array/5026/4</link>
+        <pubDate>Thu, 22 Jul 2021 13:24:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5026-4</guid>
+        <source url="https://community.frontity.org/t/using-includes-with-state-theme-array/5026.rss">Using .includes() with state.theme array</source>
+      </item>
+      <item>
+        <title>Using .includes() with state.theme array</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a></p>
+<p>If I run this:</p>
+<pre><code class="lang-js">  const { samples } = state.theme;
+  console.log(samples.ids);
+  console.log(typeof samples.ids);
+</code></pre>
+<p>I get this<br>
+                    <a href="https://dl.dropboxusercontent.com/s/4gx0596c99r44yk/Screenshot%202021-07-22%20at%2014.14.39.png?dl=0" target="_blank" rel="noopener nofollow ugc" class="onebox">
+            <img src="https://community.frontity.org/uploads/default/original/2X/e/e8a93f1159f96a7e2d3437c4693db592d9932761.png" width="201" height="139">
+          </a>
+
+</p>
+<p>Is this what you’d expect to see when running <code>console.log(state.theme.whatever)</code>?</p>
+<p>Here’s my actual theme index file which might help<br>
+                    <a href="https://dl.dropboxusercontent.com/s/zr97xapbq198b37/Screenshot%202021-07-22%20at%2014.17.38.png?dl=0" target="_blank" rel="noopener nofollow ugc" class="onebox">
+            <img src="https://community.frontity.org/uploads/default/original/2X/8/8865d56104bf91469c37780e3b17f2ce627087de.png" width="319" height="499">
+          </a>
+
+</p>
+          <p><a href="https://community.frontity.org/t/using-includes-with-state-theme-array/5026/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-includes-with-state-theme-array/5026/3</link>
+        <pubDate>Thu, 22 Jul 2021 13:16:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5026-3</guid>
+        <source url="https://community.frontity.org/t/using-includes-with-state-theme-array/5026.rss">Using .includes() with state.theme array</source>
+      </item>
+      <item>
+        <title>Using .includes() with state.theme array</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>It should work, since <code>ids</code> is an array.</p>
+<pre><code class="lang-js">const state = {
+  theme: {
+    samples: {
+      ids: ['test', 'example', 'etc'],
+    },
+  }
+};
+console.log(state.theme.samples.ids.includes('test'));
+// returns true
+
+const { samples } = state.theme
+console.log(samples.ids.includes('test'));
+// returns true
+</code></pre>
+<p>So I guess either Frontity is doing something weird with the array (which I doubt), or <code>ids</code> is not an array as in your example <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+<p><strong>update:</strong><br>
+Just checked with an array in my own code by checking it in the console, and <code>.includes('')</code> works as expected, even when deep in the Frontity object. Haven’t checked in React though, but since it uses the same object it shouldn’t cause any issues.</p>
+          <p><a href="https://community.frontity.org/t/using-includes-with-state-theme-array/5026/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-includes-with-state-theme-array/5026/2</link>
+        <pubDate>Thu, 22 Jul 2021 12:59:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5026-2</guid>
+        <source url="https://community.frontity.org/t/using-includes-with-state-theme-array/5026.rss">Using .includes() with state.theme array</source>
+      </item>
+      <item>
+        <title>Using .includes() with state.theme array</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey everyone,</p>
+<p>Another day, another question <img src="https://community.frontity.org/images/emoji/apple/grin.png?v=9" title=":grin:" class="emoji" alt=":grin:"> thanks as always for any time anyone can spare to help me with this. I think this is a pretty straight forward one.</p>
+<p>I’m setting an array in my theme state, like this:</p>
+<pre><code class="lang-js">export default {
+  // ...
+  state: {
+    theme: {
+      samples: {
+        ids: ['test', 'example', 'etc'],
+      },
+    },
+  },
+  // ...
+}
+</code></pre>
+<p>And in a <code>connect</code>-ed component, I’m doing something like this:</p>
+<pre><code class="lang-js">import React from 'react'
+import { connect } from 'frontity'
+
+const MyComponent = ({ state }) =&gt; {
+  const { samples } = state.theme
+  
+  if(samples.ids.includes('test')) {
+    console.log('It includes test')
+  } else {
+    console.log('It doesn\'t include test')
+  }
+
+  return &lt;p&gt;This is just an example&lt;/p&gt;
+}
+
+export default connect(MyComponent)
+</code></pre>
+<p>But this results in an error, as technically <code>samples</code> is an object not an array; it’s the result of the returned promise that includes the array.</p>
+<p>So my question is, how do I access the array in [[Target]] to check if it includes something?</p>
+<p>Thanks</p>
+          <p><a href="https://community.frontity.org/t/using-includes-with-state-theme-array/5026/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-includes-with-state-theme-array/5026/1</link>
+        <pubDate>Thu, 22 Jul 2021 12:04:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5026-1</guid>
+        <source url="https://community.frontity.org/t/using-includes-with-state-theme-array/5026.rss">Using .includes() with state.theme array</source>
+      </item>
+  </channel>
+</rss>

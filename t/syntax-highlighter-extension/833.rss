@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Syntax-highlighter extension</title>
+    <link>https://community.frontity.org/t/syntax-highlighter-extension/833</link>
+    <description>In order to create the very first extension for frontity. I thought to create a package / extension for [Syntax-highlighter](https://github.com/syntaxhighlighter/syntaxhighlighter). I did a POC to use this library with fronitity. For which I came across a react [library](https://www.npmjs.com/package/react-syntax-highlighter) for Syntax-highlighter as well as the prism. Create a html2react processor to process &#39;pre&#39; tags and read the contents of the child &#39;code&#39; element and render that with the SyntaxHighlighter react component.  
+
+src/component/code.js
+
+```
+import React from &quot;react&quot;;
+import SyntaxHighlighter from &quot;react-syntax-highlighter&quot;;
+
+const CodeHighlighter = {
+  name: &quot;codehg&quot;,
+  priority: 1,
+  test: node =&gt; node.component === &quot;pre&quot;,
+  process: node =&gt; {
+    if (node.children.length &gt; 0 &amp;&amp; node.children[0].component === &quot;code&quot;) {
+      node.props.code = node.children[0].children[0].content;
+      node.component = TestComponenet;
+    }
+    return node;
+  }
+};
+
+export default CodeHighlighter;
+
+const TestComponenet = props =&gt; {
+  return (
+    &lt;SyntaxHighlighter language=&quot;java&quot; showLineNumbers=&quot;true&quot;&gt;
+      {props.code}
+    &lt;/SyntaxHighlighter&gt;
+  );
+};
+```
+
+src/index.js
+
+```
+import Theme from &quot;./components&quot;;
+import image from &quot;@frontity/html2react/processors/image&quot;;
+import CodeHighlighter from &quot;./components/code&quot;;
+
+const before = ({ libraries }) =&gt; {
+  // We use html2react to process the &lt;img&gt; tags inside the content HTML.
+  libraries.html2react.processors.push(image);
+  libraries.html2react.processors.push(CodeHighlighter);
+};
+...
+...
+
+```
+
+wp HTML post sample for the code snippet 
+
+```
+&lt;!-- wp:code --&gt;
+&lt;pre theme=&quot;coco&quot;&gt;&lt;code&gt;public static void main(String[] args){
+    System.out.println(&quot;Hello World&quot;);
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;!-- /wp:code --&gt;
+```
+
+This works well. Now I am planning to create an extension which will read attributes from pre tag like ( I am referring to [this](https://www.npmjs.com/package/react-syntax-highlighter) react implementation for other properties that are supported )
+
+highlighterType = &quot;prism&quot; | &quot;hljs&quot; NOTE: hljs - syntax highlighter
+theme= valid theme supported by respective library.
+style= style supported by respective library
+showLineNumbers= TRUE | FALSE ( to show line numbers )
+startingLineNumber = Starting line number
+
+I would like to get any other inputs from the team. That could be as basic as, whether this use case in itself is a valid use case that qualifies as an extension.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 29 Nov 2019 16:36:36 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/syntax-highlighter-extension/833.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Syntax-highlighter extension</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/pandurang">@pandurang</a>, sorry for the delay <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote no-group quote-modified" data-post="1" data-topic="833">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pandurang/40/418_2.png" class="avatar"> pandurang:</div>
+<blockquote>
+<p>In order to create the very first extension for frontity I thought to create a package / extension for <a href="https://github.com/syntaxhighlighter/syntaxhighlighter">Syntax-highlighter</a>.</p>
+</blockquote>
+</aside>
+<p>That’s awesome!</p>
+<aside class="quote no-group" data-post="1" data-topic="833">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/pandurang/40/418_2.png" class="avatar"> pandurang:</div>
+<blockquote>
+<p>I would like to get any other inputs from the team. That could be as basic as, whether this use case in itself is a valid use case that qualifies as an extension.</p>
+</blockquote>
+</aside>
+<p>Yeah, I think it does.</p>
+<p>The things I will explore would be:</p>
+<ol>
+<li>How people used to add code blocks before Gutenberg. Was it always a <code>pre</code> tag? Is there any other option?</li>
+<li>How Gutenberg code block works.
+<ul>
+<li>Is it just a <code>pre</code>?</li>
+<li>Does it have any options?</li>
+</ul>
+</li>
+<li>I know <a href="http://WP.com">WP.com</a> an additional block for code called “SyntaxHighlighter”.</li>
+</ol>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/12f597d5ac53f0c40a944299aad186ed67735044.png" data-download-href="https://community.frontity.org/uploads/default/12f597d5ac53f0c40a944299aad186ed67735044" title="09"><img src="https://community.frontity.org/uploads/default/optimized/1X/12f597d5ac53f0c40a944299aad186ed67735044_2_345x236.png" alt="09" data-base62-sha1="2HIM47PxSgOHIIOuwOLjcPf3nJa" width="345" height="236" srcset="https://community.frontity.org/uploads/default/optimized/1X/12f597d5ac53f0c40a944299aad186ed67735044_2_345x236.png, https://community.frontity.org/uploads/default/optimized/1X/12f597d5ac53f0c40a944299aad186ed67735044_2_517x354.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/12f597d5ac53f0c40a944299aad186ed67735044_2_690x472.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/12f597d5ac53f0c40a944299aad186ed67735044_2_10x10.png"></a></div><p></p>
+<p>Again:</p>
+<ul>
+<li>Is it a <code>pre</code>?</li>
+<li>Which options does it have?</li>
+<li>Why are there two different code blocks in <a href="http://WP.com">WP.com</a>?</li>
+</ul>
+<hr>
+<p>Finally, I guess you will be using a library like <a href="https://www.npmjs.com/package/react-syntax-highlighter">react-syntax-highlighter</a>, right? Those libraries contain a lot of rules for the different languages and are usually huge: <a href="https://bundlephobia.com/result?p=react-syntax-highlighter@11.0.2">https://bundlephobia.com/result?p=react-syntax-highlighter@11.0.2</a></p>
+<p>So I would add code-splitting to your extension. That way, only when your component is present, the library is loaded: <a href="https://docs.frontity.org/learning-frontity/code-splitting">https://docs.frontity.org/learning-frontity/code-splitting</a></p>
+<p>Maybe including a setting to whiltelist the languages and reduce the bundle size would be great too. People don’t usually blog about 100 different languages, they blog about 2 or 3.</p>
+<p><em>By the way, we’ve just fixed a bug with code-splitting but it’s not released yet. It’ll be included in the next version: <a href="https://github.com/frontity/frontity/pull/238">https://github.com/frontity/frontity/pull/238</a></em></p>
+          <p><a href="https://community.frontity.org/t/syntax-highlighter-extension/833/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/syntax-highlighter-extension/833/4</link>
+        <pubDate>Fri, 29 Nov 2019 16:36:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-833-4</guid>
+        <source url="https://community.frontity.org/t/syntax-highlighter-extension/833.rss">Syntax-highlighter extension</source>
+      </item>
+      <item>
+        <title>Syntax-highlighter extension</title>
+        <dc:creator><![CDATA[pandurang]]></dc:creator>
+        <description><![CDATA[
+            <p>In order to create the very first extension for frontity. I thought to create a package / extension for <a href="https://github.com/syntaxhighlighter/syntaxhighlighter" rel="nofollow noopener">Syntax-highlighter</a>. I did a POC to use this library with fronitity. For which I came across a react <a href="https://www.npmjs.com/package/react-syntax-highlighter" rel="nofollow noopener">library</a> for Syntax-highlighter as well as the prism. Create a html2react processor to process ‘pre’ tags and read the contents of the child ‘code’ element and render that with the SyntaxHighlighter react component.</p>
+<p>src/component/code.js</p>
+<pre><code class="lang-auto">import React from "react";
+import SyntaxHighlighter from "react-syntax-highlighter";
+
+const CodeHighlighter = {
+  name: "codehg",
+  priority: 1,
+  test: node =&gt; node.component === "pre",
+  process: node =&gt; {
+    if (node.children.length &gt; 0 &amp;&amp; node.children[0].component === "code") {
+      node.props.code = node.children[0].children[0].content;
+      node.component = TestComponenet;
+    }
+    return node;
+  }
+};
+
+export default CodeHighlighter;
+
+const TestComponenet = props =&gt; {
+  return (
+    &lt;SyntaxHighlighter language="java" showLineNumbers="true"&gt;
+      {props.code}
+    &lt;/SyntaxHighlighter&gt;
+  );
+};
+</code></pre>
+<p>src/index.js</p>
+<pre><code class="lang-auto">import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+import CodeHighlighter from "./components/code";
+
+const before = ({ libraries }) =&gt; {
+  // We use html2react to process the &lt;img&gt; tags inside the content HTML.
+  libraries.html2react.processors.push(image);
+  libraries.html2react.processors.push(CodeHighlighter);
+};
+...
+...
+
+</code></pre>
+<p>wp HTML post sample for the code snippet</p>
+<pre><code class="lang-auto">&lt;!-- wp:code --&gt;
+&lt;pre theme="coco"&gt;&lt;code&gt;public static void main(String[] args){
+    System.out.println("Hello World");
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;!-- /wp:code --&gt;
+</code></pre>
+<p>This works well. Now I am planning to create an extension which will read attributes from pre tag like ( I am referring to <a href="https://www.npmjs.com/package/react-syntax-highlighter" rel="nofollow noopener">this</a> react implementation for other properties that are supported )</p>
+<p>highlighterType = “prism” | “hljs” NOTE: hljs - syntax highlighter<br>
+theme= valid theme supported by respective library.<br>
+style= style supported by respective library<br>
+showLineNumbers= TRUE | FALSE ( to show line numbers )<br>
+startingLineNumber = Starting line number</p>
+<p>I would like to get any other inputs from the team. That could be as basic as, whether this use case in itself is a valid use case that qualifies as an extension.</p>
+          <p><a href="https://community.frontity.org/t/syntax-highlighter-extension/833/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/syntax-highlighter-extension/833/1</link>
+        <pubDate>Mon, 18 Nov 2019 10:46:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-833-1</guid>
+        <source url="https://community.frontity.org/t/syntax-highlighter-extension/833.rss">Syntax-highlighter extension</source>
+      </item>
+  </channel>
+</rss>

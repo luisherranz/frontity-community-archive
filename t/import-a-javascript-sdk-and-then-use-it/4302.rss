@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Import a javascript SDK and then use it</title>
+    <link>https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302</link>
+    <description>I&#39;m trying to use the Facebook Javascript SDK in my Frontity theme, but I&#39;m not sure what&#39;s the best way to import it, and how to use it.
+I don&#39;t want it to slow down my page, so I want to import it async.
+I need to call a function from it, after user navigates between posts ( `FB.XFBML.parse();`).
+I write down, how I implemented it, and I&#39;m really happy for any feedback, or maybe somebody will benefit from it.
+I created an `FbSdkScript.js` file:
+
+    import React, { createContext, useContext, useState, useEffect } from &#39;react&#39;
+
+    // Context.
+    export const FbSdkScriptContext = createContext()
+
+    // Create a custom hook to use the context.
+    export const useFbSdkScriptContext = () =&gt; useContext(FbSdkScriptContext)
+
+    // Provider of context.
+    const FbSdkScriptProvider = ({
+      children
+    }) =&gt; {
+      const [hasLoaded, setHasLoaded] = useState(false)
+
+      /**
+       * Extra security measure to check if the script has
+       * already been included in the DOM
+       */
+      const scriptAlreadyExists = () =&gt;
+        document.querySelector(&#39;script#fb-sdk&#39;) !== null
+
+      /**
+       * Append the script to the document.
+       * Whenever the script has been loaded it will
+       * set the isLoaded state to true.
+       */
+      const appendSdkScript = () =&gt; {
+        const script = document.createElement(&#39;script&#39;)
+        script.id = &#39;fb-sdk&#39;
+        script.src = &#39;//connect.facebook.net/en_EN/sdk.js#xfbml=1&amp;version=v10.0&amp;autoLogAppEvents=1&amp;appId=MY_APP_ID&#39;
+        script.async = true
+        script.defer = true
+        script.crossOrigin = &#39;anonymous&#39;
+        script.onload = () =&gt; setHasLoaded(true)
+        document.body.append(script)
+      }
+
+      /**
+       * Runs first time when component is mounted
+       * and adds the script to the document.
+       */
+      useEffect(() =&gt; {
+        if (!scriptAlreadyExists()) {
+          appendSdkScript()
+        }
+      }, [])
+
+      return (
+        &lt;FbSdkScriptContext.Provider value={{ hasLoaded }}&gt;
+          {children}
+        &lt;/FbSdkScriptContext.Provider&gt;
+      )
+    }
+
+    export default FbSdkScriptProvider
+
+Then, added it to my `components/index.js`:
+
+    ... return(...
+      &lt;/Head&gt;
+      &lt;FbSdkScriptProvider&gt;
+      .... // The conent of my site, including &lt;Switch&gt;
+      &lt;/FbSdkScriptProvider&gt;
+     ....
+And I use it as the following in my posts, to have a Like button for each post:
+
+    import { useFbSdkScriptContext } from &#39;../FbSdkScript&#39;
+   
+    const Post = ({ state, actions, libraries }) =&gt; {
+      const { hasLoaded } = useFbSdkScriptContext()
+
+      useEffect(() =&gt; {
+        if (hasLoaded) {
+          FB.XFBML.parse(document.getElementById(&#39;postContainer&#39;))
+        }
+      }, [state.router.link, hasLoaded]) // I added state.router.link, so it&#39;s reparse my site after clicking to another post from this post.
+      ...
+      // And here is the like button: 
+      &lt;StyledFBLike&gt;
+          &lt;div className=&#39;fb-like&#39; data-href={post.link} data-width=&#39;&#39; data-layout=&#39;button_count&#39; data-action=&#39;like&#39; data-size=&#39;large&#39; data-share=&#39;true&#39; /&gt;
+      &lt;/StyledFBLike&gt;
+      ...
+    }
+    export default connect(Post)
+
+    const StyledFBLike = styled.div`
+    width: 100%;
+    .fb-like, .fb-like iframe, .fb-like span { width: 100% !important; }</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 31 Mar 2021 09:29:04 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Import a javascript SDK and then use it</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the suggestions! <a href="https://github.com/frontity/frontity/pull/770" rel="noopener nofollow ugc">PR</a> is ready <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> .</p>
+          <p><a href="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/9</link>
+        <pubDate>Wed, 31 Mar 2021 09:29:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4302-9</guid>
+        <source url="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302.rss">Import a javascript SDK and then use it</source>
+      </item>
+      <item>
+        <title>Import a javascript SDK and then use it</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a>,</p>
+<p>Here you have the implementation of the <code>&lt;Script&gt;</code> component</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/dev/packages/components/script.tsx" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/dev/packages/components/script.tsx" target="_blank" rel="noopener">frontity/frontity/blob/dev/packages/components/script.tsx</a></h4>
+<pre><code class="lang-tsx">import { useEffect } from "react";
+import * as React from "react";
+
+/**
+ * Props passed to the {@link Script} component.
+ */
+interface ScriptProps {
+  /**
+   * Specifies the URI of an external script. Same as the `src` attribute of the
+   * HTML &lt;script&gt; element.
+   *
+   * @example
+   * ```
+   * &lt;Script src="https://my.site.org/static/some-script.js" /&gt;
+   * ```
+   */
+  src?: string;
+
+  /**
+   * Script code in string format. If this prop is used, the code is evaluated
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/frontity/frontity/blob/dev/packages/components/script.tsx" target="_blank" rel="noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>As you can see is not a very complex implementation. Taking into account this implementation you can:</p>
+<ul>
+<li>Replicate it and create your own <code>&lt;Script&gt;</code> component adding the <code>onLoading</code> event  (via <code>props</code>) to the component</li>
+<li>Open a  <a href="https://community.frontity.org/c/feature-discussions/33">Feature Discussion</a> so this event is added to the official component</li>
+<li>Open a  PR with this new <code>prop</code> added to the official component or make this component ready so any extra props added toit are passed to the internal <code>&lt;script&gt;</code> tag</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/7</link>
+        <pubDate>Fri, 26 Mar 2021 09:50:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4302-7</guid>
+        <source url="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302.rss">Import a javascript SDK and then use it</source>
+      </item>
+      <item>
+        <title>Import a javascript SDK and then use it</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the response <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> !<br>
+I was not aware of the  <code>&lt;Script&gt;</code> component, but it does not have an onload prop. How will I know, if it’s loaded already?</p>
+          <p><a href="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/5</link>
+        <pubDate>Thu, 25 Mar 2021 08:36:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4302-5</guid>
+        <source url="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302.rss">Import a javascript SDK and then use it</source>
+      </item>
+      <item>
+        <title>Import a javascript SDK and then use it</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a> ,</p>
+<p>You can directly use the <code>&lt;Script&gt;</code> React component available at the <a href="https://api.frontity.org/frontity-packages/collections-packages/components"><code>@frontity/components</code></a> library</p>
+<p>If you check the internal code of this component is doing more or less what your’re doing manually</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/dev/packages/components/script.tsx" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/dev/packages/components/script.tsx" target="_blank" rel="noopener">frontity/frontity/blob/dev/packages/components/script.tsx</a></h4>
+<pre><code class="lang-tsx">import { useEffect } from "react";
+import * as React from "react";
+
+/**
+ * Props passed to the {@link Script} component.
+ */
+interface ScriptProps {
+  /**
+   * Specifies the URI of an external script. Same as the `src` attribute of the
+   * HTML &lt;script&gt; element.
+   *
+   * @example
+   * ```
+   * &lt;Script src="https://my.site.org/static/some-script.js" /&gt;
+   * ```
+   */
+  src?: string;
+
+  /**
+   * Script code in string format. If this prop is used, the code is evaluated
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/frontity/frontity/blob/dev/packages/components/script.tsx" target="_blank" rel="noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/3</link>
+        <pubDate>Thu, 25 Mar 2021 07:25:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4302-3</guid>
+        <source url="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302.rss">Import a javascript SDK and then use it</source>
+      </item>
+      <item>
+        <title>Import a javascript SDK and then use it</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m trying to use the Facebook Javascript SDK in my Frontity theme, but I’m not sure what’s the best way to import it, and how to use it.<br>
+I don’t want it to slow down my page, so I want to import it async.<br>
+I need to call a function from it, after user navigates between posts ( <code>FB.XFBML.parse();</code>).<br>
+I write down, how I implemented it, and I’m really happy for any feedback, or maybe somebody will benefit from it.<br>
+I created an <code>FbSdkScript.js</code> file:</p>
+<pre><code>import React, { createContext, useContext, useState, useEffect } from 'react'
+
+// Context.
+export const FbSdkScriptContext = createContext()
+
+// Create a custom hook to use the context.
+export const useFbSdkScriptContext = () =&gt; useContext(FbSdkScriptContext)
+
+// Provider of context.
+const FbSdkScriptProvider = ({
+  children
+}) =&gt; {
+  const [hasLoaded, setHasLoaded] = useState(false)
+
+  /**
+   * Extra security measure to check if the script has
+   * already been included in the DOM
+   */
+  const scriptAlreadyExists = () =&gt;
+    document.querySelector('script#fb-sdk') !== null
+
+  /**
+   * Append the script to the document.
+   * Whenever the script has been loaded it will
+   * set the isLoaded state to true.
+   */
+  const appendSdkScript = () =&gt; {
+    const script = document.createElement('script')
+    script.id = 'fb-sdk'
+    script.src = '//connect.facebook.net/en_EN/sdk.js#xfbml=1&amp;version=v10.0&amp;autoLogAppEvents=1&amp;appId=MY_APP_ID'
+    script.async = true
+    script.defer = true
+    script.crossOrigin = 'anonymous'
+    script.onload = () =&gt; setHasLoaded(true)
+    document.body.append(script)
+  }
+
+  /**
+   * Runs first time when component is mounted
+   * and adds the script to the document.
+   */
+  useEffect(() =&gt; {
+    if (!scriptAlreadyExists()) {
+      appendSdkScript()
+    }
+  }, [])
+
+  return (
+    &lt;FbSdkScriptContext.Provider value={{ hasLoaded }}&gt;
+      {children}
+    &lt;/FbSdkScriptContext.Provider&gt;
+  )
+}
+
+export default FbSdkScriptProvider
+</code></pre>
+<p>Then, added it to my <code>components/index.js</code>:</p>
+<pre><code>... return(...
+  &lt;/Head&gt;
+  &lt;FbSdkScriptProvider&gt;
+  .... // The conent of my site, including &lt;Switch&gt;
+  &lt;/FbSdkScriptProvider&gt;
+ ....
+</code></pre>
+<p>And I use it as the following in my posts, to have a Like button for each post:</p>
+<pre><code>import { useFbSdkScriptContext } from '../FbSdkScript'
+
+const Post = ({ state, actions, libraries }) =&gt; {
+  const { hasLoaded } = useFbSdkScriptContext()
+
+  useEffect(() =&gt; {
+    if (hasLoaded) {
+      FB.XFBML.parse(document.getElementById('postContainer'))
+    }
+  }, [state.router.link, hasLoaded]) // I added state.router.link, so it's reparse my site after clicking to another post from this post.
+  ...
+  // And here is the like button: 
+  &lt;StyledFBLike&gt;
+      &lt;div className='fb-like' data-href={post.link} data-width='' data-layout='button_count' data-action='like' data-size='large' data-share='true' /&gt;
+  &lt;/StyledFBLike&gt;
+  ...
+}
+export default connect(Post)
+
+const StyledFBLike = styled.div`
+width: 100%;
+.fb-like, .fb-like iframe, .fb-like span { width: 100% !important; }</code></pre>
+          <p><a href="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302/1</link>
+        <pubDate>Tue, 23 Mar 2021 13:33:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4302-1</guid>
+        <source url="https://community.frontity.org/t/import-a-javascript-sdk-and-then-use-it/4302.rss">Import a javascript SDK and then use it</source>
+      </item>
+  </channel>
+</rss>

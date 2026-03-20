@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>WordPress Native Blog Comments: How to show threaded (children) of parent comment?</title>
+    <link>https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131</link>
+    <description>Hey guys - thanks in advance for any help.
+
+Currently I&#39;m building a small project based on the Chakra theme. Within this theme I have native WordPress comments working properly which is great! The problem is, I cannot get the comment replies (child comments/threads) to show at all. 
+
+I have used this page as a reference: https://api.frontity.org/frontity-packages/features-packages/wp-comments#demo but I have just not been successful in finding a way for this to show. I&#39;m just not sure if I&#39;m even approaching this correctly... 
+
+I can see the comment reply itself within the state.source.comment array, but I&#39;m not sure how to display it properly below the parent. I feel like I&#39;m definitely missing something. 
+
+Does anyone have any advice or an example of this working? I appreciate any help. :) 
+
+Below is the link to my repo. I&#39;m also linking straight away to the comments component for anyone to check out. 
+
+Github Repo: https://github.com/Marcquito/enzosgreatadventure
+Github Repo (Comments Component): https://github.com/Marcquito/enzosgreatadventure/tree/main/packages/frontity-chakra-theme/src/components/comments 
+URL of WP REST API: https://admin.enzosgreatadventure.com
+
+Thank you!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 22 Aug 2021 06:51:20 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>WordPress Native Blog Comments: How to show threaded (children) of parent comment?</title>
+        <dc:creator><![CDATA[marc]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks again for the help and direction on this one… still working through a few issues since for some reason this threading isn’t working properly for me. I’ll be sure to post here with an update when I get it working finally.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/5</link>
+        <pubDate>Sun, 22 Aug 2021 06:51:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5131-5</guid>
+        <source url="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131.rss">WordPress Native Blog Comments: How to show threaded (children) of parent comment?</source>
+      </item>
+      <item>
+        <title>WordPress Native Blog Comments: How to show threaded (children) of parent comment?</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>The only example is from the docs page, which should work (unless they changed the package without changing the documentation.</p>
+<pre><code class="lang-js">const Comments = connect(({ postId, state }) =&gt; {
+  // Get comments from state.
+  const data = state.source.get(`@comments/${postId}`);
+
+  // Utility to render comments and replies recursively.
+  const renderComments = (items) =&gt;
+    items.map(({ id, children }) =&gt; (
+      // You should define your own &lt;Comment/&gt; component!
+      &lt;Comment key={id}&gt;
+        {/* Render replies */}
+        {children &amp;&amp; renderComments(children)}
+      &lt;/Comment&gt;
+    ));
+
+  // Render comments if data is ready.
+  return data.isReady ? renderComments(data.items) : null;
+});
+</code></pre>
+          <p><a href="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/4</link>
+        <pubDate>Tue, 17 Aug 2021 09:07:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5131-4</guid>
+        <source url="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131.rss">WordPress Native Blog Comments: How to show threaded (children) of parent comment?</source>
+      </item>
+      <item>
+        <title>WordPress Native Blog Comments: How to show threaded (children) of parent comment?</title>
+        <dc:creator><![CDATA[marc]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for much for the direction! I spent some time working with what you have outlined here, but still having a bit of an issue having them work properly. Do you know of any examples out there I can view to see how they’re working?</p>
+          <p><a href="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/3</link>
+        <pubDate>Mon, 16 Aug 2021 19:31:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5131-3</guid>
+        <source url="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131.rss">WordPress Native Blog Comments: How to show threaded (children) of parent comment?</source>
+      </item>
+      <item>
+        <title>WordPress Native Blog Comments: How to show threaded (children) of parent comment?</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>The main issue is that a single comment doesn’t know the children, however the wp-comment package does know it. So in you first have to loop over the parent comments without doing anything other than calling the RenderComment component. In here you render the comment itself and check for children, if they exist loop back to RenderComment and handle the child comment (and their children).</p>
+<p>I haven’t tested the below code and most likely won’t work, but should at least give an indication of how to handle it.</p>
+<pre><code class="lang-js">import React from "react";
+import { connect, styled } from "frontity";
+import { formatDate } from "../helpers";
+
+const CommentsList = ({ state, libraries, postId }) =&gt; {
+    const data = state.source.get(`@comments/${postId}`);
+    const Html2React = libraries.html2react.Component;
+
+    // RenderComment component
+    const RenderComment = ({ comment }) =&gt; {
+        const authorAvatar = state.source.comment[comment.id].author_avatar_urls['96'];
+        const authorName = state.source.comment[comment.id].author_name || "Anonymous";
+        const authorDate = state.source.comment[comment.id].date;
+        const authorComment = state.source.comment[comment.id].content.rendered;
+
+        return (
+            &lt;&gt;
+                &lt;Comment&gt;
+                    &lt;div className="author-info"&gt;
+                        &lt;div className="author-avatar"&gt;
+                            &lt;img src={authorAvatar} /&gt;
+                        &lt;/div&gt;
+                        &lt;div className="author-name"&gt;
+                            {authorName}&lt;br /&gt;
+                            &lt;small&gt;{formatDate(authorDate)}&lt;/small&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;CommentContent&gt;
+                         {/* current comment */}
+                        &lt;Html2React html={authorComment} /&gt;
+                    &lt;/CommentContent&gt;
+                    {/* loop over children, if they exist */}
+                    {comment.children &amp;&amp;
+                        comment.children.map(elem, index =&gt; {
+                            return (
+                                &lt;RenderComment key={index} comment={elem} /&gt;
+                            );
+                        })
+                    }
+                &lt;/Comment&gt;
+            &lt;/&gt;
+        );
+    };
+
+    // set the container and loop over the main comments
+    return (
+        &lt;&gt;
+            &lt;Container&gt;
+                &lt;h3 className="comment-section-title"&gt;Comments&lt;/h3&gt;
+                {data.items.map(elem, index =&gt; {
+                    return (
+                        &lt;RenderComment key={index} comment={elem} /&gt;
+                    );
+                })}
+            &lt;/Container&gt;
+        &lt;/&gt;
+    );
+};
+
+
+export default connect(CommentsList);
+
+const Container = styled.div`
+    margin: 40px;
+    max-width: 750px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 92%;
+    .comment-section-title{
+        font-family: var(--chakra-fonts-heading);
+        font-weight: var(--chakra-fontWeights-bold);
+        text-transform: uppercase;
+        font-size: 1.5em;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    .author-info{
+        display: flex;
+    }
+    .author-info img{
+        border-radius: var(--chakra-radii-full);
+        margin-right: 20px;
+        width: 55px;
+        height: 55px;
+        box-shadow: 0px 0px 25px -7px var(--chakra-colors-accent-400);
+        border: 1px solid var(--chakra-colors-accent-400);
+    }
+    .author-name{
+    }
+`;
+
+const Comment = styled.div`
+    padding: 20px;
+    border-bottom: 1px solid #e9f5f2;
+    .author-name{
+        font-weight: 800;
+    }
+`;
+
+const CommentContent = styled.div`
+    padding: 10px 0;
+`;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/2</link>
+        <pubDate>Sun, 15 Aug 2021 11:35:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5131-2</guid>
+        <source url="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131.rss">WordPress Native Blog Comments: How to show threaded (children) of parent comment?</source>
+      </item>
+      <item>
+        <title>WordPress Native Blog Comments: How to show threaded (children) of parent comment?</title>
+        <dc:creator><![CDATA[marc]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey guys - thanks in advance for any help.</p>
+<p>Currently I’m building a small project based on the Chakra theme. Within this theme I have native WordPress comments working properly which is great! The problem is, I cannot get the comment replies (child comments/threads) to show at all.</p>
+<p>I have used this page as a reference: <a href="https://api.frontity.org/frontity-packages/features-packages/wp-comments#demo" class="inline-onebox" rel="noopener nofollow ugc">@frontity/wp-comments - API Reference</a> but I have just not been successful in finding a way for this to show. I’m just not sure if I’m even approaching this correctly…</p>
+<p>I can see the comment reply itself within the state.source.comment array, but I’m not sure how to display it properly below the parent. I feel like I’m definitely missing something.</p>
+<p>Does anyone have any advice or an example of this working? I appreciate any help. <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=10" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Below is the link to my repo. I’m also linking straight away to the comments component for anyone to check out.</p>
+<p>Github Repo: <a href="https://github.com/Marcquito/enzosgreatadventure" class="inline-onebox" rel="noopener nofollow ugc">GitHub - Marcquito/enzosgreatadventure</a><br>
+Github Repo (Comments Component): <a href="https://github.com/Marcquito/enzosgreatadventure/tree/main/packages/frontity-chakra-theme/src/components/comments" class="inline-onebox" rel="noopener nofollow ugc">enzosgreatadventure/packages/frontity-chakra-theme/src/components/comments at main · Marcquito/enzosgreat</a><br>
+URL of WP REST API: <a href="https://admin.enzosgreatadventure.com" rel="noopener nofollow ugc">https://admin.enzosgreatadventure.com</a></p>
+<p>Thank you!</p>
+          <p><a href="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131/1</link>
+        <pubDate>Sun, 15 Aug 2021 06:12:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5131-1</guid>
+        <source url="https://community.frontity.org/t/wordpress-native-blog-comments-how-to-show-threaded-children-of-parent-comment/5131.rss">WordPress Native Blog Comments: How to show threaded (children) of parent comment?</source>
+      </item>
+  </channel>
+</rss>

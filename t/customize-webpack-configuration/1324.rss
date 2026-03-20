@@ -1,0 +1,940 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Customize Webpack configuration</title>
+    <link>https://community.frontity.org/t/customize-webpack-configuration/1324</link>
+    <description># Description
+
+We want to allow users to extend the Webpack configuration.
+
+# User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want to **customize the default Webpack configuration**
+&gt; so that I can **use change the default configuration and add additional features**
+
+# Possible solution
+
+Use the `frontity.config.js` file where you can export a function that receives the current Webpack config object.
+
+In Frotity, we have 3 different configs, one for the server, another for the es5 bundles and another for the es6 (&quot;module&quot;) bundles.
+
+This function will be run 3 times, one for each `target`.
+
+```js
+export const webpack = ({ config, mode, target }) =&gt; {
+  // Change the publicPath.
+  config.output.publicPath = &quot;https://mycdn.com/&quot;;
+
+  // Add support for a new file type.
+  config.modules.rules.push({
+    test: /\.ext$/,
+    loader: &quot;some-loader&quot;
+  });
+
+  // Change devtool option for development mode.
+  if (mode === &quot;development&quot;) {
+    config.devtool = &quot;cheap-eval-source-map&quot;;
+  }
+
+  // Add an alias for the server.
+  if (target === &quot;server&quot;) {
+    config.resolve.alias[&quot;some-package&quot;] = &quot;other-package&quot;;
+  }
+
+  // Add an external for the client (both es5 and module).
+  if (target === &quot;es5&quot; || target === &quot;module&quot;) {
+    config.externals[&quot;some-package&quot;] = &quot;window.variable&quot;;
+  }
+};
+```
+
+We should allow for `frontity.config.js` files in:
+- **The root folder of the project**: People can add configuration specific to their project.
+- **Inside packages**: Package developers can add configuration specific to their packages.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 24 Feb 2022 16:20:22 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/customize-webpack-configuration/1324.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[vil]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi guys ! I’m quite new to frontity but I assume the solution will work for my needs as I don’t wan’t to rewrite all the various calls to my wordpress rest api.<br>
+Thanks a lot then.<br>
+What I’m doing with it is a React-Three-Fiber (3D) app that needs “glb or gltf” files to be loaded, so I wanted to open a new topic but this one seems to go straight to my problem :</p>
+<ul>
+<li>Modifying my webpack.config.js</li>
+</ul>
+<p>First of, It’s quite unclear for me about how to add the frontity.config.js (where ? in the root folder or in my brand new custom theme package ?)<br>
+<strong>// Sorry about this last point it was quite clear in description that it could be created at both locations</strong></p>
+<p>Then I’d like to know if it’s possible to provide an example of how to allow new filetypes ?<br>
+(there’s the codeSandBox from <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> that seems to be functionnal as it has been released but I already tried it and I don’t manage to remove this sticky log that I’ve put in my “home” component, --production tried).</p>
+<p>Then what I’ve tried is that, located at the root :<br>
+<img src="https://community.frontity.org/uploads/default/original/2X/4/4128a7063d6c4e3c7bbaa5c0e8e1f5774f65d274.png" alt="image" data-base62-sha1="9iq8fmi7r7xfZ7rtMzPo6chSAew" width="572" height="414"></p>
+<p>Sorry if I landed the wrong place.<br>
+I’ll set a gravatar but it’s my professionnal address and i’d prefer to choose it wisely <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=12" title=":blush:" class="emoji" alt=":blush:" loading="lazy" width="20" height="20"><br>
+Have a nice day !</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/54">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/54</link>
+        <pubDate>Thu, 24 Feb 2022 16:04:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-54</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>hey jeff,</p>
+<p>I had a similar issue with window related to Konva. I dont know if this will help you but here is how I solved it in my project:</p>
+<pre><code class="lang-js">const webpack_1 = require("webpack");
+
+export const webpack = ({ config, mode }) =&gt; {
+  if (mode === "development") {
+    config.devtool = "eval-cheap-source-map";
+  }
+  config.plugins.push(new webpack_1.IgnorePlugin(/canvas|jsdom/, /konva/));
+};
+</code></pre>
+<p>It basically adds the package to the ignore plugin to prevent the compilation error.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/53">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/53</link>
+        <pubDate>Tue, 25 Jan 2022 11:37:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-53</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[jeff]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>I am having a webpack <code>window is not defined</code> error with one of the modules I’m using. I believe that by updating the globalObject to “this” it should resolve the issue. Is it possible to update the webpack config within Frontity?</p>
+<p>I have created a package, added frontity.config.js to it with the below</p>
+<pre><code class="lang-javascript">export const webpack = ({ config, mode }) =&gt; {
+  config.output.globalObject = "this";
+};
+</code></pre>
+<p>but that didn’t seem to work. I have followed the Sandbox example but I can’t make it work. Could you please help?</p>
+<p>Thanks,<br>
+Jeff</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/52">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/52</link>
+        <pubDate>Thu, 13 Jan 2022 15:11:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-52</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="SantosGuillamot" data-post="50" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Could you do it after the call you are planning to have with a detailed explanation please?</p>
+</blockquote>
+</aside>
+<p>Yes, that was the idea <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote no-group" data-username="cristianbote" data-post="49" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p>Sure thing! Would love to.</p>
+</blockquote>
+</aside>
+<p>Awesome! <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/51">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/51</link>
+        <pubDate>Mon, 17 May 2021 08:29:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-51</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="luisherranz" data-post="48" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@santosguillamot</a> do you think we should address this as part of the Webpack/Babel config feature, or it is fine for now?</p>
+</blockquote>
+</aside>
+<p>I think it would be better to open a new Feature Discussion for this. Could you do it after the call you are planning to have with a detailed explanation please? I have a couple of questions but I can share them once the FD is opened.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/50">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/50</link>
+        <pubDate>Mon, 17 May 2021 08:07:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-50</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="luisherranz" data-post="48" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a> do you want to have a call to open an FD and outline a possible IP together?</p>
+</blockquote>
+</aside>
+<p>Sure thing! Would love to.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/49">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/49</link>
+        <pubDate>Mon, 17 May 2021 08:00:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-49</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a> realized that configurations from packages that are only added to one site can leak to another site.</p>
+<p>So to make this perfect, we should do this in <code>npx frontity build</code>:</p>
+<ol>
+<li>
+<p>Run webpack indiviually per site.</p>
+<p><em>This actually means running it 3 times per site, for: <code>module</code>, <code>es5</code> and <code>server</code>.</em></p>
+</li>
+<li>
+<p>Do a final step to bundle all the <code>server.js</code> files together.</p>
+</li>
+</ol>
+<p>In <code>npx frontity dev</code>, we should ask the user which site he/she wants to start and only bundle that:</p>
+<pre><code class="lang-nohighlight">npx frontity dev 
+
+&gt; What site do you want to start?
+- main-site
+- another-site
+- yet-another-site
+</code></pre>
+<pre><code class="lang-nohighlight">npx frontity dev --site main-site
+</code></pre>
+<hr>
+<p>We were already planning to do this for pwa/offline support and to make the Embedded mode <code>--public-path</code> configuration unnecessary.</p>
+<p><a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a> do you want to have a call to open an FD and outline a possible IP together?</p>
+<p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@santosguillamot</a> do you think we should address this as part of the Webpack/Babel config feature, or it is fine for now?</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/48">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/48</link>
+        <pubDate>Mon, 17 May 2021 07:49:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-48</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>I have created this issue to document this</p><aside class="onebox githubissue">
+  <header class="source">
+      <a href="https://github.com/frontity/docs/issues/303" target="_blank" rel="noopener">github.com/frontity/docs</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Issue">
+	  <svg width="60" height="60" class="github-icon" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/docs/issues/303" target="_blank" rel="noopener">Document Webpack and Babel extensibility support</a>
+    </h4>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2021-05-14" data-time="12:56:44" data-timezone="UTC">12:56PM - 14 May 21 UTC</span>
+      </div>
+
+
+      <div class="user">
+        <a href="https://github.com/juanmaguitar" target="_blank" rel="noopener">
+          <img alt="juanmaguitar" src="https://community.frontity.org/uploads/default/original/2X/7/76a08d53f4fa8ac583476bd1d0477d43119ad282.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          juanmaguitar
+        </a>
+      </div>
+    </div>
+
+    <div class="labels">
+    </div>
+  </div>
+</div>
+
+  <div class="github-row">
+    <p class="github-body-container">https://community.frontity.org/t/frontity-release-webpack-and-babel-extensibilit<span class="show-more-container"><a href="https://community.frontity.org" rel="noopener" class="show-more">…</a></span><span class="excerpt hidden">y-support/4577
+https://community.frontity.org/t/customize-webpack-configuration/1324/2</span></p>
+  </div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Feel free to add any information that you consider may be useful for this documentation</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/47">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/47</link>
+        <pubDate>Fri, 14 May 2021 12:57:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-47</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="SantosGuillamot" data-post="45" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I think you used the <a href="https://community.frontity.org/t/read-before-adding-new-features/853/2">Implementation Proposal</a> template instead of the <a href="https://community.frontity.org/t/read-before-adding-new-features/853/7">Final Implementation template</a></p>
+</blockquote>
+</aside>
+<p>Oh no! <img src="https://community.frontity.org/images/emoji/apple/see_no_evil.png?v=9" title=":see_no_evil:" class="emoji" alt=":see_no_evil:">  on it. Thank you!</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/46">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/46</link>
+        <pubDate>Fri, 14 May 2021 11:48:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-46</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="cristianbote" data-post="43" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p>let me know if the IP needs more deep dive or a better explanation</p>
+</blockquote>
+</aside>
+<p>I think the explanation is great, thanks Cristian <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> Just a minor comment. I think you used the <a href="https://community.frontity.org/t/read-before-adding-new-features/853/2">Implementation Proposal</a> template instead of the <a href="https://community.frontity.org/t/read-before-adding-new-features/853/7">Final Implementation template</a>. It’s true that in this Feature Discussion we didn’t have an initial implementation proposal, but as it is already released and done, I think we can write the Final Implementation directly. Anyway, I think the explanation you provided should be enough. Could you please slightly update the titles to reflect it is the Final Implementation please?</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/45">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/45</link>
+        <pubDate>Fri, 14 May 2021 11:36:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-45</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>The final implementation is so simple that I think a video demo isn’t needed <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:">. I’ve created <a href="https://codesandbox.io/s/billowing-fast-7oqz9?file=/packages/change-config/frontity.config.js">this simple CodeSandbox</a> to show an example of how to extend both WebPack and Babel. Some comments about it:</p>
+<ul>
+<li>We could have added the <code>frontity.config.js</code> file to the <code>mars-theme</code> , but I wanted to show how easy it is to create a new package for this.</li>
+<li>I changed the <a href="https://webpack.js.org/configuration/devtool/">Devtool property</a> for WebPack in development mode, but you could change anything in the <a href="https://webpack.js.org/configuration/">WebPack configuration</a>.</li>
+<li>I added the simple <a href="https://www.npmjs.com/package/babel-plugin-transform-remove-console">Babel plugin transform-remove-console</a> to remove console.logs only in production, but again you can change anything in the <a href="https://babeljs.io/docs/en/configuration">Babel configuration</a>.</li>
+<li>If you want to check the different behaviour in the own CodeSandbox, you can change the <code>package.json</code> dev script (this is what CodeSandbox uses), add the flag <code>--production</code> , and restart the server. Without the flag you can see “Development Mode” in the console, and if you add the flag you shouldn’t see it after restarting the server.</li>
+<li>This is the code I added for this example:</li>
+</ul>
+<pre><code class="lang-js">export const webpack = ({ config, mode }) =&gt; {
+  if (mode === "development") {
+    config.devtool = "eval-cheap-source-map";
+  }
+};
+
+export const babel = ({ config, mode }) =&gt; {
+  if (mode === "production") {
+    config.plugins.push([
+      "transform-remove-console",
+      {
+        rules: [
+          {
+            exclude: ["error", "warning"]
+          }
+        ]
+      }
+    ]);
+  }
+};
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/44">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/44</link>
+        <pubDate>Fri, 14 May 2021 11:33:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-44</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> let me know if the IP needs more deep dive or a better explanation.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/43">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/43</link>
+        <pubDate>Thu, 13 May 2021 12:38:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-43</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <h1>
+<a name="final-implementation-1" class="anchor" href="https://community.frontity.org#final-implementation-1"></a>Final Implementation</h1>
+<h2>
+<a name="pull-request-2" class="anchor" href="https://community.frontity.org#pull-request-2"></a>Pull Request</h2>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/812" target="_blank" rel="noopener">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Pull Request">
+    <svg width="60" height="60" class="github-icon" viewBox="0 0 12 16" aria-hidden="true"><path d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/frontity/pull/812" target="_blank" rel="noopener">Custom webpack config</a>
+    </h4>
+
+    <div class="branches">
+      <code>frontity:dev</code> ← <code>frontity:custom-webpack-config</code>
+    </div>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2021-05-04" data-time="09:38:45" data-timezone="UTC">09:38AM - 04 May 21 UTC</span>
+      </div>
+
+      <div class="user">
+        <a href="https://github.com/cristianbote" target="_blank" rel="noopener">
+          <img alt="cristianbote" src="https://community.frontity.org/uploads/default/original/2X/4/42ac75940fe63dc39aa9116a5fdd692c68321927.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          cristianbote
+        </a>
+      </div>
+
+      <div class="lines" title="14 commits changed 61 files with 19454 additions and 243 deletions">
+        <a href="https://github.com/frontity/frontity/pull/812/files" target="_blank" rel="noopener">
+          <span class="added">+19454</span>
+          <span class="removed">-243</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="github-row">
+    <p class="github-body-container">**What**:
+
+Adding the possibility for packages to define a `frontity.config.*`<span class="show-more-container"><a href="https://github.com/frontity/frontity/pull/812" target="_blank" rel="noopener" class="show-more">…</a></span><span class="excerpt hidden"> file to customise the webpack, babel or frontity configurations.
+
+**How**:
+
+In order to be able to run custom configuration, we needed a way to import a new file named `frontity.config.(j|t)s` that exports configurations for each of the contexts: webpack, babel and frontity.
+
+**Tasks**:
+
+
+
+
+- [x] Code
+- [x] TSDocs
+- [x] TypeScript
+- [x] Unit tests
+- [x] End to end tests
+- [x] TypeScript tests
+- [x] Update community discussions
+- [x] Add a changeset (with link to its [Feature Discussion](https://community.frontity.org/c/33) if it exists)
+
+&lt;!-- Changesets are necessary if your changes should release any packages.
+Run `npx changeset` to create a changeset.
+More info at https://docs.frontity.org/contributing/code-contribution-guide#what-is-a-changeset --&gt;
+
+**Unrelated Tasks**
+
+- [ ] Update starter themes
+- [ ] Update other packages
+
+**Additional Comments**
+
+I've recorded a video about it here https://www.loom.com/share/a2da571c9dbc4858878fe9e4c73cfb4c</span></p>
+  </div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<h2>
+<a name="functionalities-3" class="anchor" href="https://community.frontity.org#functionalities-3"></a>Functionalities</h2>
+<p>Frontity uses <code>webpack</code> as the build tool, to bundle and generate the needed JavaScript to run on the server but also on the client. We use a specially crafted set of configurations to generate them, which takes into account the target for the bundles – which can be server, module and es5, and because of that extending the configuration or customising it was not an easy task. One would have to patch the frontity package or give up on their customisations. That is not ideal, as you can imagine, since customising the bundling configuration is usually something that site frameworks are allowing and encourages the community to take it further.</p>
+<p>Webpack is a powerful and established tool. It allows one to use build time configurations to effectively enhance the generated output, regardless of the target.</p>
+<h3>
+<a name="context-4" class="anchor" href="https://community.frontity.org#context-4"></a>Context</h3>
+<p>The inner architecture of <code>frontity</code> is composed of three main configuration, which in the end are funnelled into webpack’s configuration.</p>
+<ul>
+<li>Frontity configuration</li>
+<li>Babel configuration</li>
+<li>Webpack configuration</li>
+</ul>
+<h3>
+<a name="goals-5" class="anchor" href="https://community.frontity.org#goals-5"></a>Goals</h3>
+<p>The main goal is to allow one to define a <code>frontity.config.(j|t)s</code> file that can modify the configuration by mutating the passed config. A generic example is this:</p>
+<pre><code class="lang-js">// `example` here is a placeholder for frontity, babel or webpack
+export const example = ({
+  // config, is the default configuration
+  config,
+  // target, refers to the three possible targets: server, module and es5
+  target,
+  // mode, is either development or production
+  mode
+}) =&gt; {
+  // inside here you can modify them as you wish
+};
+</code></pre>
+<h1>
+<a name="out-of-scope-6" class="anchor" href="https://community.frontity.org#out-of-scope-6"></a>Out of scope</h1>
+<p>The config file is designed to be defined by package and used by a site. It can not be defined at the site level. This is intended and it is like this to keep each custom configuration in it’s own context and scope.</p>
+<h2>
+<a name="technical-explanation-7" class="anchor" href="https://community.frontity.org#technical-explanation-7"></a>Technical explanation</h2>
+<p>The proposed solution is the one that reads the packages configuration files, and creates a dictionary</p>
+<h3>
+<a name="read-the-config-files-8" class="anchor" href="https://community.frontity.org#read-the-config-files-8"></a>Read the config files</h3>
+<p>First we need to read up the configuration files from all the packages, before running webpack. In order to do that, we have to construct a sort of dictionary where we can collect each defined configuration function.</p>
+<pre><code class="lang-js">const dictionary = {
+  frontity: [
+    // list of config functions for frontity context
+  ],
+  babel: [ /* ... */],
+  webpack: [ /* ... */]
+};
+</code></pre>
+<blockquote>
+<p><strong>Why the need of a dictionary?</strong><br>
+Multiple packages can export and define customisations for each of the three contexts. That means that we need to be able to run all of the packages customisations.</p>
+</blockquote>
+<p>After we have the above dictionary computed, we can pass it along to the <code>getConfig</code> function in the scripts file.</p>
+<h3>
+<a name="run-each-configuration-context-9" class="anchor" href="https://community.frontity.org#run-each-configuration-context-9"></a>Run each configuration context</h3>
+<p>All the <em>magic</em> happens in the <code>getConfig</code> function. This function runs the <code>frontity</code>, <code>babel</code> and <code>webpack</code> functions to generate the configurations to be used as configurations for the compiler. So, that means at this point we need to run the <em>customisation</em> functions. This results in something like:</p>
+<pre><code class="lang-js">const config = ({
+  mode,
+  extraConfigurations,
+  ...rest // other configurations
+}) =&gt; {
+  // Default config for frontity
+  const frontity = getFrontity();
+
+  // Run the entries for frontity.
+  extraConfigurations.frontity.forEach(fn =&gt; {
+    fn({ config: frontity, mode });
+  });
+
+  // Default config for babel. Keep in mind this configuration is split by target.
+  const babel = getBabel();
+
+  // For each target run the extra configuration for babel
+  for (const target in babel) {
+    extraConfigurations.babel.forEach(fn =&gt; {
+      fn({ config: babel, mode, target });
+    });
+  }
+
+  // This returns the default webpack configuration split for each target as well.
+  const webpack = getWebpack({
+    mode,
+    babel,
+    frontity,
+    ...rest // rest of the passed configs
+  });
+
+  // For each target run the extra configuration for webpack
+  for (const target in babel) {
+    extraConfigurations.webpack.forEach(fn =&gt; {
+      fn({ config: webpack, mode, target });
+    });
+  }
+
+  return {
+    babel,
+    webpack,
+    frontity,
+  };
+};
+</code></pre>
+<h2>
+<a name="thats-it-10" class="anchor" href="https://community.frontity.org#thats-it-10"></a>That’s it!</h2>
+<p>At this point, each package extra configuration ran, and the returned configurations for frontity, babel and webpack are customised.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/42">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/42</link>
+        <pubDate>Thu, 13 May 2021 12:37:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-42</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="luisherranz" data-post="39" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a>, can you please right the Final Implementation?</p>
+</blockquote>
+</aside>
+<p>I can surely try! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/41">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/41</link>
+        <pubDate>Wed, 12 May 2021 06:20:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-41</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="luisherranz" data-post="39" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/santosguillamot">@santosguillamot</a>, are you going to make a demo video?</li>
+</ul>
+</blockquote>
+</aside>
+<p>I would like to test it first and decide after that. If it’s simple maybe with a CodeSandbox it’s enough. I will let you know.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/40">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/40</link>
+        <pubDate>Tue, 11 May 2021 13:44:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-40</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>The PR is now merged <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"><img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"></p>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/812" target="_blank" rel="noopener">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Pull Request">
+    <svg width="60" height="60" class="github-icon" viewBox="0 0 12 16" aria-hidden="true"><path d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/frontity/pull/812" target="_blank" rel="noopener">Custom webpack config</a>
+    </h4>
+
+    <div class="branches">
+      <code>frontity:dev</code> ← <code>frontity:custom-webpack-config</code>
+    </div>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2021-05-04" data-time="09:38:45" data-timezone="UTC">09:38AM - 04 May 21 UTC</span>
+      </div>
+
+      <div class="user">
+        <a href="https://github.com/cristianbote" target="_blank" rel="noopener">
+          <img alt="cristianbote" src="https://community.frontity.org/uploads/default/original/2X/4/42ac75940fe63dc39aa9116a5fdd692c68321927.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          cristianbote
+        </a>
+      </div>
+
+      <div class="lines" title="14 commits changed 61 files with 19454 additions and 243 deletions">
+        <a href="https://github.com/frontity/frontity/pull/812/files" target="_blank" rel="noopener">
+          <span class="added">+19454</span>
+          <span class="removed">-243</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="github-row">
+    <p class="github-body-container">**What**:
+
+Adding the possibility for packages to define a `frontity.config.*`<span class="show-more-container"><a href="https://github.com/frontity/frontity/pull/812" target="_blank" rel="noopener" class="show-more">…</a></span><span class="excerpt hidden"> file to customise the webpack, babel or frontity configurations.
+
+**How**:
+
+In order to be able to run custom configuration, we needed a way to import a new file named `frontity.config.(j|t)s` that exports configurations for each of the contexts: webpack, babel and frontity.
+
+**Tasks**:
+
+
+
+
+- [x] Code
+- [x] TSDocs
+- [x] TypeScript
+- [x] Unit tests
+- [x] End to end tests
+- [x] TypeScript tests
+- [x] Update community discussions
+- [x] Add a changeset (with link to its [Feature Discussion](https://community.frontity.org/c/33) if it exists)
+
+&lt;!-- Changesets are necessary if your changes should release any packages.
+Run `npx changeset` to create a changeset.
+More info at https://docs.frontity.org/contributing/code-contribution-guide#what-is-a-changeset --&gt;
+
+**Unrelated Tasks**
+
+- [ ] Update starter themes
+- [ ] Update other packages
+
+**Additional Comments**
+
+I've recorded a video about it here https://www.loom.com/share/a2da571c9dbc4858878fe9e4c73cfb4c</span></p>
+  </div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a>, can you please right the Final Implementation?</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/santosguillamot">@santosguillamot</a>, are you going to make a demo video?</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/39">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/39</link>
+        <pubDate>Tue, 11 May 2021 12:57:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-39</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By the way, for context, <a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a> has started a PR to add this feature: <a href="https://github.com/frontity/frontity/pull/812" class="inline-onebox">Custom webpack config by cristianbote · Pull Request #812 · frontity/frontity · GitHub</a></p>
+<p>I mentioned there this:</p>
+<p>If we include the <code>frontity</code> configuration as well, as you showed in the video, we can create a package <code>@frontity/vercel</code> that uses the new <code>.vercel_build_output</code> folder for the build if <code>process.env.VERCEL</code> exists.</p>
+<p>Another thing we want to add later to the <code>frontity.config.js</code> file is the ability to modify the site settings and add a package priority.</p>
+<p>For example, the <code>@frontity/amp</code> package could set <code>mode: "amp"</code> automatically using this:</p>
+<pre><code class="lang-js">// High priority, run before any other package.
+export const priority = 1
+
+// Set the mode to "amp" so the user doesn't have to.
+export const settings = ({ settings }) =&gt; {
+  settings.mode = "amp";
+}
+</code></pre>
+<p>So definitely it’s a good idea to use named exports <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"><img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/38">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/38</link>
+        <pubDate>Wed, 05 May 2021 08:56:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-38</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="cristianbote" data-post="35" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p>What are your thoughts?</p>
+</blockquote>
+</aside>
+<p>When I first thought about the <code>frontity.config.js</code> file, I thought that a site/root one would be cool, but right now I can’t think of any configuration that it is not better done at a package-level.</p>
+<p>So to avoid confusion and anti-patterns, I would not include it at first. If we discover a real need for it later, we can always add it <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/37">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/37</link>
+        <pubDate>Wed, 05 May 2021 08:54:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-37</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>Recorded another video about it <a href="https://www.loom.com/share/a2da571c9dbc4858878fe9e4c73cfb4c" class="inline-onebox">Loom | Free Screen &amp; Video Recording Software</a></p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/36">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/36</link>
+        <pubDate>Tue, 04 May 2021 09:53:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-36</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>One more thing I was meaning to ask is that currently how I thought about it, is that only the configuration files from within packages are read and apply. Should we allow a site specific configuration as well? Meaning:</p>
+<pre><code class="lang-javascript">/packages
+/packages/theme/[...]
+/packages/theme/frontity.config.ts # &lt;--This is allowed and works
+[...]
+/frontity.settings.ts
+/frontity.config.ts  # &lt;-- Should we allow this?
+</code></pre>
+<p>What are your thoughts?</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/35">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/35</link>
+        <pubDate>Tue, 04 May 2021 07:59:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-35</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="luisherranz" data-post="32" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>My only feedback would be to use a named export in the <code>frontity.config.js</code> file, to be able to add more stuff in the future:</p>
+</blockquote>
+</aside>
+<p>Oh you are right! That’s a good call.</p>
+<aside class="quote no-group" data-username="luisherranz" data-post="32" data-topic="1324">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>run the babel config through an <code>babel</code> exports of the <code>frontity.config.js</code> files:</p>
+</blockquote>
+</aside>
+<p>Indeed, that’s doable. Wondering how often would someone need to only adjust the babel configuration and not the whole config? <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"> On the flip side, having to walk the webpack config only to get to the babel loader it’s painful. Gonna test it out.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/34">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/34</link>
+        <pubDate>Thu, 22 Apr 2021 13:00:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-34</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><s>Another question that comes to my mind is if we should pass <code>target</code> as a parameter of the function, or pass a config object with all targets:</s></p>
+<pre><code class="lang-js">export const webpack = ({ config, target }) =&gt; {
+  // Add something only on the server.
+  if (target === "server") {
+    config.someConfig = "...";
+  }
+
+  // Add something only on the client.
+  if (target !== "server") {
+    config.someOtherConfig = "...";
+  }
+};
+</code></pre>
+<pre><code class="lang-js">export const webpack = ({ config }) =&gt; {
+  // Add something only on the server.
+  config.server.someConfig = "...";
+  // Add something only on the client.
+  config.module.someOtherConfig = "...";
+  config.es5.someOtherConfig = "...";
+};
+</code></pre>
+<p><s>Same for <code>babel</code> (if we add it).</s></p>
+<p>EDIT: Nevermind, passing <code>target</code> as a function argument as you did seems much nicer.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/33">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/33</link>
+        <pubDate>Thu, 22 Apr 2021 08:40:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-33</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I love it! <img src="https://community.frontity.org/images/emoji/apple/heart.png?v=9" title=":heart:" class="emoji" alt=":heart:"><img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+<p>My only feedback would be to use a named export in the <code>frontity.config.js</code> file, to be able to add more stuff in the future:</p>
+<pre><code class="lang-js">// frontity.config.js
+export const webpack = ({ ... }) =&gt; ...
+</code></pre>
+<p>Other than that, it looks great!</p>
+<p>By the way, we also had a FD to customize babel configuration (<a href="https://community.frontity.org/t/customize-babel-configuration/1068" class="inline-onebox">Customize Babel configuration</a>). But maybe we can close that for now, because configuring Babel will be possible using this:</p>
+<pre><code class="lang-js">// frontity.config.js
+export const webpack = ({ config }) =&gt; {
+  const babel = config.module.rules.find(
+    (rule) =&gt; rule.use.loader === "babel-loader"
+  ).options;
+
+  // Add a new plugin.
+  babel.plugins.push("my-own-babel-plugin");
+};
+</code></pre>
+<p>The other option would be to get the <code>frontity.config</code> files at this point: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/config/index.ts#L48-L50" class="inline-onebox">frontity/index.ts at dev · frontity/frontity · GitHub</a> and run the babel config through an <code>babel</code> exports of the <code>frontity.config.js</code> files:</p>
+<pre><code class="lang-js">// frontity.config.js
+export const babel = ({ config }) =&gt; {
+  // Add a new plugin.
+  config.plugins.push("my-own-babel-plugin");
+};
+</code></pre>
+<p>Then, pass the babel config to <code>getWebpack()</code> and run the webpack config through the <code>webpack</code> exports of the <code>frontity.config.js</code> files.</p>
+<p>What do you think?</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/32">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/32</link>
+        <pubDate>Thu, 22 Apr 2021 08:34:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-32</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve started looking into this and recorded a small video to get some early feedback.</p>
+<iframe width="640" height="360" src="https://www.loom.com/embed/6d4ca5af6e6d49e7b53b036346f44a4f" frameborder="0" allowfullscreen=""></iframe>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/31">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/31</link>
+        <pubDate>Thu, 22 Apr 2021 08:17:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-31</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+      <item>
+        <title>Customize Webpack configuration</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <span class="mention">@jeffceirello</span> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>This is the webpack file that contains the <code>module</code> definition: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/config/webpack/modules.ts" class="inline-onebox">frontity/modules.ts at dev · frontity/frontity · GitHub</a></p>
+<p>You can patch it using <a href="https://www.npmjs.com/package/patch-package" class="inline-onebox">patch-package - npm</a> if you want.</p>
+          <p><a href="https://community.frontity.org/t/customize-webpack-configuration/1324/30">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/customize-webpack-configuration/1324/30</link>
+        <pubDate>Wed, 07 Apr 2021 14:06:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1324-30</guid>
+        <source url="https://community.frontity.org/t/customize-webpack-configuration/1324.rss">Customize Webpack configuration</source>
+      </item>
+  </channel>
+</rss>

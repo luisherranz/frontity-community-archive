@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+    <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762</link>
+    <description>Hi,
+
+trying to consolidate a few discussions around this topic with a specific scenario
+
+let&#39;s say I want an Events page which has both intro copy (the `content` field) and a paged list of events.
+
+there&#39;s usually 2 ways to do this in Wordpress (assuming a CPT &quot;event&quot; and some custom routing)
+
+a) an `/events` archive template that pulls in content from a separate Events page (usually with the slug `/events` in the WP admin, so requires some routing overrides)
+
+OR
+
+b) an Events page `/events` that runs a custom loop to get all the CPT items 
+
+I think `a)` is usually easier to paginate since WP sees it is an archive by default.
+
+//
+
+I am currently creating the CPT with CPT UI plugin. I&#39;ve got the `REST` option set to `true` and the archive slug set to `event-archive` (although actually it would probably just want to be `events`)
+
+In frontity, I want to be able to 
+
+1) display this Events page with content + list when I visit `/events`
+2) have access to the list of `events` posts  for rendering on other pages if necessary
+
+the problems here are
+
+1)  if I set the archive to `&quot;/events&quot;` in settings for my post type then I can&#39;t fetch data from the Events page which also has the same post slug `&quot;/events&quot;`
+
+2) if I set the archive setting to `/event-archive`  (matching what&#39;s in the WP CPT admin), then it creates a browser route at `/event-archive` which I don&#39;t want but at least allows me to call eg this in my `events.js` file
+```
+  const event_data = state.source.get(state.router.link) // (&#39;/event-archive&#39;)
+  const events = event_data.items
+
+  const post_data = state.source.get(&quot;/events&quot;) // my Events page
+  const post = state.source[post_data.type][post_data.id]  
+```
+
+however as noted, I actually want the user-facing URL for this page to be `/events` which ideally I&#39;d set as the archive slug
+
+is the only option for my `/events` URL to create a custom handler to compose the Page &amp; Archive data together?  is there another way to access the Events Page data other than `source.get(&#39;/events&#39;)` ?
+
+
+**handler example:** (adapted from https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js - thanks @annya.branco !)
+```
+// get all events
+// note it actually doesn&#39;t use our archive slug from WP (set as &quot;event-archive&quot; in CPT UI)
+const eventsList = await libraries.source.api.get({endpoint: &quot;event&quot;}) 
+
+// get &quot;events&quot; page itself. 
+// this is where we will get page content from to show above our events list
+const eventsPage = await libraries.source.api.get({endpoint: &quot;pages&quot;, params: { include: 11 }});
+```
+
+thanks for any clarification
+J</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 16 Jun 2021 21:49:24 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> I ended up solving like this, without handlers for simplicity (and also due to this handler issue <a href="https://community.frontity.org/t/how-to-extend-default-data-with-handler/4775/1" class="inline-onebox">How to extend default data with handler?</a>)</p>
+<p>it allows me to easily use the proper pagination eg /events/page/2 etc and connects to Yoast properly</p>
+<ul>
+<li>
+<p>archive is <code>events</code>, page for content is <code>events-page</code></p>
+</li>
+<li>
+<p>disable /events-page route in browser - see discussion:<br>
+<a href="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/3" class="inline-onebox">Allow route for fetch only, not as public-facing browser url? - #3 by codemonkeynorth</a></p>
+</li>
+</ul>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions, libraries }) =&gt; {
+  if(state.router.link === '/events-page/') {
+
+    // manually 404 this route, ie when visiting mysite.com/events-page
+    Object.assign(state.source.data[state.router.link], {
+      isError: true,
+      is404: true,
+      isPostType: false,
+      errorStatus: 404
+    });
+  }
+  
+  // fetch route still works
+  if(state.router.link.startsWith('/events/')) {
+    // grab the content from our dummy page
+    await actions.source.fetch("/events-page/")
+  }
+</code></pre>
+<ul>
+<li>
+<p>index.js switch (<code>/events</code>)<br>
+<code> &lt;Events when={data.isEventArchive} /&gt;</code></p>
+</li>
+<li>
+<p><code>&lt;Events&gt;</code> component for <code>isEventArchive</code></p>
+</li>
+</ul>
+<pre><code class="lang-javascript">const Events = ({ state, actions, libraries }) =&gt; {
+
+  // get our event archive items
+  const data = state.source.get(state.router.link)
+  const events = data.items 
+
+  // get our dummy holder page
+  const events_page_data = state.source.get("/events-page")
+  let events_page
+  
+  // check if data is loaded, 
+  // since it will initially be undefined when browsing client-side
+  if(events_page_data.isReady) {
+    events_page = state.source[events_page_data.type][events_page_data.id];  
+  }
+
+  // client-side fetch of content
+  useEffect(() =&gt; {
+    actions.source.fetch("/events-page/")
+  },[])
+  
+  // check archive content and holder page content are ready
+  return data.isReady &amp;&amp; events_page_data.isReady ? (
+
+  {/* render holder content */}
+  &lt;div dangerouslySetInnerHTML={{__html: events_page.content?.rendered }}&gt;
+  &lt;/div&gt;
+
+  {/* render archive list */}
+  &lt;div&gt;
+  { events?.map(event_item =&gt; {.... etc
+</code></pre>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/9</link>
+        <pubDate>Wed, 16 Jun 2021 18:28:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-9</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/johan">@Johan</a></p>
+<blockquote>
+<p>But you can disable the archive page for a CPT, while the slug for the items still exists.</p>
+</blockquote>
+<p>one of the main issues is I want it to use the standard archive URL so it plays nice with yoast’s archive titles etc.</p>
+<p>that means I need to have my archive as <code>/events</code><br>
+it also means I can’t have my dummy content page as <code>/events</code> as it will clash as discussed</p>
+<p>however if i rename my content page as eg <code>events-content</code> it’ll then also be accessible in the URL as <code>http://mysite.com/events-content</code> which I don’t want direct access to</p>
+<p>I cant 404 that URL as it will also stop the <code>fetch('/events-content')</code> working (see…<br>
+<a href="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783" class="inline-onebox">Allow route for fetch only, not as public-facing browser url</a>)</p>
+<p>if i try create a custom handler to deal with this, it breaks the archive (see <a href="https://community.frontity.org/t/how-to-extend-default-data-with-handler/4775/" class="inline-onebox">How to extend default data with handler?</a>) and the connection to yoast etc</p>
+<p>thanks<br>
+J</p>
+<p>PS I made a messy solution but it seems all kinds of wrong!!</p>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions, libraries }) =&gt; {
+  if(state.router.link.startsWith('/events/')) {      
+
+    // prefetch  extra content from dummy holder page
+    const response = await libraries.source.api.get({
+      endpoint: '/wp/v2/pages?slug=events-content'
+    });
+
+    // add the content to our data
+    const res = await response.json();
+    Object.assign(state.source.data[state.router.link], 
+      { holder_content: res[0].content }
+    );
+  }
+}
+</code></pre>
+<p>now frontity no longer relies on a <code>fetch('/events-content')</code> so I can now 404 that route in the browser to stop the user accessing it directly</p>
+<p>also my <code>isEventArchive</code> params etc remain intact, and there’s now an extra bit of data that I need: <code>holder_content</code> which is the <code>content</code> field from my <code>/events-content</code> page in WP.</p>
+<p>normally presumably I’d not want to put the holder page content directly into the data and instead have an indirect reference  something like eg</p>
+<pre><code class="lang-javascript">holder: {type: "page", id: 2, link: "/events-content/"},
+items: [ 
+  0: {type; "event", id: 13, link: "/event/the-first-event/" },
+  1: {type; "event", id: 14, link: "/event/the-second-event/" },
+ ]`
+</code></pre>
+<p>but as discussed above, I’ve no way to disable the browser url for <code>/events-content</code> without disabling the fetch route, hence my need to rely on the api get and putting the holder page content directly into the data, so that method would leaves me with the same problem anyway.</p>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/8</link>
+        <pubDate>Mon, 14 Jun 2021 18:26:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-8</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> I managed to make the following handler and it also paginates fine, but I lose my Yoast title for the archive (if I set it as a page type rather than an archive - as noted in the code - I get the “Page” title from WP though)</p>
+<pre><code class="lang-javascript">const eventsFunc = async ({ route, params, state, libraries }) =&gt; {
+  // https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/
+  // get the page number for pagination
+  const { page } = libraries.source.parse(route);
+
+  // 1. get all events (paginated 2 per page)
+  const eventsList = await libraries.source.api.get({
+    endpoint: "event", // note it doesn't use our "archive" slug 
+    params: { 
+      per_page: 2,
+      page: page, 
+      paged: page     
+    }
+  });
+
+  // 1. get "Events" page itself (/events). 
+  // this is where we will get page content from 
+  // to show text content above our list of events
+  const eventsPage = await libraries.source.api.get({
+    endpoint: "pages",
+    params: { include: 11 }
+  });
+
+  // 2. add everything to the state.
+  const events = await libraries.source.populate({
+    response: eventsList,
+    state
+  });
+
+  const [_page] = await libraries.source.populate({
+    response: eventsPage,
+    state
+  });
+  
+  // 3. add info to data
+  Object.assign(state.source.data[route], {
+    
+    // TREAT AS PAGE
+    // this method will show the title from the Wordpress "Page"
+    /*
+    isEventsPage: true,
+    isPostType: true,
+    type: "page",
+    id: _page.id,
+    */
+
+    // or...
+
+    // TREAT AS ARCHIVE
+    // this method is missing the archive title from Yoast
+    // appears to be no condition for it in &lt;Title&gt; component?
+    
+    isEventArchive: true,
+    isPostTypeArchive: true,
+    isArchive: true,
+    type: "post",
+    
+    
+    page: page, // PAGE NUMBER FOR PAGINATION
+
+    events: events.map(event =&gt; ({
+      type: event.type,
+      id: event.id,
+      link: event.link
+    }))
+  });
+}
+
+export const events = {
+  priority: 10,
+  pattern: "/events",
+  func: eventsFunc
+};
+</code></pre>
+<p>as mentioned I lose the title.</p>
+<p>Now if I do the following…</p>
+<ul>
+<li>set my archive slug as “events” in CPT UI</li>
+<li>set my post type with <code>archive: "events"</code> in  frontity settings,</li>
+<li>rename my Events <em>page</em> slug (id=11) to eg <code>page-content</code> so there’s no clash</li>
+<li>remove my “events” handler</li>
+</ul>
+<p>then my Yoast title turns up properly  “Events Archive - My Site”</p>
+<p>(I can’t paginate though because it doesn’t let me set an amount of items per page)</p>
+<p>however as soon as I add the handler (because I need to inject some extra page content from page id=11 into the output) then the title breaks.</p>
+<p>(see also: <a href="https://community.frontity.org/t/how-to-extend-default-data-with-handler/4775" class="inline-onebox">How to extend default data with handler?</a> , I can’t seemingly just set it as an archive in the handler as it’s losing connection to the original data)</p>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/7</link>
+        <pubDate>Sun, 13 Jun 2021 17:32:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-7</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> ah right thanks, but how does Frontity access the items?<br>
+(other than creating a custom handler and populating)</p>
+<p><code>get(‘/events’)</code> is still going to get my WP page not the archive though?</p>
+<p>if I then create a post type archive endpoint in my Frontity settings (eg /event-list), that also then creates a public route for the browser at <code>example.com/event-list</code> which I don’t want. It would be useful to be able to specify these endpoints as optionally only for data fetches</p>
+<p>Thanks<br>
+J</p>
+<p>Ps however this maybe feels the wrong way round. I probably want /events to be my archive endpoint and then pull in the Page content somehow but again since that has the <code>/events</code> slug I’m stuck. In that case I guess just rename my page in the admin to <code>/event-page</code> and then add a handler to block that url in the browser so it’s only used as a fetch route.</p>
+<p>Essentially the same issue, either way round it is implemented… I’ve got a browser url that I only want as a data fetch route</p>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/6</link>
+        <pubDate>Fri, 11 Jun 2021 16:46:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-6</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>But you can disable the archive page for a CPT, while the slug for the items still exists.<br>
+This works both in a scripted CPT and in any (good) CPT management plugin.</p>
+<p>That way you can still get the events page, and have access to the CPT items, without worrying about the duplicate URI.</p>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/5</link>
+        <pubDate>Fri, 11 Jun 2021 15:27:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-5</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> thanks.</p>
+<p>post type would be “event”, archive would be “events”. The problem is I also have a Page “events” (ID = 11) and Frontity won’t let me query it using get(‘/events’) if there’s also an archive with that url as well</p>
+<p>I don’t see another away to grab the post data other than using the api endpoint in a custom handler (you can pass ID to a post endpoint), unless there’s a quick workaround that avoids the need for a handler?</p>
+<p>Thanks<br>
+J</p>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/4</link>
+        <pubDate>Fri, 11 Jun 2021 13:39:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-4</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Frontity isn’t doing anything different than what WordPress is returning. So if it works, without ugly hacks, in WP it will work in Frontity.</p>
+<p>However there’s a big difference between the archive slug, a page slug and a post type!</p>
+<p>In WordPress you can set both the post type and the slug of the CPT to <code>events</code> and disable the archive for that CPT.<br>
+That way you can create your own “archive” page with the same slug, as long as it doesn’t have any child pages.</p>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/3</link>
+        <pubDate>Fri, 11 Jun 2021 06:21:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-3</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>A couple of additional notes</p>
+<ul>
+<li>
+<p>I want to be able to navigate to eg <code>/events/page/2</code> so I imagine an archive page that I pull a separate post’s content field into would be the simplest option</p>
+</li>
+<li>
+<p>if <code>/events</code> shows an archive page as per above, presumably the simplest solution to avoiding the <code>/events</code> slug clash is just to call my Events Page in the wp admin something like <code>/events-page</code> and then just prevent the user going directly to it in the browser, but can at least be queried with a <code>get</code>?</p>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/2</link>
+        <pubDate>Fri, 11 Jun 2021 06:13:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-2</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+      <item>
+        <title>Holding page for CPT including posts of that CPT (eg /events)</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>trying to consolidate a few discussions around this topic with a specific scenario</p>
+<p>let’s say I want an Events page which has both intro copy (the <code>content</code> field) and a paged list of events.</p>
+<p>there’s usually 2 ways to do this in Wordpress (assuming a CPT “event” and some custom routing)</p>
+<p>a) an <code>/events</code> archive template that pulls in content from a separate Events page (usually with the slug <code>/events</code> in the WP admin, so requires some routing overrides)</p>
+<p>OR</p>
+<p>b) an Events page <code>/events</code> that runs a custom loop to get all the CPT items</p>
+<p>I think <code>a)</code> is usually easier to paginate since WP sees it is an archive by default.</p>
+<p>//</p>
+<p>I am currently creating the CPT with CPT UI plugin. I’ve got the <code>REST</code> option set to <code>true</code> and the archive slug set to <code>event-archive</code> (although actually it would probably just want to be <code>events</code>)</p>
+<p>In frontity, I want to be able to</p>
+<ol>
+<li>display this Events page with content + list when I visit <code>/events</code>
+</li>
+<li>have access to the list of <code>events</code> posts  for rendering on other pages if necessary</li>
+</ol>
+<p>the problems here are</p>
+<ol>
+<li>
+<p>if I set the archive to <code>"/events"</code> in settings for my post type then I can’t fetch data from the Events page which also has the same post slug <code>"/events"</code></p>
+</li>
+<li>
+<p>if I set the archive setting to <code>/event-archive</code>  (matching what’s in the WP CPT admin), then it creates a browser route at <code>/event-archive</code> which I don’t want but at least allows me to call eg this in my <code>events.js</code> file</p>
+</li>
+</ol>
+<pre><code class="lang-javascript">  const event_data = state.source.get(state.router.link) // ('/event-archive')
+  const events = event_data.items
+
+  const post_data = state.source.get("/events") // my Events page
+  const post = state.source[post_data.type][post_data.id]  
+</code></pre>
+<p>however as noted, I actually want the user-facing URL for this page to be <code>/events</code> which ideally I’d set as the archive slug</p>
+<p>is the only option for my <code>/events</code> URL to create a custom handler to compose the Page &amp; Archive data together?  is there another way to access the Events Page data other than <code>source.get('/events')</code> ?</p>
+<p><strong>handler example:</strong> (adapted from <a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js" class="inline-onebox" rel="noopener nofollow ugc">three-bunnies/handlers.js at master · annabranco/three-bunnies · GitHub</a> - thanks <a class="mention" href="https://community.frontity.org/u/annya.branco">@annya.branco</a> !)</p>
+<pre><code class="lang-javascript">// get all events
+// note it actually doesn't use our archive slug from WP (set as "event-archive" in CPT UI)
+const eventsList = await libraries.source.api.get({endpoint: "event"}) 
+
+// get "events" page itself. 
+// this is where we will get page content from to show above our events list
+const eventsPage = await libraries.source.api.get({endpoint: "pages", params: { include: 11 }});
+</code></pre>
+<p>thanks for any clarification<br>
+J</p>
+          <p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762/1</link>
+        <pubDate>Fri, 11 Jun 2021 05:52:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4762-1</guid>
+        <source url="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762.rss">Holding page for CPT including posts of that CPT (eg /events)</source>
+      </item>
+  </channel>
+</rss>

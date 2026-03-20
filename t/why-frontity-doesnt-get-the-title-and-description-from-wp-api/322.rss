@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+    <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322</link>
+    <description>As a WordPress user, I would prefer to manage all my content in WP panel and use Frontity just for the frontend. It would be great to be able to synchronize the title and description you write in WordPress with Frontity, so I (or my clients) don&#39;t have to go into Frontity project to change this info and be able to do this in WP dashboard.
+
+I have seen that this information is in the API, so wouldn&#39;t it be better to take this information from there?
+
+![https___test_frontity_io_wp-json_|653x213](upload://cow6g90PTEd8eQE2UpQzxtsjfLe.png) 
+
+Is this not possible because it wouldn&#39;t adapt to other potential sources? Or it is just not included this way in mars theme?
+
+Thanks in advance!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 23 Jul 2021 13:32:06 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m sorry I told this was not a good idea. My fault. Let’s me recap and say instead: “it’s not usually a good idea”.</p>
+<p>But in Frontity people should be able to do pretty much what they want. So if you want to do it because in your case it is a good idea, then yes, this can be done.</p>
+<p><strong>You just need to add a handler to access that information.</strong></p>
+<p>In this example I am adding a handler for the <code>/wp-json/</code> endpoint and I am calling it <code>"nameAndDescription"</code> internally to be able to use it in Frontity.</p>
+<p>Once the handler is added, you can use the same <code>actions.source.fetch</code> and <code>state.source.get</code> APIs to fetch and use its content.</p>
+<p>I have added it only to the server using <code>beforeSSR</code> and the fetching is done also only in the server. The initial state is sent to the client, so you don’t need to refetch it again in the client. It will be already there.</p>
+<pre><code class="lang-javascript">import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+
+const beforeSSR = async ({ libraries, actions }) =&gt; {
+  // Add image processor.
+  libraries.html2react.processors.push(image);
+
+  // Add the nameAndDescription handler.
+  libraries.source.handlers.push({
+    name: "nameAndDescription",
+    priority: 10,
+    pattern: "nameAndDescription",
+    func: async ({ route, state, libraries }) =&gt; {
+      // 1. Get response from api endpoint.
+      const response = await libraries.source.api.get({
+        endpoint: "/" // "/" is added after "/wp-json" so final url is "/wp-json/"
+      });
+
+      // 2. Extract relevant data from the response.
+      const { name, description } = await response.json();
+
+      // 3. Add it to the source.data object.
+      state.source.data[route].name = name;
+      state.source.data[route].description = description;
+    }
+  });
+
+  // Fetch the wp-json endpoint.
+  await actions.source.fetch("nameAndDescription");
+};
+
+const beforeCSR = ({ libraries }) =&gt; {
+  // Add image processor.
+  libraries.html2react.processors.push(image);
+};
+
+const marsTheme = {
+  name: "@frontity/mars-theme",
+  roots: {
+    theme: Theme
+  },
+  state: {
+    theme: {
+      menu: [],
+      featured: {
+        showOnList: false,
+        showOnPost: false
+      }
+    }
+  },
+  actions: {
+    theme: {
+      beforeSSR: beforeSSR,
+      beforeCSR: beforeCSR
+    }
+  }
+};
+
+export default marsTheme;
+</code></pre>
+<p>If you inspect <code>frontity.state.source.data</code> in the client you should see that it is already there:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/113edeeb9ce7ddb659f57f6db6c15030b8ef542b.png" data-download-href="https://community.frontity.org/uploads/default/113edeeb9ce7ddb659f57f6db6c15030b8ef542b" title="Screen Shot 2019-06-27 at 09.52.12.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/113edeeb9ce7ddb659f57f6db6c15030b8ef542b_2_517x185.png" alt="12" width="517" height="185" srcset="https://community.frontity.org/uploads/default/optimized/1X/113edeeb9ce7ddb659f57f6db6c15030b8ef542b_2_517x185.png, https://community.frontity.org/uploads/default/original/1X/113edeeb9ce7ddb659f57f6db6c15030b8ef542b.png 1.5x, https://community.frontity.org/uploads/default/original/1X/113edeeb9ce7ddb659f57f6db6c15030b8ef542b.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/113edeeb9ce7ddb659f57f6db6c15030b8ef542b_2_10x10.png"></a></div><p></p>
+<p>You can now access it using <code>state.source.get("nameAndDescription")</code>. Like this:</p>
+<pre><code class="lang-javascript">const Header = ({ state }) =&gt; {
+  const { name, description } = state.source.get("nameAndDescription");
+  return (
+    &lt;&gt;
+      &lt;Container&gt;
+        &lt;StyledLink link="/"&gt;
+          &lt;Title&gt;{name}&lt;/Title&gt;
+        &lt;/StyledLink&gt;
+        &lt;Description&gt;{description}&lt;/Description&gt;
+      &lt;/Container&gt;
+      &lt;Nav /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>And it should work <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/7fa46a2bb170063b9bab9d9cdb027b9f825e291f.png" alt="03" width="469" height="144"></p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/3dca5aef80c75581da36c51c12f254b6fc3351d8.png" alt="10" width="321" height="120"></p>
+          <p><a href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/7</link>
+        <pubDate>Thu, 27 Jun 2019 07:55:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-322-7</guid>
+        <source url="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss">Why Frontity doesn&#39;t get the title and description from WP API?</source>
+      </item>
+      <item>
+        <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+        <dc:creator><![CDATA[anatolikkk]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a><br>
+My English is not very good, so I will try to give some examples and you will understand my point:</p>
+<p>Name of the site<br>
+administrator email<br>
+number of posts per page</p>
+<p>and other basic wp settings that will sooner or later be needed on the frontity side.</p>
+<p>How you think about it?</p>
+<p>For example in other theme on community discussed title and desc and see as lang static set<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/b2b8e0ea0ab7b3006c94eff24c1d418f68e46c2c.png" data-download-href="https://community.frontity.org/uploads/default/b2b8e0ea0ab7b3006c94eff24c1d418f68e46c2c" title="Screenshot_2019-06-27-09-00-11-513_com.android.chrome.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/b2b8e0ea0ab7b3006c94eff24c1d418f68e46c2c_2_281x500.png" alt="chrome" width="281" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/b2b8e0ea0ab7b3006c94eff24c1d418f68e46c2c_2_281x500.png, https://community.frontity.org/uploads/default/optimized/1X/b2b8e0ea0ab7b3006c94eff24c1d418f68e46c2c_2_421x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/b2b8e0ea0ab7b3006c94eff24c1d418f68e46c2c_2_562x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/b2b8e0ea0ab7b3006c94eff24c1d418f68e46c2c_2_10x10.png"></a></div><br>
+This data can read from general setting wp, because not only en lang used users.<p></p>
+          <p><a href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/6</link>
+        <pubDate>Thu, 27 Jun 2019 05:53:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-322-6</guid>
+        <source url="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss">Why Frontity doesn&#39;t get the title and description from WP API?</source>
+      </item>
+      <item>
+        <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+        <dc:creator><![CDATA[anatolikkk]]></dc:creator>
+        <description><![CDATA[
+            <p>But let’s continue this topic and I will try to argue the importance of this issue.</p>
+<p>This title changes: once when you create a website and every time a new optimizer comes to the project, and after a hectic night, it comes to mind to change the slogan using a new keyword seo request. <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+          <p><a href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/5</link>
+        <pubDate>Thu, 27 Jun 2019 05:43:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-322-5</guid>
+        <source url="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss">Why Frontity doesn&#39;t get the title and description from WP API?</source>
+      </item>
+      <item>
+        <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+        <dc:creator><![CDATA[anatolikkk]]></dc:creator>
+        <description><![CDATA[
+            <p>Good day.<br>
+I partly agree with you that it is very expensive and not advisable to constantly receive this data (with the loading of each page).</p>
+          <p><a href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/4</link>
+        <pubDate>Thu, 27 Jun 2019 05:40:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-322-4</guid>
+        <source url="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss">Why Frontity doesn&#39;t get the title and description from WP API?</source>
+      </item>
+      <item>
+        <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Technically it could be supported but considering benefits vs costs I don’t think it’s a good idea.</p>
+<ul>
+<li>How many times are you going to edit those fields?</li>
+<li>Is it worth to <strong>do an additional fetch on each SSR</strong> just for those two fields?</li>
+</ul>
+<p>Please note that a big site can easily do thousands of SSR each day.</p>
+          <p><a href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/3</link>
+        <pubDate>Tue, 25 Jun 2019 16:38:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-322-3</guid>
+        <source url="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss">Why Frontity doesn&#39;t get the title and description from WP API?</source>
+      </item>
+      <item>
+        <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+        <dc:creator><![CDATA[anatolikkk]]></dc:creator>
+        <description><![CDATA[
+            <p>I had see same, but it’s be wrong if troubling with it.</p>
+<p>Have many other points what very want see from wp api.</p>
+<p>Can continue and showing it? Its not be understandins as wrong sounds <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+          <p><a href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/2</link>
+        <pubDate>Tue, 25 Jun 2019 12:53:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-322-2</guid>
+        <source url="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss">Why Frontity doesn&#39;t get the title and description from WP API?</source>
+      </item>
+      <item>
+        <title>Why Frontity doesn&#39;t get the title and description from WP API?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>As a WordPress user, I would prefer to manage all my content in WP panel and use Frontity just for the frontend. It would be great to be able to synchronize the title and description you write in WordPress with Frontity, so I (or my clients) don’t have to go into Frontity project to change this info and be able to do this in WP dashboard.</p>
+<p>I have seen that this information is in the API, so wouldn’t it be better to take this information from there?</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/56df96f03d958af367e3ed06ae163e0af4ea0ff4.png" alt="https___test_frontity_io_wp-json_" width="653" height="213"></p>
+<p>Is this not possible because it wouldn’t adapt to other potential sources? Or it is just not included this way in mars theme?</p>
+<p>Thanks in advance!</p>
+          <p><a href="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322/1</link>
+        <pubDate>Mon, 24 Jun 2019 14:39:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-322-1</guid>
+        <source url="https://community.frontity.org/t/why-frontity-doesnt-get-the-title-and-description-from-wp-api/322.rss">Why Frontity doesn&#39;t get the title and description from WP API?</source>
+      </item>
+  </channel>
+</rss>

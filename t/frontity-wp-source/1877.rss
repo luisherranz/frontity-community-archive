@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>@frontity/wp-source</title>
+    <link>https://community.frontity.org/t/frontity-wp-source/1877</link>
+    <description>Questions about @frontity/wp-source
+
+## `data` content on first load
+
+When I first load https://twentytwenty.frontity.org/ I get a lot of URL&#39;s under the `state.source.data`
+
+ ![Captura de pantalla 2020-05-19 a las 10.45.48|568x500](upload://t3PZk5PS9KWzMoq6HXL6y9j6lDD.png) 
+
+Are these all the URL&#39;s available in the WP? 
+What is the meaning of the `isReady` property? Is that the proper link data has been fetched and it&#39;s available under `state.source[type][id]`? Isn&#39;t there already data about several posts under  `source.post` just by visiting the home? Do we have this data of the (details of the) posts already available in   `source.post` because of some _pre-loading_? Is this logic in the theme or it is an internal thing of Frontity?
+
+## `api.get` vs `source.get`
+
+In the documentation we have [`source.get`](https://docs.frontity.org/api-reference-1/wordpress-source#source-get) &amp; [`api.get`](https://docs.frontity.org/api-reference-1/wordpress-source#api-get-endpoint-params-api-iswpcom) 
+
+As I understand the difference between these methods is...
+
+-  [`source.get`](https://docs.frontity.org/api-reference-1/wordpress-source#source-get) → It&#39;s a helper to read data from `state.source.data`.  It normalizes the URL so, for example, it will work the same for 
+
+```
+source.get(&#39;2016/shinjuku-gyoen-national-garden/&#39;)
+source.get(&#39;2016/shinjuku-gyoen-national-garden&#39;)
+source.get(&#39;/2016/shinjuku-gyoen-national-garden&#39;)
+```
+
+This `source.get` doesn&#39;t perform any `fetch`. If the `link` data is not available under `state.source.data` it will return `undefined`. If we want to have the data of some link available we may need to perform a [`source.fetch`](https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch) before
+
+-   [`api.get`](https://docs.frontity.org/api-reference-1/wordpress-source#api-get-endpoint-params-api-iswpcom) → This method allows the developer to **fetch** data directly from the API and integrate with the `source.state` if it&#39;s not already there
+
+With this method we can fetch data from an alternative API or with alternative params: `api.get({ endpoint, params, api?, isWpCom? })`
+
+What are some typical scenarios for using this method versus using [`source.fetch`](https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch) ?
+
+## handlers
+
+Handlers are like `hooks` we can add to some `fetch` to specific links so more requests are made and alternative data is added to `data.source`
+
+They can also be used to create custom links not existent in WP that we can use to do custom request to our WP API, to an alternative WP API or to any other REST API (non WP)
+
+Is this correct?
+
+-----</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 20 May 2020 01:48:15 +0000</lastBuildDate>
+    <category>📖 Documentation</category>
+    <atom:link href="https://community.frontity.org/t/frontity-wp-source/1877.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>@frontity/wp-source</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="1877">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>Are these all the URL’s available in the WP?</p>
+</blockquote>
+</aside>
+<p>yes and no <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"> Those are not <strong>all</strong> the URLs that are available in WP, but indeed all of them <strong>are</strong> available in WP. Meaning, that they are all valid routes. You can verify this by running</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/d/da1204e49fb33b76cd2927401187a1257c3d8122.png" data-download-href="https://community.frontity.org/uploads/default/da1204e49fb33b76cd2927401187a1257c3d8122" title="Screenshot 2020-05-19 at 20.49.48"><img src="https://community.frontity.org/uploads/default/optimized/2X/d/da1204e49fb33b76cd2927401187a1257c3d8122_2_517x102.png" alt="Screenshot 2020-05-19 at 20.49.48" data-base62-sha1="v78H30pLKvmQ8gL8FyFyNAQxwMa" width="517" height="102" srcset="https://community.frontity.org/uploads/default/optimized/2X/d/da1204e49fb33b76cd2927401187a1257c3d8122_2_517x102.png, https://community.frontity.org/uploads/default/optimized/2X/d/da1204e49fb33b76cd2927401187a1257c3d8122_2_775x153.png 1.5x, https://community.frontity.org/uploads/default/original/2X/d/da1204e49fb33b76cd2927401187a1257c3d8122.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/d/da1204e49fb33b76cd2927401187a1257c3d8122_2_10x10.png"></a></div><p></p>
+<p>And then navigating to a new page and running this command again.  You will see that the <code>length</code> has increased because new data has been loaded.</p>
+<p>The routes that you will see on the home page refer to all the entities that have been fetched just for viewing the home page, so that means that among other things:</p>
+<ul>
+<li>The first 10 posts have been fetched (each of them has a link, so we see the <code>/2019/&lt;postTitle&gt;/</code> in <code>state.source.data</code> for each of the 10 posts)</li>
+<li>Each post has an author. Each author also has a link, so you will see the <code>/author/&lt;authorName&gt;/</code> for each individual author for all the 10 posts in `state.source.data)</li>
+<li>The same goes for tags &amp; categories for all the posts, etc.</li>
+</ul>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="1877">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>What is the meaning of the <code>isReady</code> property? Is that the proper link data has been fetched and it’s available under <code>state.source[type][id]</code> ?</p>
+</blockquote>
+</aside>
+<p>Sort of yes! The value of <code>isReady</code> attribute tells you if the data <strong>for that page</strong> has been loaded or not yet. It could have been also been called <code>isLoaded</code> or something like that.</p>
+<p>For example, if our <code>state.source.data</code> has</p>
+<pre><code class="lang-javascript">{ 
+	"/2016/the-beauties-of-gullfoss/":  { isReady: true, ... },
+}
+</code></pre>
+<p>that means that if we navigate to <code>/2016/the-beauties-of-gullfoss/</code>, the transition will be instantaneous because we have already loaded the data for that page. We have the data for the post.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="1877">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>Isn’t there already data about several posts under <code>source.post</code> just by visiting the home? Do we have this data of the (details of the) posts already available in <code>source.post</code> because of some <em>pre-loading</em> ? Is this logic in the theme or it is an internal thing of Frontity?</p>
+</blockquote>
+</aside>
+<p>That’s a really good question, but I think that there are a couple of different issues here. Let me try to explain <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>First, yes, there is some preloading going on in the twentytwenty theme in a couple of places. If you look at <code>source.data</code> it will show <code>isReady: true</code> for <code>/</code> and for <code>/page/2/</code>:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/a/a3fd32bdd52ae20a777782e1e40d0de08f33b2c8.png" data-download-href="https://community.frontity.org/uploads/default/a3fd32bdd52ae20a777782e1e40d0de08f33b2c8" title="Screenshot 2020-05-19 at 15.34.55"><img src="https://community.frontity.org/uploads/default/optimized/2X/a/a3fd32bdd52ae20a777782e1e40d0de08f33b2c8_2_690x325.png" alt="Screenshot 2020-05-19 at 15.34.55" data-base62-sha1="noIiKd7SSb6kVJpLWRDVmfolHSg" width="690" height="325" srcset="https://community.frontity.org/uploads/default/optimized/2X/a/a3fd32bdd52ae20a777782e1e40d0de08f33b2c8_2_690x325.png, https://community.frontity.org/uploads/default/optimized/2X/a/a3fd32bdd52ae20a777782e1e40d0de08f33b2c8_2_1035x487.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/a/a3fd32bdd52ae20a777782e1e40d0de08f33b2c8_2_1380x650.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/a/a3fd32bdd52ae20a777782e1e40d0de08f33b2c8_2_10x10.png"></a></div><p></p>
+<p>Why do we have the data for <code>/page/2/</code>? This is because the pagination component will prefetch the data for the “next page” <strong>if</strong> the next page exists. This is done inside of a useEffect in both <a href="https://github.com/frontity/frontity/blob/4a75e1058fd2d648c28191d1e10636675f7b0b8f/packages/mars-theme/src/components/list/pagination.js#L17-L20">mars-theme</a> and <a href="https://github.com/frontity/frontity/blob/107d3543ce5463186809b7e6f50ca31ffbdc107d/packages/twentytwenty-theme/src/components/archive/archive-pagination.js#L55-L58">twentytwenty</a>.</p>
+<p>Second, you will also notice that when you hover over any link (e.g. for a category or for a post title) the data for that route will also be prefetched! This is because the <code>&lt;Link/&gt;</code> react component in the 2020 them will also <a href="https://github.com/frontity/frontity/blob/107d3543ce5463186809b7e6f50ca31ffbdc107d/packages/twentytwenty-theme/src/components/link.js#L17-L22">prefetch the data</a> for that URL when you hover over it.</p>
+<p>Third, we are also <a href="https://github.com/frontity/frontity/blob/107d3543ce5463186809b7e6f50ca31ffbdc107d/packages/twentytwenty-theme/src/components/post/post.js#L46-L53">prefetching the data for <code>/</code></a> when the user opens any of the post pages.</p>
+<hr>
+<p>But how does the data actually get into <code>state.source.data</code> and <code>state.source[type]</code>?</p>
+<p>            <video title="19 May, 2020 - Loom Recording" width="695" height="434" style="max-width:100%" poster="https://cdn.loom.com/sessions/thumbnails/60db7e8375a547fea29c188d2ac12d7f-00001.gif" controls="">
+              <source src="https://cdn.loom.com/sessions/transcoded/60db7e8375a547fea29c188d2ac12d7f.mp4?Expires=2147472000&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4ubG9vbS5jb20vc2Vzc2lvbnMvdHJhbnNjb2RlZC82MGRiN2U4Mzc1YTU0N2ZlYTI5YzE4OGQyYWMxMmQ3Zi5tcDQiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjIxNDc0NzIwMDB9fX1dfQ__&amp;Signature=uJb43qb0~4bkEr9LoyNXUt1a8xBbxhbDLVDEwqiwjlJPn6ScwktCZBlmVPShjpQLJBN63dg0ecIWAnXXckJgXN2qSm1cURYJ1tqqOqu3N6ucN5GtOmIyc9TfWRCuPAziA7LIu~wyTYyb7J-xHVdkX55D8CTVeRTqpWmDl5YePc6nnjzEv-XJsWCHXi1aXlF0o0sqicOZgQVTvhSqvW-xpmCLY0xD~Z7JzOManWFZ8NmzDp8YveJi~82Jp~QFdd5DQDtvNbLBU3DTuJ90kO3Qh7z3vexxT6OHt9j5SOSEkE4k8uglwGxUEi3qagkpyx0m8oFavqOHUMd08r1VUH5-2w__&amp;Key-Pair-Id=APKAJQIC5BGSW7XXK7FQ">
+            </video>
+</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="1877">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>This <code>source.get</code> doesn’t perform any <code>fetch</code> . If the <code>link</code> data is not available under <code>state.source.data</code> it will return <code>undefined</code> . If we want to have the data of some link available we may need to perform a <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch"> <code>source.fetch</code> </a> before</p>
+</blockquote>
+</aside>
+<p>This is all correct.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="1877">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>What are some typical scenarios for using this method versus using <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch"> <code>source.fetch</code> </a> ?</p>
+</blockquote>
+</aside>
+<p><code>api.get()</code> is a much more low-level method that should rarely be called by users themselves unless they are creating custom handler. This method will return the raw <code>Response</code> object that can be passed to <code>api.populate()</code>.</p>
+<p><code>source.fetch()</code> is much higher level, and is the main method that the users will use to fetch the data in their react components. It actually calls <code>api.get()</code> and <code>source.populate()</code> internally!</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="1877">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>Handlers are like <code>hooks</code> we can add to some <code>fetch</code> to specific links so more requests are made and alternative data is added to <code>data.source</code></p>
+<p>They can also be used to create custom links not existent in WP that we can use to do custom request to our WP API, to an alternative WP API or to any other REST API (non WP)</p>
+<p>Is this correct?</p>
+</blockquote>
+</aside>
+<p>Yes, this is all correct, but let me know if you have more questions.</p>
+          <p><a href="https://community.frontity.org/t/frontity-wp-source/1877/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-wp-source/1877/3</link>
+        <pubDate>Tue, 19 May 2020 23:14:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1877-3</guid>
+        <source url="https://community.frontity.org/t/frontity-wp-source/1877.rss">@frontity/wp-source</source>
+      </item>
+      <item>
+        <title>@frontity/wp-source</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Questions about <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source</p>
+<h2>
+<code>data</code> content on first load</h2>
+<p>When I first load <a href="https://twentytwenty.frontity.org/">https://twentytwenty.frontity.org/</a> I get a lot of URL’s under the <code>state.source.data</code></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/cbae202e0b32a26e71fbb8e75730e2ba08810d4d.png" data-download-href="https://community.frontity.org/uploads/default/cbae202e0b32a26e71fbb8e75730e2ba08810d4d" title="Captura de pantalla 2020-05-19 a las 10.45.48"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/cbae202e0b32a26e71fbb8e75730e2ba08810d4d_2_568x500.png" alt="Captura de pantalla 2020-05-19 a las 10.45.48" data-base62-sha1="t3PZk5PS9KWzMoq6HXL6y9j6lDD" width="568" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/cbae202e0b32a26e71fbb8e75730e2ba08810d4d_2_568x500.png, https://community.frontity.org/uploads/default/optimized/2X/c/cbae202e0b32a26e71fbb8e75730e2ba08810d4d_2_852x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/c/cbae202e0b32a26e71fbb8e75730e2ba08810d4d_2_1136x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/cbae202e0b32a26e71fbb8e75730e2ba08810d4d_2_10x10.png"></a></div><p></p>
+<p>Are these all the URL’s available in the WP?<br>
+What is the meaning of the <code>isReady</code> property? Is that the proper link data has been fetched and it’s available under <code>state.source[type][id]</code>? Isn’t there already data about several posts under  <code>source.post</code> just by visiting the home? Do we have this data of the (details of the) posts already available in   <code>source.post</code> because of some <em>pre-loading</em>? Is this logic in the theme or it is an internal thing of Frontity?</p>
+<h2>
+<code>api.get</code> vs <code>source.get</code>
+</h2>
+<p>In the documentation we have <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-get"><code>source.get</code></a> &amp; <a href="https://docs.frontity.org/api-reference-1/wordpress-source#api-get-endpoint-params-api-iswpcom"><code>api.get</code></a></p>
+<p>As I understand the difference between these methods is…</p>
+<ul>
+<li>
+<a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-get"><code>source.get</code></a> → It’s a helper to read data from <code>state.source.data</code>.  It normalizes the URL so, for example, it will work the same for</li>
+</ul>
+<pre><code class="lang-javascript">source.get('2016/shinjuku-gyoen-national-garden/')
+source.get('2016/shinjuku-gyoen-national-garden')
+source.get('/2016/shinjuku-gyoen-national-garden')
+</code></pre>
+<p>This <code>source.get</code> doesn’t perform any <code>fetch</code>. If the <code>link</code> data is not available under <code>state.source.data</code> it will return <code>undefined</code>. If we want to have the data of some link available we may need to perform a <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch"><code>source.fetch</code></a> before</p>
+<ul>
+<li>
+<a href="https://docs.frontity.org/api-reference-1/wordpress-source#api-get-endpoint-params-api-iswpcom"><code>api.get</code></a> → This method allows the developer to <strong>fetch</strong> data directly from the API and integrate with the <code>source.state</code> if it’s not already there</li>
+</ul>
+<p>With this method we can fetch data from an alternative API or with alternative params: <code>api.get({ endpoint, params, api?, isWpCom? })</code></p>
+<p>What are some typical scenarios for using this method versus using <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch"><code>source.fetch</code></a> ?</p>
+<h2>handlers</h2>
+<p>Handlers are like <code>hooks</code> we can add to some <code>fetch</code> to specific links so more requests are made and alternative data is added to <code>data.source</code></p>
+<p>They can also be used to create custom links not existent in WP that we can use to do custom request to our WP API, to an alternative WP API or to any other REST API (non WP)</p>
+<p>Is this correct?</p>
+<hr>
+          <p><a href="https://community.frontity.org/t/frontity-wp-source/1877/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-wp-source/1877/1</link>
+        <pubDate>Tue, 19 May 2020 09:25:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1877-1</guid>
+        <source url="https://community.frontity.org/t/frontity-wp-source/1877.rss">@frontity/wp-source</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to get post&#39;s url address for simple component</title>
+    <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736</link>
+    <description>Hello everyone,
+
+I&#39;m working on a simple component which should display last 5 posts&#39; images from particular category (in my case category id=91). When user clicks on image, related post should be opened.
+
+How to get proper url address of a post. This one which I found in item.link goes to origin. Which is wrong.
+origin url:
+https://wp.example.com/2016/shinjuku-gyoen-national-garden/
+desired url:
+http://localhost:3000/2016/shinjuku-gyoen-national-garden/
+
+Could somebody point me what&#39;s the proper way to achieve this?
+
+Here is my code:
+
+    import React, { useEffect, useState } from &quot;react&quot;;
+    import { connect, styled } from &quot;frontity&quot;;
+
+    const FeaturedPosts = ({ state, actions, libraries }) =&gt; {
+      const [ featuredPosts, setFeaturedPosts ] = useState( [] );
+      useEffect(() =&gt; {
+        libraries.source.api.get({
+            endpoint: &quot;posts&quot;,
+            params: { _embed: true, categories: &#39;91&#39;, per_page: 5 }
+        })
+        .then(response =&gt; {
+            response.json().then( data =&gt; {
+              console.log(data);
+              setFeaturedPosts( data );
+            });
+        });
+      }, []);
+      return (
+        &lt;div&gt;
+            {featuredPosts.length &gt; 0 &amp;&amp; (
+                &lt;FeaturedPostsContainer&gt;
+                    {featuredPosts.map(item =&gt; {
+                      const date = new Date(item.date);
+                      const imageUrl = item._embedded[&quot;wp:featuredmedia&quot;][0].source_url;
+                      const url = item.link;
+                        return (
+                          &lt;MyLink key={item.id} href={url}&gt;
+                            &lt;MiniImage src={imageUrl} /&gt;
+                            &lt;DateAndDescription&gt;
+                              &lt;span&gt;{date.toDateString()}&lt;/span&gt;
+                            &lt;/DateAndDescription&gt;
+                          &lt;/MyLink&gt;
+                        )
+                    })}
+                &lt;/FeaturedPostsContainer&gt;
+            )}
+        &lt;/div&gt;
+      );
+    }
+
+    export default connect(FeaturedPosts);
+
+    const FeaturedPostsContainer = styled.div`
+      display: flex;
+    `;
+
+    const MyLink = styled.a`
+      display: block;
+    `;
+
+    const DateAndDescription = styled.div`
+      display: none;
+    `;
+
+    const MiniImage = styled.img`
+      max-width: 100px;
+      max-height: 100px;
+    `;</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 22 Oct 2019 14:36:49 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok!</p>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/11</link>
+        <pubDate>Tue, 22 Oct 2019 14:36:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-11</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>When <code>wp-source</code> normalizes a URL it does more things apart from adding a ending slash, as it could have search params or a hash property.</p>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/10</link>
+        <pubDate>Tue, 22 Oct 2019 14:22:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-10</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="8" data-topic="736">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>I agree with not adding the slash for non-URL data, though. Maybe it is better to normalize <strong>only</strong> URLs, and leave the rest at it is, right <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>?</p>
+</blockquote>
+</aside>
+<p>What’s the difference between “not adding the slash for non-URL data” and “normalizing only URLs”?</p>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/9</link>
+        <pubDate>Tue, 22 Oct 2019 14:00:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-9</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="6" data-topic="736">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><a class="mention" href="https://community.frontity.org/u/david">@David</a> maybe we should actually <strong>remove</strong> the ending slash instead of adding it to avoid this problem with non-URL data?</p>
+<p>EDIT: Or maybe just don’t add it if it doesn’t start with <code>/</code>.</p>
+</blockquote>
+</aside>
+<p>The ending slash is not needed, it is just added when normalizing the link or whatever you pass to <code>actions.source.fetch()</code>, in order to replicate the same behavior as WordPress.</p>
+<p>I agree with not adding the slash for non-URL data, though. Maybe it is better to normalize <strong>only</strong> URLs, and leave the rest at it is, right <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>?</p>
+<p>Anyway, <a class="mention" href="https://community.frontity.org/u/liammckoy">@LiamMcKoy</a>, in case you want to get some object from <code>state.source.data</code> you can also use <code>state.source.get()</code> (it normalizes the input). In your case, for example, it could be</p>
+<pre><code class="lang-javascript">Object.assign(state.source.get("sliderMenu"), {
+  data,
+  isSliderMenu: true,
+});
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/8</link>
+        <pubDate>Tue, 22 Oct 2019 13:34:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-8</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By the way:</p>
+<ol>
+<li>You can use <code>frontity.state.source.data</code> in the browser console to take a look at the data stored there.</li>
+<li>You can get <code>route</code> and use it to populate <code>data</code>, like this:</li>
+</ol>
+<pre><code class="lang-auto">export const sliderManuHandler = {
+  name: "sliderMenu",
+  priority: 10,
+  pattern: "sliderMenu", 
+  func: async ({ state, libraries, route }) =&gt; {
+    const response = await libraries.source.api.get({
+      endpoint: "posts",
+      params: { _embed: true, categories: '91', per_page: 5 }
+    });
+
+    ...
+
+    Object.assign(state.source.data[route], {
+      data,
+      isSliderMenu: true,
+    });
+  }
+}
+</code></pre>
+<ol start="3">
+<li>
+<code>libraries.source.populate</code> is used to store all the normalized data in the state (posts, authors, tags, categories… and so on).</li>
+</ol>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/7</link>
+        <pubDate>Sun, 20 Oct 2019 13:30:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-7</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You are absolutely right.</p>
+<p><a class="mention" href="https://community.frontity.org/u/david">@David</a> maybe we should actually <strong>remove</strong> the ending slash instead of adding it to avoid this problem with non-URL data?</p>
+<p>EDIT: Or maybe just don’t add it if it doesn’t start with <code>/</code>.</p>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/6</link>
+        <pubDate>Sun, 20 Oct 2019 13:26:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-6</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[LiamMcKoy]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+<p>I’ve found some weird behavior with my handler, why in state.source.data[“sliderMenu/”] this additional slash is needed? slider menu handler is registered with pattern “sliderMenu”, but when I’ve tried without this slash, state.source.data[“sliderMenu”] is undefined. Here is my handler, which works fine, but to be honest I would expect this should work well without this slash suffix.</p>
+<pre><code>export const sliderManuHandler = {
+  name: "sliderMenu",
+  priority: 10,
+  pattern: "sliderMenu", 
+  func: async ({ state, libraries }) =&gt; {
+    const response = await libraries.source.api.get({
+      endpoint: "posts",
+      params: { _embed: true, categories: '91', per_page: 5 }
+    });
+
+    const data = await response.json();
+
+    //can I use populate, what is the difference?
+    //const data = await libraries.source.populate({ response, state });
+
+    //why "sliderMenu" doesn't work? why this additional slash is needed?
+    Object.assign(state.source.data["sliderMenu/"], {
+      data,
+      isSliderMenu: true,
+    });
+  }
+}</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/5</link>
+        <pubDate>Sun, 20 Oct 2019 10:33:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-5</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/liammckoy">@LiamMcKoy</a>, great work <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>That’s exactly right, you should use <code>actions.source.fetch("/category/slider-images/")</code> instead of doing the fetch yourself.</p>
+<p>Actually, when you use <code>actions.source.fetch</code> we strip the domain from <code>item.link</code> so you don’t need to use <code>URL</code> and do it yourself.</p>
+<p>And the <code>beforeSSR</code> action you posted is the perfect way to tell Frontity: “don’t do the React rendering in the server until this data is on the state”.</p>
+<p>Apart from that, I’d add a <code>useEffect</code> to your <code>&lt;FeaturedPosts&gt;</code> component to populate it when the initial URL was not <code>"/"</code>:</p>
+<pre><code class="lang-javascript">const FeaturedPosts = ({ state, actions }) =&gt; {
+  const data = state.source.get("/category/slider-images/");
+
+  useEffect(() =&gt; {
+    // Fetch the category in the client if it hasn't been fetched yet.
+    actions.source.fetch("/category/slider-images/");
+  }, []);
+
+  // Return a loader if data is not ready.
+  if (!data.isReady) return &lt;div&gt;loading...&lt;/div&gt;;
+
+  // Once the data is ready, return the items.
+  const posts = data.items.map(
+    ({ type, id }) =&gt; state.source[type][id]
+  );
+  return (
+    &lt;&gt;
+      {posts.map(p =&gt; &lt;a href={p.link}&gt;{p.title.rendered}&lt;/a&gt;)}
+    &lt;/&gt;
+  );
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/4</link>
+        <pubDate>Sat, 19 Oct 2019 10:58:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-4</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[LiamMcKoy]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you Chris, this is exactly what I was looking for.</p>
+<p>Do you have an idea, how to refactor this component to allow server side rendering?<br>
+Currently it’s only working on client side, becasue I’m using useEffect.</p>
+<p>edit:<br>
+so far, I was able to achive this with those changes:<br>
+I’ve added beforeSSR action to my theme config:</p>
+<pre><code>  actions: {
+    theme: {
+		beforeSSR: async ({ state, actions, libraries }) =&gt; {
+		//fetch only for home page
+		if (state.router.link == "/") {
+			await actions.source.fetch("/category/slider-images/");
+		}
+      }
+	}
+  },
+</code></pre>
+<p>and here is my component:</p>
+<pre><code>const FeaturedPosts = ({ state, actions }) =&gt; {
+  const data = state.source.get("/category/slider-images/");
+  const posts = data.items.map(
+    ({ type, id }) =&gt; state.source[type][id]
+  );
+  
+  return (
+    &lt;&gt;
+      {posts.map(p =&gt; &lt;a href={p.link}&gt;{p.title.rendered}&lt;/a&gt;)}
+    &lt;/&gt;
+  );
+}</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/3</link>
+        <pubDate>Fri, 18 Oct 2019 08:11:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-3</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[chris]]></dc:creator>
+        <description><![CDATA[
+            <p>I had a similar requirement when working with menus. <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> pointed out to me manually stripping the domain wasn’t the correct way to do it and pointed me to the URL helper in Frontity.</p>
+<aside class="quote group-development-team" data-post="7" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"><a href="https://community.frontity.org/t/handlers-for-non-url-data/714/7">Handlers for non-URL data</a>
+</div>
+<blockquote>
+<p>By the way, we’ve included the <code>URL</code> helper in Frontity: <a href="https://docs.frontity.org/api-reference-1/frontity#url" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/frontity#url </a></p>
+<p>You have to import it from <code>"frontity"</code> to make sure it works for both the server and the client:</p>
+<pre><code class="lang-auto">import { URL } from "frontity";
+
+const url = new URL(item.url);
+
+url.pathname // &lt;-- the relative path
+</code></pre>
+<p>More info about <code>URL</code> in the <a href="http://mozilla.org" rel="nofollow noopener">mozilla.org</a> docs:</p>
+</blockquote>
+</aside>
+<p>Instead of using item.link, run it through URL and use url.pathname.</p>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/2</link>
+        <pubDate>Fri, 18 Oct 2019 07:54:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-2</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+      <item>
+        <title>How to get post&#39;s url address for simple component</title>
+        <dc:creator><![CDATA[LiamMcKoy]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello everyone,</p>
+<p>I’m working on a simple component which should display last 5 posts’ images from particular category (in my case category id=91). When user clicks on image, related post should be opened.</p>
+<p>How to get proper url address of a post. This one which I found in item.link goes to origin. Which is wrong.<br>
+origin url:<br>
+<a href="https://wp.example.com/2016/shinjuku-gyoen-national-garden/" class="onebox" target="_blank" rel="nofollow noopener">https://wp.example.com/2016/shinjuku-gyoen-national-garden/</a><br>
+desired url:<br>
+<a href="http://localhost:3000/2016/shinjuku-gyoen-national-garden/" class="onebox" target="_blank" rel="nofollow noopener">http://localhost:3000/2016/shinjuku-gyoen-national-garden/</a></p>
+<p>Could somebody point me what’s the proper way to achieve this?</p>
+<p>Here is my code:</p>
+<pre><code>import React, { useEffect, useState } from "react";
+import { connect, styled } from "frontity";
+
+const FeaturedPosts = ({ state, actions, libraries }) =&gt; {
+  const [ featuredPosts, setFeaturedPosts ] = useState( [] );
+  useEffect(() =&gt; {
+    libraries.source.api.get({
+        endpoint: "posts",
+        params: { _embed: true, categories: '91', per_page: 5 }
+    })
+    .then(response =&gt; {
+        response.json().then( data =&gt; {
+          console.log(data);
+          setFeaturedPosts( data );
+        });
+    });
+  }, []);
+  return (
+    &lt;div&gt;
+        {featuredPosts.length &gt; 0 &amp;&amp; (
+            &lt;FeaturedPostsContainer&gt;
+                {featuredPosts.map(item =&gt; {
+                  const date = new Date(item.date);
+                  const imageUrl = item._embedded["wp:featuredmedia"][0].source_url;
+                  const url = item.link;
+                    return (
+                      &lt;MyLink key={item.id} href={url}&gt;
+                        &lt;MiniImage src={imageUrl} /&gt;
+                        &lt;DateAndDescription&gt;
+                          &lt;span&gt;{date.toDateString()}&lt;/span&gt;
+                        &lt;/DateAndDescription&gt;
+                      &lt;/MyLink&gt;
+                    )
+                })}
+            &lt;/FeaturedPostsContainer&gt;
+        )}
+    &lt;/div&gt;
+  );
+}
+
+export default connect(FeaturedPosts);
+
+const FeaturedPostsContainer = styled.div`
+  display: flex;
+`;
+
+const MyLink = styled.a`
+  display: block;
+`;
+
+const DateAndDescription = styled.div`
+  display: none;
+`;
+
+const MiniImage = styled.img`
+  max-width: 100px;
+  max-height: 100px;
+`;</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736/1</link>
+        <pubDate>Fri, 18 Oct 2019 07:32:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-736-1</guid>
+        <source url="https://community.frontity.org/t/how-to-get-posts-url-address-for-simple-component/736.rss">How to get post&#39;s url address for simple component</source>
+      </item>
+  </channel>
+</rss>

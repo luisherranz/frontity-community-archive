@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Adding a cache layer to Heroku - 🙋Get Help - Frontity Community Forum</title>
+    <meta name="description" content="As recommended in the docs I’m trying to add a caché layer to my heroku deployment 
+They have 2 add-ons to do this: 
+
+https://elements.heroku.com/addons/fastly
+https://elements.heroku.com/addons/edge
+
+I’m using this repo&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/adding-a-cache-layer-to-heroku/1595" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Adding a cache layer to Heroku&#39;" href="/t/adding-a-cache-layer-to-heroku/1595.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/optimized/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8_2_208x1024.png" />
+<meta property="og:image" content="/uploads/default/optimized/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8_2_208x1024.png" />
+<meta property="og:url" content="/t/adding-a-cache-layer-to-heroku/1595" />
+<meta name="twitter:url" content="/t/adding-a-cache-layer-to-heroku/1595" />
+<meta property="og:title" content="Adding a cache layer to Heroku" />
+<meta name="twitter:title" content="Adding a cache layer to Heroku" />
+<meta property="og:description" content="As recommended in the docs I’m trying to add a caché layer to my heroku deployment  They have 2 add-ons to do this:   https://elements.heroku.com/addons/fastly https://elements.heroku.com/addons/edge  I’m using this repo to test the deployment → https://github.com/frontity-demos/my-frontity-project  So, this deployment in Heroku → https://mighty-badlands-59259.herokuapp.com/  Performance report in default deployment (no addons)    Performance report after adding Edge plugin ⬢  my-frontity-projec..." />
+<meta name="twitter:description" content="As recommended in the docs I’m trying to add a caché layer to my heroku deployment  They have 2 add-ons to do this:   https://elements.heroku.com/addons/fastly https://elements.heroku.com/addons/edge  I’m using this repo to test the deployment → https://github.com/frontity-demos/my-frontity-project  So, this deployment in Heroku → https://mighty-badlands-59259.herokuapp.com/  Performance report in default deployment (no addons)    Performance report after adding Edge plugin ⬢  my-frontity-projec..." />
+<meta property="og:article:section" content="🙋Get Help" />
+<meta property="og:article:section:color" content="3AB54A" />
+<meta property="og:article:tag" content="deployment" />
+<meta property="og:article:tag" content="heroku" />
+<meta property="article:published_time" content="2020-04-21T15:33:11+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Adding a cache layer to Heroku","mainEntity":{"@type":"Question","name":"Adding a cache layer to Heroku","text":"As <a href=\"https://docs.frontity.org/architecture#add-a-cache-layer-on-top\">recommended in the docs<\/a> I’m trying to add a caché layer to my heroku deployment\n\nThey have 2 add-ons to do this:\n\n<a href=\"https://elements.heroku.com/addons/fastly\">https://elements.heroku.com/addons/fastly<\/a>\n\n<a href=\"https://elements.heroku.com/addons/edge\">https://elements.heroku.com/addons/edge<\/a>\n\nI’m using this repo to test the deployment → <a href=\"https://github.com/frontity-demos/my-frontity-project\">https://github.com/frontity-demos/my-frontity-project<\/a>\n\n&hellip;","upvoteCount":0,"answerCount":1,"dateCreated":"2020-04-21T15:33:11.605Z","author":{"@type":"Person","name":"JuanMa Garrido"},"acceptedAnswer":{"@type":"Answer","text":"Ok, after reading more carefully the <a href=\"https://devcenter.heroku.com/articles/edge\">Edge documentation<\/a> I think I understand it better.\n\nBy adding this addon you get automatically a new layer that will be in front of the heroku app. This “layer” is set in CloudFront and the URL of this CloudFront layer is provided by one of the environment variab&hellip;","upvoteCount":0,"dateCreated":"2020-04-22T07:56:49.707Z","url":"/t/adding-a-cache-layer-to-heroku/1595/3","author":{"@type":"Person","name":"juanma"}}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/adding-a-cache-layer-to-heroku/1595">Adding a cache layer to Heroku</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/dev-talk-questions/3" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #3AB54A'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🙋Get Help</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/deployment' class='discourse-tag' rel="tag">deployment</a>, 
+            <a href='/tag/heroku' class='discourse-tag' rel="tag">heroku</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Adding a cache layer to Heroku'>
+        <meta itemprop='articleSection' content='🙋Get Help'>
+      <meta itemprop='keywords' content='deployment, heroku'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+                <link itemprop="image" href="/uploads/default/original/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-21T15:33:11Z' class='post-time'>
+                    21 April 2020 15:33
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-21T15:33:11Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>As <a href="https://docs.frontity.org/architecture#add-a-cache-layer-on-top">recommended in the docs</a> I’m trying to add a caché layer to my heroku deployment</p>
+<p>They have 2 add-ons to do this:</p>
+<ul>
+<li><a href="https://elements.heroku.com/addons/fastly">https://elements.heroku.com/addons/fastly</a></li>
+<li><a href="https://elements.heroku.com/addons/edge">https://elements.heroku.com/addons/edge</a></li>
+</ul>
+<p>I’m using this repo to test the deployment → <a href="https://github.com/frontity-demos/my-frontity-project">https://github.com/frontity-demos/my-frontity-project</a><br>
+So, this deployment in Heroku → <a href="https://mighty-badlands-59259.herokuapp.com/">https://mighty-badlands-59259.herokuapp.com/</a></p>
+<h3>Performance report in default deployment (no addons)</h3>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8.png" data-download-href="/uploads/default/f600c3babee925c6bfaf4a2fa9d052282fb437e8" title="(iPad)"><img src="/uploads/default/optimized/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8_2_690x500.png" alt="(iPad)" data-base62-sha1="z6f5WiiVkHYMiDYBltiRqGeFo92" width="690" height="500" srcset="/uploads/default/optimized/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8_2_690x500.png, /uploads/default/optimized/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8_2_1035x750.png 1.5x, /uploads/default/optimized/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8_2_1380x1000.png 2x" data-small-upload="/uploads/default/optimized/1X/f600c3babee925c6bfaf4a2fa9d052282fb437e8_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">(iPad)</span><span class="informations">1536×7544 991 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<h3>Performance report after adding Edge plugin</h3>
+<pre><code>⬢  my-frontity-project  master ⦾ heroku addons:create edge:hobby
+ ›   Warning: heroku update available from 7.25.0 to 7.39.3.
+Creating edge:hobby on ⬢ mighty-badlands-59259... $5/month
+Successfully configured https://d19mgjkbf05ovs.cloudfront.net
+Created edge-graceful-46203 as EDGE_AWS_ACCESS_KEY_ID, EDGE_AWS_SECRET_ACCESS_KEY, EDGE_DISTRIBUTION_ID, EDGE_URL
+Use heroku addons:docs edge to view documentation
+</code></pre>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/c9469277b69edf74b004f730f7a71f50d69a112c.png" data-download-href="/uploads/default/c9469277b69edf74b004f730f7a71f50d69a112c" title="(iPad) (1)"><img src="/uploads/default/optimized/1X/c9469277b69edf74b004f730f7a71f50d69a112c_2_690x500.png" alt="(iPad) (1)" data-base62-sha1="sIzaDU2g4nBDxKHVxgHcBtR7tco" width="690" height="500" srcset="/uploads/default/optimized/1X/c9469277b69edf74b004f730f7a71f50d69a112c_2_690x500.png, /uploads/default/optimized/1X/c9469277b69edf74b004f730f7a71f50d69a112c_2_1035x750.png 1.5x, /uploads/default/optimized/1X/c9469277b69edf74b004f730f7a71f50d69a112c_2_1380x1000.png 2x" data-small-upload="/uploads/default/optimized/1X/c9469277b69edf74b004f730f7a71f50d69a112c_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">(iPad) (1)</span><span class="informations">1536×7544 991 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>I don’t see any improvement after adding this addon</p>
+<p>Do you think there are some settings I have to do in order to take more advantage of this plugin? Can you help me verify this plugin is a good/bad option?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-22T06:45:48Z' class='post-time'>
+                    22 April 2020 06:45
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-22T06:45:48Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>How did you configured Fastly? Do you need <code>cache-control</code> headers for that?</p>
+<p>How is the server response time of both tests? Does it improve?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+                <link itemprop="image" href="/uploads/default/original/1X/f51aa0a103f5dac87ca008582342fea37ece8f31.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-22T07:56:49Z' class='post-time'>
+                    22 April 2020 07:56
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-22T08:03:15Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, after reading more carefully the <a href="https://devcenter.heroku.com/articles/edge">Edge documentation</a> I think I understand it better.</p>
+<p>By adding this addon you get automatically a new layer that will be in front of the heroku app. This “layer” is set in CloudFront and the URL of this CloudFront layer is provided by one of the environment variables set by Edge (<code>EDGE_URL </code>)</p>
+<pre><code>⬢  my-frontity-project  master ⦿ heroku config:get EDGE_URL
+ ›   Warning: heroku update available from 7.25.0 to 7.39.3.
+https://d19mgjkbf05ovs.cloudfront.net
+</code></pre>
+<pre><code>⬢  my-frontity-project  master ⦿ curl -i https://d19mgjkbf05ovs.cloudfront.net
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+content-length: 370736
+server: Cowboy
+date: Wed, 22 Apr 2020 07:14:56 GMT
+via: 1.1 vegur, 1.1 86b86f43445d5446c8b16910b2a9b8f9.cloudfront.net (CloudFront)
+vary: Accept-Encoding
+x-cache: Hit from cloudfront
+x-amz-cf-pop: MAD50-C1
+x-amz-cf-id: gzY-3p7EdR6AcW7RcYqAvnjYc3gawwgFMiZ8P7NoHbjGTLga17Lq1w==
+age: 31
+
+&lt;!doctype html&gt;
+  &lt;html lang="en"&gt;
+     ...
+  &lt;/html&gt;
+</code></pre>
+<p>This is the URL that actually provide performance improvements…</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/f51aa0a103f5dac87ca008582342fea37ece8f31.png" data-download-href="/uploads/default/f51aa0a103f5dac87ca008582342fea37ece8f31" title="(iPad)"><img src="/uploads/default/optimized/1X/f51aa0a103f5dac87ca008582342fea37ece8f31_2_690x500.png" alt="(iPad)" data-base62-sha1="yYi1OIzfc6bKvZDSnYg0G8yNdIZ" width="690" height="500" srcset="/uploads/default/optimized/1X/f51aa0a103f5dac87ca008582342fea37ece8f31_2_690x500.png, /uploads/default/optimized/1X/f51aa0a103f5dac87ca008582342fea37ece8f31_2_1035x750.png 1.5x, /uploads/default/optimized/1X/f51aa0a103f5dac87ca008582342fea37ece8f31_2_1380x1000.png 2x" data-small-upload="/uploads/default/optimized/1X/f51aa0a103f5dac87ca008582342fea37ece8f31_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">(iPad)</span><span class="informations">1536×7460 976 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>The thing is that in a real project you won’t want using this URL for the final user so you have to <a href="https://devcenter.heroku.com/articles/edge#custom-domain-setup">configure a custom domain</a> as explained in the <a href="https://devcenter.heroku.com/articles/edge">Edge docs</a></p>
+<p>But for testing purposes, I think it’s verified that adding this addon is a good solution for adding a CDN layer in a Heroku deployment of a Frontity project</p>
+<hr>
+<p>To check the status of the addon you can do</p>
+<pre><code>⬢  my-frontity-project  master ⦿ heroku addons:open edge
+ ›   Warning: heroku update available from 7.25.0 to 7.39.3.
+Opening https://addons-sso.heroku.com/apps/7f2d2ec8-ae7b-4259-89d0-d7c3f0bc2c8b/addons/4d011408-61c1-48f9-a365-937896171450...
+</code></pre>
+<p>which will open the proper URL in the browser where you can see the activitity of this layer and configure a few things</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/0f56294feea12110b8230947a21a0a1c4e93da2d.png" data-download-href="/uploads/default/0f56294feea12110b8230947a21a0a1c4e93da2d" title="Captura de pantalla 2020-04-22 a las 10.02.53"><img src="/uploads/default/optimized/1X/0f56294feea12110b8230947a21a0a1c4e93da2d_2_690x403.png" alt="Captura de pantalla 2020-04-22 a las 10.02.53" data-base62-sha1="2bFLeWNALhNMDu2tRLtfrTlqjsV" width="690" height="403" srcset="/uploads/default/optimized/1X/0f56294feea12110b8230947a21a0a1c4e93da2d_2_690x403.png, /uploads/default/original/1X/0f56294feea12110b8230947a21a0a1c4e93da2d.png 1.5x, /uploads/default/original/1X/0f56294feea12110b8230947a21a0a1c4e93da2d.png 2x" data-small-upload="/uploads/default/optimized/1X/0f56294feea12110b8230947a21a0a1c4e93da2d_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">Captura de pantalla 2020-04-22 a las 10.02.53</span><span class="informations">879×514 27.3 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/frontity-with-heroku/2151">Frontity with Heroku</a>
+                        <meta itemprop='position' content='5'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+                <link itemprop="image" href="/uploads/default/original/1X/4985023a451067a32499384e315c08700eb20525.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-22T08:24:29Z' class='post-time'>
+                    22 April 2020 08:24
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-22T08:28:31Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Awesome, great work <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>What options do you have?</p>
+<p>The static assets should be set to immutable (or something like one year). It seems like they are not being cached yet:</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/4985023a451067a32499384e315c08700eb20525.png" data-download-href="/uploads/default/4985023a451067a32499384e315c08700eb20525" title="Screen Shot 2020-04-22 at 10.25.27"><img src="/uploads/default/optimized/1X/4985023a451067a32499384e315c08700eb20525_2_690x106.png" alt="Screen Shot 2020-04-22 at 10.25.27" data-base62-sha1="aunP9Xx0OsM9ObbbP5rSnYBl5BP" width="690" height="106" srcset="/uploads/default/optimized/1X/4985023a451067a32499384e315c08700eb20525_2_690x106.png, /uploads/default/optimized/1X/4985023a451067a32499384e315c08700eb20525_2_1035x159.png 1.5x, /uploads/default/optimized/1X/4985023a451067a32499384e315c08700eb20525_2_1380x212.png 2x" data-small-upload="/uploads/default/optimized/1X/4985023a451067a32499384e315c08700eb20525_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">Screen Shot 2020-04-22 at 10.25.27</span><span class="informations">1392×214 36.3 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div> <div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/cee181ec78be1e2d231f58e62c8333fee60a0878.png" data-download-href="/uploads/default/cee181ec78be1e2d231f58e62c8333fee60a0878" title="Screen Shot 2020-04-22 at 10.25.51"><img src="/uploads/default/optimized/1X/cee181ec78be1e2d231f58e62c8333fee60a0878_2_345x227.png" alt="Screen Shot 2020-04-22 at 10.25.51" data-base62-sha1="tw9vp7gfIV4jzWv6CKj7ILLOiWA" width="345" height="227" srcset="/uploads/default/optimized/1X/cee181ec78be1e2d231f58e62c8333fee60a0878_2_345x227.png, /uploads/default/optimized/1X/cee181ec78be1e2d231f58e62c8333fee60a0878_2_517x340.png 1.5x, /uploads/default/optimized/1X/cee181ec78be1e2d231f58e62c8333fee60a0878_2_690x454.png 2x" data-small-upload="/uploads/default/optimized/1X/cee181ec78be1e2d231f58e62c8333fee60a0878_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">Screen Shot 2020-04-22 at 10.25.51</span><span class="informations">1036×682 67.5 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>And for the HTML response, does Cloudfront support <code>state-while-revalidate</code>? If not, I guess my recommendation would be to set the expire to 5 minutes or so, but I would explain that in the docs so people can set it themselves.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-22T09:00:07Z' class='post-time'>
+                    22 April 2020 09:00
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-22T09:00:07Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve discovered this tool → <a href="https://github.com/reorx/httpstat">httpstat</a><br>
+that allows you to view the server response times in an easy way</p>
+<h3>Response times from CloudFront layer (203ms)</h3>
+<pre><code>⬢  my-frontity-project  master ⦿ httpstat https://d19mgjkbf05ovs.cloudfront.net/
+Connected to 13.224.105.208:443 from 192.168.100.13:56803
+
+HTTP/2 200
+content-type: text/html; charset=utf-8
+content-length: 370736
+server: Cowboy
+date: Wed, 22 Apr 2020 07:14:56 GMT
+via: 1.1 vegur, 1.1 52523006e1ee5c08eea6e9267e18fabf.cloudfront.net (CloudFront)
+vary: Accept-Encoding
+x-cache: Hit from cloudfront
+x-amz-cf-pop: MAD50-C1
+x-amz-cf-id: tXMWCK2EkGtLAb-GGBpqIu-tpuiu-0UmDsw3EcYeBLs5ZGd9o_YsnQ==
+age: 5997
+
+Body stored in: /var/folders/zh/c0rwtffn1dq_nzr1fp8gz1zh0000gn/T/tmpLmaNrT
+
+  DNS Lookup   TCP Connection   TLS Handshake   Server Processing   Content Transfer
+[    30ms    |      20ms      |     51ms      |       26ms        |       76ms       ]
+             |                |               |                   |                  |
+    namelookup:30ms           |               |                   |                  |
+                        connect:50ms          |                   |                  |
+                                    pretransfer:101ms             |                  |
+                                                      starttransfer:127ms            |
+                                                                                 total:203ms
+
+</code></pre>
+<h3>Response times directly from Heroku (2905ms)</h3>
+<pre><code>⬢  my-frontity-project  master ⦿ httpstat https://mighty-badlands-59259.herokuapp.com/
+Connected to 52.70.139.21:443 from 192.168.100.13:56917
+
+HTTP/1.1 200 OK
+Server: Cowboy
+Connection: keep-alive
+Content-Type: text/html; charset=utf-8
+Content-Length: 370736
+Date: Wed, 22 Apr 2020 08:55:22 GMT
+Via: 1.1 vegur
+
+Body stored in: /var/folders/zh/c0rwtffn1dq_nzr1fp8gz1zh0000gn/T/tmp7Se2wX
+
+  DNS Lookup   TCP Connection   TLS Handshake   Server Processing   Content Transfer
+[    69ms    |      268ms     |     446ms     |      1088ms       |      1034ms      ]
+             |                |               |                   |                  |
+    namelookup:69ms           |               |                   |                  |
+                        connect:337ms         |                   |                  |
+                                    pretransfer:783ms             |                  |
+                                                      starttransfer:1871ms           |
+                                                                                 total:2905ms
+
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+                <link itemprop="image" href="/uploads/default/original/1X/eb9aab21ee6a146f0e64c7348d7a41eafadc4cd2.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-22T11:07:36Z' class='post-time'>
+                    22 April 2020 11:07
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-22T11:07:36Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="luisherranz" data-post="4" data-topic="1595">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>The static assets should be set to immutable (or something like one year). It seems like they are not being cached yet:</p>
+</blockquote>
+</aside>
+<p>Taking this into account:</p>
+<ul>
+<li><a href="https://aws.amazon.com/es/premiumsupport/knowledge-center/cloudfront-latency-xcache/">How do I reduce the latency of requests that receive the response “X-Cache:Miss from cloudfront”?</a></li>
+<li><a href="https://stackoverflow.com/questions/1046966/whats-the-difference-between-cache-control-max-age-0-and-no-cache">What’s the difference between Cache-Control: max-age=0 and no-cache?</a></li>
+<li><a href="https://www.infinitypp.com/amazon-aws/how-to-fix-x-cache-miss-from-cloudfront/">How to fix X-cache: Miss from Cloudfront</a></li>
+</ul>
+<p>I think the problem with the static files is that there’s this header <code>cache-control: max-age=0</code> telling CloudFront not to cache these files</p>
+<p><img src="/uploads/default/original/1X/eb9aab21ee6a146f0e64c7348d7a41eafadc4cd2.png" alt="Captura de pantalla 2020-04-22 a las 13.04.05" data-base62-sha1="xCfA2mqEYfWNK3TwJl25oSxI11w" width="572" height="441"></p>
+<p>Do you know who is setting this header?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-22T11:31:43Z' class='post-time'>
+                    22 April 2020 11:31
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-22T11:31:43Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="luisherranz" data-post="4" data-topic="1595">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>And for the HTML response, does Cloudfront support <code>state-while-revalidate</code> ?</p>
+</blockquote>
+</aside>
+<p>It seems CloudFront doesn’t support <code>state-while-revalidate</code></p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="4" data-topic="1595">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>my recommendation would be to set the expire to 5 minutes or so, but I would explain that in the docs so people can set it themselves.</p>
+</blockquote>
+</aside>
+<p>Can we add custom headers to some responses?</p>
+<p>For what I understand → <a href="/t/proof-of-concept-on-pantheon-deploy-on-google-cloud-platform/280" class="inline-onebox">Proof of concept on Pantheon + Deploy on Google Cloud Platform</a><br>
+this is something planned to do but still not available</p>
+<p>Maybe the solution here could be creating a custom server uses <code>server.js</code> as middleware and  proxy requests by adding the proper headers in the responses (but this adds complexity to the whole workflow so having a way to customize headers directly from frontity would be the way to go here)</p>
+<p>And yes, this whole thing about Cache layers, headers involved and how to set them is something that needs to be explained very well as it is an important part of the Frontity Architecture.</p>
+<p>I’m thinking about adding a glossary section like → <a href="https://www.gatsbyjs.org/docs/glossary/">https://www.gatsbyjs.org/docs/glossary/</a><br>
+to explain things like <code>stale-while-revalidate</code></p>
+<p>Some interesting resources regading this:</p>
+<ul>
+<li><a href="https://github.com/zeit/next.js/discussions/10729">[Now] Best way to set the Cache-Control header for an API Route?</a></li>
+<li><a href="https://aws.amazon.com/es/premiumsupport/knowledge-center/cloudfront-custom-object-caching/">I set custom object caching on my CloudFront distribution. Why is my distribution using the cache settings of my origin?</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Expiration.html#expiration-individual-objects">Using Headers to Control Cache Duration for Individual Objects</a></li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-22T16:27:47Z' class='post-time'>
+                    22 April 2020 16:27
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-22T16:27:47Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Yes, Frontity is not adding any <code>cache-control</code> headers as of today.</p>
+<p>We didn’t add them because we thought about adding a <code>@frontity/headers</code> package, but it requires first the server extensibility and that is not ready yet.</p>
+<p>I guess that we could add default cache-control headers until that is added… <code>no-cache</code> for the server and <code>immutable</code> for the static assets for the hostings like Heroku that don’t have a way to add them.</p>
+<p>But, is there a way to configure those headers in Cloudfront for now? Do you know why is it caching the HTML but not caching the static assets? What configuration options does it give you (if any)?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-27T08:41:22Z' class='post-time'>
+                    27 April 2020 08:41
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-27T08:48:19Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m going to discard this way of adding a CDN for now, because:</p>
+<ul>
+<li>
+<p>Edge is creating a Cloudfront distribution but the way to configure Cloudfront from that plugin is kind of complex, limited and not very well documented</p>
+<ul>
+<li>You have to use AWS CLI to configure Cloudfront from that plugin → <a href="https://devcenter.heroku.com/articles/edge#cloudfront-configuration">https://devcenter.heroku.com/articles/edge#cloudfront-configuration</a>
+</li>
+<li>The set of actions you can do from AWS CLI to configure Cloudfront is limited to this ones → <a href="https://docs.aws.amazon.com/cli/latest/reference/cloudfront/index.html">https://docs.aws.amazon.com/cli/latest/reference/cloudfront/index.html</a>
+<ul>
+<li>it seems the <code>update-distribution</code> is the way to go to customize headers but it is complex:
+<ul>
+<li><a href="https://docs.aws.amazon.com/cli/latest/reference/cloudfront/update-distribution.html">https://docs.aws.amazon.com/cli/latest/reference/cloudfront/update-distribution.html</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-overview-required-fields.html">https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-overview-required-fields.html</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Cloudfront itself is very powerful but very complex as well, so I think we should focus first on more easy solutions</p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/header-caching.html">https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/header-caching.html</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html#request-custom-headers-behavior">https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html#request-custom-headers-behavior</a></li>
+</ul>
+</li>
+</ul>
+<p>Maybe configuring a CDN layer with a service like <strong>KeyCDN</strong> is a better option to start with</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-04-28T10:14:43Z' class='post-time'>
+                    28 April 2020 10:14
+                  </time>
+                  <meta itemprop='dateModified' content='2020-04-28T10:14:43Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I think <a href="https://www.fastly.com/">Fastly</a> may be a good option too, because it is free up to $50 (as far as I know).</p>
+<p>I still prefer KeyCDN though, because it works great with <code>stale-while-revalidate</code>. But for a medium/large site, <code>state-while-revalidate</code> is not really useful.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-a-cache-layer-to-heroku/1595">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-02T11:30:45Z' class='post-time'>
+                    2 June 2020 11:30
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-02T11:30:45Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/juanma">@juanma</a> could you please remind me what do you need from me here? Some insight on how to configure KeyCDN?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

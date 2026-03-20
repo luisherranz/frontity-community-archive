@@ -1,0 +1,1041 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Make the backend URL a global setting</title>
+    <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381</link>
+    <description>&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# Description
+
+The WordPress backend URL is only on `state.source.api` now, and it may (or may not) contain a prefix, usually `/wp-json`.
+
+We have started to see more and more examples of different packages that need to know the WordPress URL, not only to access the REST API, but to other uses. Extracting the WordPress URL from `state.source.api` is not trivial.
+
+# Examples
+
+- **Replace the URL of a link or a meta**
+  For example, changing links from `https://wp.domain.com/my-link` to `https://www.domain.com/my-link` for the `@frontity/head-tags` package.
+- **Link or use a resource or asset that is stored in WordPress**
+  For example, linking to the RSS feed `https://wp.domain.com/feed`, sitemap `https://wp.domain.com/sitemap.xml` or service worker `https://wp.domain.com/sw.js`.
+- **Other source packages could have different API urls**
+  If we stick with this approach and a package like `@frontity/wpgraphql-source` is released, it will break packages depending on `state.source.api` to get the WordPress URL.
+
+I know we&#39;ve seen more examples of this but I don&#39;t remember them right now 😅
+
+# Possible solution
+
+Create a global setting for the backend, similar to `state.frontity.url`. Then, get rid of it on `@frontity/wp-source`, but keep the options that are relevant to the REST API.
+
+```js
+export default {
+  state: {
+    frontity: {
+      url: &quot;https://mars.frontity.org&quot;,
+      title: &quot;Test Frontity Blog&quot;,
+      description: &quot;Useful content for Frontity development&quot;,
+      backend: &quot;https://test.frontity.org&quot;,
+    },
+  },
+  packages: [
+    {
+      name: &quot;@frontity/wp-source&quot;,
+      state: {
+        source: {
+          prefix: &quot;/wp-json&quot;, // This will be the default.
+          prefix: false, // To use `?rest_route=`.
+          isWpCom: true, // To support the WP.com API.
+        },
+      },
+    },
+  ],
+};
+```
+
+This should be a backward-compatible change.
+
+Drawbacks:
+
+I guess there could be more than one backend for a single site.
+
+---
+
+@dev-team opinions?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 23 Jul 2021 08:30:27 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome, thanks! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/63">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/63</link>
+        <pubDate>Tue, 02 Mar 2021 17:29:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-63</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="61" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>However, I think that I wrongly thought that because the <code>state.source.api</code> in the first case should also be <code>public-api.wordpress.com/wp/v2/sites/sub.wordpress.com</code>.<img src="https://community.frontity.org/images/emoji/apple/point_down.png?v=9" title=":point_down:" class="emoji" alt=":point_down:"></p>
+<p><img src="https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_690x223.png" alt="Screen Shot 2021-03-02 at 12.15.51" data-base62-sha1="cZpMfszf4YZkbXZ5LsF8YSfBiGV" width="690" height="223" srcset="https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_690x223.png, https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_1035x334.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_1380x446.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_10x10.png"></p>
+</blockquote>
+</aside>
+<p>You are right, that cell was wrong. I have fixed it now, sorry for the confusion <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"><img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/62">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/62</link>
+        <pubDate>Tue, 02 Mar 2021 17:27:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-62</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Yikes, you’re correct <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>, sorry for the confusion! I’ve missed that we’re checking if it’s a free Wordpress dot com site <a href="https://github.com/frontity/frontity/blob/068c6808d6ffea1706323132169c45f4803b6175/packages/wp-source/src/state.ts#L141-L143">in here</a> as you pointed out.</p>
+<p>However, I think that I wrongly thought that because the <code>state.source.api</code> in the first case should also be <code>public-api.wordpress.com/wp/v2/sites/sub.wordpress.com</code>.<img src="https://community.frontity.org/images/emoji/apple/point_down.png?v=9" title=":point_down:" class="emoji" alt=":point_down:"></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5.png" data-download-href="https://community.frontity.org/uploads/default/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5" title="Screen Shot 2021-03-02 at 12.15.51"><img src="https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_517x167.png" alt="Screen Shot 2021-03-02 at 12.15.51" data-base62-sha1="cZpMfszf4YZkbXZ5LsF8YSfBiGV" width="517" height="167" srcset="https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_517x167.png, https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_775x250.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_1034x334.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/5/5b0b5aee6a7ed61da583ef3ecfac4e12f5b8e0b5_2_10x10.png"></a></div><p></p>
+<hr>
+<p>This table is also the correct one then. <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> Could you take a look and see if we need to update the docs according to this? The table that I have made is superseded by the one that Luis made.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="60" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>For me the table for the docs should be something like this:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free <a href="http://wordpress.com">wordpress.com</a>
+</th>
+<th>Personal or Premium <a href="http://wordpress.com">wordpress.com</a>
+</th>
+<th>Business <a href="http://wordpress.com">wordpress.com</a> or <a href="http://wp.org">wp.org</a>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>needs <code>state.source.url</code>
+</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>needs <code>state.wpSource.isWpCom</code>
+</td>
+<td>NO</td>
+<td>YES</td>
+<td>NO</td>
+</tr>
+</tbody>
+</table>
+</div>
+</blockquote>
+</aside>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/61">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/61</link>
+        <pubDate>Tue, 02 Mar 2021 17:24:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-61</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m not 100% sure I got the problem you see. To me the table is right. I’ve made a video explaining it in more depth: <a href="https://www.loom.com/share/da93b66bbfd742bb95af9cca923e32df" class="inline-onebox">Loom | Free Screen &amp; Video Recording Software</a></p>
+<p>Let me know if that is correct or there is still something I am not getting <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>For me the table for the docs should be something like this:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free <a href="http://wordpress.com">wordpress.com</a>
+</th>
+<th>Personal or Premium <a href="http://wordpress.com">wordpress.com</a>
+</th>
+<th>Business <a href="http://wordpress.com">wordpress.com</a> or <a href="http://wp.org">wp.org</a>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>needs <code>state.source.url</code>
+</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>needs <code>state.wpSource.isWpCom</code>
+</td>
+<td>NO</td>
+<td>YES</td>
+<td>NO</td>
+</tr>
+</tbody>
+</table>
+</div>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/60">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/60</link>
+        <pubDate>Tue, 02 Mar 2021 11:10:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-60</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Also, think that the crucial bit that should be documented is which settings the user will need depending on what kind of hosting they are on. I think that the final table should look like:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free, Personal or Premium <a href="http://wordpress.com">wordpress.com</a>
+</th>
+<th>Business <a href="http://wordpress.com">wordpress.com</a> or <a href="http://wp.org">wp.org</a>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>needs <code>state.source.url</code>
+</td>
+<td>YES</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>needs <code>state.source.api</code>
+</td>
+<td><strong>should either set this</strong></td>
+<td>NO</td>
+</tr>
+<tr>
+<td>needs <code>state.wpSource.isWpCom</code>
+</td>
+<td><strong>or set that or both</strong></td>
+<td>NO</td>
+</tr>
+</tbody>
+</table>
+</div><p>I’ve linked here from the <a href="https://github.com/frontity/api-reference/pull/4#issuecomment-784666309">PR to add docs for <code>state.source.url</code></a> because it was not 100% clear to the DevRel team from the Discussion above which information should be documented and which one was implementation detail.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/59">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/59</link>
+        <pubDate>Wed, 24 Feb 2021 01:38:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-59</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I think that there is a small error in the table that you’ve created <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>. I’ve explained it in the Loom.</p>
+<p><iframe src="https://www.loom.com/embed/1965cc3ff9ec47e7869ce0c639626e49" frameborder="0" width="695" height="521" allowfullscreen="" scrolling="no" seamless="seamless" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"></iframe></p>
+<p>I just wanted to clarify this because the DevRel team is currently documenting the feature and I want to make sure that we really nail it <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/58">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/58</link>
+        <pubDate>Wed, 24 Feb 2021 01:27:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-58</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="50" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>So could you please remove it from the docs</p>
+</blockquote>
+</aside>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> I’ve created <a href="https://github.com/frontity/docs/issues/256">this issue</a>.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/57">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/57</link>
+        <pubDate>Fri, 04 Dec 2020 14:59:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-57</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, we have carefully reviewed the logic and I think we got it right this time <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Not only that, but thanks to <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>’s  <code>isDerived</code> function and <a class="mention" href="https://community.frontity.org/u/david">@David</a>  who noticed that we can use that to derive <code>state.source.url</code> from <code>state.source.api</code>, <strong>now <code>state.source.url</code> is backward compatible and safe to use in any package!! <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"><img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"></strong>.</p>
+<p>Awesome work guys <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Thanks also to <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> for bringing into our attention the problem with <a href="http://wordpress.com">wordpress.com</a> sites that have custom domains but can’t use <code>/wp-json</code>.</p>
+<p>This is the final logic <a class="mention" href="https://community.frontity.org/u/david">@david</a> is implementing:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/2/2a2385661fcfcfa7e6f6237514fc76b7e0818a1e.png" data-download-href="https://community.frontity.org/uploads/default/2a2385661fcfcfa7e6f6237514fc76b7e0818a1e" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/2/2a2385661fcfcfa7e6f6237514fc76b7e0818a1e_2_690x280.png" alt="image" data-base62-sha1="60M9KP3uY43H7TMuUrYGLiTmcrA" width="690" height="280" srcset="https://community.frontity.org/uploads/default/optimized/2X/2/2a2385661fcfcfa7e6f6237514fc76b7e0818a1e_2_690x280.png, https://community.frontity.org/uploads/default/optimized/2X/2/2a2385661fcfcfa7e6f6237514fc76b7e0818a1e_2_1035x420.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/2/2a2385661fcfcfa7e6f6237514fc76b7e0818a1e_2_1380x560.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/2/2a2385661fcfcfa7e6f6237514fc76b7e0818a1e_2_10x10.png"></a></div><p></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/6/633164d5a95fa88fb0b3ec28a3be639377055666.png" data-download-href="https://community.frontity.org/uploads/default/633164d5a95fa88fb0b3ec28a3be639377055666" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/6/633164d5a95fa88fb0b3ec28a3be639377055666_2_690x414.png" alt="image" data-base62-sha1="e9v5V2RoTdyTWoUJBZ1YH2U2zwG" width="690" height="414" srcset="https://community.frontity.org/uploads/default/optimized/2X/6/633164d5a95fa88fb0b3ec28a3be639377055666_2_690x414.png, https://community.frontity.org/uploads/default/optimized/2X/6/633164d5a95fa88fb0b3ec28a3be639377055666_2_1035x621.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/6/633164d5a95fa88fb0b3ec28a3be639377055666_2_1380x828.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/6/633164d5a95fa88fb0b3ec28a3be639377055666_2_10x10.png"></a></div><p></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/b/bc1c37e400249824360ec5540f8dc554bf79a8bc.png" data-download-href="https://community.frontity.org/uploads/default/bc1c37e400249824360ec5540f8dc554bf79a8bc" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/b/bc1c37e400249824360ec5540f8dc554bf79a8bc_2_582x500.png" alt="image" data-base62-sha1="qQ6dL4fImt3Ll1WDDSOuBIhu1Aw" width="582" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/b/bc1c37e400249824360ec5540f8dc554bf79a8bc_2_582x500.png, https://community.frontity.org/uploads/default/optimized/2X/b/bc1c37e400249824360ec5540f8dc554bf79a8bc_2_873x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/b/bc1c37e400249824360ec5540f8dc554bf79a8bc_2_1164x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/b/bc1c37e400249824360ec5540f8dc554bf79a8bc_2_10x10.png"></a></div><p></p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://excalidraw.com/favicon.ico" class="site-icon" width="256" height="256">
+      <a href="https://excalidraw.com/#json=5034842043449344,-PTX2_rWuxVqlNEKRmuakw" target="_blank" rel="noopener">Excalidraw</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/360;"><img src="https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_690x360.png" class="thumbnail" width="690" height="360" srcset="https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_690x360.png, https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_1035x540.png 1.5x, https://community.frontity.org/uploads/default/original/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_10x10.png"></div>
+
+<h3><a href="https://excalidraw.com/#json=5034842043449344,-PTX2_rWuxVqlNEKRmuakw" target="_blank" rel="noopener">Excalidraw</a></h3>
+
+<p>Excalidraw is a whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/56">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/56</link>
+        <pubDate>Fri, 04 Dec 2020 13:00:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-56</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I have done a graph of the logic, but I would like to review this with you. Let me know whenever you can and we will jump in a quick call.</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://excalidraw.com/favicon.ico" class="site-icon" width="256" height="256">
+      <a href="https://excalidraw.com/#json=5290040846450688,UdnxfgorY_-OqAZEIsLorg" target="_blank" rel="noopener">Excalidraw</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/360;"><img src="https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_690x360.png" class="thumbnail" width="690" height="360" srcset="https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_690x360.png, https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_1035x540.png 1.5x, https://community.frontity.org/uploads/default/original/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_10x10.png"></div>
+
+<h3><a href="https://excalidraw.com/#json=5290040846450688,UdnxfgorY_-OqAZEIsLorg" target="_blank" rel="noopener">Excalidraw</a></h3>
+
+<p>Excalidraw is a whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>I would like to also review with you:</p>
+<ul>
+<li><code>state.wpSource.api</code></li>
+<li><code>state.wpSource.isWpCom</code></li>
+</ul>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/55">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/55</link>
+        <pubDate>Fri, 04 Dec 2020 11:55:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-55</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="David" data-post="52" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>I already wrote the tests for that and all of them are passing.</p>
+</blockquote>
+</aside>
+<p>Awesome. Did you implement <code>isDerived</code> already? <a href="https://community.frontity.org/t/isderived-util/3493" class="inline-onebox">isDerived util</a></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/54">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/54</link>
+        <pubDate>Fri, 04 Dec 2020 11:22:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-54</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, is this table correct then?</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>state.frontity.url</th>
+<th>state.source.url</th>
+<th>state.source.api</th>
+<th>state.source.isWpCom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<strong>Free WP com</strong> - configured by state.source.url</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://sub.wordpress.com">sub.wordpress.com</a>
+</td>
+<td>
+<strong>Derived from state.source.url</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/sub.wordpress.com">public-api.wordpress.com/wp/v2/sites/sub.wordpress.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Free WP com</strong> - configured by state.source.api <em>(backward compatibility only)</em>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: <a href="http://sub.wordpress.com">sub.wordpress.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/sub.wordpress.com">public-api.wordpress.com/wp/v2/sites/sub.wordpress.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Personal and Premium WP com</strong> - configured by state.source.url and state.wpSource.isWpCom</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.url</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/final-domain.com">public-api.wordpress.com/wp/v2/sites/final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Personal and Premium WP com</strong> - configured by state.source.url and state.source.api <em>(backward compatibility only)</em>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/final-domain.com">public-api.wordpress.com/wp/v2/sites/final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Personal and Premium WP com</strong> - configured by state.source.api <em>(backward compatibility only)</em>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/final-domain.com">public-api.wordpress.com/wp/v2/sites/final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>WP org and Business WP com</strong> - configured by state.source.url</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://wp-domain.com">wp-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.url</strong>: <a href="http://wp-domain.com/wp-json">wp-domain.com/wp-json</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: false</td>
+</tr>
+<tr>
+<td>
+<strong>WP org and Business WP com</strong> - configured by state.source.api <em>(backward compatibility only)</em>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: <a href="http://wp-domain.com">wp-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://wp-domain.com/wp-json">wp-domain.com/wp-json</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: false</td>
+</tr>
+</tbody>
+</table>
+</div><p>I am not taking into account <code>state.wpSource.api</code> and <code>state.wpSource.isWpCom</code> now.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/53">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/53</link>
+        <pubDate>Fri, 04 Dec 2020 11:21:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-53</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Yup, it is. I already wrote the tests for that and all of them are passing. So, yeah. <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/52">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/52</link>
+        <pubDate>Fri, 04 Dec 2020 11:17:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-52</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="David" data-post="49" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>What do you mean exactly when you say that <code>state.source.url</code> is derived from <code>state.frontity.url</code>? Shouldn’t it be derived from <code>state.source.api</code>?</p>
+</blockquote>
+</aside>
+<p>I think we never thought that <code>state.source.url</code> could be derived from <code>state.source.api</code> if <code>state.source.api</code> is defined by the user (not derived) but I guess that with Michal’s <code>isDerived</code> function we can do that.</p>
+<p>Actually, that would mean that <code>state.source.url</code> is backward compatible and safer to use than it is today.</p>
+<p>Is it feasible technically to do it?</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/51">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/51</link>
+        <pubDate>Fri, 04 Dec 2020 11:15:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-51</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="mburridge" data-post="48" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mburridge/40/1477_2.png" class="avatar"> mburridge:</div>
+<blockquote>
+<p>Does this change have any implications for <code>libraries.source.api.init</code>?</p>
+</blockquote>
+</aside>
+<p>I don’t know why that API is documented, to be honest. That <code>init</code> is internal and not meant to be used by other packages, only by the source package.</p>
+<p>In this specific case, we even have plans to remove it in the not so distant future. So could you please remove it from the docs? <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/50">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/50</link>
+        <pubDate>Fri, 04 Dec 2020 11:13:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-50</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I don’t understand some of the cases you mentioned on the table.</p>
+<p>When you talk about these three specifically:</p>
+<ul>
+<li>
+<strong>Free WP com</strong> - configured by state.source.api</li>
+<li>
+<strong>Personal and Premium WP com</strong> - configured by state.source.api</li>
+<li>
+<strong>WP org and Business WP com</strong> - configured by state.source.api</li>
+</ul>
+<p>What do you mean exactly when you say that <code>state.source.url</code> is derived from <code>state.frontity.url</code>? Shouldn’t it be derived from <code>state.source.api</code>?</p>
+<p>I thought <code>state.source.url</code> should point to the WordPress instance, not the Frontity one. Except for the embedded mode: in that case, I guess <code>state.frontity.url</code> and <code>state.source.url</code> would be the same.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/49">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/49</link>
+        <pubDate>Thu, 03 Dec 2020 20:14:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-49</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Does this change have any implications for <code>libraries.source.api.init</code>? Do we need to make any changes to the documentation there?</p>
+<p><a href="https://docs.frontity.org/api-reference-1/wordpress-source#libraries-source-api-init" class="onebox" target="_blank" rel="noopener">https://docs.frontity.org/api-reference-1/wordpress-source#libraries-source-api-init</a></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/48">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/48</link>
+        <pubDate>Tue, 01 Dec 2020 17:11:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-48</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We have a lot of cases so I have made a table to make sure we don’t forget any of them and we add tests for all of them.</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>state.frontity.url</th>
+<th>state.source.url</th>
+<th>state.source.api</th>
+<th>state.wpSource.isWpCom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<strong>Free WP com</strong> - configured by state.source.url</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://sub.wordpress.com">sub.wordpress.com</a>
+</td>
+<td>
+<strong>Derived from state.source.url</strong>: <a href="http://sub.wordpress.com/wp-json">sub.wordpress.com/wp-json</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Free WP com</strong> - configured by state.source.api</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.frontity.url</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/sub.wordpress.com">public-api.wordpress.com/wp/v2/sites/sub.wordpress.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Personal and Premium WP com</strong> - configured by state.source.url and state.wpSource.isWpCom</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.url</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/final-domain.com">public-api.wordpress.com/wp/v2/sites/final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Personal and Premium WP com</strong> - configured by state.source.url and state.source.api</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/final-domain.com">public-api.wordpress.com/wp/v2/sites/final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>Personal and Premium WP com</strong> - configured by state.source.api</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.frontity.url</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://public-api.wordpress.com/wp/v2/sites/final-domain.com">public-api.wordpress.com/wp/v2/sites/final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: true</td>
+</tr>
+<tr>
+<td>
+<strong>WP org and Business WP com</strong> - configured by state.source.url</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://wp-domain.com">wp-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.source.url</strong>: <a href="http://wp-domain.com/wp-json">wp-domain.com/wp-json</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: false</td>
+</tr>
+<tr>
+<td>
+<strong>WP org and Business WP com</strong> - configured by state.source.api</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Derived from state.frontity.url</strong>: <a href="http://final-domain.com">final-domain.com</a>
+</td>
+<td>
+<strong>Set by the user</strong>: <a href="http://wp-domain.com/wp-json">wp-domain.com/wp-json</a>
+</td>
+<td>
+<strong>Derived from state.source.api</strong>: false</td>
+</tr>
+</tbody>
+</table>
+</div><p><em>You can use <a href="https://www.tablesgenerator.com/markdown_tables">https://www.tablesgenerator.com/markdown_tables</a> if you want to edit the table. I think copy/pasting shoud work.</em></p>
+<p>Last thing: <a href="http://WordPress.com">WordPress.com</a> has 5 plans (<a href="https://wordpress.com/pricing/">https://wordpress.com/pricing/</a>). These are the relations with the configuration:</p>
+<ul>
+<li>Free: <strong>Free WP com</strong>
+</li>
+<li>Personal and Premium: <strong>Personal and Premium WP com</strong>
+</li>
+<li>Business: <strong>WP org and Business WP com</strong> (these sites have a <a href="http://final-domain.com/wp-json">final-domain.com/wp-json</a> so they can act as regular WP org sites).</li>
+<li>eCommerce: I have no idea, to be honest.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/47">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/47</link>
+        <pubDate>Thu, 26 Nov 2020 08:25:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-47</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome. I have just opened a FD for the <code>isDerived</code> util <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote quote-modified" data-post="1" data-topic="3493">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/isderived-util/3493">isDerived util</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/feature-discussions/awaiting-development/37"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Ready to be developed but not planned for the upcoming sprints.">Awaiting Development</span></a>
+  </div>
+  <blockquote>
+    Description
+
+We have discovered a new pattern in Frontity: Sometimes, some props of the state are defined as “derived”, but can be overwritten by the user. 
+And sometimes, other parts of the application may want to know if that was the case or not. 
+<a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> discovered how to do it in this thread <a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/43" class="inline-onebox">Make the backend URL a global setting</a>, but the code is complex, so we could introduce an isDerived tool to check for this. 
+Examples
+
+The best example is state.wpSource.isWpCom: 
+
+By default, it is…
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/46">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/46</link>
+        <pubDate>Thu, 26 Nov 2020 07:58:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-46</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="44" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Regarding the code, I think you still have to check inside <code>state.source.api</code> if <code>state.source.url</code> is from a <a href="http://subdomain.wordpress.com">subdomain.wordpress.com</a> site because you cannot rely on <code>state.wpSource.isWpCom</code> for that:</p>
+</blockquote>
+</aside>
+<p>yep, you’re right about that and that’s a clearer implementation as well! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/45">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/45</link>
+        <pubDate>Wed, 25 Nov 2020 18:58:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-45</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Nice trick! Maybe we could even release a <code>isDerived()</code> tool based on that code <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<pre><code class="lang-js">const isDerived = (obj, propName) =&gt;
+  typeof Object.getOwnPropertyDescriptor(obj, propName).value === "function";
+</code></pre>
+<p>Regarding the code, I think you still have to check inside <code>state.source.api</code> if <code>state.source.url</code> is from a <a href="http://subdomain.wordpress.com">subdomain.wordpress.com</a> site because you cannot rely on <code>state.wpSource.isWpCom</code> for that:</p>
+<pre><code class="lang-js">const api = ({ state }) =&gt; {
+  // Is it a WordPress.com site with a custom domain?
+  const isCustomWpCom =
+    !isDerived(state.wpSource, "isWpCom") &amp;&amp; state.wpSource.isWpCom;
+  // Is it a free WordPress.com site using a subdomain.wordpress.com domain?
+  const isFreeWpCom = /^https:\/\/(\w+\.)?wordpress\.com/.test(
+    state.source.url
+  );
+
+  if (isCustomWpCom || isFreeWpCom) {
+    const { hostname } = new URL(state.source.url);
+    return addFinalSlash(
+      `https://public-api.wordpress.com/wp/v2/sites/${hostname}`
+    );
+  }
+
+  return addFinalSlash(
+    addFinalSlash(state.source.url) + state.wpSource.prefix.replace(/^\//, "")
+  );
+};
+</code></pre>
+<p>Don’t you think?</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/44">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/44</link>
+        <pubDate>Wed, 25 Nov 2020 17:35:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-44</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>You’re right about checking the <code>isWpCom</code> <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> . Ideally, we should check if that’s the case inside <code>state.source.api</code> but I’ve realized that the problem is that this would introduce mutual infinite recursion <img src="https://community.frontity.org/images/emoji/apple/recycle.png?v=9" title=":recycle:" class="emoji" alt=":recycle:"> <img src="https://community.frontity.org/images/emoji/apple/fearful.png?v=9" title=":fearful:" class="emoji" alt=":fearful:"></p>
+<aside class="quote group-dev-team quote-modified" data-username="luisherranz" data-post="42" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<pre><code class="lang-javascript">{
+  api: ({ state }) =&gt; {
+    // Check if it's a WordPress.com site (free, personal or premium).
+    if (state.source.isWpCom)
+      return addFinalSlash(
+        `https://public-api.wordpress.com/wp/v2/sites/${state.source.url}`
+      );
+
+    return addFinalSlash(
+      addFinalSlash(state.source.url) + state.wpSource.prefix.replace(/^\//, "")
+    );
+  },
+  isWpCom: ({ state }) =&gt;
+    state.source.api.startsWith(
+      "https://public-api.wordpress.com/wp/v2/sites/"
+    ),
+};
+</code></pre>
+</blockquote>
+</aside>
+<p><img src="https://community.frontity.org/images/emoji/apple/point_up.png?v=9" title=":point_up:" class="emoji" alt=":point_up:"> The <code>state.source.api</code> is checking the <code>state.source.isWpCom</code> in it’s definition and vice versa. So if the user does not define the <code>isWpCom</code> themselves, you’ll get a “Maximum stack call exceeded” exception.</p>
+<p>However, we can check if the state is a derived state using <code>Object.getOwnPropertyDescriptor()</code><br>
+I think we will then need a slightly more complex check like this:</p>
+<pre><code class="lang-javascript">{
+  api: ({ state }) =&gt; {
+    // Check if it's a free WordPress.com site.
+    // We have to make sure the `.isWpCom` is NOT a derived state because otherwise 
+    // we would end up in an infinite loop.
+    if (
+      typeof Object.getOwnPropertyDescriptor(state.source, "isWpCom").value ===
+        "boolean" &amp;&amp;
+      state.source.isWpCom
+    ) {
+      return addFinalSlash(
+        `https://public-api.wordpress.com/wp/v2/sites/${state.source.url}`
+      );
+    }
+
+    return addFinalSlash(
+      addFinalSlash(state.source.url) + state.wpSource.prefix.replace(/^\//, "")
+    );
+  },
+  isWpCom: ({ state }) =&gt;
+    // The user can define either the `state.source.url` or `state.souce.api`
+    // so we should try to detect either of those cases automatically. 
+    /^https:\/\/(\w+\.)?wordpress\.com/.test(state.source.url) ||
+    state.source.api.startsWith(
+      "https://public-api.wordpress.com/wp/v2/sites/"
+    ),
+}
+</code></pre>
+<p>This will still fail if the user has a site on <a href="http://wordpress.com">wordpress.com</a> <strong>with a custom domain</strong> but has NOT specified <code>"isWpCom": true</code>. I think that there is nothing that we can do about it though because if the user chooses to use their custom domain, Frontity cannot just know if it’s a <a href="http://wp.com">wp.com</a> or <a href="http://wp.org">wp.org</a>.</p>
+<p>So, we will have to make it explicit in the documentation that when using a <a href="http://wp.com">wp.com</a> site with a custom domain, the user <em>has to</em> pass the <code>isWpCom: true</code> in their settings.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/43">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/43</link>
+        <pubDate>Tue, 24 Nov 2020 19:37:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-43</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I thought that <a href="http://wordpress.com">wordpress.com</a> sites with custom domains had the REST API in <a href="https://domain.com/wp-json">https://domain.com/wp-json</a> but that doesn’t seem to be the case for <a href="https://artistintheshed.com">https://artistintheshed.com</a>.</p>
+<p>Maybe that only happens in the <a href="https://wordpress.com/pricing/">Bussiness plan</a>, the one where you can add custom plugins, but not in the <a href="https://wordpress.com/pricing/">Personal or Premium</a> plan.</p>
+<p>At least <a href="https://public-api.wordpress.com/wp/v2/sites/artistintheshed.com/">https://public-api.wordpress.com/wp/v2/sites/artistintheshed.com/</a> seems to work fine, so I guess we should promote the use of <a href="https://artistintheshed.com">https://artistintheshed.com</a> in <code>state.source.url</code> and not <a href="https://artistintheshed.wordpress.com">https://artistintheshed.wordpress.com</a> for that case, which is what Michal proposed in <strong>version 2</strong>:</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="40" data-topic="2381">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<h4>Version 2.</h4>
+<ul>
+<li>
+<code>state.source.url</code>: <code>https://artistintheshed.com</code>
+</li>
+<li>
+<code>isWpCom</code>: <code>true</code>
+</li>
+<li>
+<code>state.frontity.url</code>: <code>http://localhost:3000</code> or wherever your Frontity app is.</li>
+</ul>
+</blockquote>
+</aside>
+<p>But I don’t think that is working right now, is it? Because <code>state.source.api</code> is not checking <code>state.source.isWpCom</code> to check if the site is a WordPress or not, it is doing its own logic:</p>
+<p><em>Code in: <a href="https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/state.ts#L73-L87">https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/state.ts#L73-L87</a></em></p>
+<pre><code class="lang-js">{
+  api: ({ state }) =&gt; {
+    // Check if it's a free WordPress.com site.
+    if (/^https:\/\/(\w+\.)?wordpress\.com/.test(state.source.url))
+      return addFinalSlash(
+        `https://public-api.wordpress.com/wp/v2/sites/${state.source.url}`
+      );
+
+    return addFinalSlash(
+      addFinalSlash(state.source.url) + state.wpSource.prefix.replace(/^\//, "")
+    );
+  },
+  isWpCom: ({ state }) =&gt;
+    state.source.api.startsWith(
+      "https://public-api.wordpress.com/wp/v2/sites/"
+    ),
+};
+</code></pre>
+<p>If I am right, I guess we need to use <code>state.source.isWpCom</code> inside <code>state.source.api</code>. Something like this:</p>
+<pre><code class="lang-js">{
+  api: ({ state }) =&gt; {
+    // Check if it's a WordPress.com site (free, personal or premium).
+    if (state.source.isWpCom)
+      return addFinalSlash(
+        `https://public-api.wordpress.com/wp/v2/sites/${state.source.url}`
+      );
+
+    return addFinalSlash(
+      addFinalSlash(state.source.url) + state.wpSource.prefix.replace(/^\//, "")
+    );
+  },
+};
+</code></pre>
+<p>Of course also with the fix proposed by <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> that removes the protocol from the URL: <a href="https://github.com/frontity/frontity/issues/622#issuecomment-732139397">https://github.com/frontity/frontity/issues/622#issuecomment-732139397</a>.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/42">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/42</link>
+        <pubDate>Tue, 24 Nov 2020 14:38:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-42</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Great, thanks <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>! I think that after solving the issue you mention the link processor should work fine with these settings.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/41">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/41</link>
+        <pubDate>Tue, 24 Nov 2020 06:53:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-41</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> Let me know if this is what you expected me to explain <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<hr>
+<p>I think that there is some confusion because we have this bug that <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> has reported: <a href="https://github.com/frontity/frontity/issues/622">https://github.com/frontity/frontity/issues/622</a>.</p>
+<p>As a matter of fact, the solution that <a href="https://github.com/frontity/frontity/issues/622#issuecomment-732139397">Michael posted in the github issue</a> is probably correct (or very close to what we it should be) so thanks Michael! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>So, assuming that the bug I’ve mentioned is fixed, we should be able to do either of two things:</p>
+<h4>Version 1.</h4>
+<ul>
+<li>
+<p><code>state.source.url</code>: <code>https://artistintheshed.wordpress.com</code></p>
+</li>
+<li>
+<p><code>state.frontity.url</code>: <code>http://localhost:3000</code> or wherever your Frontity app is.</p>
+<p>The url points directly to a site that ends in <code>wordpress.com</code> so frontity can detect that and set up <code>state.source.api</code> correctly.</p>
+</li>
+</ul>
+<h4>Version 2.</h4>
+<ul>
+<li>
+<p><code>state.source.url</code>: <code>https://artistintheshed.com</code></p>
+</li>
+<li>
+<p><code>isWpCom</code>: <code>true</code></p>
+</li>
+<li>
+<p><code>state.frontity.url</code>: <code>http://localhost:3000</code> or wherever your Frontity app is.</p>
+<p>In this case, frontity does not know that <code>https://artistintheshed.com</code> is a <a href="http://wp.com">wp.com</a> site, so we have to tell Frontity that <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</li>
+</ul>
+<p>Hope this helps!</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/40">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/40</link>
+        <pubDate>Mon, 23 Nov 2020 23:24:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-40</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+      <item>
+        <title>Make the backend URL a global setting</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>If <code>state.source.url</code> is set to <code>https://artistintheshed.com</code> then I get a 404 - I guess because that’s not a valid link to the API. Adding <code>state.source.isWpCom: true</code> doesn’t make a difference.</p>
+<p>If <code>state.source.url</code> is set to <code>https://artistintheshed.wordpress.com</code> then it works as that points to the API at <a href="http://wordpress.com">wordpress.com</a>.</p>
+<p>But then the link component problem that I describe in the loom video occurs - I guess because the internal links pointing to <code>artistintheshed.com/whatever</code> don’t match the hostname part of the URL which is <code>artistintheshed.wordpress.com</code> as far as Frontity is concerned.</p>
+<p>By the way, this site is just an example because I know they have a custom URL. This problem will occur for any <a href="http://wordpress.com">wordpress.com</a> site with a custom URL.</p>
+          <p><a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/39">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/39</link>
+        <pubDate>Mon, 23 Nov 2020 12:31:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2381-39</guid>
+        <source url="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381.rss">Make the backend URL a global setting</source>
+      </item>
+  </channel>
+</rss>

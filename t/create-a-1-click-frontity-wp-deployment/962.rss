@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Create a 1-click frontity + WP deployment</title>
+    <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962</link>
+    <description>**--- [Feature Card](https://www.notion.so/frontity/Create-a-1-click-frontity-WP-deployment-1c2201c790df420d99c1a25300259c6f)**
+
+&lt;!-- Please, follow this template in order to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+## Description
+In the process of looking through the documentation, I’ve realized that there is no “simple” way to do a 1-click deploy of a fresh frontity instance and wordpress. The documentation is actually quite detailed and walks you through many different choices but falls short there.I know that many people use frontity with existing systems but we could really benefit from being able to go straight to production for a sample application like mars-theme. 
+
+## User Stories
+
+&gt; As a **frontity developer** 
+&gt; I want to **be able to deploy both frontity and WordPress to a single hosting with one click**
+&gt; so that **I have as few concepts to learn as possible (hosting, etc.)**
+
+
+&lt;!-- ------------------------------------------------------------------------ --&gt;
+&lt;!-- This will be filled by the Frontity team, please do not remove it --&gt;
+&lt;!-- ------------------------------------------------------------------------
+
+## GitHub Issues
+ - [Issue](####)
+--&gt;</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 17 Apr 2020 09:56:30 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[mosamlife]]></dc:creator>
+        <description><![CDATA[
+            <p>This is my current frontity configuration with pm2 and Nginx let me know if you need help regarding Nginx and pm2 or forever</p>
+<pre><code class="lang-nginx">upstream frontity {
+  server 127.0.0.1:3000 max_fails=0 fail_timeout=10s weight=1;
+  # Send visitors back to the same server each time.
+  ip_hash;
+  # Enable number of keep-alive connections.
+  keepalive 512;
+}
+server {
+root /oscod/webapps/frontitydemo/build;
+index index.html index.htm;
+server_name example.com;
+
+
+location / {
+proxy_pass http://frontity/;
+# Headers to pass to proxy server.
+proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_cache_bypass $http_upgrade;
+    proxy_http_version 1.1;
+    proxy_redirect off;
+# Go to next upstream after if server down.
+    proxy_next_upstream error timeout http_500 http_502 http_503 http_504;
+    proxy_connect_timeout 5s;
+    # Gateway timeout.
+    proxy_read_timeout 20s;
+    proxy_send_timeout 20s;
+
+# define buffers, necessary for proper communication to prevent 502s
+   proxy_buffer_size 128k;
+   proxy_buffers 4 256k;
+   proxy_busy_buffers_size 256k;
+}
+
+location ~* \.(css|js|ico|gif|svg)$ {
+   expires 168h;
+  add_header Pragma public;
+   add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+   }
+
+   location ~* \.html$ {
+   expires -1;
+ }
+
+  keepalive_timeout 10;
+  client_max_body_size 200M;
+
+    listen 443 ssl; 
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem; 
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem; 
+    include /etc/letsencrypt/options-ssl-nginx.conf; 
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; 
+
+}
+
+server {
+    if ($host = example.com) {
+        return 301 https://$host$request_uri;
+    } 
+
+
+server_name example.com;
+    listen 80;
+    return 404;
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/11</link>
+        <pubDate>Wed, 15 Apr 2020 16:34:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-11</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s really nice, thanks <a class="mention" href="https://community.frontity.org/u/403page">@403page</a>.</p>
+<p>Did you have any problems? From what we have heard from other developers it seemed easy at first but it turned out to be tricky for the amount of exceptions you need to take into account in your Nginx config.</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/10</link>
+        <pubDate>Wed, 15 Apr 2020 06:44:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-10</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[403page]]></dc:creator>
+        <description><![CDATA[
+            <p>Nginx with pm2 specifically</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/9</link>
+        <pubDate>Tue, 14 Apr 2020 22:31:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-9</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[403page]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="luisherranz" data-post="2" data-topic="962">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Apart from that, maybe we can add tutorials to configure WP + Frontity in the same server using Apache/Nginx with forever/pm2.</p>
+</blockquote>
+</aside>
+<p>I’ve built this several times from scratch recently and have been planning a full guide. Will update you once I have it.</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/8</link>
+        <pubDate>Tue, 14 Apr 2020 22:31:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-8</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="juanma" data-post="5" data-topic="962">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>Is there any proof-of-concept of this?</p>
+</blockquote>
+</aside>
+<p>No that I know of.</p>
+<p>But for the conversations on <a href="https://community.frontity.org/t/proof-of-concept-on-pantheon-deploy-on-google-cloud-platform/280" class="inline-onebox">Proof of concept on Pantheon + Deploy on Google Cloud Platform</a> and the experience of some of the big publishers using Frontity, it seems like the <a href="https://community.frontity.org/t/theme-bridge/1432" class="inline-onebox">Theme Bridge</a> is going to be a better solution.</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/6</link>
+        <pubDate>Tue, 14 Apr 2020 09:28:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-6</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="luisherranz" data-post="2" data-topic="962">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Apart from that, maybe we can add tutorials to configure WP + Frontity in the same server using Apache/Nginx with forever/pm2.</p>
+</blockquote>
+</aside>
+<p>Is there any proof-of-concept of this?</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/5</link>
+        <pubDate>Tue, 14 Apr 2020 08:54:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-5</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Well, more than Heroku and Google Cloud Run, I’d say we need to create a buildpack and a docker. I don’t know if buildpacks support more than one language (php + node).</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/4</link>
+        <pubDate>Thu, 19 Dec 2019 18:24:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-4</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="2" data-topic="962">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I think we could create 1-click installs for Heroku (with buildpacks) and Google Cloud Run (with docker).</p>
+</blockquote>
+</aside>
+<p>yes, that’s exactly the kind of thing that I’m talking about. I think both are very valid options.</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/3</link>
+        <pubDate>Thu, 19 Dec 2019 18:11:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-3</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think we could create 1-click installs for Heroku (with buildpacks) and Google Cloud Run (with docker). It looks like DigitalOcean doesn’t allow this, all their 1-click installs are created and maintained by them.</p>
+<p>Apart from that, maybe we can add tutorials to configure WP + Frontity in the same server using Apache/Nginx with forever/pm2.</p>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/2</link>
+        <pubDate>Thu, 19 Dec 2019 17:59:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-2</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+      <item>
+        <title>Create a 1-click frontity + WP deployment</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Create-a-1-click-frontity-WP-deployment-1c2201c790df420d99c1a25300259c6f">Feature Card</a></strong></p>
+
+<h2>Description</h2>
+<p>In the process of looking through the documentation, I’ve realized that there is no “simple” way to do a 1-click deploy of a fresh frontity instance and wordpress. The documentation is actually quite detailed and walks you through many different choices but falls short there.I know that many people use frontity with existing systems but we could really benefit from being able to go straight to production for a sample application like mars-theme.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>frontity developer</strong><br>
+I want to <strong>be able to deploy both frontity and WordPress to a single hosting with one click</strong><br>
+so that <strong>I have as few concepts to learn as possible (hosting, etc.)</strong></p>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962/1</link>
+        <pubDate>Thu, 19 Dec 2019 17:06:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-962-1</guid>
+        <source url="https://community.frontity.org/t/create-a-1-click-frontity-wp-deployment/962.rss">Create a 1-click frontity + WP deployment</source>
+      </item>
+  </channel>
+</rss>

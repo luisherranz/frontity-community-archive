@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>WP-source not making request to extra postTypes</title>
+    <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949</link>
+    <description>After quite some struggles, trying to figure out why either my products or posts don&#39;t load on a hard refresh, depending on the `postEndpoint` I had set in settings, I had to dig deeper to figure out what is going on.
+
+So what do I want to achieve is that  blog post url should be `domain.com/some-blog-post` and a product url should be `domain.com/some-product-url`
+
+So they are basically using the same url structure. When that is the case when I try to go to `domain.com/some-product` I get a 404 because wp-source is making a request to 3 endpoints:
+
+![Screenshot 2020-09-22 at 10.43.47|690x123](upload://sT0TrfqeAfzAinQUr9yZWBEAxjG.png) 
+
+However, it doesnt make a request to product and I can&#39;t figure out why. Here is my settings file, where you can see product is defined as a `postType`:
+
+```
+const settings = {
+  name: &quot;webshop&quot;,
+  state: {
+    frontity: {
+      url: &quot;http://localhost:3000&quot;,
+      title: &quot;Webshop&quot;,
+      description: &quot;WordPress installation for Frontity development&quot;,
+    },
+  },
+  packages: [
+    {
+      name: &quot;@frontity/webshop-theme&quot;,
+    },
+    {
+      name: &quot;@frontity/wp-source&quot;,
+      state: {
+        source: {
+          api: &quot;https://api.webshop.de/wp-json/&quot;,
+          params: {
+            per_page: 9,
+          },
+          homepage: &quot;/home/&quot;,
+          postsPage: &quot;/blog/&quot;,
+          postTypes: [
+            {
+              type: &quot;product&quot;,
+              endpoint: &quot;product&quot;,
+              archive: &quot;/product&quot;,
+            },
+          ],
+        },
+      },
+    },
+    &quot;@frontity/tiny-router&quot;,
+    &quot;@frontity/html2react&quot;,
+    &quot;@frontity/head-tags&quot;,
+    &quot;woocommerce-shop&quot;,
+  ],
+};
+
+export default settings;
+```
+
+Any help will be greatly appreciated. I am super desperate at this point as this is my last step left and not sure what to do so my product endpoint is also hit.
+
+Debug info:
+
+```
+donkokoッ: ~
+🧙🏼‍ &gt; npx frontity info
+
+## System:
+ - OS: macOS 10.15
+ - CPU: (8) x64 Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz
+ - Memory: 193.04 MB / 8.00 GB
+ - Shell: 5.0.18 - /usr/local/bin/bash
+## Binaries:
+ - Node: 10.14.2 - /usr/local/bin/node
+ - npm: 6.13.4 - /usr/local/bin/npm
+## Browsers:
+ - Chrome: 85.0.4183.121
+ - Edge: 85.0.564.60
+ - Firefox: 70.0
+ - Safari: 13.0.2
+## npmPackages:
+ - @frontity/core: ^1.8.0 =&gt; 1.8.0
+ - @frontity/head-tags: ^1.0.7 =&gt; 1.0.7
+ - @frontity/html2react: ^1.4.0 =&gt; 1.4.0
+ - @frontity/webshop-theme: ./packages/webshop-theme =&gt; 1.4.2
+ - @frontity/tiny-router: ^1.2.1 =&gt; 1.2.1
+ - @frontity/wp-source: ^1.8.4 =&gt; 1.8.4
+ - @hookform/error-message: 0.0.4 =&gt; 0.0.4
+ - axios: ^0.20.0 =&gt; 0.20.0
+ - frontity: ^1.11.1 =&gt; 1.11.1
+ - js-cookie: ^2.2.1 =&gt; 2.2.1
+ - libphonenumber-js: ^1.7.58 =&gt; 1.7.58
+ - libphonenumber-js-core:  1.0.0
+ - libphonenumber-js-max:  1.0.0
+ - libphonenumber-js-min:  1.0.0
+ - libphonenumber-js-mobile:  1.0.0
+ - react-content-loader: ^5.1.2 =&gt; 5.1.2
+ - react-content-loader/native:  undefined ()
+ - react-hook-form: ^6.8.4 =&gt; 6.8.4
+ - react-select: ^3.1.0 =&gt; 3.1.0
+ - react-spring: ^8.0.27 =&gt; 8.0.27
+ - woocommerce-shop: file:packages/woocommerce-shop =&gt; 1.0.0
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+```
+
+**Terminal output**
+```
+{ ServerError: post type from endpoints &quot;posts,pages,media&quot; with slug &quot;spiegel-serie&quot; not found
+    at Object.eval (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:37:21)
+    at process._tickCallback (internal/process/next_tick.js:68:7)
+  name: &#39;ServerError&#39;,
+  status: 404,
+  statusText:
+   &#39;post type from endpoints &quot;posts,pages,media&quot; with slug &quot;spiegel-serie&quot; not found&#39; }
+```
+
+@mburridge I checked your video on youtube and based on the description there this should work 100%. Could you please let me know what I am doing wrong? 
+
+P.S. I have created a new project from scratch and only added the postEndpoints and changed the API url and it still doesnt work.
+Greetings</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 30 Jun 2021 12:55:14 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> ,</p>
+<p>its me again, resurrecting this topic as I have hit a brick wall again and I cant solve it.<br>
+So intially when we started building this site, our idea was to handle the product_category pages as actual pages in wordpress and just render the embedded content.<br>
+We have however changed our mind and we want to take the approach of using the archives from the CPT.</p>
+<p>So here are the questions I am failing to find the answers to:</p>
+<ol>
+<li>Is it possible that have the url be structured <code>domain.com/category-slug</code> and let wp-source fetch the content. I haven’t been able to make this work. Do I maybe have to modify a handler or maybe create a new one?</li>
+</ol>
+<p><strong>EDIT</strong>: I have removed the second part of my questions as it is irrelevant now as I managed to fix this endpoint: /wp-json/wp/v2/product?product_cat=705 so the filtering works now.<br>
+The other part of the issue still remains is to make my product_cat links to work like this: <a href="http://domain.com/product-category-slug" rel="noopener nofollow ugc">domain.com/product-category-slug</a>. When I try it now I can see the data that its fetching and recognizing its a <code>product_cat</code><br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/f/f563996d71e2701e89300bf3de0a367d775c664d.png" data-download-href="https://community.frontity.org/uploads/default/f563996d71e2701e89300bf3de0a367d775c664d" title="image"><img src="https://community.frontity.org/uploads/default/original/2X/f/f563996d71e2701e89300bf3de0a367d775c664d.png" alt="image" data-base62-sha1="z0OmZtJs5fYpYmZb3OvoFXMD32t" width="690" height="92" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/f/f563996d71e2701e89300bf3de0a367d775c664d_2_10x10.png"></a></div><p></p>
+<p>Just as a small summary, all those complexities are caused by the fact that we want most of our urls to be following this structure:</p>
+<ul>
+<li><a href="http://domain.com/page-slug" rel="noopener nofollow ugc">domain.com/page-slug</a></li>
+<li><a href="http://domain.com/product-slug" rel="noopener nofollow ugc">domain.com/product-slug</a></li>
+<li><a href="http://domain.com/product-category-slug" rel="noopener nofollow ugc">domain.com/product-category-slug</a></li>
+</ul>
+<p>Any help will be appreciated. Thanks in advance.</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/11</link>
+        <pubDate>Wed, 30 Jun 2021 12:55:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-11</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Just wanted to say thanks again for this. I finally got the time to implement it and it works like a charm. I am excited to finish the project so I we can share with everybody.</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/10</link>
+        <pubDate>Fri, 09 Oct 2020 14:21:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-10</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>That is exactly what I was thinking. I was just not sure if it possible to ovveride/extend the functionality. Thanks for the help.</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/9</link>
+        <pubDate>Fri, 02 Oct 2020 13:21:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-9</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>HI <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a>,</p>
+<aside class="quote no-group" data-username="ni.bonev" data-post="3" data-topic="2949">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/ni.bonev/40/1155_2.png" class="avatar"> ni.bonev:</div>
+<blockquote>
+<ul>
+<li>
+<a href="http://domain.com/:product_id">domain.com/:product_id</a> - NOT possible</li>
+<li>
+<a href="http://domain.com/product/:id">domain.com/product/:id</a> - the way it is designed.</li>
+</ul>
+</blockquote>
+</aside>
+<p>Yes, you’re right, by default this will not work. The reason is the following:</p>
+<p>Frontity creates a new handler for the custom post types here:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/bda0fab71c99b8e19775e45a0317a4ff1875b4af/packages/wp-source/src/actions.ts#L145" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/bda0fab71c99b8e19775e45a0317a4ff1875b4af/packages/wp-source/src/actions.ts#L145" target="_blank" rel="noopener">frontity/frontity/blob/bda0fab71c99b8e19775e45a0317a4ff1875b4af/packages/wp-source/src/actions.ts#L145</a></h4>
+<pre class="onebox"><code class="lang-ts"><ol class="start lines" start="135" style="counter-reset: li-counter 134 ;">
+<li>
+</li><li>const patterns = isWpCom ? wpCom : wpOrg;</li>
+<li>handlers.push(...patterns);</li>
+<li>
+</li><li>// Add handlers for custom post types.</li>
+<li>state.source.postTypes.forEach(({ type, endpoint, archive }) =&gt; {</li>
+<li>  // Single page</li>
+<li>  handlers.push({</li>
+<li>    name: type,</li>
+<li>    priority: 10,</li>
+<li class="selected">    pattern: concatPath(type, "/:slug"),</li>
+<li>    func: postTypeHandler({ endpoints: [endpoint] }),</li>
+<li>  });</li>
+<li>  // Archive.</li>
+<li>  if (archive)</li>
+<li>    handlers.push({</li>
+<li>      name: `${type} archive`,</li>
+<li>      priority: 10,</li>
+<li>      pattern: concatPath(archive),</li>
+<li>      func: postTypeArchiveHandler({ type, endpoint }),</li>
+<li>    });</li>
+</ol></code></pre>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>There, you can see that this handler is matched when the URL is like <code>concatPath(type, "/:slug"),</code> which evaluates to something like <code>/product/:slug</code> or <code>/my_custom_post_type/:slug</code></p>
+<p>As you want to fetch the products on a path like <code>domain.com/:slug</code>, this is not going to work, because this path is matched by the default postHandler here:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/107d3543ce5463186809b7e6f50ca31ffbdc107d/packages/wp-source/src/libraries/patterns/wp-org.ts#L64" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/107d3543ce5463186809b7e6f50ca31ffbdc107d/packages/wp-source/src/libraries/patterns/wp-org.ts#L64" target="_blank" rel="noopener">frontity/frontity/blob/107d3543ce5463186809b7e6f50ca31ffbdc107d/packages/wp-source/src/libraries/patterns/wp-org.ts#L64</a></h4>
+<pre class="onebox"><code class="lang-ts"><ol class="start lines" start="54" style="counter-reset: li-counter 53 ;">
+<li>  },</li>
+<li>  {</li>
+<li>    name: "attachment from post by id",</li>
+<li>    priority: 20,</li>
+<li>    pattern: "/archives/:postId(\\d+)/:slug", // numeric</li>
+<li>    func: attachment,</li>
+<li>  },</li>
+<li>  {</li>
+<li>    name: "post type",</li>
+<li>    priority: 30,</li>
+<li class="selected">    pattern: "/(.*)?/:slug", // post or page or attachment</li>
+<li>    func: postType,</li>
+<li>  },</li>
+<li>];</li>
+</ol></code></pre>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>The <strong>good news</strong> is that you can fix it by overriding the default post type handler. We have cloned his repo and just added this and it works <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<pre><code class="lang-javascript">// src/index.js
+import { postTypeHandler } from "@frontity/wp-source/src/libraries/handlers";
+
+const marsTheme = {
+  // ... rest of the theme.
+  actions: {
+    theme: {
+      init: ({ libraries }) =&gt; {
+        libraries.source.handlers.push({
+          name: "test handler",
+          priority: 20,
+          pattern: "/(.*)?/:slug", // post or page or attachment
+          func: postTypeHandler({
+            // Those are the default endpoints plus "product"
+            endpoints: ["product", "posts", "pages", "media"],
+          }),
+        });
+      },
+    }
+  }
+}
+
+</code></pre>
+<p>Hope this helps!</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/7</link>
+        <pubDate>Wed, 23 Sep 2020 16:24:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-7</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>As this never got answered but another post did, if someone is facing the same issue maybe this helps: <a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/11" class="inline-onebox">Retrieve all posts of CPT without knowing slugs</a></p>
+<p>I have “solved” the problem in another way as I was under time pressure so I haven’t tested  this fully myself.</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/6</link>
+        <pubDate>Wed, 23 Sep 2020 16:13:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-6</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>,</p>
+<p>thanks for your answer. As I mentioned in my post I already followed the guide step by step and even created a blank project with mars-theme and I had the same issue.</p>
+<p>After digging deeper, I think the way frontity is built now, if I want to use a CPT I have to access them via sub-directory for example:</p>
+<ol>
+<li>
+<a href="http://domain.com/:product_id" rel="nofollow noopener">domain.com/:product_id</a> - NOT possible</li>
+<li>
+<a href="http://domain.com/product/:id" rel="nofollow noopener">domain.com/product/:id</a> - the way it is designed.</li>
+</ol>
+<p>This doesnt work for us as we are following the best SEO practices, which means that our links should be the following:</p>
+<ul>
+<li><a href="http://domain.com/product-link" rel="nofollow noopener">domain.com/product-link</a></li>
+<li><a href="http://domain.com/blog-post-link" rel="nofollow noopener">domain.com/blog-post-link</a></li>
+<li><a href="http://domain.com/page-link" rel="nofollow noopener">domain.com/page-link</a></li>
+</ul>
+<p>Would that be possible, considering that product is a CPT?</p>
+<p>I have pushed the blank project to a repo and I hardcoded a link to 1 specific product in the navbar. Just click the link that says “P-serie”. I would like it to have the behaviour as explained above but I couldn’t manage to make it work.</p>
+<p>(<a href="https://github.com/DonKoko/test-frontity-cpt" rel="nofollow noopener">https://github.com/DonKoko/test-frontity-cpt</a>)</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/3</link>
+        <pubDate>Tue, 22 Sep 2020 16:08:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-3</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a>,</p>
+<p>In order to provide the best possible help as quickly and as efficiently as possible, can you please provide the info suggested <a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">here</a>?</p>
+<p>The more info you provide about your issue the better.<br>
+<strong><a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">Providing a repo or code-sandbox with your code</a></strong>  is especially helpful to find solutions of technical issues with specific code</p>
+<p>Regarding Custom Post Types we published this “Frontity Talk” where we talk about how to implement Custom Post Types in a Frontity project</p>
+<p><a href="https://www.youtube.com/watch?v=3Bab5jLuL1A">Frontity Talks 2020-06 - Custom Post Types</a></p>
+
+<p>This is the demo explained in the video</p>
+<aside class="onebox githubfolder" data-onebox-src="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+
+      <a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank" rel="noopener">github.com</a>
+  </header>
+
+  <article class="onebox-body">
+    <h3><a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank" rel="noopener">frontity-examples/custom-post-types at master · frontity-demos/frontity-examples</a></h3>
+
+  <p><a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank" rel="noopener">master/custom-post-types</a></p>
+
+  <p><span class="label1">A monorepo consisting of a number of different projects each of which is intended to demonstrate how to achieve a particular task using Frontity. - frontity-examples/custom-post-types at master · f...</span></p>
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/2</link>
+        <pubDate>Tue, 22 Sep 2020 15:43:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-2</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+      <item>
+        <title>WP-source not making request to extra postTypes</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>After quite some struggles, trying to figure out why either my products or posts don’t load on a hard refresh, depending on the <code>postEndpoint</code> I had set in settings, I had to dig deeper to figure out what is going on.</p>
+<p>So what do I want to achieve is that  blog post url should be <code>domain.com/some-blog-post</code> and a product url should be <code>domain.com/some-product-url</code></p>
+<p>So they are basically using the same url structure. When that is the case when I try to go to <code>domain.com/some-product</code> I get a 404 because wp-source is making a request to 3 endpoints:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/ca74e4f92a3d4c3edbc2e0c0dc44ffa41d631d08.png" data-download-href="https://community.frontity.org/uploads/default/ca74e4f92a3d4c3edbc2e0c0dc44ffa41d631d08" title="Screenshot 2020-09-22 at 10.43.47"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/ca74e4f92a3d4c3edbc2e0c0dc44ffa41d631d08_2_690x123.png" alt="Screenshot 2020-09-22 at 10.43.47" data-base62-sha1="sT0TrfqeAfzAinQUr9yZWBEAxjG" width="690" height="123" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/ca74e4f92a3d4c3edbc2e0c0dc44ffa41d631d08_2_690x123.png, https://community.frontity.org/uploads/default/optimized/2X/c/ca74e4f92a3d4c3edbc2e0c0dc44ffa41d631d08_2_1035x184.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/c/ca74e4f92a3d4c3edbc2e0c0dc44ffa41d631d08_2_1380x246.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/ca74e4f92a3d4c3edbc2e0c0dc44ffa41d631d08_2_10x10.png"></a></div><p></p>
+<p>However, it doesnt make a request to product and I can’t figure out why. Here is my settings file, where you can see product is defined as a <code>postType</code>:</p>
+<pre><code class="lang-javascript">const settings = {
+  name: "webshop",
+  state: {
+    frontity: {
+      url: "http://localhost:3000",
+      title: "Webshop",
+      description: "WordPress installation for Frontity development",
+    },
+  },
+  packages: [
+    {
+      name: "@frontity/webshop-theme",
+    },
+    {
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          api: "https://api.webshop.de/wp-json/",
+          params: {
+            per_page: 9,
+          },
+          homepage: "/home/",
+          postsPage: "/blog/",
+          postTypes: [
+            {
+              type: "product",
+              endpoint: "product",
+              archive: "/product",
+            },
+          ],
+        },
+      },
+    },
+    "@frontity/tiny-router",
+    "@frontity/html2react",
+    "@frontity/head-tags",
+    "woocommerce-shop",
+  ],
+};
+
+export default settings;
+</code></pre>
+<p>Any help will be greatly appreciated. I am super desperate at this point as this is my last step left and not sure what to do so my product endpoint is also hit.</p>
+<p>Debug info:</p>
+<pre><code class="lang-javascript">donkokoッ: ~
+🧙🏼‍ &gt; npx frontity info
+
+## System:
+ - OS: macOS 10.15
+ - CPU: (8) x64 Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz
+ - Memory: 193.04 MB / 8.00 GB
+ - Shell: 5.0.18 - /usr/local/bin/bash
+## Binaries:
+ - Node: 10.14.2 - /usr/local/bin/node
+ - npm: 6.13.4 - /usr/local/bin/npm
+## Browsers:
+ - Chrome: 85.0.4183.121
+ - Edge: 85.0.564.60
+ - Firefox: 70.0
+ - Safari: 13.0.2
+## npmPackages:
+ - @frontity/core: ^1.8.0 =&gt; 1.8.0
+ - @frontity/head-tags: ^1.0.7 =&gt; 1.0.7
+ - @frontity/html2react: ^1.4.0 =&gt; 1.4.0
+ - @frontity/webshop-theme: ./packages/webshop-theme =&gt; 1.4.2
+ - @frontity/tiny-router: ^1.2.1 =&gt; 1.2.1
+ - @frontity/wp-source: ^1.8.4 =&gt; 1.8.4
+ - @hookform/error-message: 0.0.4 =&gt; 0.0.4
+ - axios: ^0.20.0 =&gt; 0.20.0
+ - frontity: ^1.11.1 =&gt; 1.11.1
+ - js-cookie: ^2.2.1 =&gt; 2.2.1
+ - libphonenumber-js: ^1.7.58 =&gt; 1.7.58
+ - libphonenumber-js-core:  1.0.0
+ - libphonenumber-js-max:  1.0.0
+ - libphonenumber-js-min:  1.0.0
+ - libphonenumber-js-mobile:  1.0.0
+ - react-content-loader: ^5.1.2 =&gt; 5.1.2
+ - react-content-loader/native:  undefined ()
+ - react-hook-form: ^6.8.4 =&gt; 6.8.4
+ - react-select: ^3.1.0 =&gt; 3.1.0
+ - react-spring: ^8.0.27 =&gt; 8.0.27
+ - woocommerce-shop: file:packages/woocommerce-shop =&gt; 1.0.0
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+</code></pre>
+<p><strong>Terminal output</strong></p>
+<pre><code class="lang-javascript">{ ServerError: post type from endpoints "posts,pages,media" with slug "spiegel-serie" not found
+    at Object.eval (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:37:21)
+    at process._tickCallback (internal/process/next_tick.js:68:7)
+  name: 'ServerError',
+  status: 404,
+  statusText:
+   'post type from endpoints "posts,pages,media" with slug "spiegel-serie" not found' }
+</code></pre>
+<p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> I checked your video on youtube and based on the description there this should work 100%. Could you please let me know what I am doing wrong?</p>
+<p>P.S. I have created a new project from scratch and only added the postEndpoints and changed the API url and it still doesnt work.<br>
+Greetings</p>
+          <p><a href="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949/1</link>
+        <pubDate>Tue, 22 Sep 2020 09:04:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2949-1</guid>
+        <source url="https://community.frontity.org/t/wp-source-not-making-request-to-extra-posttypes/2949.rss">WP-source not making request to extra postTypes</source>
+      </item>
+  </channel>
+</rss>

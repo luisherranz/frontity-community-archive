@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Adding additional properties to a post item?</title>
+    <link>https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156</link>
+    <description>In the List component, each post is identified with three properties:
+&gt; * type
+&gt; * id
+&gt; * link
+
+I&#39;ve made the post category radio buttons with a [plugin](https://wordpress.org/plugins/radio-buttons-for-taxonomies/) ensuring that only a single category can be selected per post. Is there a simple way to populate that category information into the post object? So my new post object has:
+&gt; * type
+&gt; * id
+&gt; * link
+&gt; * category</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 22 Jun 2020 15:02:28 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Adding additional properties to a post item?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Not really, because that information belongs to the <code>entity</code>. You could create a hook that returns the info that you want:</p>
+<pre><code class="lang-js">import { useConnect } from "frontity";
+
+const usePost = (link) =&gt; {
+  // Access the state using the hook.
+  const { state } = useConnect();
+  // If link is not set, use the current link.
+  link = link || state.router.link;
+  // Get the data and the entity.
+  const { id, type } = state.source.get(link);
+  const { categories } = state.source.post[data.id];
+  // Return the properties.
+  return {
+    id,
+    type,
+    link,
+    category: categories[0],
+  };
+};
+</code></pre>
+<p>Then use it later on (don’t forget to connect the component that uses the hook):</p>
+<pre><code class="lang-js">import { connect } from "frontity";
+import usePost from "../hooks/use-post";
+
+const Post = () =&gt; {
+  const { type, id, link, category } = usePost();
+  return (
+    // ...
+  )
+};
+
+export default connect(Post);
+</code></pre>
+<p>Or in an archive:</p>
+<pre><code class="lang-js">import { connect } from "frontity";
+import usePost from "../hooks/use-post";
+
+const List = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return data.items.map(({ link }) =&gt; {
+    const { type, id, category } = usePost(link);
+    return (
+      // ...
+    )
+  });
+};
+
+export default connect(List);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156/2</link>
+        <pubDate>Mon, 22 Jun 2020 15:02:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2156-2</guid>
+        <source url="https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156.rss">Adding additional properties to a post item?</source>
+      </item>
+      <item>
+        <title>Adding additional properties to a post item?</title>
+        <dc:creator><![CDATA[mhigley]]></dc:creator>
+        <description><![CDATA[
+            <p>In the List component, each post is identified with three properties:</p>
+<blockquote>
+<ul>
+<li>type</li>
+<li>id</li>
+<li>link</li>
+</ul>
+</blockquote>
+<p>I’ve made the post category radio buttons with a <a href="https://wordpress.org/plugins/radio-buttons-for-taxonomies/" rel="nofollow noopener">plugin</a> ensuring that only a single category can be selected per post. Is there a simple way to populate that category information into the post object? So my new post object has:</p>
+<blockquote>
+<ul>
+<li>type</li>
+<li>id</li>
+<li>link</li>
+<li>category</li>
+</ul>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156/1</link>
+        <pubDate>Fri, 19 Jun 2020 23:44:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2156-1</guid>
+        <source url="https://community.frontity.org/t/adding-additional-properties-to-a-post-item/2156.rss">Adding additional properties to a post item?</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Add results of fetch to global state</title>
+    <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039</link>
+    <description>I&#39;m finding myself reusing a hook to fetch the same data a lot, which looks like this:
+
+```js
+import { useEffect, useState } from &#39;react&#39;;
+import to from &#39;await-to-js&#39;;
+import { useConnect } from &#39;frontity&#39;;
+
+//
+
+/**
+ *
+ * @param {number} id The ID of the post you want to fetch
+ * @param {number} category The ID of the category you want to fetch
+ * @returns A list of posts
+ */
+
+const useFetchPosts = (id, category) =&gt; {
+  const [post, setPost] = useState(null);
+  const { libraries } = useConnect();
+
+  useEffect(() =&gt; {
+    async function getPostById() {
+      const { api } = libraries.source;
+      let err;
+      let res;
+      let resData;
+
+      [err, res] = await to(
+        api.get({
+          endpoint: id ? `posts/${id}` : &#39;posts&#39;,
+          params: { _embed: true, categories: category },
+        })
+      );
+      if (!res) console.error(err);
+
+      [err, resData] = await to(res.json());
+      if (!resData) console.error(err);
+
+      setPost(resData);
+    }
+
+    getPostById();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return post;
+};
+
+export default useFetchPosts;
+```
+
+Then at component level I find myself using this a lot:
+```
+const allSamples = useFetchPosts(null, 12); // &#39;12&#39; is the id of a page containing data (samples) I need
+```
+
+I&#39;m thinking at this point it makes more sense to add it to the global state, in my index file of my theme package (with `roots` etc) but I&#39;m not sure how to do this.
+
+Can anyone advise how to take the above hook and fetch the data I need in state rather than in each component? That way I can just access it directly from `state`</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 05 Aug 2021 10:45:21 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the precise and helpful explanation, <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a>. You’re a credit to the community!</p>
+<p>This helped me get it over the line, although in the end I handled it like this:</p>
+<pre><code class="lang-js">const samplesHandler = {
+  name: 'allSamples',
+  priority: 10,
+  pattern: '@samples/:slug',
+  func: async ({ link, state, libraries }) =&gt; {
+    // 1. get sample
+    const response = await libraries.source.api.get({
+      endpoint: 'posts',
+      params: { _embed: true, categories: 12 },
+    });
+
+    // 2. parse JSON
+    const sampleData = await response.json();
+
+    // 3. add link to data
+    const sample = state.source.data[link];
+    Object.assign(sample, { items: sampleData });
+  },
+};
+
+export default samplesHandler;
+</code></pre>
+<p>And then in my components</p>
+<pre><code class="lang-js">  const allSamples = state.source.get('@samples/samples');
+  if (allSamples.isFetching) return &lt;Loading /&gt;;
+</code></pre>
+<p>I have access to all of the returned samples in <code>allSamples.items</code> this way. It works perfectly and the site speed has rocketed having to only fetch this data once.</p>
+<p>I’m not sure what’s going to happen when I have a load of samples to grab, but that’s the next bridge to cross…</p>
+<p>Thanks again</p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/9</link>
+        <pubDate>Thu, 05 Aug 2021 10:45:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-9</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>If your handler pattern is <code>@samples/:slug</code>, it means it expects that as the “url” for the content you want to fetch and get.</p>
+<p>So</p>
+<pre><code class="lang-js">beforeSSR: async ({ actions }) =&gt; {
+   // this will preload the posts with category 'some-category'
+   // and put them in `state.source.data['@samples/some-category']`
+   await actions.source.fetch('@samples/some-category');
+},
+</code></pre>
+<p>and in your component</p>
+<pre><code class="lang-js">const somePosts = state.source.get('@samples/some-category'); // &lt;- The data will exist
+</code></pre>
+<hr>
+<p>Alternatively, if you don’t want to preload all posts at all times:</p>
+<pre><code class="lang-js">const SomePost = ({ actions, state }) =&gt; {
+  useEffect(() =&gt; {
+    // No need to use `async/await` here
+    actions.source.fetch('@samples/some-category);
+  }, []);
+
+  // The data will not exist at first, `dataPost.isReady` will be false.
+  // But then, it will rerender when `actions.source.fetch` is finished.
+  const somePosts = state.source.get('@samples/some-category');
+
+  // This will work just fine.
+  return somePosts.isReady ? &lt;Post link="/some-post" /&gt; : &lt;Loading /&gt;;
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/8</link>
+        <pubDate>Wed, 04 Aug 2021 22:09:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-8</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> , apologies for the delay, I only get to work on this a couple of days a week so have to keep jumping in and out.</p>
+<p>I changed the pattern to <code>@samples/:slug</code> as you suggested, and I also added this snippet as in your example:</p>
+<pre><code class="lang-js">      beforeSSR: async ({ actions }) =&gt; {
+        await actions.source.fetch(`/category/samples`);
+      },
+</code></pre>
+<p>I’m not really sure how all of this connects together though. I’ve got a handler running the function above and it’s set like so:</p>
+<pre><code class="lang-js">    source: {
+      handlers: [samplesHandler],
+    },
+</code></pre>
+<p>the handler should be working as it works as a hook, but I’m still not seeing any data in state (just an empty array from <code>allSamples</code>)</p>
+<p>You can see my code here:</p><aside class="onebox allowlistedgeneric" data-onebox-src="https://github.com/Modular-Everything/Marton-Mills">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+
+      <a href="https://github.com/Modular-Everything/Marton-Mills" target="_blank" rel="noopener nofollow ugc">GitHub</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/345;"><img src="https://community.frontity.org/uploads/default/optimized/2X/1/115b3c5caaa7228ea50db4ed60d73a4f9093a882_2_690x345.png" class="thumbnail" width="690" height="345" srcset="https://community.frontity.org/uploads/default/optimized/2X/1/115b3c5caaa7228ea50db4ed60d73a4f9093a882_2_690x345.png, https://community.frontity.org/uploads/default/optimized/2X/1/115b3c5caaa7228ea50db4ed60d73a4f9093a882_2_1035x517.png 1.5x, https://community.frontity.org/uploads/default/original/2X/1/115b3c5caaa7228ea50db4ed60d73a4f9093a882.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/1/115b3c5caaa7228ea50db4ed60d73a4f9093a882_2_10x10.png"></div>
+
+<h3><a href="https://github.com/Modular-Everything/Marton-Mills" target="_blank" rel="noopener nofollow ugc">GitHub - Modular-Everything/Marton-Mills</a></h3>
+
+  <p>Contribute to Modular-Everything/Marton-Mills development by creating an account on GitHub.</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>Specifically: <a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/index.js" class="inline-onebox" rel="noopener nofollow ugc">Marton-Mills/index.js at main · Modular-Everything/Marton-Mills · GitHub</a><br>
+and: <a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/handlers/samplesHandler.js" class="inline-onebox" rel="noopener nofollow ugc">Marton-Mills/samplesHandler.js at main · Modular-Everything/Marton-Mills · GitHub</a></p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/7</link>
+        <pubDate>Wed, 04 Aug 2021 08:43:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-7</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Change the pattern to <code>"@samples/:slug"</code>, otherwise wp-source handles it as a regular URL and tries to get page which doesn’t exist.</p>
+<p>And also check <a href="https://github.com/frontity-demos/frontity-examples/blob/dcb60f4076e81dd0d69bae592ce3ade137b2840a/fetch-menu-from-wp/packages/mars-theme/src/index.js#L60" class="inline-onebox" rel="noopener nofollow ugc">frontity-examples/index.js at dcb60f4076e81dd0d69bae592ce3ade137b2840a · frontity-demos/frontity-examples · GitHub</a> and<br>
+<a href="https://github.com/frontity-demos/frontity-examples/blob/dcb60f4076e81dd0d69bae592ce3ade137b2840a/fetch-menu-from-wp/packages/mars-theme/src/index.js#L46" class="inline-onebox" rel="noopener nofollow ugc">frontity-examples/index.js at dcb60f4076e81dd0d69bae592ce3ade137b2840a · frontity-demos/frontity-examples · GitHub</a> because you still need to call the handler in one way or another <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/6</link>
+        <pubDate>Tue, 27 Jul 2021 16:25:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-6</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>I liked the sound of the second approach as this feels like a ‘proper’ way of handling this, but I’m hitting a few bumps in the road:</p>
+<p>I have this:</p>
+<pre><code class="lang-js">const samplesHandler = {
+  name: 'allSamples',
+  priority: 10,
+  pattern: '/samples/:slug',
+  func: async ({ link, state, libraries, force }) =&gt; {
+    console.info(link);
+
+    // 1. get sample
+    const response = await libraries.source.api.get({
+      endpoint: 'posts',
+      params: { _embed: true, categories: 12 },
+    });
+
+    // 2. add sample to state
+    const [allSamples] = await libraries.source.populate({
+      response,
+      state,
+      force,
+    });
+
+    // 3. add link to data
+    Object.assign(state.source.data[link], {
+      id: allSamples.id,
+      type: allSamples.type,
+      isPostType: true,
+      isSample: true,
+    });
+  },
+};
+
+export default samplesHandler;
+</code></pre>
+<p>and I added this to <code>handlers</code> in my <code>components/index.js</code> file… but if I <code>console.log(state)</code> from one of my pages I’m not seeing the data I’d expect to see.</p>
+<p>Any ideas what steps I might be missing here?</p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/5</link>
+        <pubDate>Tue, 27 Jul 2021 16:00:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-5</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/modg">@modg</a></p>
+<p>You would call this once you have the data returned from the <code>get</code> call, so I guess you could call it either in your <code>useFetchPosts</code> component, or in the component that receives the post returned by <code>useFetchPosts</code>.</p>
+<p><a href="https://github.com/frontity-demos/frontity-examples/blob/master/fetch-menu-from-wp/packages/mars-theme/src/components/handlers/menu-handler.js">Here’s another possible way</a> that you could approach this.</p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/4</link>
+        <pubDate>Tue, 27 Jul 2021 10:57:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-4</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> — where would you call this from?</p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/3</link>
+        <pubDate>Tue, 27 Jul 2021 09:30:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-3</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/modg">@modg</a></p>
+<p>I think <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-populate"><code>source.libraries.state.populate()</code></a> could be what you need.</p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/2</link>
+        <pubDate>Mon, 26 Jul 2021 14:53:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-2</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+      <item>
+        <title>Add results of fetch to global state</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m finding myself reusing a hook to fetch the same data a lot, which looks like this:</p>
+<pre><code class="lang-js">import { useEffect, useState } from 'react';
+import to from 'await-to-js';
+import { useConnect } from 'frontity';
+
+//
+
+/**
+ *
+ * @param {number} id The ID of the post you want to fetch
+ * @param {number} category The ID of the category you want to fetch
+ * @returns A list of posts
+ */
+
+const useFetchPosts = (id, category) =&gt; {
+  const [post, setPost] = useState(null);
+  const { libraries } = useConnect();
+
+  useEffect(() =&gt; {
+    async function getPostById() {
+      const { api } = libraries.source;
+      let err;
+      let res;
+      let resData;
+
+      [err, res] = await to(
+        api.get({
+          endpoint: id ? `posts/${id}` : 'posts',
+          params: { _embed: true, categories: category },
+        })
+      );
+      if (!res) console.error(err);
+
+      [err, resData] = await to(res.json());
+      if (!resData) console.error(err);
+
+      setPost(resData);
+    }
+
+    getPostById();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return post;
+};
+
+export default useFetchPosts;
+</code></pre>
+<p>Then at component level I find myself using this a lot:</p>
+<pre><code class="lang-javascript">const allSamples = useFetchPosts(null, 12); // '12' is the id of a page containing data (samples) I need
+</code></pre>
+<p>I’m thinking at this point it makes more sense to add it to the global state, in my index file of my theme package (with <code>roots</code> etc) but I’m not sure how to do this.</p>
+<p>Can anyone advise how to take the above hook and fetch the data I need in state rather than in each component? That way I can just access it directly from <code>state</code></p>
+          <p><a href="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039/1</link>
+        <pubDate>Mon, 26 Jul 2021 13:48:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5039-1</guid>
+        <source url="https://community.frontity.org/t/add-results-of-fetch-to-global-state/5039.rss">Add results of fetch to global state</source>
+      </item>
+  </channel>
+</rss>

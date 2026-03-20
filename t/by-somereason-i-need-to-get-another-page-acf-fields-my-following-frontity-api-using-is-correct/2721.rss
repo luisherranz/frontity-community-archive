@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>By somereason, I need to get another page acf fields. my following frontity API using is correct?</title>
+    <link>https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721</link>
+    <description>    import React, { useEffect } from &quot;react&quot;;
+    import { connect } from &quot;frontity&quot;;
+
+    const PageDefault = ({ state, actions, libraries }) =&gt; {
+        const data= state.source.get(state.router.link);
+        const page = state.source[data.type][data.id];
+
+        useEffect(() =&gt; {
+            async function getPageACF(){
+                const res = await libraries.source.api.get({
+                    endpoint: &#39;/acf/v3/pages/361&#39;
+                });
+                const resData = await res.json();
+                console.log(resData);
+            }
+
+            getPageACF();
+        }, []);
+
+        return (
+            &lt;&gt;
+                &lt;h1&gt;{page.title.rendered}&lt;/h1&gt;
+                &lt;h3&gt;Default Page Template&lt;/h3&gt;
+                &lt;div dangerouslySetInnerHTML={{__html : page.content.rendered}} /&gt;
+            &lt;/&gt;
+        )
+    }
+
+    const connectedPageDefault = connect(PageDefault);
+    export { connectedPageDefault as PageDefault};
+
+
+Second Case
+
+    import React, { useEffect, useState } from &quot;react&quot;;
+    import { connect } from &quot;frontity&quot;;
+
+    const PageDefault = ({ state, actions, libraries }) =&gt; {
+        const [a, setA] = useState(&#39;aaaaaaaa&#39;);
+
+        libraries.source.api.get({
+            endpoint: &#39;/acf/v3/pages/361&#39;
+        }).then(function(res){
+            return res.json();
+        }).then(function(acf){
+            console.log(acf.acf.pageFirmSizeComponents[0].acf_fc_layout);
+            setA(acf.acf.pageFirmSizeComponents[0].acf_fc_layout);
+        });
+
+        return (
+            &lt;&gt;
+                { a }
+            &lt;/&gt;
+        );
+    }
+
+    const connectedPageDefault = connect(PageDefault);
+    export { connectedPageDefault as PageDefault};
+
+please can anyone check my the above code? I need to get the ACF values of another page.
+so I made my 2 method codes.
+my above code is correct and professional? if not, please teach me quickly.
+
+because when I used guide code, I got errors like the following.
+
+    const data = await api.get({
+        endpoint: &quot;/acf/v3/pages/361&quot;,
+    });
+
+![Screenshot_2020-08-24 Screenshot|689x252](upload://7zZ9Ht9xOBZ65siQSPYHXSeMIc7.png)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 28 Sep 2020 14:08:08 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>By somereason, I need to get another page acf fields. my following frontity API using is correct?</title>
+        <dc:creator><![CDATA[forevereffort]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> Thank you very much</p>
+          <p><a href="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/7</link>
+        <pubDate>Mon, 28 Sep 2020 14:08:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2721-7</guid>
+        <source url="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721.rss">By somereason, I need to get another page acf fields. my following frontity API using is correct?</source>
+      </item>
+      <item>
+        <title>By somereason, I need to get another page acf fields. my following frontity API using is correct?</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/forevereffort">@forevereffort</a>,</p>
+<p>an improvement over your code could be using the <a href="https://github.com/scopsy/await-to-js"><code>to</code></a> NPM package to properly handle the possible errors got when on the <code>await</code> sentences</p>
+<pre><code class="lang-jsx">import React, { useEffect } from "react";
+import to from 'await-to-js';
+import { connect } from "frontity";
+
+const PageDefault = ({ state, actions, libraries }) =&gt; {
+    const data= state.source.get(state.router.link);
+    const page = state.source[data.type][data.id];
+
+    useEffect(() =&gt; {
+        async function getPageACF(){
+            let err, res, resData;
+            [ err, res ] = await to(libraries.source.api.get({
+                endpoint: '/acf/v3/pages/361'
+            }));
+            if(!res) {
+                console.error('No response returned from get. Please check the endpoint is correct');
+                console.error(err)
+            }
+
+            [ err, resData ] = await to(res.json())
+            if(!resData) {
+                console.error('Error getting JSON from res. Please check the endpoint is returning a proper JSON');
+                console.error(err)
+            }            
+            // at this point everything should be OK
+            console.log(resData);
+        }
+
+        getPageACF();
+    }, []);
+
+    return (
+        &lt;&gt;
+            &lt;h1&gt;{page.title.rendered}&lt;/h1&gt;
+            &lt;h3&gt;Default Page Template&lt;/h3&gt;
+            &lt;div dangerouslySetInnerHTML={{__html : page.content.rendered}} /&gt;
+        &lt;/&gt;
+    )
+}
+
+const connectedPageDefault = connect(PageDefault);
+export { connectedPageDefault as PageDefault};
+</code></pre>
+<p>In this way, you’ll be able to detect more easily where the problem is<br>
+It may be, as <a class="mention" href="https://community.frontity.org/u/david1">@david1</a> says, that the use of <a href="https://wordpress.org/plugins/acf-to-rest-api/">ACF to REST API plugin </a> is making the ACF data to be available somewhere else</p>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/5</link>
+        <pubDate>Mon, 14 Sep 2020 16:02:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2721-5</guid>
+        <source url="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721.rss">By somereason, I need to get another page acf fields. my following frontity API using is correct?</source>
+      </item>
+      <item>
+        <title>By somereason, I need to get another page acf fields. my following frontity API using is correct?</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/forevereffort">@forevereffort</a> are you using the <a href="https://wordpress.org/plugins/acf-to-rest-api/" rel="nofollow noopener">ACF to REST API plugin</a>?  If you use that, you just need to do <code>post.acf</code> and you’ll get your fields.</p>
+          <p><a href="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/4</link>
+        <pubDate>Mon, 24 Aug 2020 15:52:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2721-4</guid>
+        <source url="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721.rss">By somereason, I need to get another page acf fields. my following frontity API using is correct?</source>
+      </item>
+      <item>
+        <title>By somereason, I need to get another page acf fields. my following frontity API using is correct?</title>
+        <dc:creator><![CDATA[forevereffort]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> Thanks for your reply. my following code is correct? if any more good solution, can you please let me know?</p>
+<pre><code>import React, { useEffect } from "react";
+import { connect } from "frontity";
+
+const PageDefault = ({ state, actions, libraries }) =&gt; {
+    const data= state.source.get(state.router.link);
+    const page = state.source[data.type][data.id];
+
+    useEffect(() =&gt; {
+        async function getPageACF(){
+            const res = await libraries.source.api.get({
+                endpoint: '/acf/v3/pages/361'
+            });
+            const resData = await res.json();
+            console.log(resData);
+        }
+
+        getPageACF();
+    }, []);
+
+    return (
+        &lt;&gt;
+            &lt;h1&gt;{page.title.rendered}&lt;/h1&gt;
+            &lt;h3&gt;Default Page Template&lt;/h3&gt;
+            &lt;div dangerouslySetInnerHTML={{__html : page.content.rendered}} /&gt;
+        &lt;/&gt;
+    )
+}
+
+const connectedPageDefault = connect(PageDefault);
+export { connectedPageDefault as PageDefault};</code></pre>
+          <p><a href="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/3</link>
+        <pubDate>Mon, 24 Aug 2020 13:50:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2721-3</guid>
+        <source url="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721.rss">By somereason, I need to get another page acf fields. my following frontity API using is correct?</source>
+      </item>
+      <item>
+        <title>By somereason, I need to get another page acf fields. my following frontity API using is correct?</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Your error says</p>
+<p><code>Can not use keyword "await" outside an async function</code></p>
+<p>So, probably you forgot to define that function as <code>async</code></p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/1X/8ee5731d9f9aa0c8dbc9df8a6b5fed1440be5cb9.png" class="site-icon" width="32" height="32">
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function" target="_blank">MDN Web Docs</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/optimized/1X/e5c522d667c53fbfb0ada5f535969c16f9748c84_2_500x500.png" class="thumbnail onebox-avatar" width="500" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/e5c522d667c53fbfb0ada5f535969c16f9748c84_2_500x500.png, https://community.frontity.org/uploads/default/original/1X/e5c522d667c53fbfb0ada5f535969c16f9748c84.png 1.5x, https://community.frontity.org/uploads/default/original/1X/e5c522d667c53fbfb0ada5f535969c16f9748c84.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/e5c522d667c53fbfb0ada5f535969c16f9748c84_2_10x10.png">
+
+<h3><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function" target="_blank">async function</a></h3>
+
+<p>An&nbsp;async function&nbsp;is a function declared with the&nbsp;async keyword. Async functions are instances of the AsyncFunction constructor, and&nbsp;the await keyword is permitted within them.&nbsp;The async and await...</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/2</link>
+        <pubDate>Mon, 24 Aug 2020 12:52:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2721-2</guid>
+        <source url="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721.rss">By somereason, I need to get another page acf fields. my following frontity API using is correct?</source>
+      </item>
+      <item>
+        <title>By somereason, I need to get another page acf fields. my following frontity API using is correct?</title>
+        <dc:creator><![CDATA[forevereffort]]></dc:creator>
+        <description><![CDATA[
+            <pre><code>import React, { useEffect } from "react";
+import { connect } from "frontity";
+
+const PageDefault = ({ state, actions, libraries }) =&gt; {
+    const data= state.source.get(state.router.link);
+    const page = state.source[data.type][data.id];
+
+    useEffect(() =&gt; {
+        async function getPageACF(){
+            const res = await libraries.source.api.get({
+                endpoint: '/acf/v3/pages/361'
+            });
+            const resData = await res.json();
+            console.log(resData);
+        }
+
+        getPageACF();
+    }, []);
+
+    return (
+        &lt;&gt;
+            &lt;h1&gt;{page.title.rendered}&lt;/h1&gt;
+            &lt;h3&gt;Default Page Template&lt;/h3&gt;
+            &lt;div dangerouslySetInnerHTML={{__html : page.content.rendered}} /&gt;
+        &lt;/&gt;
+    )
+}
+
+const connectedPageDefault = connect(PageDefault);
+export { connectedPageDefault as PageDefault};
+</code></pre>
+<p>Second Case</p>
+<pre><code>import React, { useEffect, useState } from "react";
+import { connect } from "frontity";
+
+const PageDefault = ({ state, actions, libraries }) =&gt; {
+    const [a, setA] = useState('aaaaaaaa');
+
+    libraries.source.api.get({
+        endpoint: '/acf/v3/pages/361'
+    }).then(function(res){
+        return res.json();
+    }).then(function(acf){
+        console.log(acf.acf.pageFirmSizeComponents[0].acf_fc_layout);
+        setA(acf.acf.pageFirmSizeComponents[0].acf_fc_layout);
+    });
+
+    return (
+        &lt;&gt;
+            { a }
+        &lt;/&gt;
+    );
+}
+
+const connectedPageDefault = connect(PageDefault);
+export { connectedPageDefault as PageDefault};
+</code></pre>
+<p>please can anyone check my the above code? I need to get the ACF values of another page.<br>
+so I made my 2 method codes.<br>
+my above code is correct and professional? if not, please teach me quickly.</p>
+<p>because when I used guide code, I got errors like the following.</p>
+<pre><code>const data = await api.get({
+    endpoint: "/acf/v3/pages/361",
+});
+</code></pre>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/35209a3d8023367597b794e1d913477c3d1d4f7f.png" data-download-href="https://community.frontity.org/uploads/default/35209a3d8023367597b794e1d913477c3d1d4f7f" title="Screenshot_2020-08-24 Screenshot"><img src="https://community.frontity.org/uploads/default/original/2X/3/35209a3d8023367597b794e1d913477c3d1d4f7f.png" alt="Screenshot_2020-08-24 Screenshot" data-base62-sha1="7zZ9Ht9xOBZ65siQSPYHXSeMIc7" width="689" height="252" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/35209a3d8023367597b794e1d913477c3d1d4f7f_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721/1</link>
+        <pubDate>Sun, 23 Aug 2020 10:33:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2721-1</guid>
+        <source url="https://community.frontity.org/t/by-somereason-i-need-to-get-another-page-acf-fields-my-following-frontity-api-using-is-correct/2721.rss">By somereason, I need to get another page acf fields. my following frontity API using is correct?</source>
+      </item>
+  </channel>
+</rss>

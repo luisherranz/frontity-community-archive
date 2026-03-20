@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Analysis: Hey Next.js, Is Server Side Rendering Dead? - 👨‍👩‍👧‍👦 Community - Frontity Community Forum</title>
+    <meta name="description" content="There are some interesting points on this article that I’d like we comment 
+
+With SSR, we have to run React on the server. It consumes a lot of resources. If you need to fetch data on the server, it adds latency to you&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Analysis: Hey Next.js, Is Server Side Rendering Dead?&#39;" href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058" />
+<meta name="twitter:url" content="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058" />
+<meta property="og:title" content="Analysis: Hey Next.js, Is Server Side Rendering Dead?" />
+<meta name="twitter:title" content="Analysis: Hey Next.js, Is Server Side Rendering Dead?" />
+<meta property="og:description" content="There are some interesting points on this article that I’d like we comment   With SSR, we have to run React on the server. It consumes a lot of resources. If you need to fetch data on the server, it adds latency to your overall page load time.   As I understand our reasoning behind this is that:  With a good cache layer &amp; strategy the processor consuming &amp; the latency in the server is minimum  Is this correct? Can you develop this? Is there any place where we explain this in more detail?   Now..." />
+<meta name="twitter:description" content="There are some interesting points on this article that I’d like we comment   With SSR, we have to run React on the server. It consumes a lot of resources. If you need to fetch data on the server, it adds latency to your overall page load time.   As I understand our reasoning behind this is that:  With a good cache layer &amp; strategy the processor consuming &amp; the latency in the server is minimum  Is this correct? Can you develop this? Is there any place where we explain this in more detail?   Now..." />
+<meta property="og:article:section" content="👨‍👩‍👧‍👦 Community" />
+<meta property="og:article:section:color" content="ff9900" />
+<meta property="og:article:tag" content="content-analysis" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="2 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="4 ❤" />
+<meta property="article:published_time" content="2020-10-05T15:09:03+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Analysis: Hey Next.js, Is Server Side Rendering Dead?","mainEntity":{"@type":"Question","name":"Analysis: Hey Next.js, Is Server Side Rendering Dead?","text":"[image]\n\n<a href=\"https://arunoda.me/blog/hey-nextjs-is-server-side-rendering-dead\" target=\"_blank\" rel=\"noopener\">Hey Next.js, Is Server Side Rendering Dead?<\/a>\n\nThese days, we discuss a lot about static site generation when it comes to Next.js. So, is server-side rendering dead?\n\nThere are some interesting points on this article that I’d like we comment\n\nWith SSR, we ha&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2020-10-05T15:09:03.677Z","author":{"@type":"Person","name":"JuanMa Garrido"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058">Analysis: Hey Next.js, Is Server Side Rendering Dead?</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/community/7" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #ff9900'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍👩‍👧‍👦 Community</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/content-analysis' class='discourse-tag' rel="tag">content-analysis</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Analysis: Hey Next.js, Is Server Side Rendering Dead?'>
+        <meta itemprop='articleSection' content='👨‍👩‍👧‍👦 Community'>
+      <meta itemprop='keywords' content='content-analysis'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-05T15:09:03Z' class='post-time'>
+                    5 October 2020 15:09
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-13T15:46:15Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <a href="https://arunoda.me/blog/hey-nextjs-is-server-side-rendering-dead" target="_blank" rel="noopener">Arunoda's Blog</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/386;"><img src="/uploads/default/optimized/2X/5/5d0fcf198ce405a175445c91a2c444021db9326e_2_690x386.png" class="thumbnail" width="690" height="386" srcset="/uploads/default/optimized/2X/5/5d0fcf198ce405a175445c91a2c444021db9326e_2_690x386.png, /uploads/default/optimized/2X/5/5d0fcf198ce405a175445c91a2c444021db9326e_2_1035x579.png 1.5x, /uploads/default/original/2X/5/5d0fcf198ce405a175445c91a2c444021db9326e.png 2x" data-small-upload="/uploads/default/optimized/2X/5/5d0fcf198ce405a175445c91a2c444021db9326e_2_10x10.png"></div>
+
+<h3><a href="https://arunoda.me/blog/hey-nextjs-is-server-side-rendering-dead" target="_blank" rel="noopener">Hey Next.js, Is Server Side Rendering Dead?</a></h3>
+
+<p>These days, we discuss a lot about static site generation when it comes to Next.js. So, is server-side rendering dead?</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>There are some interesting points on this article that I’d like we comment</p>
+<blockquote>
+<p>With SSR, we have to run React on the server. It consumes a lot of resources. If you need to fetch data on the server, it adds latency to your overall page load time.</p>
+</blockquote>
+<p>As I understand our reasoning behind this is that:</p>
+<p><em>With a good cache layer &amp; strategy the processor consuming &amp; the latency in the server is minimum</em></p>
+<p>Is this correct? Can you develop this? Is there any place where we explain this in more detail?</p>
+<blockquote>
+<p>Now Google can render client-side JavaScript apps. It even prefers to do that instead of just looking at the HTML output. So, for dynamic web apps, SSR is not needed to index inside Google.</p>
+</blockquote>
+<p>What do you think of this? Do we have more data on why a SSR is the best solution for improving the SEO of a site?</p>
+<blockquote>
+<p>But still, SSR helps to implement various social media features like Twitter cards. For even that, we only need to render the HTML head.</p>
+</blockquote>
+<p>Is this enough reason to apply a SSR strategy? Are there any more problems for SEO you’re aware of  when not applying a SSR  strategy?</p>
+<blockquote>
+<p>This app <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content">preload data</a> just like any other asset on your website. we can render the data without waiting for a fetch API call.</p>
+</blockquote>
+<p>Have you checked this? Is there any possible application in Frontity?</p>
+<blockquote>
+<p>With <a href="https://arunoda.me/blog/what-is-nextjs-issg">incremental static regeneration</a>, but we can generate static pages and update them on-demand in the server. Here we create pages inside the server, and that uses server-side rendering.</p>
+</blockquote>
+<p>It seems Next.js have their own cache layer integrated in the Framework. Is this correct? Is this something that could makes sense for Frontity? I guess right now the solution in Frontity is applying a good cache layer and a good cache strategy</p>
+<hr>
+<p>Taking into account the reasoning of this article about SSR and Next.js,  I’d like to understand the reasoning we have over why <em><strong>SSR (Server Side Rendering) is a better option than SSG (Static Sites Generators) in a the stack: WordPress + React.</strong></em>, and <strong>why Frontity is the best option for applying this SSR strategy</strong> (I guess here is when it enters the Developer Experience and the Extensible nature of Frontity)</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="3" />
+              </div>
+
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/Reyes'><span itemprop='name'>Reyes</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-08T08:10:56Z' class='post-time'>
+                    8 October 2020 08:10
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-08T08:10:56Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="3058">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>What do you think of this? Do we have more data on why a SSR is the best solution for improving the SEO of a site?</p>
+</blockquote>
+</aside>
+<p>In case it helps, Luis explained in this post more about SEO and SSR: <a href="https://frontity.org/blog/seo-for-headless-wordpress-themes/#javascript-and-server-side-rendering">https://frontity.org/blog/seo-for-headless-wordpress-themes/#javascript-and-server-side-rendering</a>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/Pablo'><span itemprop='name'>Pablo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-08T11:05:32Z' class='post-time'>
+                    8 October 2020 11:05
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-08T11:05:32Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-community-team quote-modified" data-username="juanma" data-post="1" data-topic="3058">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<blockquote>
+<p>Now Google can render client-side JavaScript apps. It even prefers to do that instead of just looking at the HTML output. So, for dynamic web apps, SSR is not needed to index inside Google.</p>
+</blockquote>
+<p>What do you think of this? Do we have more data on why a SSR is the best solution for improving the SEO of a site?</p>
+</blockquote>
+</aside>
+<p>I’m not an SEO expert, but some experts have explained to us that Google still uses the SSR version of the sites for indexing. And only runs the CSR JavaScript crawler to check some pages and verify that your SSR &amp; CSR version match (google penalizes pages that don’t match after CSR). In addition, the CRS JavaScript crawler requires more resources, so it consumes the crawling budget for your site faster.</p>
+<blockquote>
+<p>It even prefers to do that instead of just looking at the HTML output. So, for dynamic web apps, SSR is not needed to index inside Google.</p>
+</blockquote>
+<p>From what we know, that sentence it’s not true unless things have radically changed in the last couple of months.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-08T13:52:28Z' class='post-time'>
+                    8 October 2020 13:52
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-08T13:52:28Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-communication-team quote-modified" data-username="Pablo" data-post="3" data-topic="3058">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/pablo/40/29_2.png" class="avatar"> Pablo:</div>
+<blockquote>
+<blockquote>
+<p>It even prefers to do that instead of just looking at the HTML output. So, for dynamic web apps, SSR is not needed to index inside Google.</p>
+</blockquote>
+<p>From what we know, that sentence it’s not true unless things have radically changed in the last couple of months.</p>
+</blockquote>
+</aside>
+<p>I’ve compiled a few references on this topic and they all seem to conclude that SSR is the best solution to guarantee a good indexing and SEO of your site.</p>
+<hr>
+<h3>SEO in 2020 - SSR vs SPA</h3>
+<p><img src="/images/emoji/apple/date.png?v=9" title=":date:" class="emoji" alt=":date:">  07/03/2020</p>
+<p>Håkon Krogh <span class="mention">@hakonkrogh</span><br>
+Head of Engineering at <span class="mention">@crystallizeapi</span></p>
+<p><a href="https://spa-blog.kroghweb.no/seo-in-2020-ssr-vs-spa" class="onebox" target="_blank">https://spa-blog.kroghweb.no/seo-in-2020-ssr-vs-spa</a></p>
+<blockquote>
+<p>If SEO is a concern for your application, you still have to avoid an SPA and go either SSR or Static Site Generation (SSG), like Gatsby and Next.js if you are looking for React alternatives.</p>
+</blockquote>
+<hr>
+<h3>What I learned about SEO from using the 10 most used JS frameworks</h3>
+<p><img src="/images/emoji/apple/date.png?v=9" title=":date:" class="emoji" alt=":date:">  06/02/2020</p>
+<p>Jan-Willem Bobbink <span class="mention">@jbobbink</span><br>
+SEO with a focus on performance</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://dev-to.s3.us-east-2.amazonaws.com/favicon.ico" class="site-icon" width="32" height="32">
+      <a href="https://dev.to/jbobbink/what-i-learned-about-seo-from-using-the-10-most-used-js-frameworks-4alk" target="_blank" rel="noopener">DEV Community</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/367;"><img src="/uploads/default/optimized/2X/7/7203e64416e9ac255dcd930fa8c4cf751258438d_2_690x367.png" class="thumbnail" width="690" height="367" srcset="/uploads/default/optimized/2X/7/7203e64416e9ac255dcd930fa8c4cf751258438d_2_690x367.png, /uploads/default/optimized/2X/7/7203e64416e9ac255dcd930fa8c4cf751258438d_2_1035x550.png 1.5x, /uploads/default/original/2X/7/7203e64416e9ac255dcd930fa8c4cf751258438d.png 2x" data-small-upload="/uploads/default/optimized/2X/7/7203e64416e9ac255dcd930fa8c4cf751258438d_2_10x10.png"></div>
+
+<h3><a href="https://dev.to/jbobbink/what-i-learned-about-seo-from-using-the-10-most-used-js-frameworks-4alk" target="_blank" rel="noopener">What I learned about SEO from using the 10 most used JS frameworks</a></h3>
+
+<p>JavaScript will define and impact the future of most SEO consultants. A big chunk of websites has, is or will move over to a JS framework driven platform</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<blockquote>
+<p>Server Side Rendering (SSR) is just the safest way to go. There are cons, but for SEO you just don’t want to take a risk Google sees anything else then a fully SEO optimized page in the initial crawl.</p>
+</blockquote>
+<hr>
+<h3>Is My Single-Page Application SEO Friendly?</h3>
+<p><img src="/images/emoji/apple/date.png?v=9" title=":date:" class="emoji" alt=":date:">  24/01/2020</p>
+<p>Anthony Gore <span class="mention">@anthonygore</span><br>
+Publish tutorials and courses on <a href="http://VueJsDevelopers.com">VueJsDevelopers.com</a></p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="/uploads/default/original/2X/6/6f1ef3b83bb873e0730d0373bb0c475e1d251bfa.png" class="site-icon" width="32" height="34">
+      <a href="https://dzone.com/articles/is-my-single-page-application-seo-friendly" target="_blank" rel="noopener">dzone.com</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/431;"><img src="/uploads/default/optimized/2X/0/0a1057efb0a3bdddc20c62505d3a49a1e2c5dfdd_2_690x431.jpeg" class="thumbnail" width="690" height="431" srcset="/uploads/default/optimized/2X/0/0a1057efb0a3bdddc20c62505d3a49a1e2c5dfdd_2_690x431.jpeg, /uploads/default/optimized/2X/0/0a1057efb0a3bdddc20c62505d3a49a1e2c5dfdd_2_1035x646.jpeg 1.5x, /uploads/default/optimized/2X/0/0a1057efb0a3bdddc20c62505d3a49a1e2c5dfdd_2_1380x862.jpeg 2x" data-small-upload="/uploads/default/optimized/2X/0/0a1057efb0a3bdddc20c62505d3a49a1e2c5dfdd_2_10x10.png"></div>
+
+<h3><a href="https://dzone.com/articles/is-my-single-page-application-seo-friendly" target="_blank" rel="noopener">Is My Single-Page Application SEO Friendly? - DZone Web Dev</a></h3>
+
+<p>A web developer offers a coder's point of view of Search Engine Optimization, or SEO, and how to make your single-page application as SEO friendly as possible.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<blockquote>
+<p>My advice: if you are going to use the SPA architecture, be sure to provide server rendered or prerendered pages.</p>
+</blockquote>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/analysis-hey-next-js-is-server-side-rendering-dead/3058">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-13T15:41:00Z' class='post-time'>
+                    13 October 2020 15:41
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-13T15:41:00Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Yes, that’s our information: SSR is still the best way to get quickly indexed by Google. And our CMS users are the most sensible ones to SEO, so they won’t risk doing it worse than ideal.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="3058">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>Have you checked this? Is there any possible application in Frontity?</p>
+</blockquote>
+</aside>
+<p>Yes, it is. We are doing so for the JavaScript assets <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>It doesn’t make sense to do so for the data because that is included in the HTML.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="3058">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>It seems Next.js have their own cache layer integrated in the Framework. Is this correct? Is this something that could makes sense for Frontity?</p>
+</blockquote>
+</aside>
+<p>Yes, they do hybrids of static site generation and dynamic rendering. I don’t think that it makes sense to explore something like that in Frontity at this point.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

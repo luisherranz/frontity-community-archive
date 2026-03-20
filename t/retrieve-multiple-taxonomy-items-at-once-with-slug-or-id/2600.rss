@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Retrieve multiple taxonomy items at once, with slug or ID</title>
+    <link>https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600</link>
+    <description>I am trying to retrieve multiple custom taxonomy terms which I&#39;ve configured in an ACF Taxonomy field in the theme settings. I&#39;ve retrieved the content of the theme settings field. That means I have information like term_id, slug, etc.
+
+But ACF doesn&#39;t directly add the custom fields of the term itself, so I need Frontity to retrieve the term data, of course including the ACF fields.
+
+This is an endpoint in my WordPress installation which works fine:
+https://frontity.noesteprojecten.nl/wp-json/wp/v2/opdrachtgever?slug=ligarus,lumens
+
+But when I try to use this endpoint in Frontity, I&#39;m seeing the following error:
+`ServerError: post type from endpoints &quot;posts,pages,media&quot; with slug &quot;opdrachtgever&quot; not found`
+
+Frontity doesn&#39;t seem to know that &#39;opdrachtgever&#39; is a taxonomy, instead of a post-type, although I&#39;ve added it to my frontity.settings.js file like this:
+
+```
+taxonomies: [
+  {
+    taxonomy: &quot;opdrachtgever&quot;,
+    endpoint: &quot;opdrachtgever&quot;,
+    postTypeEndpoint: &quot;portfolio&quot;,
+    params: {
+      per_page: 20,
+      _embed: true,
+    },
+  },
+]
+```
+
+This is my code in which I try to retrieve the configured terms. `termSlugs` contains the slugs of the configured terms, separated with a comma. So like this: `/opdrachtgever?slug=ligarus,lumens`
+```
+if (termIDs.length &gt; 0) {
+      const termLink = `/opdrachtgever?slug=${termSlugs}`;
+
+      useEffect(() =&gt; {
+         actions.source.fetch(termLink);
+      }, []);
+
+      dataTerm = state.source.get(termLink);
+   }
+```
+
+What do I need to do to make Frontity understand that it needs to retrieve the information of terms instead of a post-type? 
+
+Or does this approach actually not work and do I need to fetch every post separately? And if I would put this in a `forEach`, wouldn&#39;t that be way heavier then putting it in one fetch?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 14 Aug 2020 10:27:04 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Retrieve multiple taxonomy items at once, with slug or ID</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I notice now that when doing the following:</p>
+<pre><code class="lang-javascript">const imgs = 'noeste_ijver-portfolio-ligarus-graphic-4,noeste_ijver-portfolio-ligarus-liga-4,noeste_ijver-portfolio-ligarus-rus,noeste_ijver-portfolio-ligarus-header_front-1,custom-rook-front-3';
+   
+useEffect(() =&gt; {
+   actions.source.fetch(`/media/${imgs}`);
+}, []);
+
+const img = state.source.get(`/media/${imgs}`);
+</code></pre>
+<p>I’m seeing the following error in my browser console:<br>
+<code>ServerError: You have tried to access content at route: /media/noeste_ijver-portfolio-ligarus-graphic-4,noeste_ijver-portfolio-ligarus-liga-4,noeste_ijver-portfolio-ligarus-rus,noeste_ijver-portfolio-ligarus-header_front-1,custom-rook-front-3/ but it does not exist</code></p>
+<p>But, the image actually <strong>are</strong> added to state.source.attachment. If I disable the function and refresh, the images are not there. So it actually seems to work, but it also throws an error.</p>
+          <p><a href="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/7</link>
+        <pubDate>Fri, 14 Aug 2020 10:27:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2600-7</guid>
+        <source url="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600.rss">Retrieve multiple taxonomy items at once, with slug or ID</source>
+      </item>
+      <item>
+        <title>Retrieve multiple taxonomy items at once, with slug or ID</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,</p>
+<p>You can find the repository here: <a href="https://bitbucket.org/noesteijver/frontity/src/master/" rel="nofollow noopener">https://bitbucket.org/noesteijver/frontity/src/master/</a></p>
+<p>The code for the slider (first slider on the home page) can be found in <code>featured-clients.js</code>.</p>
+<p>In that file I am now retrieving all configured taxonomy terms separately in this block (line 34):</p>
+<pre><code class="lang-javascript">sliderItems.forEach((val, key) =&gt; {
+      const termLink = `/${val.taxonomy}/${val.slug}`;
+
+      useEffect(() =&gt; {
+         actions.source.fetch(termLink);
+      }, []);
+
+      dataTerm = state.source.get(termLink);
+
+      if (dataTerm.isReady) {
+         retrievedSliderItemsCount++;
+      }
+   });
+</code></pre>
+<p>As you can see further on in the code (line 53) I’m also generating a string <code>imagesString</code> with the slugs of the images, which I use once in the file <code>featured-client.js</code> (single) to fetch all images, which works. I’m not sure why this works for images but not for the taxonomy terms. Maybe there’s a crucial difference in the way how a post-type (images) and taxonomy terms are being fetched?</p>
+          <p><a href="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/5</link>
+        <pubDate>Mon, 10 Aug 2020 14:45:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2600-5</guid>
+        <source url="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600.rss">Retrieve multiple taxonomy items at once, with slug or ID</source>
+      </item>
+      <item>
+        <title>Retrieve multiple taxonomy items at once, with slug or ID</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>Do you have a repo that I can clone so that I can dig into this a bit?</p>
+          <p><a href="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/4</link>
+        <pubDate>Mon, 10 Aug 2020 12:17:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2600-4</guid>
+        <source url="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600.rss">Retrieve multiple taxonomy items at once, with slug or ID</source>
+      </item>
+      <item>
+        <title>Retrieve multiple taxonomy items at once, with slug or ID</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe I don’t understand what you mean. But if you mean that I need to create a page on which I list the three taxonomy terms, I don’t really think that’s a solution as I want this to be a configurable option. So I can’t on beforehand create a page where I list the taxonomies with code, since I don’t know what terms are going to be added by the user.</p>
+<p>For now I am loading the details of the terms in a <code>for</code> loop, but I think this is sub-optimal as it generates a lot more fetch calls then if all terms are being fetched in one go.</p>
+          <p><a href="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/3</link>
+        <pubDate>Mon, 10 Aug 2020 06:51:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2600-3</guid>
+        <source url="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600.rss">Retrieve multiple taxonomy items at once, with slug or ID</source>
+      </item>
+      <item>
+        <title>Retrieve multiple taxonomy items at once, with slug or ID</title>
+        <dc:creator><![CDATA[furrysmile2]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe one page where you list your three different taxonomies with its own separate component pages.</p>
+          <p><a href="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/2</link>
+        <pubDate>Sat, 08 Aug 2020 15:34:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2600-2</guid>
+        <source url="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600.rss">Retrieve multiple taxonomy items at once, with slug or ID</source>
+      </item>
+      <item>
+        <title>Retrieve multiple taxonomy items at once, with slug or ID</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I am trying to retrieve multiple custom taxonomy terms which I’ve configured in an ACF Taxonomy field in the theme settings. I’ve retrieved the content of the theme settings field. That means I have information like term_id, slug, etc.</p>
+<p>But ACF doesn’t directly add the custom fields of the term itself, so I need Frontity to retrieve the term data, of course including the ACF fields.</p>
+<p>This is an endpoint in my WordPress installation which works fine:<br>
+<a href="https://frontity.noesteprojecten.nl/wp-json/wp/v2/opdrachtgever?slug=ligarus,lumens" class="onebox" target="_blank" rel="nofollow noopener">https://frontity.noesteprojecten.nl/wp-json/wp/v2/opdrachtgever?slug=ligarus,lumens</a></p>
+<p>But when I try to use this endpoint in Frontity, I’m seeing the following error:<br>
+<code>ServerError: post type from endpoints "posts,pages,media" with slug "opdrachtgever" not found</code></p>
+<p>Frontity doesn’t seem to know that ‘opdrachtgever’ is a taxonomy, instead of a post-type, although I’ve added it to my frontity.settings.js file like this:</p>
+<pre><code class="lang-javascript">taxonomies: [
+  {
+    taxonomy: "opdrachtgever",
+    endpoint: "opdrachtgever",
+    postTypeEndpoint: "portfolio",
+    params: {
+      per_page: 20,
+      _embed: true,
+    },
+  },
+]
+</code></pre>
+<p>This is my code in which I try to retrieve the configured terms. <code>termSlugs</code> contains the slugs of the configured terms, separated with a comma. So like this: <code>/opdrachtgever?slug=ligarus,lumens</code></p>
+<pre><code class="lang-javascript">if (termIDs.length &gt; 0) {
+      const termLink = `/opdrachtgever?slug=${termSlugs}`;
+
+      useEffect(() =&gt; {
+         actions.source.fetch(termLink);
+      }, []);
+
+      dataTerm = state.source.get(termLink);
+   }
+</code></pre>
+<p>What do I need to do to make Frontity understand that it needs to retrieve the information of terms instead of a post-type?</p>
+<p>Or does this approach actually not work and do I need to fetch every post separately? And if I would put this in a <code>forEach</code>, wouldn’t that be way heavier then putting it in one fetch?</p>
+          <p><a href="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600/1</link>
+        <pubDate>Fri, 07 Aug 2020 17:45:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2600-1</guid>
+        <source url="https://community.frontity.org/t/retrieve-multiple-taxonomy-items-at-once-with-slug-or-id/2600.rss">Retrieve multiple taxonomy items at once, with slug or ID</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Better class name tests in processors</title>
+    <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966</link>
+    <description>**--- [Roadmap Card](https://www.notion.so/frontity/Better-class-name-tests-in-processors-ea8e531fb29b4f6890fbae6914ad96c2)**
+
+## Description
+Right now it&#39;s a bit complex the way people can test class names in a processor:
+
+```
+const test = node =&gt; node.props.className.split(&quot; &quot;).includes(&quot;my-class&quot;)
+
+const test = node =&gt; /my-class/.test(node.props.className)
+```
+
+## User Stories
+
+&gt; As a **package developer**
+&gt; I want to **add processors based on class names**
+&gt; so that **the processor tests are easy to use and understand**
+
+
+## Possible solution
+
+@orballo proposed these two solutions:
+
+### 1. Add `hasClass()` to node
+
+```
+const test = node =&gt; node.hasClass(&quot;my-class&quot;);
+```
+
+### 2. Switch `className` to an array
+
+```
+const test = node =&gt; node.className.inclues(&quot;my-class&quot;);
+```
+
+I&#39;m more in favor of the first one because it&#39;s backward compatible.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 06 Mar 2020 08:25:04 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think we can integrate this with our processors. It’d be really cool to do things like:</p>
+<pre><code>// Select anchor that links to a dailymotion video
+test: ({ node }) =&gt; node.is("a[href^='https://dailymotion.com/video']")
+
+// Select images that belong to a Gutenberg block
+test: ({ node }) =&gt; node.is("img &lt; .wp-block-image")
+
+// Select images that don't belong to a Gutenberg block
+test: ({ node }) =&gt; node.is("img &lt; :not(.wp-block-image)")
+
+// Select a figure that has an image children with left alignment
+test: ({ node }) =&gt; node.is("figure &gt; image.align-left")
+
+// Select a button block with background
+test: ({ node }) =&gt; node.is(".wp-block-button.has-background")
+</code></pre>
+<p>I have created a little sandbox to play with this: <a href="https://codesandbox.io/s/css-what-quop3">https://codesandbox.io/s/css-what-quop3</a><br>
+You can check it out to see the type of object it returns for each case.</p>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/10</link>
+        <pubDate>Fri, 06 Mar 2020 08:25:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-10</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="luisherranz" data-post="8" data-topic="966">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I wonder if there is a JavaScript library that can extract that selector query to <code>tag</code> , <code>class</code> , <code>id</code> and so on…</p>
+</blockquote>
+</aside>
+<p>It wasn’t hard to find: <a href="https://github.com/fb55/css-what">https://github.com/fb55/css-what</a> and it’s only 4Kbs <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/9</link>
+        <pubDate>Wed, 19 Feb 2020 18:14:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-9</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>As suggested by <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> in <a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/5" class="inline-onebox">Styling the HTML content with the `css` prop</a> we can also do something like this instead of <code>node.hasClass</code>:</p>
+<pre><code>{
+ test: node =&gt; node.is(".wp-block-button"),
+ test: node =&gt; node.is("a.wp-block-button"),
+ test: node =&gt; node.is("#accept"),
+ test: node =&gt; node.is('input[type="submit"]'),
+}
+</code></pre>
+<p>I think it’s a great idea because people are already used to this syntax and it’s faster and cleaner.</p>
+<p>I wonder if there is a JavaScript library that can extract that selector query to <code>tag</code>, <code>class</code>, <code>id</code> and so on…</p>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/8</link>
+        <pubDate>Wed, 19 Feb 2020 18:10:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-8</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, I think that would be easier. Anyway, we need a different feature for this. Would you mind opening it <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/7</link>
+        <pubDate>Mon, 30 Dec 2019 21:18:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-7</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>That sounds good to me.</p>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/6</link>
+        <pubDate>Fri, 27 Dec 2019 12:20:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-6</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, I see. What about allowing you to apply the same processor pattern?</p>
+<pre><code>const images = [];
+node.process({
+  test: node.component === "image",
+  process: node =&gt; { images.push(node); }
+})
+</code></pre>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/5</link>
+        <pubDate>Tue, 24 Dec 2019 14:56:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-5</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Here is an example of a gallery from where I’d like to get an array of images to map them to an array of urls later:</p>
+<pre><code>const process = node =&gt; {
+    const images = (function searchImages(node: Node) {
+      let result: Node[] = [];
+
+      if (node.type !== "element") return result;
+
+      if (node.component === "img") {
+        result.push(node);
+      } else if (node.children &amp;&amp; node.children.length) {
+        node.children.forEach(child =&gt; {
+          result = result.concat(searchImages(child));
+        });
+      }
+
+      return result;
+    })(node);
+   
+   node.props.media = images.map(image =&gt; image.props.src);
+   node.component = Gallery;
+
+   return node;
+}
+</code></pre>
+<p>This could be something like:</p>
+<pre><code>const process = node =&gt; {
+    const images = node.find(node =&gt; node.type === "element"
+      &amp;&amp; node.component === "image");
+   
+   node.props.media = images.map(image =&gt; image.props.src);
+   node.component = Gallery;
+
+   return node;
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/4</link>
+        <pubDate>Fri, 20 Dec 2019 15:26:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-4</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Could you add an example of what you are doing right now?</p>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/3</link>
+        <pubDate>Fri, 20 Dec 2019 11:21:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-3</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="1" data-topic="966">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I’m more in favor of the first one because it’s backward compatible.</p>
+</blockquote>
+</aside>
+<p>I totally agree.</p>
+<p>I think we could redefine this feature to something more general, like adding helpers for processors tests. Another case that I found in some occasions is when you need to get an array of nodes after searching through the tree, which usually requires to implement a recursive function. Maybe something like the following could be helpful:</p>
+<pre><code>node.find(node =&gt; node.component === "img")
+</code></pre>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/2</link>
+        <pubDate>Fri, 20 Dec 2019 10:43:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-2</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+      <item>
+        <title>Better class name tests in processors</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Better-class-name-tests-in-processors-ea8e531fb29b4f6890fbae6914ad96c2">Roadmap Card</a></strong></p>
+<h2>Description</h2>
+<p>Right now it’s a bit complex the way people can test class names in a processor:</p>
+<pre><code class="lang-javascript">const test = node =&gt; node.props.className.split(" ").includes("my-class")
+
+const test = node =&gt; /my-class/.test(node.props.className)
+</code></pre>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>package developer</strong><br>
+I want to <strong>add processors based on class names</strong><br>
+so that <strong>the processor tests are easy to use and understand</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<p><a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> proposed these two solutions:</p>
+<h3>1. Add <code>hasClass()</code> to node</h3>
+<pre><code class="lang-javascript">const test = node =&gt; node.hasClass("my-class");
+</code></pre>
+<h3>2. Switch <code>className</code> to an array</h3>
+<pre><code class="lang-javascript">const test = node =&gt; node.className.inclues("my-class");
+</code></pre>
+<p>I’m more in favor of the first one because it’s backward compatible.</p>
+          <p><a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/better-class-name-tests-in-processors/966/1</link>
+        <pubDate>Fri, 20 Dec 2019 10:12:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-966-1</guid>
+        <source url="https://community.frontity.org/t/better-class-name-tests-in-processors/966.rss">Better class name tests in processors</source>
+      </item>
+  </channel>
+</rss>

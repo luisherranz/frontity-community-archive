@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The `analytics` library</title>
+    <link>https://community.frontity.org/t/the-analytics-library/1103</link>
+    <description># Description
+In order to implement different analytics services with Frontity, such as Google Analytics, Google Tag Manager or ComScore, we need a library to support all of them.
+
+# User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **send pageviews to different analytics services with the same action**
+&gt; so that **I can track how many people are visiting my web in more than one service in an easy way**
+
+&gt; As a **Frontity user**
+&gt; I want to **send events to different analytics services with the same action**
+&gt; so that **I can track how people behave at my web in more than one service in an easy way**
+
+&gt; As a **Frontity user**
+&gt; I want to **prevent one or more services of sending events**
+&gt; so that **I don&#39;t send additional data if I don&#39;t want**
+
+&gt; As a **Frontity user**
+&gt; I want to **prevent one or more services of sending pageviews**
+&gt; so that **I don&#39;t send additional data if I don&#39;t want**
+
+# Implementation
+
+https://community.frontity.org/t/the-analytics-library/1103/7?u=luisherranz</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 06 Jul 2020 07:56:46 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/the-analytics-library/1103.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>This has been included in the latest release <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"> : <a href="https://community.frontity.org/t/frontity-release-first-stable-version-of-google-analytics-google-tag-manager-and-comscores-packages/2293">Read the full Release Announcement</a>.</p>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/10</link>
+        <pubDate>Mon, 06 Jul 2020 07:56:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-10</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>The first stable version for the <code>@frontity/analytics</code> library is ready and is about to be released! <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"></p>
+<p>Its final implementation follows what was specified in the <a href="https://community.frontity.org/t/the-analytics-library/1103/7">v1 proposal</a>.</p>
+<p>There are <strong>breaking changes</strong>! Here’s a summary of the changes compared to the previous version:</p>
+<ul>
+<li>
+<p>In <code>state.analytics</code>, the <code>namespace</code> array is replaced by two objects that will contain the namespaces with a boolean value: <code>pageviews</code> and <code>events</code>. This allow users to have more control over which analytics packages should send pageviews or events, and it can also be configured in <code>frontity.settings.js</code>.</p>
+</li>
+<li>
+<p>In <code>actions.analytics</code>, the <code>sendPageview</code> and <code>sendEvent</code> actions are renamed to <code>pageview</code> and <code>event</code> respectively.</p>
+</li>
+<li>
+<p>Pageview <code>page</code> property is now <code>link</code>.</p>
+</li>
+<li>
+<p>Event <code>event</code> property is now <code>name</code>.</p>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/9</link>
+        <pubDate>Thu, 02 Jul 2020 22:10:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-9</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I want to propose several changes to the analytics library for the release of the v1 version.</p>
+<h1>Implementation proposal for v1</h1>
+<h2>Remove <code>send</code> from action names</h2>
+<p>Rename <code>actions.analytics.sendPageview()</code> and <code>actions.analytics.sendEvent()</code> to just <code>actions.analytics.pageview()</code> and <code>actions.analytics.event()</code>.</p>
+<h2>Rename <code>page</code> argument to <code>link</code>
+</h2>
+<p>The <code>page</code> is not consistent with the rest of Frontity. We should rename it to <code>link</code>:</p>
+<pre><code class="lang-js">actions.analytics.pageview({
+  link: "/current-url",
+  title: "The current title"
+});
+</code></pre>
+<h2>Refactor <code>event</code> to use a payload</h2>
+<p>Events with <code>action</code>, <code>label</code> and <code>category</code> are not used anywhere but in Google Analytics so we should get rid of that and move to the standard event name + payload:</p>
+<pre><code class="lang-javascript">actions.analytics.event({
+  name: "Some event",
+  payload: {
+    someProp: "Some payload"
+  }
+};
+</code></pre>
+<h2>Replace <code>namespaces</code> array by two objects</h2>
+<p>Right now, the analytics libraries use an array called <code>state.analytics.namespaces</code> where they can register themselves to be used by the <code>actions.analytics.pageview</code> and <code>actions.analytics.event</code> actions.</p>
+<p>The problem with arrays is that they cannot be changed from the <code>state</code> because arrays are merged together. There is no way for a user to deactivate one of the analytics implementation using <code>frontity.settings.js</code>.</p>
+<p>We should change that array for two objects, one for <code>pageviews</code> and another for <code>events</code>.</p>
+<pre><code class="lang-js">export default {
+  state: {
+    analytics: {
+      pageviews: {},
+      events: {}
+    }
+  }
+};
+</code></pre>
+<p>Each analytics package can register itself like this:</p>
+<pre><code class="lang-js">export default {
+  state: {
+    analytics: {
+      pageviews: {
+        googleAnalytics: true
+      },
+      events: {
+        googleAnalytics: true
+      }
+    }
+  },
+  actions: {
+    googleAnalytics: {
+      pageview: () =&gt; {
+        /* ... */
+      },
+      event: () =&gt; {
+        /* ... */
+      }
+    }
+  }
+};
+</code></pre>
+<p>That way, if a user wants to turn one implementation off, they can do so in their <code>frontity.settings.js</code> file:</p>
+<pre><code class="lang-javascript">const settings = {
+  packages: [
+    {
+      name: "@frontity/google-analytics",
+      state: {
+        events: {
+          googleAnalytics: false
+        }
+      }
+    }
+  ]
+};
+</code></pre>
+<p>In the future, this object structure could be used to add options or priorities to each action (if that ever makes sense).</p>
+<h1>Issues</h1>
+<ul>
+<li>Remove send from action names</li>
+<li>Rename page argument to link</li>
+<li>Refactor event to use a payload</li>
+<li>Replace namespaces array by two objects</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/7</link>
+        <pubDate>Fri, 10 Apr 2020 10:37:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-7</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, I think this could be the correct approach. If each library is well documented it shouldn’t be a problem, it’s pretty clear and easy.</p>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/6</link>
+        <pubDate>Tue, 18 Feb 2020 15:43:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-6</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, here it is: <a href="https://segment.com/docs/connections/destinations/catalog/google-analytics/#track">https://segment.com/docs/connections/destinations/catalog/google-analytics/#track</a></p>
+<pre><code>{
+  "userId": "12345",
+  "action": "track",
+  "event": "Logged In",
+  "properties": {
+    "category": "Account",
+    "label": "Premium",
+    "value": 50
+  }
+}
+</code></pre>
+<p>It looks like the category, label and value props only work when you explicitly declare them in the payload. I guess that’s ok.</p>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/5</link>
+        <pubDate>Tue, 18 Feb 2020 10:45:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-5</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, checking what Segment does is quite interesting actually.</p>
+<p>Do you know how do they map their event interface with the Google Analytics one? That’s the only thing that it’s not clear to me how to do:</p>
+<pre><code class="lang-js">// From
+{
+  event: "name of the event",
+  payload: {
+    anyProp: "..."
+  }
+}
+// to
+{
+  action: "...",
+  category: "...",
+  label: "..."
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/4</link>
+        <pubDate>Tue, 18 Feb 2020 10:32:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-4</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I totally agree. It seems the standard so I guess the best option will be to follow it. Segment, which connects with most of the Analytics packages we may build, also uses that pattern. Maybe our solution should be based on it.</p>
+<p><a href="https://segment.com/docs/connections/sources/catalog/libraries/server/node-js/#track" class="onebox" target="_blank">https://segment.com/docs/connections/sources/catalog/libraries/server/node-js/#track</a></p>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/3</link>
+        <pubDate>Fri, 14 Feb 2020 16:41:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-3</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I am a bit worried that the current beta of <code>frontity/analytics</code> is so coupled with Google Analytics implementation of events:</p>
+<pre><code class="lang-ts">type Event = {
+  category: string;
+  action: string;
+  label?: string;
+};
+</code></pre>
+<p>I don’t think we should use that <code>event</code> interface.</p>
+<p>Most analytics services use this other interface:</p>
+<pre><code class="lang-ts">type Event = {
+  name: string;
+  payload: object;
+};
+</code></pre>
+<p>For example:</p>
+<ul>
+<li>Mixpanel:</li>
+</ul>
+<pre><code class="lang-javascript">mixpanel.track("Played song", {"genre": "hip-hop"});
+</code></pre>
+<ul>
+<li>Amplitude:</li>
+</ul>
+<pre><code class="lang-javascript">var eventProperties = {
+ 'color': 'blue',
+ 'age': 20,
+ 'key': 'value'
+};
+amplitude.getInstance().logEvent('EVENT_TYPE', eventProperties);
+</code></pre>
+<ul>
+<li>KissMetrics:</li>
+</ul>
+<pre><code class="lang-javascript">/* Records an event "Signed Up" with additional properties
+ * (Plan &amp; Amount) plus related values (Pro &amp; 99.95)
+ */
+_kmq.push(['record', 'Signed Up', {'Plan':'Pro', 'Amount':99.95}]);
+</code></pre>
+<ul>
+<li>Google Tag Manager:</li>
+</ul>
+<pre><code class="lang-javascript"> window.dataLayer.push({
+   'event': 'registrationComplete',
+   'registrationCountry': 'United States',
+   'plan': 'Premium'
+ });
+</code></pre>
+<p>cc: <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> <a class="mention" href="https://community.frontity.org/u/david">@David</a></p>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/2</link>
+        <pubDate>Fri, 14 Feb 2020 13:13:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-2</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>EDIT: this is an old message but was posted in the wrong thread, so I’ve moved it here.</p>
+<hr>
+<p>I’ve done a list of possible cases before writing e2e tests for the <code>@frontity/analytics</code> library. Feel free to suggest more cases or change anything.</p>
+<h2>A pageview should be sent</h2>
+<ul>
+<li>
+<p>in the first CSR.</p>
+</li>
+<li>
+<p>when <code>state.router.link</code> has changed and</p>
+<ol>
+<li>the title changes, right after <code>data.isReady</code> has become <code>true</code>:</li>
+</ol>
+<pre><code class="lang-jsx">// 1. -------------------------
+data.isReady = true;
+&lt;Head&gt;
+  &lt;title&gt;Old Title - My site&lt;/title&gt;
+&lt;/Head&gt;
+
+// Change current link.
+actions.router.set("/new-link");
+
+// Fetch the new URL.
+data.isReady = false;
+data.isReady = true;
+
+// When data.isReady render the new title.
+&lt;Head&gt;
+  &lt;title&gt;New Title - My site&lt;/title&gt;
+&lt;/Head&gt;
+
+// A pageview should be sent.
+actions.analytics.sendPageview()
+</code></pre>
+<ol start="2">
+<li>
+<code>data.isReady</code> is already <code>true</code> but no pageview has been sent yet:</li>
+</ol>
+<blockquote>
+<p>Note: this case doesn’t happen right now because <code>data.isReady</code> will always change to <code>false</code> right after running <code>actions.source.fetch</code>, even though data is already fetched.</p>
+</blockquote>
+<pre><code class="lang-jsx">// 2. ------------------------
+data.isReady = true;
+&lt;Head&gt;
+  &lt;title&gt;Old Title - My site&lt;/title&gt;
+&lt;/Head&gt;
+
+// Change current link.
+actions.router.set("/new-link");
+
+// New URL is already fetched.
+data.isReady = true;
+
+// A new title is rendered
+&lt;Head&gt;
+  &lt;title&gt;New Title - My site&lt;/title&gt;
+&lt;/Head&gt;
+
+// A pageview should be sent.
+actions.analytics.sendPageview()
+</code></pre>
+<ol start="3">
+<li>
+<code>data.isReady</code> remains <code>true</code>, the title won’t and no pageview has been sent yet.</li>
+</ol>
+<blockquote>
+<p>Note: this case doesn’t happen right now because <code>data.isReady</code> will always change to <code>false</code> right after running <code>actions.source.fetch</code>, even though data is already fetched.</p>
+</blockquote>
+<pre><code class="lang-jsx">// 3. ------------------------
+data.isReady = true;
+&lt;Head&gt;
+  &lt;title&gt;My site&lt;/title&gt;
+&lt;/Head&gt;
+
+// Change current link.
+actions.router.set("/new-link");
+
+// New URL is already fetched.
+data.isReady = true;
+
+// The same title is rendered.
+&lt;Head&gt;
+  &lt;title&gt;My site&lt;/title&gt;
+&lt;/Head&gt;
+
+// A pageview should be sent.
+actions.analytics.sendPageview()
+</code></pre>
+</li>
+</ul>
+<h2>A pageview must not be sent</h2>
+<ul>
+<li>
+<p>when the title changes while <code>data.isReady</code> is <code>false</code>; these changes should be ignored.</p>
+</li>
+<li>
+<p>if the title changes after a pageview has been sent but <code>state.router.link</code> is the same.</p>
+</li>
+<li>
+<p>if any other property of <code>&lt;head&gt;</code> changes but neither the link nor the title.</p>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/8</link>
+        <pubDate>Tue, 21 Jan 2020 11:12:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-8</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+      <item>
+        <title>The `analytics` library</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>In order to implement different analytics services with Frontity, such as Google Analytics, Google Tag Manager or ComScore, we need a library to support all of them.</p>
+<h1>User Stories</h1>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>send pageviews to different analytics services with the same action</strong><br>
+so that <strong>I can track how many people are visiting my web in more than one service in an easy way</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>send events to different analytics services with the same action</strong><br>
+so that <strong>I can track how people behave at my web in more than one service in an easy way</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>prevent one or more services of sending events</strong><br>
+so that <strong>I don’t send additional data if I don’t want</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>prevent one or more services of sending pageviews</strong><br>
+so that <strong>I don’t send additional data if I don’t want</strong></p>
+</blockquote>
+<h1>Implementation</h1>
+<aside class="quote quote-modified" data-post="7" data-topic="1103">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/the-analytics-library/1103/7">The `analytics` library</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/feature-discussions/released/40"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Features that are ready!">Released</span></a>
+  </div>
+  <blockquote>
+    I want to propose several changes to the analytics library for the release of the v1 version. 
+Implementation proposal for v1
+Remove send from action names
+Rename actions.analytics.sendPageview() and actions.analytics.sendEvent() to just actions.analytics.pageview() and actions.analytics.event(). 
+Rename page argument to link
+
+The page is not consistent with the rest of Frontity. We should rename it to link: 
+actions.analytics.pageview({
+  link: "/current-url",
+  title: "The current title"
+});
+
+R…
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/the-analytics-library/1103/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-analytics-library/1103/1</link>
+        <pubDate>Tue, 21 Jan 2020 07:27:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1103-1</guid>
+        <source url="https://community.frontity.org/t/the-analytics-library/1103.rss">The `analytics` library</source>
+      </item>
+  </channel>
+</rss>

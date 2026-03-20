@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Lighthouse Optimization</title>
+    <link>https://community.frontity.org/t/lighthouse-optimization/55</link>
+    <description>We have to cover five main categories in [Lighthouse](https://developers.google.com/web/tools/lighthouse/) ([here](https://docs.google.com/spreadsheets/d/1Cxzhy5ecqJCucdf1M0iOzM8mIxNc7mmx107o5nj38Eo/edit#gid=0) you can see how they are measured in v3, but I&#39;m not sure if it&#39;s 100% accurate, because the current version of Lighthouse is already 4.1).
+
+## Performance
+There are 5 metrics that score in this category:
+
+* **[Time To Interactive](https://developers.google.com/web/tools/lighthouse/audits/time-to-interactive) (5)**
+Mesures three things: first contentful paint, event handlers are registered for most visible elements and user interactions get a response in less than 50ms.
+
+* **[Speed Index](https://developers.google.com/web/tools/lighthouse/audits/speed-index) (4)**
+Mesures how quickly the content of a page is populated.
+
+* **[First Contentful Paint](https://developers.google.com/web/tools/lighthouse/audits/first-contentful-paint) (3)**
+Measures the time from navigation to the time when the browser renders the first bit of content from the DOM.
+
+* **[First CPU Idle](https://developers.google.com/web/tools/lighthouse/audits/first-cpu-idle) (2)**
+Is a more vague version of Time To Interactive.
+
+* **[First Meaningful Paint]() (1)**
+This audit identifies the time at which the user feels that the primary content of the page is visible.
+
+What we can do for all of this metrics is basically the same: code splitting, tree shaking, compressing resources (maybe using [brotli](https://paulcalvano.com/index.php/2018/07/25/brotli-compression-how-much-will-it-reduce-your-content/), with [85% support](https://caniuse.com/#search=brotli)), caching resources, avoid unnecessary requests and avoid synchronous requests.
+
+It shouldn&#39;t be that difficult now that we&#39;ll have full control on what is used and we&#39;ll mesure only the framework without 3rd party libraries. 
+
+## Progressive Web App
+There are 11 checks, all of them with the same weight.
+
+* **[Register A Service Worker](https://developers.google.com/web/tools/lighthouse/audits/registered-service-worker)**
+
+* **[Responds With a 200 When Offline](https://developers.google.com/web/tools/lighthouse/audits/http-200-when-offline)**
+
+* **[Contains Some Content When JS Is Not Available](https://developers.google.com/web/tools/lighthouse/audits/no-js)**
+This audit performs a simple check to ensure that your page isn&#39;t blank when JS is disabled.
+In these cases we could serve the SSR with local links. It would offer sufficient navigation functionality.
+
+* **[Uses HTTPS](https://developers.google.com/web/tools/lighthouse/audits/https)**
+
+* **[Redirects HTTP Traffic To HTTPS](https://developers.google.com/web/tools/lighthouse/audits/http-redirects-to-https)**
+
+* **[Page Load Is Fast Enough On Mobile]()**
+If the time to interactive is less than 10s on a slow 4G, the audit passes.
+
+* **[ User Can Be Prompted To Install The Web App](https://developers.google.com/web/tools/lighthouse/audits/install-prompt)**
+Different browsers have different criteria for the banner to prompt.
+
+* **[Configured For A Custom Splash Screen](https://developers.google.com/web/tools/lighthouse/audits/custom-splash-screen)**
+This will be done in the `manifest.json` file.
+
+* **[Has A Viewport Meta Tag With `width` Or `initial-scale`](https://developers.google.com/web/tools/lighthouse/audits/has-viewport-meta-tag)**
+
+* **[Content Sized Correctly for Viewport](https://developers.google.com/web/tools/lighthouse/audits/content-sized-correctly-for-viewport)**
+Checks that the width of the content on your page is equal to the width of the viewport.
+
+* **[Address Bar Matches Brand Colors](https://developers.google.com/web/tools/lighthouse/audits/address-bar)**
+The audit passes if Lighthouse finds a  `theme-color`  meta tag in the page&#39;s HTML and a  `theme_color`  property in `manifest.json`.
+
+* **The  `short_name`  won&#39;t be truncated on the homescreen**
+
+## Accessibility
+There are too many cases to cover here, I think we should just go with `eslint-plugin-jsx-a11y` and then check Lighthouse to see what we are missing.
+
+I also think most of these checks will be something that theme developers will need to take care of, and not something that we at the framework level will need to pay special attention.
+
+## Best Practices
+There are 16 checks in this category, some of them as generic as `Avoids front-end JavaScript libraries with known security vulnerabilities`, so again I think there is no strategy here, we should just run Lighthouse and fix them one by one.
+
+## SEO
+There are 10 checks in this category.
+
+* **[Document Does Not Have A Meta Description](https://developers.google.com/web/tools/lighthouse/audits/description)**
+
+* **[Document Doesn&#39;t Have A Title Element](https://developers.google.com/web/tools/lighthouse/audits/title)**
+
+* **[Document doesn&#39;t have a valid `hreflang`](https://developers.google.com/web/tools/lighthouse/audits/hreflang)**
+If you serve different content based on a user&#39;s language or region, use  `hreflang`  links to ensure that search engines serve the correct content for that language or region.
+
+* **[Document doesn&#39;t have a valid `rel=canonical`](https://developers.google.com/web/tools/lighthouse/audits/canonical)**
+
+* **[Document Doesn&#39;t Use Legible Font Sizes](https://developers.google.com/web/tools/lighthouse/audits/font-sizes)**
+Aim to have a font size of at least 12px on at least 60% of the text on your pages.
+
+* **[Document uses plugins](https://developers.google.com/web/tools/lighthouse/audits/plugins)**
+
+* **[Links Do Not Have Descriptive Text](https://developers.google.com/web/tools/lighthouse/audits/descriptive-link-text)**
+
+* **[Page has unsuccessful HTTP status code](https://developers.google.com/web/tools/lighthouse/audits/successful-http-code)**
+Ensure that your server returns a 2XX or 3XX HTTP status code.
+
+* **[Page Is Blocked From Indexing](https://developers.google.com/web/tools/lighthouse/audits/indexing)**
+
+* **[`robots.txt` is not valid](https://developers.google.com/web/tools/lighthouse/audits/robots)**
+
+## Ways To Integrate Lighthouse in Frontity (or in Frontity&#39;s workflow)
+I don&#39;t know what is the better way to achieve this, but we have at our disposal [Lighthouse Node CLI](https://github.com/GoogleChrome/lighthouse).
+
+I think this could be integrated with [Github + Travis](https://github.com/GoogleChromeLabs/lighthousebot) ([video](https://www.youtube.com/watch?v=NoRYn6gOtVo)) or maybe it could also be included as a tool in our Frontity Admin board.
+
+This way we could show a history of audits and the developer could easily check if what he is doing is working or not. This could be just a bunch of `.json` files saved in the repo, I guess, that we then render on the admin board.
+
+There are [some tools](https://github.com/GoogleChrome/lighthouse#related-projects) around the Node CLI that may come in handy like: [webpack-lighthouse-plugin](https://github.com/addyosmani/webpack-lighthouse-plugin), [lighthouse-gh-reporter](https://github.com/carlesnunez/lighthouse-gh-reporter)...
+
+There is also a video talking about the [Lighthouse REST API](https://youtu.be/UvK9zAsSM8Q?t=1706) but I think they are still in private beta, because I couldn&#39;t find any docs about it.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 10 Mar 2019 10:57:52 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/lighthouse-optimization/55.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve found a library to test accessibility. Not JSX (like react-a11y) but the final HTML.</p>
+<blockquote>
+<p>Test your React application with the <a href="https://github.com/dequelabs/axe-core">axe-core</a> accessibility testing library. Results will show in the Chrome DevTools console.</p>
+</blockquote>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/dequelabs/react-axe" target="_blank">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/2a5980deeae830f139a59035a3f170a30eef23b6.png" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/dequelabs/react-axe" target="_blank">dequelabs/react-axe</a></h3>
+
+<p>Accessibility auditing for React.js applications. Contribute to dequelabs/react-axe development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/10</link>
+        <pubDate>Sun, 10 Mar 2019 10:57:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-10</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-developer-team" data-post="6" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>do I miss something?</p>
+</blockquote>
+</aside>
+<p>I think that’s pretty much it <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/9</link>
+        <pubDate>Wed, 27 Feb 2019 17:09:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-9</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-developer-team" data-post="7" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I think everything should work in <code>localhost</code></p>
+</blockquote>
+</aside>
+<p>So we can make it work with the Admin, amazing! <img src="https://community.frontity.org/images/emoji/apple/muscle.png?v=6" title=":muscle:" class="emoji" alt=":muscle:"></p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/8</link>
+        <pubDate>Wed, 27 Feb 2019 17:08:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-8</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-developer-team" data-post="3" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Ok, we should add that in <a href="https://community.frontity.org/t/eslint-prettier-what-presets-should-we-use/56/2">Eslint / Prettier - What presets should we use? </a> then.</p>
+</blockquote>
+</aside>
+<p>Done.</p>
+<aside class="quote group-developer-team" data-post="4" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Could you add it to <a href="https://community.frontity.org/t/the-frontity-admin/48/3">The Frontity Admin</a>?</p>
+</blockquote>
+</aside>
+<p>Done.</p>
+<aside class="quote group-developer-team" data-post="5" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I’ve used and it works great but you need a deploy url, it doesn’t work with localhost.</p>
+</blockquote>
+</aside>
+<p>Ok, thanks <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=6" title=":+1:" class="emoji" alt=":+1:"></p>
+<aside class="quote group-developer-team" data-post="5" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Do those work with localhost somehow?</p>
+</blockquote>
+</aside>
+<p>So… I think everything should work in <code>localhost</code>, as well as in Travis, as far as we use <code>--headless</code> Chrome and there is a Chrome installed. In this aspect Lighthouse and Puppeteer behave the same way: both are a layer over a Headless Chrome and the Chrome DevTools API.</p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/7</link>
+        <pubDate>Wed, 27 Feb 2019 17:06:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-7</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>My takeaways from your post are that we should keep doing mostly the same but:</p>
+<ul>
+<li>Make tree shaking work</li>
+<li>Integrate with the WP PWA plugin for the service worker and manifest</li>
+<li>Use the service worker to make it work offline</li>
+<li>Reduce the Kbs we use at maximum</li>
+<li>Use esModules to reduce the Kbs even more</li>
+<li>Review all the Document stuff for SEO</li>
+<li>Add the <code>eslint-jsx-a11y</code> plugin</li>
+<li>Return a valid <code>robots.txt</code>
+</li>
+</ul>
+<p>Things that don’t depend on us:</p>
+<ul>
+<li>Compressing resources<br>
+I think we shouldn’t add compression as this is usually done by the server (Nginx, CDN…).</li>
+<li>Uses HTTPS &amp; Redirects HTTP Traffic To HTTPS<br>
+Same reason than compression</li>
+</ul>
+<p><a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> do I miss something?</p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/6</link>
+        <pubDate>Wed, 27 Feb 2019 16:47:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-6</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-developer-team" data-post="1" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>There is also a video talking about the <a href="https://youtu.be/UvK9zAsSM8Q?t=1706" rel="nofollow noopener">Lighthouse REST API</a> but I think they are still in private beta, because I couldn’t find any docs about it.</p>
+</blockquote>
+</aside>
+<p>I’ve used and it works great but you need a deploy url, it doesn’t work with localhost. It’s called pagespeed insights API or something like that, not lighthouse:<br>
+<a href="https://developers.google.com/speed/docs/insights/v5/get-started" class="onebox" target="_blank" rel="nofollow noopener">https://developers.google.com/speed/docs/insights/v5/get-started</a></p>
+<aside class="quote group-developer-team" data-post="1" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>There are <a href="https://github.com/GoogleChrome/lighthouse#related-projects" rel="nofollow noopener">some tools</a> around the Node CLI that may come in handy like: <a href="https://github.com/addyosmani/webpack-lighthouse-plugin" rel="nofollow noopener">webpack-lighthouse-plugin </a>, <a href="https://github.com/carlesnunez/lighthouse-gh-reporter" rel="nofollow noopener">lighthouse-gh-reporter</a>…</p>
+</blockquote>
+</aside>
+<p>Do those work with localhost somehow?</p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/5</link>
+        <pubDate>Wed, 27 Feb 2019 16:11:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-5</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-DeveloperTeam" data-post="1" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>it could also be included as a tool in our Frontity Admin board</p>
+</blockquote>
+</aside>
+<p>Wow, I love that. Could you add it to <a href="https://community.frontity.org/t/the-frontity-admin/48/3" class="inline-onebox">The Frontity Admin</a>?</p>
+<p>Edit: I mean that we should allow developers to check their Lighthouse score in the Admin.</p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/4</link>
+        <pubDate>Wed, 27 Feb 2019 16:02:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-4</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-DeveloperTeam" data-post="1" data-topic="55">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I think we should just go with <code>eslint-plugin-jsx-a11y</code> and then check Lighthouse to see what we are missing.</p>
+</blockquote>
+</aside>
+<p>Ok, we should add that in <a href="https://community.frontity.org/t/eslint-prettier-what-presets-should-we-use/56/2" class="inline-onebox">Eslint / Prettier - What presets should we use?</a> then.</p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/3</link>
+        <pubDate>Wed, 27 Feb 2019 16:00:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-3</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> <a class="mention" href="https://community.frontity.org/u/david">@David</a> let me know if there is something else you would like to see included here, or any thought about what I wrote.</p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/2</link>
+        <pubDate>Wed, 27 Feb 2019 15:44:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-2</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+      <item>
+        <title>Lighthouse Optimization</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>We have to cover five main categories in <a href="https://developers.google.com/web/tools/lighthouse/" rel="nofollow noopener">Lighthouse</a> (<a href="https://docs.google.com/spreadsheets/d/1Cxzhy5ecqJCucdf1M0iOzM8mIxNc7mmx107o5nj38Eo/edit#gid=0" rel="nofollow noopener">here</a> you can see how they are measured in v3, but I’m not sure if it’s 100% accurate, because the current version of Lighthouse is already 4.1).</p>
+<h2>Performance</h2>
+<p>There are 5 metrics that score in this category:</p>
+<ul>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/time-to-interactive" rel="nofollow noopener">Time To Interactive</a> (5)</strong><br>
+Mesures three things: first contentful paint, event handlers are registered for most visible elements and user interactions get a response in less than 50ms.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/speed-index" rel="nofollow noopener">Speed Index</a> (4)</strong><br>
+Mesures how quickly the content of a page is populated.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/first-contentful-paint" rel="nofollow noopener">First Contentful Paint</a> (3)</strong><br>
+Measures the time from navigation to the time when the browser renders the first bit of content from the DOM.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/first-cpu-idle" rel="nofollow noopener">First CPU Idle</a> (2)</strong><br>
+Is a more vague version of Time To Interactive.</p>
+</li>
+<li>
+<p><strong><a href="https://community.frontity.org">First Meaningful Paint</a> (1)</strong><br>
+This audit identifies the time at which the user feels that the primary content of the page is visible.</p>
+</li>
+</ul>
+<p>What we can do for all of this metrics is basically the same: code splitting, tree shaking, compressing resources (maybe using <a href="https://paulcalvano.com/index.php/2018/07/25/brotli-compression-how-much-will-it-reduce-your-content/" rel="nofollow noopener">brotli</a>, with <a href="https://caniuse.com/#search=brotli" rel="nofollow noopener">85% support</a>), caching resources, avoid unnecessary requests and avoid synchronous requests.</p>
+<p>It shouldn’t be that difficult now that we’ll have full control on what is used and we’ll mesure only the framework without 3rd party libraries.</p>
+<h2>Progressive Web App</h2>
+<p>There are 11 checks, all of them with the same weight.</p>
+<ul>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/registered-service-worker" rel="nofollow noopener">Register A Service Worker</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/http-200-when-offline" rel="nofollow noopener">Responds With a 200 When Offline</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/no-js" rel="nofollow noopener">Contains Some Content When JS Is Not Available</a></strong><br>
+This audit performs a simple check to ensure that your page isn’t blank when JS is disabled.<br>
+In these cases we could serve the SSR with local links. It would offer sufficient navigation functionality.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/https" rel="nofollow noopener">Uses HTTPS</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/http-redirects-to-https" rel="nofollow noopener">Redirects HTTP Traffic To HTTPS</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://community.frontity.org">Page Load Is Fast Enough On Mobile</a></strong><br>
+If the time to interactive is less than 10s on a slow 4G, the audit passes.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/install-prompt" rel="nofollow noopener"> User Can Be Prompted To Install The Web App</a></strong><br>
+Different browsers have different criteria for the banner to prompt.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/custom-splash-screen" rel="nofollow noopener">Configured For A Custom Splash Screen</a></strong><br>
+This will be done in the <code>manifest.json</code> file.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/has-viewport-meta-tag" rel="nofollow noopener">Has A Viewport Meta Tag With <code>width</code> Or <code>initial-scale</code></a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/content-sized-correctly-for-viewport" rel="nofollow noopener">Content Sized Correctly for Viewport</a></strong><br>
+Checks that the width of the content on your page is equal to the width of the viewport.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/address-bar" rel="nofollow noopener">Address Bar Matches Brand Colors</a></strong><br>
+The audit passes if Lighthouse finds a  <code>theme-color</code>  meta tag in the page’s HTML and a  <code>theme_color</code>  property in <code>manifest.json</code>.</p>
+</li>
+<li>
+<p><strong>The  <code>short_name</code>  won’t be truncated on the homescreen</strong></p>
+</li>
+</ul>
+<h2>Accessibility</h2>
+<p>There are too many cases to cover here, I think we should just go with <code>eslint-plugin-jsx-a11y</code> and then check Lighthouse to see what we are missing.</p>
+<p>I also think most of these checks will be something that theme developers will need to take care of, and not something that we at the framework level will need to pay special attention.</p>
+<h2>Best Practices</h2>
+<p>There are 16 checks in this category, some of them as generic as <code>Avoids front-end JavaScript libraries with known security vulnerabilities</code>, so again I think there is no strategy here, we should just run Lighthouse and fix them one by one.</p>
+<h2>SEO</h2>
+<p>There are 10 checks in this category.</p>
+<ul>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/description" rel="nofollow noopener">Document Does Not Have A Meta Description</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/title" rel="nofollow noopener">Document Doesn’t Have A Title Element</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/hreflang" rel="nofollow noopener">Document doesn’t have a valid <code>hreflang</code></a></strong><br>
+If you serve different content based on a user’s language or region, use  <code>hreflang</code>  links to ensure that search engines serve the correct content for that language or region.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/canonical" rel="nofollow noopener">Document doesn’t have a valid <code>rel=canonical</code></a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/font-sizes" rel="nofollow noopener">Document Doesn’t Use Legible Font Sizes</a></strong><br>
+Aim to have a font size of at least 12px on at least 60% of the text on your pages.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/plugins" rel="nofollow noopener">Document uses plugins</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/descriptive-link-text" rel="nofollow noopener">Links Do Not Have Descriptive Text</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/successful-http-code" rel="nofollow noopener">Page has unsuccessful HTTP status code</a></strong><br>
+Ensure that your server returns a 2XX or 3XX HTTP status code.</p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/indexing" rel="nofollow noopener">Page Is Blocked From Indexing</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://developers.google.com/web/tools/lighthouse/audits/robots" rel="nofollow noopener"><code>robots.txt</code> is not valid</a></strong></p>
+</li>
+</ul>
+<h2>Ways To Integrate Lighthouse in Frontity (or in Frontity’s workflow)</h2>
+<p>I don’t know what is the better way to achieve this, but we have at our disposal <a href="https://github.com/GoogleChrome/lighthouse" rel="nofollow noopener">Lighthouse Node CLI</a>.</p>
+<p>I think this could be integrated with <a href="https://github.com/GoogleChromeLabs/lighthousebot" rel="nofollow noopener">Github + Travis</a> (<a href="https://www.youtube.com/watch?v=NoRYn6gOtVo" rel="nofollow noopener">video</a>) or maybe it could also be included as a tool in our Frontity Admin board.</p>
+<p>This way we could show a history of audits and the developer could easily check if what he is doing is working or not. This could be just a bunch of <code>.json</code> files saved in the repo, I guess, that we then render on the admin board.</p>
+<p>There are <a href="https://github.com/GoogleChrome/lighthouse#related-projects" rel="nofollow noopener">some tools</a> around the Node CLI that may come in handy like: <a href="https://github.com/addyosmani/webpack-lighthouse-plugin" rel="nofollow noopener">webpack-lighthouse-plugin</a>, <a href="https://github.com/carlesnunez/lighthouse-gh-reporter" rel="nofollow noopener">lighthouse-gh-reporter</a>…</p>
+<p>There is also a video talking about the <a href="https://youtu.be/UvK9zAsSM8Q?t=1706" rel="nofollow noopener">Lighthouse REST API</a> but I think they are still in private beta, because I couldn’t find any docs about it.</p>
+          <p><a href="https://community.frontity.org/t/lighthouse-optimization/55/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lighthouse-optimization/55/1</link>
+        <pubDate>Tue, 26 Feb 2019 17:11:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-55-1</guid>
+        <source url="https://community.frontity.org/t/lighthouse-optimization/55.rss">Lighthouse Optimization</source>
+      </item>
+  </channel>
+</rss>

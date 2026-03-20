@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>500 status on preview mode</title>
+    <link>https://community.frontity.org/t/500-status-on-preview-mode/3367</link>
+    <description>Hi,
+
+First of all, I want to thank the Frontity team, building WP websites has become a lot more enjoyable.
+
+I&#39;m running into problems when trying to preview pages. I keep getting **Internal Server Error** status 500.
+
+My environment is:
+• Frontity project is set inside a folder in the theme folder (it&#39;s a monorepo).
+• I&#39;m using Apache to serve both WP and Frontity locally. [.htaccess settings added to WP root folder](https://community.frontity.org/t/wordpress-preview-support/2419/22) and a simple *ProxyPass / http://localhost:3000/* for serving the node server (there&#39;s also a self-signed SSL certificate set on both, so I can run things through https).
+• Frontity is being served at *https://dev.prototype.com* and WP at *https://local.prototype.com*
+• It&#39;s a recent project, so I believe all packages are running on their latest versions.
+• **Frontity Embedded Mode** plugin is installed and *$frontity_server* is set as &#39;https://dev.prototype.com&#39;.
+• *--public-path https://dev.chaianalytics.com/static* when building frontity
+
+Even though the embedded mode seems to be working just fine, I can&#39;t get to make the pages/posts preview posts work. No matter how I set things, I keep getting:
+&gt; {
+&gt;   status: 500,
+&gt;   statusText: &#39;Internal Server Error&#39;
+&gt; }
+
+
+When debugging the post revision endpoint through Postman, using the same JWT sent as *frontity_source_auth*, that&#39;s the result I get:
+&gt; {
+&gt;     &quot;code&quot;: &quot;invalid_username&quot;,
+&gt;     &quot;message&quot;: &quot;Unknown username. Check again or try your email address.&quot;,
+&gt;     &quot;data&quot;: null
+&gt; }
+
+Apparently, at **wp_authenticate_username_password** at **user.php** file in **wp-includes** the value of *$username* is **{\&quot;typ\&quot;**, which leads to the error above. Curiously, the previews work if I make that function skip errors and return true, but obviously, that can&#39;t go to production.
+
+I thought it could be some issue with my WP REST API not being able to fetch revisions, but the same error doesn&#39;t happen when using **Basic Auth** on Postman.
+
+Any tips or suggestions are appreciated, let me know if I can provide any more details.
+
+Thanks in advance!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 20 Nov 2020 09:33:03 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/500-status-on-preview-mode/3367.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>500 status on preview mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome, I am glad it is solved now <a class="mention" href="https://community.frontity.org/u/fabriziotm">@fabriziotm</a> <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/500-status-on-preview-mode/3367/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/500-status-on-preview-mode/3367/9</link>
+        <pubDate>Fri, 20 Nov 2020 09:33:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3367-9</guid>
+        <source url="https://community.frontity.org/t/500-status-on-preview-mode/3367.rss">500 status on preview mode</source>
+      </item>
+      <item>
+        <title>500 status on preview mode</title>
+        <dc:creator><![CDATA[fabriziotm]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Luis,</p>
+<p>Indeed, the problem was one of the plugins I was using (WP API SwaggerUI), which is very annoying.</p>
+<p>Thank you very much!</p>
+          <p><a href="https://community.frontity.org/t/500-status-on-preview-mode/3367/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/500-status-on-preview-mode/3367/8</link>
+        <pubDate>Wed, 18 Nov 2020 17:27:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3367-8</guid>
+        <source url="https://community.frontity.org/t/500-status-on-preview-mode/3367.rss">500 status on preview mode</source>
+      </item>
+      <item>
+        <title>500 status on preview mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/fabriziotm">@fabriziotm</a>, welcome to the community <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<ol>
+<li>Could you please deactivate all your plugins and leave only the Embedded mode one to see if any of them are causing the problem?</li>
+<li>If you already did that and it keeps failing, please open an issue in the <a href="https://github.com/frontity/frontity-embedded-proof-of-concept">https://github.com/frontity/frontity-embedded-proof-of-concept</a> repository and we will take a look at it.</li>
+</ol>
+<p>By the way, I bet you can use <code>http://localhost:3000</code> in your <code>$frontity_server</code> variable if you are running both Frontity and WordPress in the same server.</p>
+<p>Also, make sure to run Frontity using a process manager like PM2 or forever.</p>
+          <p><a href="https://community.frontity.org/t/500-status-on-preview-mode/3367/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/500-status-on-preview-mode/3367/6</link>
+        <pubDate>Wed, 18 Nov 2020 09:36:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3367-6</guid>
+        <source url="https://community.frontity.org/t/500-status-on-preview-mode/3367.rss">500 status on preview mode</source>
+      </item>
+      <item>
+        <title>500 status on preview mode</title>
+        <dc:creator><![CDATA[fabriziotm]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>First of all, I want to thank the Frontity team, building WP websites has become a lot more enjoyable.</p>
+<p>I’m running into problems when trying to preview pages. I keep getting <strong>Internal Server Error</strong> status 500.</p>
+<p>My environment is:<br>
+• Frontity project is set inside a folder in the theme folder (it’s a monorepo).<br>
+• I’m using Apache to serve both WP and Frontity locally. <a href="https://community.frontity.org/t/wordpress-preview-support/2419/22">.htaccess settings added to WP root folder</a> and a simple <em>ProxyPass / <a href="http://localhost:3000/" rel="noopener nofollow ugc">http://localhost:3000/</a></em> for serving the node server (there’s also a self-signed SSL certificate set on both, so I can run things through https).<br>
+• Frontity is being served at <em><a href="https://dev.prototype.com" rel="noopener nofollow ugc">https://dev.prototype.com</a></em> and WP at <em><a href="https://local.prototype.com" rel="noopener nofollow ugc">https://local.prototype.com</a></em><br>
+• It’s a recent project, so I believe all packages are running on their latest versions.<br>
+• <strong>Frontity Embedded Mode</strong> plugin is installed and <em>$frontity_server</em> is set as ‘<a href="https://dev.prototype.com" rel="noopener nofollow ugc">https://dev.prototype.com</a>’.<br>
+• <em>–public-path <a href="https://dev.chaianalytics.com/static" rel="noopener nofollow ugc">https://dev.chaianalytics.com/static</a></em> when building frontity</p>
+<p>Even though the embedded mode seems to be working just fine, I can’t get to make the pages/posts preview posts work. No matter how I set things, I keep getting:</p>
+<blockquote>
+<p>{<br>
+status: 500,<br>
+statusText: ‘Internal Server Error’<br>
+}</p>
+</blockquote>
+<p>When debugging the post revision endpoint through Postman, using the same JWT sent as <em>frontity_source_auth</em>, that’s the result I get:</p>
+<blockquote>
+<p>{<br>
+“code”: “invalid_username”,<br>
+“message”: “Unknown username. Check again or try your email address.”,<br>
+“data”: null<br>
+}</p>
+</blockquote>
+<p>Apparently, at <strong>wp_authenticate_username_password</strong> at <strong>user.php</strong> file in <strong>wp-includes</strong> the value of <em>$username</em> is <strong>{“typ”</strong>, which leads to the error above. Curiously, the previews work if I make that function skip errors and return true, but obviously, that can’t go to production.</p>
+<p>I thought it could be some issue with my WP REST API not being able to fetch revisions, but the same error doesn’t happen when using <strong>Basic Auth</strong> on Postman.</p>
+<p>Any tips or suggestions are appreciated, let me know if I can provide any more details.</p>
+<p>Thanks in advance!</p>
+          <p><a href="https://community.frontity.org/t/500-status-on-preview-mode/3367/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/500-status-on-preview-mode/3367/1</link>
+        <pubDate>Wed, 11 Nov 2020 04:42:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3367-1</guid>
+        <source url="https://community.frontity.org/t/500-status-on-preview-mode/3367.rss">500 status on preview mode</source>
+      </item>
+  </channel>
+</rss>

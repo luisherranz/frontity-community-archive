@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Express middleware</title>
+    <link>https://community.frontity.org/t/express-middleware/652</link>
+    <description>Hi there, I&#39;m evaluating Frontity for use on our site, currently we have express middleware which adds oauth authentication to all our node apps, as our side is only for logged in users and it handles kicking them to the login screen etc.
+
+Would there be a way to add this auth layer to Frontity? From looking through the docs I gather you used to use Express but not anymore?
+
+Thanks</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 16 Oct 2019 15:43:41 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/express-middleware/652.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Express middleware</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s it! <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<p>I’ll let you know in this topic once it’s ready.</p>
+          <p><a href="https://community.frontity.org/t/express-middleware/652/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/express-middleware/652/7</link>
+        <pubDate>Wed, 16 Oct 2019 15:43:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-652-7</guid>
+        <source url="https://community.frontity.org/t/express-middleware/652.rss">Express middleware</source>
+      </item>
+      <item>
+        <title>Express middleware</title>
+        <dc:creator><![CDATA[neil.coles]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Luis</p>
+<p>Yeah it’s our own auth system seperate to wordpress. We basically have a middleware that we apply to all our express servers which adds the oauth2 endpoints for authenticating all requests.</p>
+<p>Hmm so it sounds like i would need to wait for the server extensibility to be added, then rework the module a bit to work with Koa rather than Express</p>
+          <p><a href="https://community.frontity.org/t/express-middleware/652/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/express-middleware/652/6</link>
+        <pubDate>Wed, 16 Oct 2019 10:18:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-652-6</guid>
+        <source url="https://community.frontity.org/t/express-middleware/652.rss">Express middleware</source>
+      </item>
+      <item>
+        <title>Express middleware</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="neil.coles" data-post="1" data-topic="652">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/n/3be4f8/40.png" class="avatar"> neil.coles:</div>
+<blockquote>
+<p>From looking through the docs I gather you used to use Express but not anymore?</p>
+</blockquote>
+</aside>
+<p>About this: we used Express in our old internal version of the framework, but Express is not well suited for serverless, so we switched to <a href="https://koajs.com/">Koa</a> for the this open sourced version.</p>
+<p>Adding server extensibility is one of our next steps. It’s going to work with a different export, probably <code>server</code>.</p>
+<p>Something like this:</p>
+<pre><code class="lang-javascript">// The normal package export.
+export default {
+  roots...
+  state...
+  actions...
+}
+
+// The server middleware export.
+export const server = ({ app }) =&gt; {
+  app.use(ctx =&gt; {
+    // Add some headers...
+    ctx.set({
+       SomeHeader: "Value of the header",
+       OtherHeader: "Value of the header"
+    });
+  })
+  
+  // Create custom routes....
+  app.use(route('/custom-route', ctx =&gt; {
+    ctx.body = 'Some body content';
+  }));
+}
+</code></pre>
+<p>In order to avoid including the server code in the client bundle, you can split your <code>src/index.js</code> file in a <code>src/client.js</code> and a <code>src/sever.js</code> file.</p>
+          <p><a href="https://community.frontity.org/t/express-middleware/652/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/express-middleware/652/4</link>
+        <pubDate>Sat, 05 Oct 2019 14:35:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-652-4</guid>
+        <source url="https://community.frontity.org/t/express-middleware/652.rss">Express middleware</source>
+      </item>
+      <item>
+        <title>Express middleware</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Neil, welcome to the community and sorry for the delay in our answer <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Do you want to use the auth of WordPress or do you have a separate user system?</p>
+          <p><a href="https://community.frontity.org/t/express-middleware/652/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/express-middleware/652/3</link>
+        <pubDate>Sat, 05 Oct 2019 14:13:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-652-3</guid>
+        <source url="https://community.frontity.org/t/express-middleware/652.rss">Express middleware</source>
+      </item>
+      <item>
+        <title>Express middleware</title>
+        <dc:creator><![CDATA[neil.coles]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi there, I’m evaluating Frontity for use on our site, currently we have express middleware which adds oauth authentication to all our node apps, as our side is only for logged in users and it handles kicking them to the login screen etc.</p>
+<p>Would there be a way to add this auth layer to Frontity? From looking through the docs I gather you used to use Express but not anymore?</p>
+<p>Thanks</p>
+          <p><a href="https://community.frontity.org/t/express-middleware/652/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/express-middleware/652/1</link>
+        <pubDate>Tue, 01 Oct 2019 15:56:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-652-1</guid>
+        <source url="https://community.frontity.org/t/express-middleware/652.rss">Express middleware</source>
+      </item>
+  </channel>
+</rss>

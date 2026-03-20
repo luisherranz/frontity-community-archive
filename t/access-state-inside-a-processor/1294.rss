@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Access state inside a processor</title>
+    <link>https://community.frontity.org/t/access-state-inside-a-processor/1294</link>
+    <description>**--- [Roadmap Card](https://www.notion.so/frontity/Access-state-inside-a-processor-abe3497a0b944238aae33a37a4dcee98)**
+
+## Description
+
+We need a way to access `state` inside processors because sometimes you don&#39;t want to use a React component, like in the case of styling with the `css` prop: https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250, but you still need to access `state`.
+
+## User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want to **access `state` in my processor**
+&gt; so that **I can use settings stored in `state`**
+
+## Possible solution
+
+There are some possible solutions, like:
+
+1. Pass `state` to processors in a non-reactive way.
+2. Connect the `Html2React` component and observe the processors as a whole. If some observed part of the `state` changes, rerender the whole `Html2React` component.
+3. Connect each processor individually with HOC&#39;s.
+
+After a discussion with @orballo, @David, and @iamuchejude we decided to try 1 first and leave 2 and 3 as future optimizations, as long as we maintain the API for backward compatibility.
+
+We agreed that this API makes more sense:
+```js
+const myHandler = {
+  test: ({ node, state, root, libraries }) =&gt; { ... }
+  process: ({ node, state, root, libraries }) =&gt; { ... }
+};
+```
+
+We can take the opportunity to pass `libraries` as well. I don&#39;t think using `actions` inside processors is a good pattern, if you need that you&#39;d have to create a React component.
+
+The current API is:
+```js
+const myHandler = {
+  test: node =&gt; { ... }
+  process: (node, { root }) =&gt; { ... }
+};
+```
+
+So to make it backward compatible we have to try this:
+```js
+// Convert node to an object, but keep it as it is.
+node.node = node;
+node.state = state;
+node.libraries = libraries;
+node.root = root;
+
+// Run tests.
+isMatch = tester(node);
+// Or processors.
+const processed = process(node, { root });
+
+// Remove everything before adding it to the DOM.
+delete node.node;
+delete node.state;
+delete node.libraries;
+delete node.root;
+```
+
+It&#39;s going to be a bit weird for people debugging it, but we can release a v2 Html2React version in 6 months that is 100% compatible with v1 as long as you changed this.
+
+If it&#39;s not possible, then we&#39;ll have to release a v2 of Html2React.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 24 Mar 2020 13:07:29 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/access-state-inside-a-processor/1294.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Access state inside a processor</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>This was finally implemented here: <a href="https://github.com/frontity/frontity/pull/327">frontity/frontity#327</a></p>
+<ul>
+<li>
+<p>Processors’ API was changed and now they receive <code>node</code>,  <code>state</code>, <code>root</code> and <code>libraries</code> in both the <code>test</code> and the <code>processor</code> functions.</p>
+<pre><code>const myHandler = {
+  test: ({ node, state, root, libraries }) =&gt; { ... }
+  processor: ({ node, state, root, libraries }) =&gt; { ... }
+};
+</code></pre>
+</li>
+<li>
+<p><code>process</code> attribute was renamed to <code>processor</code> due to an error in generated ES5 bundles (see discussion <a href="https://github.com/frontity/frontity/pull/327#issuecomment-592599048">here</a>)</p>
+</li>
+<li>
+<p>The <code>Html2React</code> component rerenders whenever the state accessed by the processors changes.</p>
+</li>
+<li>
+<p>Processors are backward compatible with the old API.</p>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/access-state-inside-a-processor/1294/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/access-state-inside-a-processor/1294/3</link>
+        <pubDate>Tue, 24 Mar 2020 13:07:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1294-3</guid>
+        <source url="https://community.frontity.org/t/access-state-inside-a-processor/1294.rss">Access state inside a processor</source>
+      </item>
+      <item>
+        <title>Access state inside a processor</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Access-state-inside-a-processor-abe3497a0b944238aae33a37a4dcee98">Roadmap Card</a></strong></p>
+<h2>Description</h2>
+<p>We need a way to access <code>state</code> inside processors because sometimes you don’t want to use a React component, like in the case of styling with the <code>css</code> prop: <a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250" class="inline-onebox">Styling the HTML content with the `css` prop</a>, but you still need to access <code>state</code>.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>access <code>state</code> in my processor</strong><br>
+so that <strong>I can use settings stored in <code>state</code></strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<p>There are some possible solutions, like:</p>
+<ol>
+<li>Pass <code>state</code> to processors in a non-reactive way.</li>
+<li>Connect the <code>Html2React</code> component and observe the processors as a whole. If some observed part of the <code>state</code> changes, rerender the whole <code>Html2React</code> component.</li>
+<li>Connect each processor individually with HOC’s.</li>
+</ol>
+<p>After a discussion with <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>, <a class="mention" href="https://community.frontity.org/u/david">@David</a>, and <a class="mention" href="https://community.frontity.org/u/iamuchejude">@iamuchejude</a> we decided to try 1 first and leave 2 and 3 as future optimizations, as long as we maintain the API for backward compatibility.</p>
+<p>We agreed that this API makes more sense:</p>
+<pre><code class="lang-js">const myHandler = {
+  test: ({ node, state, root, libraries }) =&gt; { ... }
+  process: ({ node, state, root, libraries }) =&gt; { ... }
+};
+</code></pre>
+<p>We can take the opportunity to pass <code>libraries</code> as well. I don’t think using <code>actions</code> inside processors is a good pattern, if you need that you’d have to create a React component.</p>
+<p>The current API is:</p>
+<pre><code class="lang-js">const myHandler = {
+  test: node =&gt; { ... }
+  process: (node, { root }) =&gt; { ... }
+};
+</code></pre>
+<p>So to make it backward compatible we have to try this:</p>
+<pre><code class="lang-js">// Convert node to an object, but keep it as it is.
+node.node = node;
+node.state = state;
+node.libraries = libraries;
+node.root = root;
+
+// Run tests.
+isMatch = tester(node);
+// Or processors.
+const processed = process(node, { root });
+
+// Remove everything before adding it to the DOM.
+delete node.node;
+delete node.state;
+delete node.libraries;
+delete node.root;
+</code></pre>
+<p>It’s going to be a bit weird for people debugging it, but we can release a v2 Html2React version in 6 months that is 100% compatible with v1 as long as you changed this.</p>
+<p>If it’s not possible, then we’ll have to release a v2 of Html2React.</p>
+          <p><a href="https://community.frontity.org/t/access-state-inside-a-processor/1294/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/access-state-inside-a-processor/1294/1</link>
+        <pubDate>Thu, 27 Feb 2020 12:12:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1294-1</guid>
+        <source url="https://community.frontity.org/t/access-state-inside-a-processor/1294.rss">Access state inside a processor</source>
+      </item>
+  </channel>
+</rss>

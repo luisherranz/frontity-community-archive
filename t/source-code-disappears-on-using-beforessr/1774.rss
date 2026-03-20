@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Source code disappears on using beforeSSR</title>
+    <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774</link>
+    <description>```actions: {
+    theme: {
+      toggleMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+      },
+      closeMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = false;
+      },
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await Promise.all([
+          actions.source.fetch(&quot;/category/featured/&quot;),
+          actions.source.fetch(&quot;/category/how-to/&quot;),
+          actions.source.fetch(&quot;/category/accessories/&quot;),
+          actions.source.fetch(&quot;/category/iphone/&quot;),
+          actions.source.fetch(&quot;/category/iphone/page/2&quot;),
+        ]);
+      },
+    },
+  },
+```
+I need to display posts from five different categories on the homepage. Everything renders well, except source code of homepage is incomplete and doesn&#39;t show any fetched data. Is their a way to get full source code of the homepage?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 25 May 2020 11:08:52 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think it’s because you are fetching all the categories unconditionally in the <code>beforeSSR</code> action, not only for the home:</p>
+<pre><code class="lang-js">beforeSSR: async ({ state, actions }) =&gt; {
+  await Promise.all(
+    Object.values(beforeSSRCategories).map((category) =&gt; {
+      return actions.source.fetch(`/category/${category.name}/`);
+    })
+  );
+};
+</code></pre>
+<p>Right now, you have to do the conditional logic yourself to avoid that. For example, if you want to do this fetch only on the home, you can:</p>
+<pre><code class="lang-js">beforeSSR: async ({ state, actions }) =&gt; {
+  if (state.router.link === "/")
+    await Promise.all(
+      Object.values(beforeSSRCategories).map((category) =&gt; {
+        return actions.source.fetch(`/category/${category.name}/`);
+      })
+    );
+};
+</code></pre>
+<p>If you want to do this also on categories, you can:</p>
+<pre><code class="lang-js">beforeSSR: async ({ state, actions }) =&gt; {
+  if (state.router.link === "/" || state.router.link.startsWith("/category/"))
+    await Promise.all(
+      Object.values(beforeSSRCategories).map((category) =&gt; {
+        return actions.source.fetch(`/category/${category.name}/`);
+      })
+    );
+};
+</code></pre>
+<p>And so on.</p>
+<p>Once you do this conditionally, the data won’t be there when you do the server-side rendering of a post and then move to the home, so you also need to include the same logic in a <code>useEffect</code> of those components:</p>
+<pre><code class="lang-js">const Home = ({ state }) =&gt; {
+  useEffect(() =&gt; {
+    Object.values(fetchCategories).map((category) =&gt; {
+      actions.source.fetch(`/category/${category.name}/`);
+    });
+  });
+};
+</code></pre>
+<p>Be aware that you have to check in those components if the fetch has finished or not using <code>data.isReady</code>.</p>
+<hr>
+<p>We are aware that this is not the ideal way to do this, so in the v2 of source these types of things are going to be much more easy and flexible because you should be able to attach additional handlers to a certain route/pattern without having to overwrite the original one.</p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/22</link>
+        <pubDate>Mon, 25 May 2020 11:08:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-22</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[sarang]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a></p>
+<p>I am fetching a lot of posts on homepage, so it makes sense that source code for homepage is huge. But, on clicking a post and navigating post page, source code for post page is also huge and almost the same size as homepage. Shouldn’t it be a lot smaller as it contains data for only one post?</p>
+<p>live URL (click only on images) =&gt; <a href="https://oq-6a2swbjos.now.sh/" rel="nofollow noopener">https://oq-6a2swbjos.now.sh/</a></p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/20</link>
+        <pubDate>Fri, 15 May 2020 13:18:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-20</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sarang">@sarang</a></p>
+<p>Sorry, we don’t currently have a timeline for that so we’re not sure when v2 will be ready. We’ll endeavour to keep you updated on progress here.</p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/19</link>
+        <pubDate>Wed, 13 May 2020 08:58:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-19</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[sarang]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>  for letting me know. <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Sorry if I am bothering too much, but when to expect v2 of wp-source ?</p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/17</link>
+        <pubDate>Wed, 13 May 2020 07:32:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-17</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sarang">@sarang</a></p>
+<p>I had a chat with our dev team and it seems that it’s currently not possible to use _fields with Frontity’s handler. It is something that they are working on and they hope to have that functionality in v2 of wp-source.</p>
+<p>If your current custom handler is doing what you want it to, then it’s probably best to run with that for now.</p>
+<p>Do let us know if we can help you further.</p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/14</link>
+        <pubDate>Tue, 12 May 2020 15:11:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-14</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[sarang]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> thanks for replying.  We are moving a Wordpress website with over 5k articles to Frontity. More info here:</p>
+<aside class="quote" data-post="1" data-topic="1477">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mosamlife/40/852_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/moving-an-existing-wordpress-website-with-over-5000-articles/1477">Moving an Existing WordPress website with over 5000 Articles</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Share with the community how are you going to use Frontity!
+Confused? Getting a weird error? Just want to share your progress? Also your place.">🤗 Dev Talk &amp; Questions</span></a>
+  </div>
+  <blockquote>
+    Hello, 
+I have an existing WordPress website with over 5000 Articles and we are planning to use frontity. so what you guys recommend for this type of heavy traffic blog? Any thoughts? 
+we already build a react component for this. 
+Thanks
+  </blockquote>
+</aside>
+
+<p>Additionally, <a href="https://developer.wordpress.org/rest-api/using-the-rest-api/global-parameters/#_fields" rel="nofollow noopener"> <code>_fields</code> </a> param seems quite useful, thanks for the tip. I get how to use it in a custom handler. But, is there a way to use <a href="https://developer.wordpress.org/rest-api/using-the-rest-api/global-parameters/#_fields" rel="nofollow noopener"> <code>_fields</code> </a> with Frontity’s handler (beforeSSR method)? It will probably save me some time.</p>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions }) =&gt; {
+  await Promise.all(
+     Object.values(beforeSSRCategories).map((category) =&gt; {
+            return actions.source.fetch(`/category/${category.name}/`);
+     })
+  );
+}
+</code></pre>
+<p>BTW heres my current custom handler (could have been lot simpler if I had used <a href="https://developer.wordpress.org/rest-api/using-the-rest-api/global-parameters/#_fields" rel="nofollow noopener"> <code>_fields</code> </a>):</p>
+<pre><code class="lang-javascript">const homeCustomHandler = {
+  name: "homeCustomHandler",
+  priority: 1,
+  pattern: "home-custom-handler",
+  func: async ({ route, state, libraries }) =&gt; {
+    const categoriesId = Object.keys(homePageCategories);
+    const t0 = new Date().getTime();
+    let posts = [];
+    try {
+      await Promise.all(
+        categoriesId.map((id) =&gt; {
+          return libraries.source.api
+            .get({
+              endpoint: `/wp/v2/posts?categories=${id}&amp;per_page=${homePageCategories[id].posts}`,
+            })
+            .then((response) =&gt; {
+              return response.json();
+            })
+            .then((responsePosts) =&gt; {
+              let categoryPosts = responsePosts.map((post) =&gt; {
+                return {
+                  id: post.id,
+                  slug: post.slug,
+                  date: post.date_gmt,
+                  authorId: post.author,
+                  title: post.title.rendered,
+                  content: post.content.rendered,
+                  category: homePageCategories[id].name,
+                  featured_mediaId: post.featured_media,
+                  article: homePageCategories[id].article,
+                };
+              });
+              posts.push(...categoryPosts);
+              return responsePosts;
+            })
+            .catch((err) =&gt; console.log(err));
+        })
+      );
+
+      const endpoints = [];
+      posts.forEach((post) =&gt; {
+        endpoints.push([`/wp/v2/media/${post.featured_mediaId}`, post]);
+        endpoints.push([`/wp/v2/users/${post.authorId}`, post]);
+      });
+
+      await Promise.all(
+        endpoints.map((endpoint) =&gt; {
+          return libraries.source.api
+            .get({
+              endpoint: endpoint[0],
+            })
+            .then((response) =&gt; {
+              return response.json();
+            })
+            .then((responseJSON) =&gt; {
+              if (responseJSON.source_url) {
+                const postSrc = responseJSON.guid.rendered;
+                let postSrcSet = [];
+                for (let [key, value] of Object.entries(responseJSON.media_details.sizes)) {
+                  postSrcSet.push([value.source_url, value.width]);
+                }
+                endpoint[1]["src"] = postSrc;
+                endpoint[1]["srcSet"] = postSrcSet;
+              } else {
+                endpoint[1]["author"] = responseJSON.name;
+              }
+            })
+            .catch((err) =&gt; console.log(err));
+        })
+      );
+
+      const t1 = new Date().getTime();
+      console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
+    } catch (error) {
+      console.log(error);
+    }
+
+    const data = state.source.get(route);
+    Object.assign(data, { posts });
+  },
+};
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/12</link>
+        <pubDate>Tue, 12 May 2020 10:09:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-12</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sarang">@sarang</a>,</p>
+<p>I think you’re getting much more data in the REST API because of some plugins you may have installed (try to deactivate your plugins and check the size of your REST API)</p>
+<p>What you can do to control the amount of  data received from the server is <a href="https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/"><strong>creating custom endpoints in your Wordpress installation</strong></a> and then, creating  <strong>custom <a href="https://docs.frontity.org/api-reference-1/wordpress-source#handlers">handlers</a> in Frontity</strong> to access the data provided in these custom endpoints</p>
+<p>A simpler approach (no creation of custom endpoints) is to just create  <strong>custom <a href="https://docs.frontity.org/api-reference-1/wordpress-source#handlers">handlers</a> in Frontity</strong> and use the <a href="https://developer.wordpress.org/rest-api/using-the-rest-api/global-parameters/#_fields"><code>_fields</code></a> to specify the fields you want to receive from the REST API endpoint in your handler</p>
+<p>If you still need more support from the community, we’d need that you provide, so you can get proper answers:</p>
+<ul>
+<li>A <a href="https://web.dev/measure/">lighthouse report</a> showing the performance of your site</li>
+<li>A URL of a <a href="https://docs.frontity.org/deployment">deployed version of your project</a> so the community can verify the amount of data received from the WP REST API</li>
+<li>A Github repo so the community can check the code you’re actually using</li>
+</ul>
+<p>The more info we have the more accurate the community’s response.</p>
+<p>Thanks for sharing your doubts and help the community grow.</p>
+<p>BTW… What are you building with Frontity? <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/9</link>
+        <pubDate>Mon, 11 May 2020 15:49:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-9</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[sarang]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="juanma" data-post="2" data-topic="1774">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>Here you have an example</p>
+</blockquote>
+</aside>
+<p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> thanks for your response. Actually, I didn’t to a good job explaining the problem.</p>
+<p>I have used the example that you mentioned  =&gt;  <a href="https://github.com/frontity-demos/demo-custom-homepage-categories" rel="nofollow noopener">https://github.com/frontity-demos/demo-custom-homepage-categories</a></p>
+<p>It works well, I receive the data and page is rendered as expected and required. But, it seems I am fetching a lot of data that I don’t need. Can I reduce the number of posts that are fetched from 10 to say 5 and also remove the key-value pairs in the post object that I don’t need?</p>
+<p>Because I receive too much data, it slows down the app and also takes a long time to load source code(View Page Source).</p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/3</link>
+        <pubDate>Thu, 07 May 2020 15:57:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-3</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sarang">@sarang</a>,</p>
+<p>Please take a look at this example where you can see how to do exactly that</p>
+<aside class="quote quote-modified" data-post="6" data-topic="1709">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/how-to-edit-frontity-mars-theme-to-achieve-categorized-widgets-in-homepage/1709/6">How to edit @frontity/mars-theme to achieve categorized widgets in Homepage?</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Share with the community how are you going to use Frontity!
+Confused? Getting a weird error? Just want to share your progress? Also your place.">🤗 Dev Talk &amp; Questions</span></a>
+  </div>
+  <blockquote>
+    Hi <a class="mention" href="https://community.frontity.org/u/kabeer.shefy">@kabeer.shefy</a>, 
+As you have in the frontity.source all the info provided from the WP REST API  you can “play” with that data to organize it in any form you need 
+Here’s an example of a HomePage with blocks showing 5 articles per category → <a href="https://demo-custom-homepage-categories.now.sh/">https://demo-custom-homepage-categories.now.sh/</a> 
+And here’s the code → <a href="https://github.com/frontity-demos/demo-custom-homepage-categories">https://github.com/frontity-demos/demo-custom-homepage-categories</a> 
+ <a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/7/79575671c05a633629ec823f9b61248ca7fe3833.png" data-download-href="https://community.frontity.org/uploads/default/79575671c05a633629ec823f9b61248ca7fe3833" title="Captura de pantalla 2020-05-05 a las 11.21.40">[Captura de pantalla 2020-05-05 a las 11.21.40]</a>
+Hope this helps
+  </blockquote>
+</aside>
+
+<p>With the piece of code you provide you’re only assuring that those <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch">requests are made and that all necessary data you need it’s available at <code>state.source</code></a></p>
+<p>What that data then you have to create the proper component to display that information. <a href="https://github.com/frontity-demos/demo-custom-homepage-categories/blob/master/packages/custom-homepackage-theme/src/Home.js">Here you have an example</a></p>
+<p>Hope this helps!</p>
+<p>What are you building with Frontity?</p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/2</link>
+        <pubDate>Thu, 07 May 2020 15:29:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-2</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+      <item>
+        <title>Source code disappears on using beforeSSR</title>
+        <dc:creator><![CDATA[sarang]]></dc:creator>
+        <description><![CDATA[
+            <pre><code class="lang-javascript">    theme: {
+      toggleMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+      },
+      closeMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = false;
+      },
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await Promise.all([
+          actions.source.fetch("/category/featured/"),
+          actions.source.fetch("/category/how-to/"),
+          actions.source.fetch("/category/accessories/"),
+          actions.source.fetch("/category/iphone/"),
+          actions.source.fetch("/category/iphone/page/2"),
+        ]);
+      },
+    },
+  },
+</code></pre>
+<p>I need to display posts from five different categories on the homepage. Everything renders well, except source code of homepage is incomplete and doesn’t show any fetched data. Is their a way to get full source code of the homepage?</p>
+          <p><a href="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774/1</link>
+        <pubDate>Thu, 07 May 2020 10:09:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1774-1</guid>
+        <source url="https://community.frontity.org/t/source-code-disappears-on-using-beforessr/1774.rss">Source code disappears on using beforeSSR</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Theming</title>
+    <link>https://community.frontity.org/t/theming/883</link>
+    <description>&lt;!-- Please, follow this template in order to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# [Frontity Roadmap :biking_man:](https://www.notion.so/frontity/Frontity-Roadmap-e6fac9339a474031b2bc9fd90a075b69)
+**--- [Feature Card](https://www.notion.so/frontity/Theming-6f1819a331b444d0906cb85769c97f34)**
+
+## Description
+When themes get complex, users don&#39;t want to copy the same color, font, margin... over and over again. Those settings should live in a **theme settings** configuration and must be easily accessible on the styled components. 
+
+- These theme settings should be in the Frontity state.
+- Styled components should have access to all the state, not only these theme settings.
+- These styled components should subscribe to changes in the state, just like any other connected component.
+
+## User Stories
+&gt; As a **theme developer**
+&gt; I want to **use some sort of theme settings**
+&gt; so that **I can reuse them in my styled components**
+
+## Examples
+
+```xml
+export default {
+  state: {
+    theme: {
+      color: &quot;red&quot;
+    }
+  }
+}
+
+const Container = styled.div`
+  color: ${({ state }) =&gt; state.theme.color};
+`;
+```
+
+Or any other state property:
+```
+const Container = styled.div`
+  color: ${({ state }) =&gt; state.router.link === &quot;/&quot; ? &quot;red&quot; : &quot;green&quot;};
+`;
+```
+
+
+## Possible solution
+
+### Integrate [emotion-theming](https://emotion.sh/docs/theming).
+  The problem with this approach is that the prop is hardcoded to `theme`. If we want to give easy access to all the state, the syntax is weird:
+```
+const Container = styled.div`
+  color: ${({ theme }) =&gt; theme.state.router.link === &quot;/&quot; ? &quot;red&quot; : &quot;green&quot;};
+`;
+```
+Also, it is not reactive to changes in state, as far as I know.
+
+### Allow the use of `connect`
+
+We could use the same approach than with any other component: `connect`:
+```
+let Container = styled.div`
+  color: ${({ state }) =&gt; state.router.link === &quot;/&quot; ? &quot;red&quot; : &quot;green&quot;};
+`;
+Container = connect(Container);
+```
+
+Right now it only works in the server. I&#39;m not sure why. I guess it has something to do with styled components being [forwarding refs](https://reactjs.org/docs/forwarding-refs.html), which I guess maybe work as normal components in the server.
+
+### Automatically connect `styled`
+
+The same than the previous one, but done automatically when we re-export `styled` in the `frontity` package.
+
+## Workarounds
+
+There are two ways to connect a styled component that work fine today.
+
+### Using the `css` prop
+
+```
+const Container = ({ state, children }) =&gt; (
+  &lt;div css={css`
+    color: ${state.router.link === &quot;/&quot; ? &quot;red&quot; : &quot;green&quot;};
+  `}&gt;
+    {children}
+  &lt;/div&gt;
+);
+
+export default connect(Container);
+```
+
+### Using a connected parent 
+
+```
+const Container = ({ state, children }) =&gt; (
+  &lt;StyledContainer link={state.router.link}&gt;{children}&lt;/StyledContainer&gt;
+);
+
+const StyledContainer = styled.div`
+  color: ${({ link }) =&gt; link === &quot;/&quot; ? &quot;red&quot; : &quot;green&quot;};
+`;
+
+export default connect(Container);
+```
+
+So another possibility is to leave everything as it is today and simply promote one of these two solutions.
+
+&lt;!-- ------------------------------------------------------------------------ --&gt;
+&lt;!-- This will be filled by the Frontity team, please do not remove it --&gt;
+&lt;!-- ------------------------------------------------------------------------
+
+
+## GitHub Issues
+ - [Issue](####)
+--&gt;</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 28 Jul 2020 08:45:57 +0000</lastBuildDate>
+    <category>🗣 Feature Discussions</category>
+    <atom:link href="https://community.frontity.org/t/theming/883.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>To be taken into account<br>
+It seems the mere installation of <code>emotion-theming</code> in a package provokes an error</p>
+<ol>
+<li>Clone the branch <code>before-emotion-theming</code> → <a href="https://github.com/frontity-community/texts-app/tree/before-emotion-theming">https://github.com/frontity-community/texts-app/tree/before-emotion-theming</a>
+</li>
+<li><code>cd packages/cristina-theme</code></li>
+<li><code>npm i -S emotion-theming</code></li>
+<li>
+<code>cd ../..</code> &amp;&amp; <code>npx frontity dev</code>
+</li>
+</ol>
+<p>I get this…</p>
+<pre><code class="lang-javascript"> TypeError: Cannot read property 'add' of undefined
+      at e.init (webpack-internal:///./packages/cristina-theme/node_modules/react-helmet-async/lib/index.module.js:14:9234)
+      at e.render (webpack-internal:///./packages/cristina-theme/node_modules/react-helmet-async/lib/index.module.js:14:9307)
+      at processChild (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:402:631)
+      at resolve (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:396:122)
+      at ReactDOMServerRenderer.render (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:1199)
+      at ReactDOMServerRenderer.read (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:55)
+      at renderToString (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:470:116)
+      at app.use (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:53:243)
+      at process._tickCallback (internal/process/next_tick.js:68:7)
+</code></pre>
+          <p><a href="https://community.frontity.org/t/theming/883/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/15</link>
+        <pubDate>Tue, 28 Jul 2020 08:45:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-15</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Now that we are collaborating with RisingStack and Miklos Bertalan with <code>react-easy-state</code>, I’ve brought this issue under their attention:</p>
+<aside class="onebox githubissue">
+  <header class="source">
+      <a href="https://github.com/RisingStack/react-easy-state/issues/187" target="_blank">github.com/RisingStack/react-easy-state</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Issue">
+	  <svg width="60" height="60" class="github-icon" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/RisingStack/react-easy-state/issues/187" target="_blank">Support for `forwardRef` components</a>
+    </h4>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2020-05-24" data-time="09:51:11" data-timezone="UTC">09:51AM - 24 May 20 UTC</span>
+      </div>
+
+
+      <div class="user">
+        <a href="https://github.com/luisherranz" target="_blank">
+          <img alt="luisherranz" src="https://community.frontity.org/uploads/default/original/1X/4a70ff2530bf80efc8f1cd6a4474e9ee0f20a1ec.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          luisherranz
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="github-row">
+  <p class="github-content">Is your feature request related to a problem? Please describe.
+Right now with react-easy-state we can make any functional component or class...</p>
+</div>
+
+<div class="labels">
+    <span style="display:inline-block;margin-top:2px;background-color: #B8B8B8;padding: 2px;border-radius: 4px;color: #fff;margin-left: 3px;">enhancement</span>
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/theming/883/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/13</link>
+        <pubDate>Sun, 24 May 2020 09:54:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-13</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> the <code>css</code> prop is great, it makes everything easier <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=9" title=":laughing:" class="emoji" alt=":laughing:">  : <a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250" class="inline-onebox">Styling the HTML content with the `css` prop</a></p>
+          <p><a href="https://community.frontity.org/t/theming/883/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/12</link>
+        <pubDate>Tue, 18 Feb 2020 20:22:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-12</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Even though I really like <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>’s approach with the <code>css</code> prop, I still think we should add a way to connect a styled component.</p>
+<p>I was taking a look at the <a href="https://mobx-react.js.org/observer-hoc">observer implementation of mobx-react</a> and I saw that they support <code>forwardRef</code> on their <code>observer</code> (our <code>connect</code>) so that’s something we can explore if we ever want to add something like:</p>
+<pre><code>let Container = styled.div`
+  color: ${({ state }) =&gt; state.router.link === "/" ? "red" : "green"};
+`;
+Container = connect(Container);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/theming/883/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/11</link>
+        <pubDate>Fri, 17 Jan 2020 10:40:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-11</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I also plays nice with extensions like styled systems:</p>
+<pre><code>import { space, layout, color } from "styled-system";
+
+const Comp = () =&gt; (
+  &lt;&gt;
+    &lt;div css={[space, layout} width={1/2} fontSize={4} /&gt;
+    &lt;div css={[layout, color} m={2} color='gray.0' /&gt;
+  &lt;/&gt;
+);
+</code></pre>
+<p>versus</p>
+<pre><code>import { space, layout, color } from "styled-system";
+
+const Box = styled.div`
+  ${space}
+  ${layout}
+  ${color}
+`;
+
+
+const Comp = () =&gt; (
+  &lt;&gt;
+    &lt;Box width={1/2} fontSize={4} /&gt;
+    &lt;Box m={2} color='gray.0' /&gt;
+  &lt;/&gt;
+);
+</code></pre>
+<p>But we still need to figure out how to include add a <code>theme</code> that all packages can modify.</p>
+          <p><a href="https://community.frontity.org/t/theming/883/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/10</link>
+        <pubDate>Fri, 20 Dec 2019 11:19:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-10</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Avoid mapping the state is fine, but otherwise I think it’s cleaner and probably slightly more performant to have them defined outside the component.</p>
+<p>What I really like is the different approach on composability. It lets you think in terms of style concepts instead of whole component/tags:</p>
+<pre><code>const Comp = () =&gt; (
+  &lt;&gt;
+    &lt;span css={blue}&gt;This is a blue span&lt;/span&gt;
+    &lt;span css={bold}&gt;This is a bold span&lt;/span&gt;
+    &lt;span css={[blue, bold]}&gt;This is a blue bold span&lt;/span&gt;
+  &lt;/&gt;
+);
+
+const blue = css`
+  color: "blue";
+`;
+
+const bold = css`
+  font-weitght: "bold";
+`;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/theming/883/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/9</link>
+        <pubDate>Fri, 20 Dec 2019 11:09:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-9</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Also, I think it helps readability when you look at the <code>jsx</code> code and see what elements you are rendering without scrolling down and checking what are you using as a <code>styled</code> component.</p>
+          <p><a href="https://community.frontity.org/t/theming/883/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/8</link>
+        <pubDate>Fri, 20 Dec 2019 10:29:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-8</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I don’t like to define the styles with <code>css</code> outside of the component to avoid mapping the state, and in that case, compared with <code>styled</code> I don’t appreciate much difference.</p>
+<p>The composition with arrays is very nice, didn’t know about it.</p>
+          <p><a href="https://community.frontity.org/t/theming/883/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/7</link>
+        <pubDate>Fri, 20 Dec 2019 10:28:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-7</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="4" data-topic="883">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>On the other side, it’s more intuitive to use <code>css</code> for those that are not experienced with React or <code>styled-components</code> in my opinion.</p>
+</blockquote>
+</aside>
+<p>Looking at my last examples… it certainly does.</p>
+          <p><a href="https://community.frontity.org/t/theming/883/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/6</link>
+        <pubDate>Fri, 20 Dec 2019 09:56:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-6</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hmm… you’re right, my first example wasn’t fair because you can use <code>css</code> directly in your non-styled components.</p>
+<p>This is a more fair example:</p>
+<pre><code>const div = state =&gt; css`
+  background-color: ${state.colors.dark};
+  visibility: ${state.menu.isVisible ? "visible" : "hidden"};
+`;
+
+const blue = css`
+  color: "blue";
+`;
+
+const bold = css`
+  font-weight: "bold";
+`;
+
+const MainComponent = ({ state }) =&gt; (
+  &lt;div css={div(state)}&gt;
+    &lt;a css={blue} href="..."&gt;
+      Some link here
+   &lt;/a&gt;
+   &lt;span css={bold}&gt;
+      More stuff
+   &lt;/span&gt;
+ &lt;/div&gt;
+);
+</code></pre>
+<p>versus</p>
+<pre><code>const StyledDiv = styled.div`
+  background-color: ${({ dark }) =&gt; dark};
+  visibility: ${({ isVisible }) =&gt; isVisible ? "visible" : "hidden"};
+`;
+
+const BlueAnchor = styled.a`
+  color: "blue";
+`;
+
+const BoldSpan = styled.span`
+  font-weight: "bold";
+`;
+
+const MainComponent = ({ state }) =&gt; (
+  &lt;StyledDiv dark={state.colors.dark} isVisible={state.menu.isVisible}&gt;
+    &lt;BlueAnchor href="..."&gt;
+      Some link here
+   &lt;/BlueAnchor&gt;
+   &lt;BoldSpan&gt;
+      More stuff
+   &lt;/BoldSpan&gt;
+ &lt;/StyledDiv&gt;
+);
+</code></pre>
+<p>Which is basically the same… Actually, <code>state</code> is easier to pass down and <a href="https://emotion.sh/docs/composition">composition seems much easier</a> because it can be done with arrays, and you get to choose the order:</p>
+<pre><code>const danger = css`
+  color: red;
+`
+
+const base = css`
+  background-color: darkgreen;
+  color: turquoise;
+`
+
+render(
+  &lt;div&gt;
+    &lt;div css={base}&gt;This will be turquoise&lt;/div&gt;
+    &lt;div css={[danger, base]}&gt;
+      This will be also be turquoise since the base styles
+      overwrite the danger styles.
+    &lt;/div&gt;
+    &lt;div css={[base, danger]}&gt;This will be red&lt;/div&gt;
+  &lt;/div&gt;
+)
+</code></pre>
+          <p><a href="https://community.frontity.org/t/theming/883/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/5</link>
+        <pubDate>Fri, 20 Dec 2019 09:56:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-5</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I understand your first concern, but in my experience that’s not a case you find often, you will usually have a bunch of styled components listed under the React component just to be called from it, and the only case that currently comes to my mind that you might want to just render a single styled component would be to change styles inside a processor, exactly where it can’t be used.</p>
+<aside class="quote group-development-team" data-post="3" data-topic="883">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>My second concern is that styled components are a big trend in React. Recommending not to use them it’s going to be difficult.</p>
+</blockquote>
+</aside>
+<p>On the other side, it’s more intuitive to use <code>css</code> for those that are not experienced with React or <code>styled-components</code> in my opinion.</p>
+          <p><a href="https://community.frontity.org/t/theming/883/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/4</link>
+        <pubDate>Fri, 20 Dec 2019 09:33:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-4</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>My first concern with that approach is that this <code>css</code> component</p>
+<pre><code>const Component = ({ children }) =&gt; {
+  const divStyles = css`
+    background-color: ${state.colors.dark};
+    visibility: ${state.menu.isVisible ? "visible" : "hidden"};
+  `;
+
+  return (
+     &lt;div css={divStyles}&gt;
+       {children}
+     &lt;/div&gt;
+   );
+}
+</code></pre>
+<p>looks unnecessarily more complex than this <code>styled</code> component equivalent:</p>
+<pre><code>const Component = styled.div`
+  background-color: ${state.colors.dark};
+  visibility: ${state.menu.isVisible ? "visible" : "hidden"};
+`
+</code></pre>
+<p>for the exact same behavior.</p>
+<p>My second concern is that styled components are a big trend in React. Recommending not to use them it’s going to be difficult.</p>
+<p>But I agree with you that the <code>css</code> prop could also help to solve this problem. I’m going to update the OP with these two possibilities which work fine today:</p>
+<pre><code>const Container = ({ state, children }) =&gt; (
+  &lt;div css={css`
+    color: ${state.router.link === "/" ? "red" : "green"};
+  `}&gt;
+    {children}
+  &lt;/div&gt;
+);
+
+export default connect(Container);
+</code></pre>
+<pre><code>const Container = ({ state, children }) =&gt; (
+  &lt;StyledContainer link={state.router.link}&gt;{children}&lt;/StyledContainer&gt;
+);
+
+const StyledContainer = styled.div`
+  color: ${({ link }) =&gt; link === "/" ? "red" : "green"};
+`;
+
+export default connect(Container);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/theming/883/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/3</link>
+        <pubDate>Fri, 20 Dec 2019 09:22:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-3</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m currently styling components with the <code>css</code> function of <code>emotion</code> and I think it might be easier to use than <code>styled</code> and it would be a good idea to promote it’s use instead of <code>styled</code> like we are doing now.</p>
+<h3>1. We can avoid implementing a theming solution as the <code>css</code> will be defined within the React component and therefore all the state is available withing the styles:</h3>
+<pre><code class="lang-jsx">const Component = ({ state }) =&gt; {
+  const divStyles = css`
+    background-color: ${state.colors.dark};
+    visibility: ${state.menu.isVisible ? "visible" : "hidden"};
+  `;
+
+  return &lt;div css={css} /&gt;
+}
+</code></pre>
+<h3>2. We can avoid forcing developers to struggle with naming if they choose to do so, as you can define the <code>css</code> prop directly in the <code>jsx</code>.</h3>
+<pre><code class="lang-jsx">const Component = ({ state }) =&gt; (
+  &lt;div
+    css={css`
+      background-color: ${state.colors.dark};
+      visibility: ${state.div.isVisible ? "visible" : "hidden"};
+    `}
+  /&gt;
+);
+</code></pre>
+<h3>3. You can style a React component the same way you can style any other element.</h3>
+<pre><code class="lang-jsx">const InnerComponent = ({ className }) =&gt; (
+  &lt;div
+    css={css`
+      color: red;
+    `}
+    className={className}
+  /&gt;
+);
+
+const Component = ({ state }) =&gt; (
+  &lt;div
+    css={css`
+      background-color: ${state.colors.dark};
+      visibility: ${state.div.isVisible ? "visible" : "hidden"};
+    `}
+  &gt;
+    &lt;InnerComponent
+      css={css`
+        color: blue;
+      `}
+    /&gt;
+  &lt;/div&gt;
+);
+</code></pre>
+<h3>4. As pointed by Luis, is the way to style things when using processors, as you can add styles to an element even if the element has been styled before.</h3>
+<pre><code class="lang-jsx">const blueAnchors = {
+  test: ({ component }) =&gt; component === "a",
+  process: node =&gt; {
+    node.props.css = css`
+      ${node.props.css}
+      color: blue;
+    `;
+  }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/theming/883/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/2</link>
+        <pubDate>Fri, 20 Dec 2019 08:09:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-2</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+      <item>
+        <title>Theming</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1><a href="https://www.notion.so/frontity/Frontity-Roadmap-e6fac9339a474031b2bc9fd90a075b69">Frontity Roadmap <img src="https://community.frontity.org/images/emoji/apple/biking_man.png?v=9" title=":biking_man:" class="emoji" alt=":biking_man:"></a></h1>
+<p><strong>— <a href="https://www.notion.so/frontity/Theming-6f1819a331b444d0906cb85769c97f34">Feature Card</a></strong></p>
+<h2>Description</h2>
+<p>When themes get complex, users don’t want to copy the same color, font, margin… over and over again. Those settings should live in a <strong>theme settings</strong> configuration and must be easily accessible on the styled components.</p>
+<ul>
+<li>These theme settings should be in the Frontity state.</li>
+<li>Styled components should have access to all the state, not only these theme settings.</li>
+<li>These styled components should subscribe to changes in the state, just like any other connected component.</li>
+</ul>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>theme developer</strong><br>
+I want to <strong>use some sort of theme settings</strong><br>
+so that <strong>I can reuse them in my styled components</strong></p>
+</blockquote>
+<h2>Examples</h2>
+<pre><code class="lang-xml">export default {
+  state: {
+    theme: {
+      color: "red"
+    }
+  }
+}
+
+const Container = styled.div`
+  color: ${({ state }) =&gt; state.theme.color};
+`;
+</code></pre>
+<p>Or any other state property:</p>
+<pre><code>const Container = styled.div`
+  color: ${({ state }) =&gt; state.router.link === "/" ? "red" : "green"};
+`;
+</code></pre>
+<h2>Possible solution</h2>
+<h3>Integrate <a href="https://emotion.sh/docs/theming">emotion-theming</a>.</h3>
+<p>The problem with this approach is that the prop is hardcoded to <code>theme</code>. If we want to give easy access to all the state, the syntax is weird:</p>
+<pre><code>const Container = styled.div`
+  color: ${({ theme }) =&gt; theme.state.router.link === "/" ? "red" : "green"};
+`;
+</code></pre>
+<p>Also, it is not reactive to changes in state, as far as I know.</p>
+<h3>Allow the use of <code>connect</code>
+</h3>
+<p>We could use the same approach than with any other component: <code>connect</code>:</p>
+<pre><code>let Container = styled.div`
+  color: ${({ state }) =&gt; state.router.link === "/" ? "red" : "green"};
+`;
+Container = connect(Container);
+</code></pre>
+<p>Right now it only works in the server. I’m not sure why. I guess it has something to do with styled components being <a href="https://reactjs.org/docs/forwarding-refs.html">forwarding refs</a>, which I guess maybe work as normal components in the server.</p>
+<h3>Automatically connect <code>styled</code>
+</h3>
+<p>The same than the previous one, but done automatically when we re-export <code>styled</code> in the <code>frontity</code> package.</p>
+<h2>Workarounds</h2>
+<p>There are two ways to connect a styled component that work fine today.</p>
+<h3>Using the <code>css</code> prop</h3>
+<pre><code>const Container = ({ state, children }) =&gt; (
+  &lt;div css={css`
+    color: ${state.router.link === "/" ? "red" : "green"};
+  `}&gt;
+    {children}
+  &lt;/div&gt;
+);
+
+export default connect(Container);
+</code></pre>
+<h3>Using a connected parent</h3>
+<pre><code>const Container = ({ state, children }) =&gt; (
+  &lt;StyledContainer link={state.router.link}&gt;{children}&lt;/StyledContainer&gt;
+);
+
+const StyledContainer = styled.div`
+  color: ${({ link }) =&gt; link === "/" ? "red" : "green"};
+`;
+
+export default connect(Container);
+</code></pre>
+<p>So another possibility is to leave everything as it is today and simply promote one of these two solutions.</p>
+          <p><a href="https://community.frontity.org/t/theming/883/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/theming/883/1</link>
+        <pubDate>Fri, 29 Nov 2019 13:17:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-883-1</guid>
+        <source url="https://community.frontity.org/t/theming/883.rss">Theming</source>
+      </item>
+  </channel>
+</rss>

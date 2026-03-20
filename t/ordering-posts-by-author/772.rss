@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Ordering posts by author</title>
+    <link>https://community.frontity.org/t/ordering-posts-by-author/772</link>
+    <description>I just started a project with the framework and I am not getting a couple of thing about calls.
+
+What is the correct way of creating a call to get the lastest post or make a search in the blog?
+
+Because if I define some params on state.route, every call is going to have those params, right? I only want the params in certain calls e.g. getting sticky posts or `/posts?orderBy=date`
+
+And using post calls? I haven&#39;t tried but I dont know where to start.
+
+I have read the docs a couple of times and find nothing, it may have escaped me, if you can tell me were is this explained or show me an example I would appreciate it</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 02 Jun 2022 07:53:40 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/ordering-posts-by-author/772.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Ordering posts by author</title>
+        <dc:creator><![CDATA[zakirsajib]]></dc:creator>
+        <description><![CDATA[
+            <p>Can I also get only sticky post instead of all posts?</p>
+          <p><a href="https://community.frontity.org/t/ordering-posts-by-author/772/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ordering-posts-by-author/772/7</link>
+        <pubDate>Thu, 02 Jun 2022 07:53:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-772-7</guid>
+        <source url="https://community.frontity.org/t/ordering-posts-by-author/772.rss">Ordering posts by author</source>
+      </item>
+      <item>
+        <title>Ordering posts by author</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/g.rabello">@g.rabello</a> <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+<p>It depends on the case. First of all, the method you are trying to use, <code>fetch</code>, works with page URLs, not with the API. What it does is calling a handler and the handler is the one calling the API and populating the state.</p>
+<p>For example, if you want to build a page with the last posts ordered by author as you say, the best way would be to create a specific handler for that.</p>
+<p>You should add something like this at the index.js of your theme:</p>
+<pre><code class="lang-javascript">// Create the handler
+const postsByAuthorHandler = {
+  priority: 10,
+  pattern: "/posts-by-author/",
+  func: async ({ route, state, libraries }) =&gt; {
+    const { api, populate } = libraries.source;
+    // 1. fetch the posts you want
+    const response = await api.get({
+      endpoint: "posts",
+      params: {
+        orderby: "author"
+      }
+    });
+
+    // 2. populate response
+    const items = await populate({ response, state });
+
+    // 3. add data to source
+    const currentPageData = state.source.data[route];
+
+    Object.assign(currentPageData, {
+      isArchive: true,
+      isPostByAuthor: true,
+      items
+    });
+  }
+};
+
+//Include the new handler in source
+const marsTheme = {
+  name: "@frontity/mars-theme",
+  roots: { ... },
+  state: { ... },
+  actions: { ... },
+  libraries: {
+    html2react: { ... },
+    source: {
+      handlers: [postsByAuthorHandler]
+    }
+  }
+};
+
+export default marsTheme;
+
+</code></pre>
+<p>Once this is done, if you do <code>actions.source.fetch("/posts-by-author/")</code> you’ll populate the state and you can get the data with <code>state.source.get("/posts-by-author/")</code>.</p>
+<p>By the way, if you create the handler this way, if you navigate to <code>https://mysite.com/posts-by-author/"</code> the fetch is done automatically and you can get the data. This is useful as you can check if <code>data.isPostsByAuthor</code> and load a different component if you want.</p>
+<p>I hope this info is useful, please let us know if this is what you needed. And if not, share any more questions and we’ll be glad to help.</p>
+          <p><a href="https://community.frontity.org/t/ordering-posts-by-author/772/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ordering-posts-by-author/772/6</link>
+        <pubDate>Thu, 31 Oct 2019 16:55:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-772-6</guid>
+        <source url="https://community.frontity.org/t/ordering-posts-by-author/772.rss">Ordering posts by author</source>
+      </item>
+      <item>
+        <title>Ordering posts by author</title>
+        <dc:creator><![CDATA[g.rabello]]></dc:creator>
+        <description><![CDATA[
+            <p>For example, I am trying to get the post order by the author. So I would use posts/?orderby=author but I don’t know how to get that data. If I try to use actions.source.fetch(’/posts/?orderby=author’) or actions.source.fetch(’?orderby=author’) I get data.is404.</p>
+<p>The url that returns the data needed<br>
+<a href="https://public-api.wordpress.com/wp/v2/sites/site.wordpress.com/posts/?orderby=author" class="onebox" target="_blank" rel="nofollow noopener">https://public-api.wordpress.com/wp/v2/sites/site.wordpress.com/posts/?orderby=author</a></p>
+          <p><a href="https://community.frontity.org/t/ordering-posts-by-author/772/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ordering-posts-by-author/772/5</link>
+        <pubDate>Tue, 29 Oct 2019 15:09:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-772-5</guid>
+        <source url="https://community.frontity.org/t/ordering-posts-by-author/772.rss">Ordering posts by author</source>
+      </item>
+      <item>
+        <title>Ordering posts by author</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You don’t need to do any calls, Frontity does that for you in the background when you visit a URL.</p>
+<p>The data that Frontity fetches matches the data of WordPress for that URL.</p>
+<p>The current URL is always accesible using <code>state.router.link</code>.</p>
+<p>And you can get the data of any URL using <code>state.source.get()</code>.</p>
+<p>If you combine both, you can get the URL of the current URL: <code>state.source.get(state.router.link)</code>.</p>
+<p>If you need to access the data of a another URL you can do so as well. That data is not fetched automatically, but you can fetch it manually with <code>actions.source.fetch</code>.</p>
+<p>For example, if you want to fetch the posts of a specific tag, you do <code>actions.source.fetch("/tag/my-tag")</code> and then access the data using <code>cont data = state.source.get("/tag/my-tag")</code>.</p>
+<p>Be aware of checking first for <code>data.isReady</code> before using that <code>data</code> object as the fetch can take a couple of seconds.</p>
+<p>Could you please describe in detail what are you trying to do?</p>
+<ul>
+<li>Which URLs do you need?</li>
+<li>What is the data you expect on those URLs?</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/ordering-posts-by-author/772/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ordering-posts-by-author/772/4</link>
+        <pubDate>Tue, 29 Oct 2019 14:31:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-772-4</guid>
+        <source url="https://community.frontity.org/t/ordering-posts-by-author/772.rss">Ordering posts by author</source>
+      </item>
+      <item>
+        <title>Ordering posts by author</title>
+        <dc:creator><![CDATA[g.rabello]]></dc:creator>
+        <description><![CDATA[
+            <p>I just started a project with the framework and I am not getting a couple of thing about calls.</p>
+<p>What is the correct way of creating a call to get the lastest post or make a search in the blog?</p>
+<p>Because if I define some params on state.route, every call is going to have those params, right? I only want the params in certain calls e.g. getting sticky posts or <code>/posts?orderBy=date</code></p>
+<p>And using post calls? I haven’t tried but I dont know where to start.</p>
+<p>I have read the docs a couple of times and find nothing, it may have escaped me, if you can tell me were is this explained or show me an example I would appreciate it</p>
+          <p><a href="https://community.frontity.org/t/ordering-posts-by-author/772/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ordering-posts-by-author/772/1</link>
+        <pubDate>Mon, 28 Oct 2019 17:27:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-772-1</guid>
+        <source url="https://community.frontity.org/t/ordering-posts-by-author/772.rss">Ordering posts by author</source>
+      </item>
+  </channel>
+</rss>

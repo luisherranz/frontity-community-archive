@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Run Webpack Configuration Per Site</title>
+    <link>https://community.frontity.org/t/run-webpack-configuration-per-site/4743</link>
+    <description># Description
+Right now we are running Webpack once for all sites.
+
+Since we added the possibility of adding custom Webpack/Babel configurations, this means that packages that add a configuration for one site, leak that configuration to the rest.
+
+It would be great to isolate those package configurations from each, and to do that we need to run Webpack once for each site.
+
+When I refer to &quot;run Webpack once&quot; it is not exactly once, because each site needs 3 runs:
+
+- The client &quot;module&quot; bundle.
+- The client &quot;es5&quot; bundle.
+- The server bundle.
+
+So right now we run it 3 times, each one for all sites. We need to run it 3 times per site.
+
+This switch is also beneficial for other use cases:
+
+- **PWA/Offline packages**
+  Right now these are not possible because the Webpack packages that create the service worker include all the assets of the Webpack run. Right now, that means that an offline plugin will download all the assets for _all the sites_, instead for just a single one. This is also solved with this change.
+
+- **Embedded mode assets download**
+
+  -- We need to have a way to easily download all the assets of a **single site** at once --
+
+  -- If we end up with a folder/manifest/zip that contains all the assets of a **single site** and it has a way to reference it, like a hash, we can embed that identifier/hash in the HTML response, and WordPress can download all the assets of that site the first time it receives an HTML file with that hash and then serve those assets from the WordPress file system. --
+
+- **Client-only and Server-only sites**
+
+  ```js
+  const settings = [
+    {
+      name: &quot;main-site&quot;,
+      bundles: [&quot;client&quot;, &quot;server&quot;]
+      // ...
+    },
+    {
+      name: &quot;amp-site&quot;,
+      bundles: [&quot;server&quot;]
+      // ...
+    }
+  ];
+  ```
+
+To get a better overview Luis and I had a meeting about it and recorded a video. https://www.youtube.com/watch?v=Qy9y6cSEdPE
+
+# Functionalities
+&lt;!-- Initial list of functionalities that would be nice to include in this feature! --&gt;
+- Isolate Webpack builds of one site from another to avoid leakage of Webpack/Babel configurations.
+
+# Requirements
+&lt;!-- Initial list of requirements and constraints that need to be met. --&gt;
+- End up with a single `server.js` file.
+
+- Accept the site name parameter when the `dev` CLI command is run.
+
+- Prompt for the site name if it&#39;s not defined when the `dev` CLI command is run.
+
+# Future functionalities
+
+- Accept the site name parameter when the `build` CLI command is run.
+
+# Dependencies
+&lt;!-- List of Feature Discussions that need to be finished before this one. --&gt;
+
+None.
+
+# Possible solution
+
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+
+## 1. Pass `--name` or prompt for the name in multisite projects
+
+- Get rid of `dev`, `build` and `serve` commands in the `frontity` package because those commands are in the `@frontity/core` package. (Optional, just in case there&#39;s nothing in the `frontity` command that requires to be separated from the CLI).
+
+### `npx frontity dev`
+
+- Throw in `dev` script (command) in `@frontity/core` if site is not specified and this is a multisite project, including the list of sites.
+- Capture error in `dev` CLI and prompt for a site.
+
+```js
+const err = new Error(&quot;siteName missing&quot;);
+err.siteNames = { ... }
+throw err;
+```
+
+- Then capture this error in the CLI and prompt for the name.
+
+### `npx frontity build`
+
+- Never prompts (so it doesn&#39;t throw).
+
+Future functionalities:
+
+- If it has a name as an argument, it only builds that site.
+
+## 2. Generate individual server entry points
+
+- There needs to be a single server entry point for each site.
+- The server entry points need to include only the packages of a single site.
+- We can use `site-name/server.ts`.
+
+## 3. Generating a Webpack/Babel/Frontity config for each site
+
+- In `build` we can iterate over the sites
+
+  ```js
+  await Promise.all(
+    sites.map(async (site) =&gt; {
+      // ...
+    })
+  );
+  ```
+
+- In `dev` we filter for the specific site
+
+  ```js
+  const sites = [await getAllSites()].filter((config) =&gt; config.name === site);
+  ```
+
+- We **must not** bundle the external dependencies of the server bundles in this step. They will be bundled in the final single `server.js` file.
+- We **must not** bundle the `frontity.settings` on the server bundles in this step. They will be bundled in the final single `server.js` file.
+
+## 4. Generate a top-level Koa server that routes between sites
+
+```js
+import { getSettings } from &quot;@frontity/file-settings&quot;;
+
+export default (req, res) =&gt; {
+  const app = new Koa();
+  app.use(async (ctx, next) =&gt; {
+    const servers = await import(`./build/${name}/server.js`);
+    // Get settings.
+    const settings = await getSettings({
+      url: ctx.href,
+      name: ctx.query.frontity_name
+    });
+    // Logic to route between sites.
+    const server = servers[settings.name];
+    // Run the server...
+  });
+  return app.callback();
+};
+```
+
+Webpack &quot;Dynamic expressions in `import()`&quot; docs: https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import
+
+## 5. Bundle server.js
+
+Finally, we generate the final `server.js` file, bundling the top-level Koa server with the individual server files, the external dependencies and the frontity settings.
+
+- The entry point of Webpack is the top-level Koa server.
+- In `dev`, we will do it as well to make sure that if something doesn&#39;t work in the gateway, the developer knows as soon as possible and is able to easily debug it.
+
+```js
+// npx frontity dev
+const siteServerConfigWebpack = config.webpack.server;
+const serverConfigWebpack; /* gateway server webpack config */
+
+await webpackAsync(clientWebpack);
+await webpackAsync(siteServerConfigWebpack);
+
+// Start a custom webpack-dev-server.
+const compiler = webpack([clientWebpack, serverConfigWebpack]);
+```
+
+```js
+// npx frontity build
+const gatewayServerWebpackConfig = {};
+
+// [...]
+
+await Promise.all(
+  sites.map(async (site) =&gt; {
+    console.log(&quot;Building server bundle&quot;);
+    await webpackAsync(site.webpack.server);
+  })
+);
+
+console.log(&quot;Building gateway server bundle&quot;);
+await webpackAsync(gatewayServerWebpackConfig);
+console.log();
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 09 Jul 2021 12:30:24 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/run-webpack-configuration-per-site/4743.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Run Webpack Configuration Per Site</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="cristianbote" data-post="2" data-topic="4743">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p>Should I remove the dev mode from e2e? I don’t see any possible solution so far, besides that.</p>
+</blockquote>
+</aside>
+<p>Me neither so you can go ahead and remove it. We have a couple of e2e tests that only run in development, but I don’t think that is a problem (<a href="https://github.com/frontity/frontity/blob/dev/e2e/integration/frontity-01/emotion.spec.js" class="inline-onebox">frontity/emotion.spec.js at dev · frontity/frontity · GitHub</a>), just ignore them <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/run-webpack-configuration-per-site/4743/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/run-webpack-configuration-per-site/4743/3</link>
+        <pubDate>Fri, 09 Jul 2021 12:30:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4743-3</guid>
+        <source url="https://community.frontity.org/t/run-webpack-configuration-per-site/4743.rss">Run Webpack Configuration Per Site</source>
+      </item>
+      <item>
+        <title>Run Webpack Configuration Per Site</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>While working on this, was trying to figure out the best way to run our e2e suites. <img src="https://community.frontity.org/images/emoji/apple/grimacing.png?v=9" title=":grimacing:" class="emoji" alt=":grimacing:"> since the assumption was that we start the server in dev mode with <em>all</em> the sites that is not possible anymore. Should I remove the dev mode from e2e? I don’t see any possible solution so far, besides that.</p>
+<p>Thoughts?</p>
+          <p><a href="https://community.frontity.org/t/run-webpack-configuration-per-site/4743/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/run-webpack-configuration-per-site/4743/2</link>
+        <pubDate>Wed, 07 Jul 2021 06:58:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4743-2</guid>
+        <source url="https://community.frontity.org/t/run-webpack-configuration-per-site/4743.rss">Run Webpack Configuration Per Site</source>
+      </item>
+      <item>
+        <title>Run Webpack Configuration Per Site</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <h1>
+<a name="description-1" class="anchor" href="https://community.frontity.org#description-1"></a>Description</h1>
+<p>Right now we are running Webpack once for all sites.</p>
+<p>Since we added the possibility of adding custom Webpack/Babel configurations, this means that packages that add a configuration for one site, leak that configuration to the rest.</p>
+<p>It would be great to isolate those package configurations from each, and to do that we need to run Webpack once for each site.</p>
+<p>When I refer to “run Webpack once” it is not exactly once, because each site needs 3 runs:</p>
+<ul>
+<li>The client “module” bundle.</li>
+<li>The client “es5” bundle.</li>
+<li>The server bundle.</li>
+</ul>
+<p>So right now we run it 3 times, each one for all sites. We need to run it 3 times per site.</p>
+<p>This switch is also beneficial for other use cases:</p>
+<ul>
+<li>
+<p><strong>PWA/Offline packages</strong><br>
+Right now these are not possible because the Webpack packages that create the service worker include all the assets of the Webpack run. Right now, that means that an offline plugin will download all the assets for <em>all the sites</em>, instead for just a single one. This is also solved with this change.</p>
+</li>
+<li>
+<p><strong>Embedded mode assets download</strong></p>
+<p>– We need to have a way to easily download all the assets of a <strong>single site</strong> at once –</p>
+<p>– If we end up with a folder/manifest/zip that contains all the assets of a <strong>single site</strong> and it has a way to reference it, like a hash, we can embed that identifier/hash in the HTML response, and WordPress can download all the assets of that site the first time it receives an HTML file with that hash and then serve those assets from the WordPress file system. –</p>
+</li>
+<li>
+<p><strong>Client-only and Server-only sites</strong></p>
+<pre><code class="lang-js">const settings = [
+  {
+    name: "main-site",
+    bundles: ["client", "server"]
+    // ...
+  },
+  {
+    name: "amp-site",
+    bundles: ["server"]
+    // ...
+  }
+];
+</code></pre>
+</li>
+</ul>
+<p>To get a better overview Luis and I had a meeting about it and recorded a video. <a href="https://www.youtube.com/watch?v=Qy9y6cSEdPE">https://www.youtube.com/watch?v=Qy9y6cSEdPE</a></p>
+<h1>
+<a name="functionalities-2" class="anchor" href="https://community.frontity.org#functionalities-2"></a>Functionalities</h1>
+
+<ul>
+<li>Isolate Webpack builds of one site from another to avoid leakage of Webpack/Babel configurations.</li>
+</ul>
+<h1>
+<a name="requirements-3" class="anchor" href="https://community.frontity.org#requirements-3"></a>Requirements</h1>
+
+<ul>
+<li>
+<p>End up with a single <code>server.js</code> file.</p>
+</li>
+<li>
+<p>Accept the site name parameter when the <code>dev</code> CLI command is run.</p>
+</li>
+<li>
+<p>Prompt for the site name if it’s not defined when the <code>dev</code> CLI command is run.</p>
+</li>
+</ul>
+<h1>
+<a name="future-functionalities-4" class="anchor" href="https://community.frontity.org#future-functionalities-4"></a>Future functionalities</h1>
+<ul>
+<li>Accept the site name parameter when the <code>build</code> CLI command is run.</li>
+</ul>
+<h1>
+<a name="dependencies-5" class="anchor" href="https://community.frontity.org#dependencies-5"></a>Dependencies</h1>
+
+<p>None.</p>
+<h1>
+<a name="possible-solution-6" class="anchor" href="https://community.frontity.org#possible-solution-6"></a>Possible solution</h1>
+
+<h2>
+<a name="1-pass-name-or-prompt-for-the-name-in-multisite-projects-7" class="anchor" href="https://community.frontity.org#1-pass-name-or-prompt-for-the-name-in-multisite-projects-7"></a>1. Pass <code>--name</code> or prompt for the name in multisite projects</h2>
+<ul>
+<li>Get rid of <code>dev</code>, <code>build</code> and <code>serve</code> commands in the <code>frontity</code> package because those commands are in the <code>@frontity/core</code> package. (Optional, just in case there’s nothing in the <code>frontity</code> command that requires to be separated from the CLI).</li>
+</ul>
+<h3>
+<a name="npx-frontity-dev-8" class="anchor" href="https://community.frontity.org#npx-frontity-dev-8"></a><code>npx frontity dev</code>
+</h3>
+<ul>
+<li>Throw in <code>dev</code> script (command) in <code>@frontity/core</code> if site is not specified and this is a multisite project, including the list of sites.</li>
+<li>Capture error in <code>dev</code> CLI and prompt for a site.</li>
+</ul>
+<pre><code class="lang-js">const err = new Error("siteName missing");
+err.siteNames = { ... }
+throw err;
+</code></pre>
+<ul>
+<li>Then capture this error in the CLI and prompt for the name.</li>
+</ul>
+<h3>
+<a name="npx-frontity-build-9" class="anchor" href="https://community.frontity.org#npx-frontity-build-9"></a><code>npx frontity build</code>
+</h3>
+<ul>
+<li>Never prompts (so it doesn’t throw).</li>
+</ul>
+<p>Future functionalities:</p>
+<ul>
+<li>If it has a name as an argument, it only builds that site.</li>
+</ul>
+<h2>
+<a name="2-generate-individual-server-entry-points-10" class="anchor" href="https://community.frontity.org#2-generate-individual-server-entry-points-10"></a>2. Generate individual server entry points</h2>
+<ul>
+<li>There needs to be a single server entry point for each site.</li>
+<li>The server entry points need to include only the packages of a single site.</li>
+<li>We can use <code>site-name/server.ts</code>.</li>
+</ul>
+<h2>
+<a name="3-generating-a-webpackbabelfrontity-config-for-each-site-11" class="anchor" href="https://community.frontity.org#3-generating-a-webpackbabelfrontity-config-for-each-site-11"></a>3. Generating a Webpack/Babel/Frontity config for each site</h2>
+<ul>
+<li>
+<p>In <code>build</code> we can iterate over the sites</p>
+<pre><code class="lang-js">await Promise.all(
+  sites.map(async (site) =&gt; {
+    // ...
+  })
+);
+</code></pre>
+</li>
+<li>
+<p>In <code>dev</code> we filter for the specific site</p>
+<pre><code class="lang-js">const sites = [await getAllSites()].filter((config) =&gt; config.name === site);
+</code></pre>
+</li>
+<li>
+<p>We <strong>must not</strong> bundle the external dependencies of the server bundles in this step. They will be bundled in the final single <code>server.js</code> file.</p>
+</li>
+<li>
+<p>We <strong>must not</strong> bundle the <code>frontity.settings</code> on the server bundles in this step. They will be bundled in the final single <code>server.js</code> file.</p>
+</li>
+</ul>
+<h2>
+<a name="4-generate-a-top-level-koa-server-that-routes-between-sites-12" class="anchor" href="https://community.frontity.org#4-generate-a-top-level-koa-server-that-routes-between-sites-12"></a>4. Generate a top-level Koa server that routes between sites</h2>
+<pre><code class="lang-js">import { getSettings } from "@frontity/file-settings";
+
+export default (req, res) =&gt; {
+  const app = new Koa();
+  app.use(async (ctx, next) =&gt; {
+    const servers = await import(`./build/${name}/server.js`);
+    // Get settings.
+    const settings = await getSettings({
+      url: ctx.href,
+      name: ctx.query.frontity_name
+    });
+    // Logic to route between sites.
+    const server = servers[settings.name];
+    // Run the server...
+  });
+  return app.callback();
+};
+</code></pre>
+<p>Webpack "Dynamic expressions in <code>import()</code>" docs: <a href="https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import" class="inline-onebox">Module Methods | webpack</a></p>
+<h2>
+<a name="5-bundle-serverjs-13" class="anchor" href="https://community.frontity.org#5-bundle-serverjs-13"></a>5. Bundle server.js</h2>
+<p>Finally, we generate the final <code>server.js</code> file, bundling the top-level Koa server with the individual server files, the external dependencies and the frontity settings.</p>
+<ul>
+<li>The entry point of Webpack is the top-level Koa server.</li>
+<li>In <code>dev</code>, we will do it as well to make sure that if something doesn’t work in the gateway, the developer knows as soon as possible and is able to easily debug it.</li>
+</ul>
+<pre><code class="lang-js">// npx frontity dev
+const siteServerConfigWebpack = config.webpack.server;
+const serverConfigWebpack; /* gateway server webpack config */
+
+await webpackAsync(clientWebpack);
+await webpackAsync(siteServerConfigWebpack);
+
+// Start a custom webpack-dev-server.
+const compiler = webpack([clientWebpack, serverConfigWebpack]);
+</code></pre>
+<pre><code class="lang-js">// npx frontity build
+const gatewayServerWebpackConfig = {};
+
+// [...]
+
+await Promise.all(
+  sites.map(async (site) =&gt; {
+    console.log("Building server bundle");
+    await webpackAsync(site.webpack.server);
+  })
+);
+
+console.log("Building gateway server bundle");
+await webpackAsync(gatewayServerWebpackConfig);
+console.log();
+</code></pre>
+          <p><a href="https://community.frontity.org/t/run-webpack-configuration-per-site/4743/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/run-webpack-configuration-per-site/4743/1</link>
+        <pubDate>Tue, 08 Jun 2021 08:48:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4743-1</guid>
+        <source url="https://community.frontity.org/t/run-webpack-configuration-per-site/4743.rss">Run Webpack Configuration Per Site</source>
+      </item>
+  </channel>
+</rss>

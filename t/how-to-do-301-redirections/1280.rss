@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to do 301 redirections</title>
+    <link>https://community.frontity.org/t/how-to-do-301-redirections/1280</link>
+    <description>Thank you @christianoliveira, this helps me a lot! Just one question: I think I need to support those redirects, even when my new frontend with frontity is in place, so I somehow have to handle them in frontity itself. Where can I define them? Do I need a separate handler for them with the specific /number regex rule (think this is the only possibility?) Thanks!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 24 Feb 2020 08:40:35 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-do-301-redirections/1280.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to do 301 redirections</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="cobra" data-post="7" data-topic="1280">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/c/df705f/40.png" class="avatar"> cobra:</div>
+<blockquote>
+<p>I know it would be very hacky, but would that mean I have to implement the redirects on an upper level where I create the frontity server?</p>
+</blockquote>
+</aside>
+<p>Not hacky at all, I think it’s a great idea <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>You actually wrap the Frontity server in an Express or Koa app if you want. The <code>server.js</code> file exports a simple “req/res” function.</p>
+          <p><a href="https://community.frontity.org/t/how-to-do-301-redirections/1280/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-do-301-redirections/1280/8</link>
+        <pubDate>Wed, 12 Feb 2020 12:17:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1280-8</guid>
+        <source url="https://community.frontity.org/t/how-to-do-301-redirections/1280.rss">How to do 301 redirections</source>
+      </item>
+      <item>
+        <title>How to do 301 redirections</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>I think I’ll host with now.sh, but would like to be flexible with that as I currently have my own server. Do you have an idea how I could achieve the redirects in that case? I know it would be very hacky, but would that mean I have to implement the redirects on an upper level where I create the frontity server?</p>
+<p>I’m not a JS nor regex expert, but could that be a solution unless redirects in frontity are possible?</p>
+<pre><code>var frontity = require("./build/server").default;
+var http = require("http");
+
+var server = http.createServer((req, res) =&gt; {
+    //regex to match urls like (2020/02/02/my-article/2)
+    const regex = /(.*\d+\/\d+\/\d+\/[a-z0-9]+(?:-[a-z0-9]+)*\/)(.*(\d+))$/;
+    //hacky way to have 301 redirect.. (currently only for dev experiments ;))
+    const match = req.url.match(regex);
+    if (match) {
+        res.writeHead(301, { Location: req.url.replace(regex, '$1') });
+    }
+});
+server.on('request', frontity);</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-do-301-redirections/1280/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-do-301-redirections/1280/7</link>
+        <pubDate>Mon, 10 Feb 2020 18:57:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1280-7</guid>
+        <source url="https://community.frontity.org/t/how-to-do-301-redirections/1280.rss">How to do 301 redirections</source>
+      </item>
+      <item>
+        <title>How to do 301 redirections</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/cobra">@cobra</a> we haven’t finished the server extensibility yet but it’s high on our roadmap. Until that’s finished, you’d have to use redirections from your hosting like <a class="mention" href="https://community.frontity.org/u/christian.nascimento">@christian.nascimento</a> said. Which hosting are you using?</p>
+          <p><a href="https://community.frontity.org/t/how-to-do-301-redirections/1280/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-do-301-redirections/1280/5</link>
+        <pubDate>Mon, 10 Feb 2020 17:01:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1280-5</guid>
+        <source url="https://community.frontity.org/t/how-to-do-301-redirections/1280.rss">How to do 301 redirections</source>
+      </item>
+      <item>
+        <title>How to do 301 redirections</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, <a class="mention" href="https://community.frontity.org/u/cobra">@cobra</a>! <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+<p>So if you are deploying your site in now.sh you can use routes rules in your now.json file. Some like:</p>
+<pre><code> {
+  "version": 2,
+  },
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@frontity/now"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/your-old-page",
+      "status": 308,
+      "headers": { "Location": "/your-new-page/" }
+    }
+  ]
+}
+</code></pre>
+<p>Hope it will help you! <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-do-301-redirections/1280/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-do-301-redirections/1280/4</link>
+        <pubDate>Mon, 10 Feb 2020 13:22:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1280-4</guid>
+        <source url="https://community.frontity.org/t/how-to-do-301-redirections/1280.rss">How to do 301 redirections</source>
+      </item>
+      <item>
+        <title>How to do 301 redirections</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you <a class="mention" href="https://community.frontity.org/u/christianoliveira">@christianoliveira</a>, this helps me a lot! Just one question: I think I need to support those redirects, even when my new frontend with frontity is in place, so I somehow have to handle them in frontity itself. Where can I define them? Do I need a separate handler for them with the specific /number regex rule (think this is the only possibility?) Thanks!</p>
+          <p><a href="https://community.frontity.org/t/how-to-do-301-redirections/1280/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-do-301-redirections/1280/1</link>
+        <pubDate>Sat, 08 Feb 2020 10:55:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1280-1</guid>
+        <source url="https://community.frontity.org/t/how-to-do-301-redirections/1280.rss">How to do 301 redirections</source>
+      </item>
+  </channel>
+</rss>

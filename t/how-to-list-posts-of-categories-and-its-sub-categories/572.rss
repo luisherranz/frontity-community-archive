@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to list posts of categories and its sub categories?</title>
+    <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572</link>
+    <description>I&#39;m trying to find a way to include a list of posts of a category and its sub categories in my app. For example, this is the default behavior if you call `/category/&lt;parent_category&gt;` in a wp blog.
+
+Using Frontity, I get a 404 not found if there are no posts in a specific category, even if it contains sub categories with posts (Frontity calls `wp-json/wp/v2/categories?slug=...` and then `wp-json/wp/v2/posts?categories=&lt;cat_id&gt;` where cat_id is the id of my parent category; the endpoint only returns the specific category&#39;s posts).
+
+Is there a way to include those posts?
+Thank you!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 26 May 2021 14:02:52 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>I tried this yesterday but couldn’t get it running. For me, <a href="https://wordpress.stackexchange.com/questions/353317/how-to-get-all-posts-from-parent-and-children-categories" class="inline-onebox" rel="noopener nofollow ugc">rest api - How to get all posts from parent and children categories? - WordPress Development Stack Exchange</a> was working adapting functions.php for my theme:</p>
+<pre><code class="lang-javascript">// Add parent_category filter to REST API
+function rest_filter_by_parent_category($args, $request) 
+{
+  if (isset($request['parent_category'])) {
+    $parent_category = sanitize_text_field($request['parent_category']);
+    $args['tax_query'] = [
+      [
+        'taxonomy'         =&gt; 'category', 
+        'field'            =&gt; 'term_id', 
+        'include_children' =&gt; true,
+        'operator'         =&gt; 'IN',
+        'terms'            =&gt; $parent_category, 
+      ]
+    ];
+  }
+  return $args;
+}
+
+add_filter('rest_post_query', 'rest_filter_by_parent_category', 10, 3);
+</code></pre>
+<p>I took the code above and adapted it to use the category (not parent_category) parameter. I might misunderstood the include_children parameter (tried several solutions with adding the parameter but in the end I got it working with the rest “filter”). In any case I think this is more efficient than having multiple rest calls for this.</p>
+<p>However, how I see <a class="mention" href="https://community.frontity.org/u/12732801">@12732801</a> your issue, you try to access the child category directly? What’s happening if you call the url directly for your blog?</p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/9</link>
+        <pubDate>Wed, 26 May 2021 14:02:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-9</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Did you try using the <code>include_children</code> param? If it didn’t work, could you please explain why?</p>
+<p>By the way, in my opinion this has to do more with way the REST API works than with Frontity. It would be better solved in the API once than in the each framework (Gatsby, Next, Frontity…) multiple times.</p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/8</link>
+        <pubDate>Wed, 26 May 2021 08:51:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-8</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[12732801]]></dc:creator>
+        <description><![CDATA[
+            <p>I meet  similar  problem.  when  I  visit   ‘htttp://domain/category/top-category-name’,  it is ok. But   when   I  visit   ‘htttp://domain/category/child-category-name’, it  return 404.    There are posts  in  both  category .<br>
+I  feel Frontity   is  too yong ,  It  need  a long way to  run.<br>
+I  feel   a little frustrated when  I  deep in  Frontity,  I  even  consider to      turn off to   gastby  now。</p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/7</link>
+        <pubDate>Wed, 19 May 2021 01:55:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-7</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Just so you know, WordPress 5.7 is going to include a new <code>include_children</code> option to retrieve the items of the children categories in the same request.</p>
+<p>Trac ticket: <a href="https://core.trac.wordpress.org/ticket/39494" class="inline-onebox">#39494 (Make it possible for taxonomy query to include children in REST API) – WordPress Trac</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/6</link>
+        <pubDate>Wed, 03 Mar 2021 09:10:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-6</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s cool! Thanks for the code - I’ll try it out!<br>
+Jep sure, didn’t know about WP Rest cache plugin, sound’s promising <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/5</link>
+        <pubDate>Tue, 10 Sep 2019 16:53:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-5</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="3" data-topic="572">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/c/df705f/40.png" class="avatar"> cobra:</div>
+<blockquote>
+<p>Seems that I have to fetch <em>categories?parent=&lt;parent_cat&gt;</em> and then fetch per category.</p>
+</blockquote>
+</aside>
+<p>Yeah, I think so.</p>
+<p>You can fetch posts from multiple categories at once using comma separated ids: <code>?categories=1,2,3</code>.</p>
+<p>It’d be something like this:</p>
+<pre><code class="lang-javascript">const myCategoriesHandler = {
+  pattern: "/category/(.*)?/:slug",
+  func: async ({ route, params, state, libraries }) =&gt; {
+    // Get the page of the current route.
+    const { page } = libraries.source.parse(route);
+
+    // Get the id of the parent category.
+    const parentCatResponse = await libraries.source.api.get({
+      endpoint: "categories",
+      params: { slug: params.slug }
+    });
+    const [parentCat] = await libraries.source.populate({
+      state,
+      response: parentCatResponse
+    });
+
+    // Get the ids of all the child categories.
+    const childCatsResponse = await libraries.source.api.get({
+      endpoint: "categories",
+      params: { parent: parentCat.id }
+    });
+    const childCats = await libraries.source.populate({
+      state,
+      response: childCatsResponse
+    });
+    const ids = childCats.map(cat =&gt; cat.id);
+    ids.push(parentCat.id);
+
+    // Get the posts from those categories.
+    const postsResponse = await libraries.source.api.get({
+      endpoint: "posts",
+      params: { categories: ids.join(","), page, _embed: true }
+    });
+    const items = await libraries.source.populate({
+      state,
+      response: postsResponse
+    });
+    const total = libraries.source.getTotal(postsResponse);
+    const totalPages = libraries.source.getTotalPages(postsResponse);
+
+    // Populate state.source.data with the proper info about this URL.
+    Object.assign(state.source.data[route], {
+      id: parentCat.id,
+      taxonomy: "category",
+      items,
+      total,
+      totalPages,
+      isArchive: true,
+      isTaxonomy: true,
+      isCategory: true
+    });
+  }
+};
+</code></pre>
+<p>Take into account that you need to do 3 serial requests in order to get this info so you better cache your REST API with a CDN or at <a href="https://wordpress.org/plugins/wp-rest-cache/" rel="nofollow noopener">least a plugin</a> <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/4</link>
+        <pubDate>Tue, 10 Sep 2019 15:17:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-4</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>It would be possible, but I’m honestly more interested in a solution where I can implement the workflow:</p>
+<ol>
+<li>Get id of parent category</li>
+<li>Get sub categories</li>
+<li>Fetch posts</li>
+</ol>
+<p>… so that I don’t have to assign them to the parent category. Would I have to adapt wp-source and the handlers in that case?<br>
+Seems that I have to fetch <em>categories?parent=&lt;parent_cat&gt;</em> and then fetch per category.</p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/3</link>
+        <pubDate>Tue, 10 Sep 2019 08:20:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-3</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s not a Frontity problem, but the default behaviour of the REST API.</p>
+<p>The easiest way to solve it is to add the parent category to all the posts of the child categories. Is that possible in your case?</p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/2</link>
+        <pubDate>Tue, 10 Sep 2019 07:47:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-2</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+      <item>
+        <title>How to list posts of categories and its sub categories?</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m trying to find a way to include a list of posts of a category and its sub categories in my app. For example, this is the default behavior if you call <code>/category/&lt;parent_category&gt;</code> in a wp blog.</p>
+<p>Using Frontity, I get a 404 not found if there are no posts in a specific category, even if it contains sub categories with posts (Frontity calls <code>wp-json/wp/v2/categories?slug=...</code> and then <code>wp-json/wp/v2/posts?categories=&lt;cat_id&gt;</code> where cat_id is the id of my parent category; the endpoint only returns the specific category’s posts).</p>
+<p>Is there a way to include those posts?<br>
+Thank you!</p>
+          <p><a href="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572/1</link>
+        <pubDate>Mon, 09 Sep 2019 22:27:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-572-1</guid>
+        <source url="https://community.frontity.org/t/how-to-list-posts-of-categories-and-its-sub-categories/572.rss">How to list posts of categories and its sub categories?</source>
+      </item>
+  </channel>
+</rss>

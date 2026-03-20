@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Embedded mode</title>
+    <link>https://community.frontity.org/t/embedded-mode/1432</link>
+    <description>
+
+## Description
+Right now, in order to use Frontity, users just can install it with the [Direct to Frontity installation](https://docs.frontity.org/architecture), where they need to have two different domains, for WordPress and Frontity.
+
+We could create a &quot;Theme Bridge&quot; plugin that overrides the PHP Theme and does instead an HTTP call to the Frontity server to retrieve the HTML and outputs that.
+
+![Screen Shot 2019-05-09 at 15.39.28|646x449](upload://ndajxfeBVVNcmjUT0zY23sercRB.png) 
+With this solution, you won&#39;t need a new domain for your WordPress site, although you will still need a PHP Server for WordPress and a Node Server for Frontity.
+
+Users should keep in mind that there is more routing involved (it goes to WordPress, then Frontity, then WordPress outputs the HTML), so they **must** use a cache plugin or it will be very slow. Good news is that with these approach the cache can be done with WordPress plugins, which know when to invalidate it intelligently.
+
+## User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **manage everything under the same domain**
+&gt; so that **my decoupled WordPress is easier to configure**.
+
+## Possible solution
+
+As mentioned before, we could create a WordPress plugin to override the PHP Theme Bridge and do an HTTP call to the Frontity serve. @luisherranz has been working on a proof of concept and it looks great so far:
+
+https://github.com/luisherranz/theme-bridge-poc/
+There are some things to consider here, in order to fully understand it:
+
+### Deploying `server.js` and `/static` assets
+
+Frontity users need to deploy two different things:
+1. The server, contained a the single `server.js` file. This generates the HTML.
+2. The static assets, contained in the `/static` folder. These are the client assets like JavaScript files, fonts and so on.
+
+They can approach it in two different ways:
+* Using a Node server for both. 
+* Using a serverless for the `server.js` and a static server for the `/server` assets.
+
+In the first case, if they are using a Node server, there is no problem with the `/static` assets, as they are managed in the file system.
+
+Some serverless hostings like Zeit Now also take care of the `/static` assets without extra configuration. Others like Amazon AWS or Google Cloud, have much cheaper serverless services (AWS Lambdas and Google Functions) but they require the configuration of a different service for the `/static` assets (Google Storage or Amazon S3). This means that, in this case, Frontity users can&#39;t use the same url for both the `server.js` and `/static`.
+
+There are different options to solve this:
+
+1. Add two different options for server URL and static URL, so users can differentiate if needed. The only problem with this approach is that services like Nginx redirect the static files (like JavaScript, fonts, images...) to the file system of WordPress and users have to change their default Nginx configuration to prevent this behaviour. The default Apache configuration doesn&#39;t seem to have this problem.
+
+2. Embedding static assets inside serverless function. @luisherranz also worked on a [proof of concept](https://github.com/luisherranz/embed-files-in-node-server) to embed all the static assets in the `server.js`, so users don&#39;t need a `static` url. The problem with this approach is that users have to be really careful with the size of the `/static` folder, knowing that most of the assets should be inside WordPress, not here. You can find more info at its [Feature Discussion](https://community.frontity.org/t/embed-static-files-on-the-server/1323). It has the same Nginx problem than solution 1.
+
+3. Change the Public Path to point to the static server, bypassing the Theme Bridge. We can set the public path on the fly so we could save it in the Theme Bridge config in WordPress. This way, Nginx would work, but it will need its own cache for these files, and WordPress plugins wouldn&#39;t be useful in this case.
+
+### Cache
+
+Users should use a cache system. We should provide, or at least recommend, a good way to deal with the cache of both the HTML output of WordPress and the REST API. We could create a new plugin to do so, include it directly in the Theme Bridge and make it optional, or just recommend another solution.
+
+@luisherranz has forked the [Simple Cache plugin](https://wordpress.org/plugins/simple-cache/) to adapt it for serving static assets apart from HTML files, load times are minimal.
+
+https://github.com/luisherranz/simple-cache
+
+### Handle 404s
+
+One of the benefits of this approach, is that sitemaps generated from WordPress would work as the domain is always the same one. However, we have to decide how to handle the 404s.
+
+It could happen that one page is a 404 in WordPress (because it hasn&#39;t been created there) but not in the frontend (because it&#39;s created directly from Frontity). For example if we create a &quot;hardcoded&quot; page or if we are fetching data from a different API. It&#39;s great to have this flexibility, but ,in this case, that page created directly from Frontity wouldn&#39;t be included in a sitemap generated from WordPress.
+
+Users should have the same content in WordPress and in Frontity, but we should allow the other approach as well. To solve this, users can also create empty pages for the ones they are hardcoding or getting from a different API, and they would be included in the sitemaps. This is something WooCommerce is doing and it could work.
+
+From the Theme Bridge perspective, our first idea is to add a setting where users can select between two options:
+
+* All the content not included in WordPress must return a 404 in Frontity (default).
+* 404s are handled by Frontity and it doesn&#39;t require to exist in Wordpress.
+
+We could add a warning while changing the settings advising the users to create empty pages instead of handling the errors from Frontity.
+
+## Possible settings
+- **Server URL / Static URL**: As explained before, sometimes users may need to differentiate between the server URL and the `/static` assets. This setting would be the one connecting Frontity with WordPress.
+- **Cache**: Maybe this should be handled by another plugin, but if we integrate this in the Theme Bridge, we&#39;d need to add a setting to activate/deactivate it.
+- **Change publicPath in WordPress**: As explained before, one of the options to solve the problem with the `/static/ assets could be to point the publidPath to a static server, although users would need another cache system apart from WordPress. It could be done in Frontity build if users prefer.
+- **Bypass Theme Bridge**: Sometimes users will want to bypass the plugin, so we should provide that option.
+- **Embed statics in `server.js`**: This wouldn&#39;t be a setting of the plugin because it would be handled from Frontity, but it&#39;s worth to mention it.
+- **Exclude URLs**: We could add this option to fallback to the PHP Theme. We were using it in the old Frontity PRO and it proved to be really useful for landing pages using plugins like Contact Form 7. Sometimes, users could find easier to use the PHP Theme, or even exclude some URLs until they fully migrate them to Frontity.
+- **404**: As explained before, it could be useful to let the users if they want Frontity to bypass WordPress 404s.
+- **Choose which Frontity site you want to use**: This could be useful for multisite configurations. The Theme Bridge would simple add that `?name=XXX` query to the request.
+
+Apart from this, we may need to add support to configure all the settings with ENV variables.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 17 Dec 2020 13:10:22 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/embedded-mode/1432.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="juanma" data-post="31" data-topic="1432">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> can you summarize the current status of this FD?</p>
+</blockquote>
+</aside>
+<p>As you mention right now we have this proof of concept that we are testing and it is running in <a href="http://frontity.org">frontity.org</a> for example. It has been great so far but we have to keep in mind that it doesn’t have an interface or even tests, so it’s not a beta yet. Moreover, we would like to improve some aspects so it is more reliable and easier to use.</p>
+<p>Finally, the first stable version of the Embedded mode will be included in the <a href="https://community.frontity.org/t/frontity-php-plugin/3619">Frontity PHP plugin</a>, where you could select which mode you want to use and it will include some functionalities like the <a href="https://community.frontity.org/t/wordpress-preview-support/2419/5">preview</a>.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="31" data-topic="1432">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>So, what is the prioritization of next big features (AMP, Source v2, Embedded Mode,…) ? What is the planned order to do them? Does this FD need some other FD to be done before event start researching it? Which ones?</p>
+</blockquote>
+</aside>
+<p>It is hard to define and order these features. They are included in the mid term roadmap so we will be working on them during next year, but I’m afraid I cannot define an order right now, because it will likely change. The <a href="https://community.frontity.org/t/amp-package/388/10">AMP package</a> is one of our top priorities right now, and our initial idea is to work also on the <a href="https://community.frontity.org/t/server-extensibility/2810/13">Server Extensibility</a> and the <a href="https://community.frontity.org/t/frontity-hooks/2811">Frontity hooks</a>.</p>
+<p>We are working on a roadmap public page where we will explain everything related to this, to give more visibility. I think it will be published during next week probably.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/33">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/33</link>
+        <pubDate>Thu, 17 Dec 2020 13:10:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-33</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>I’d like to have more clear the current status of this Feature Discussion.</p>
+<p>As far as I know:</p>
+<ul>
+<li>There’s a POC being used successfully with some partners</li>
+<li>There’s been some developments related to this mode (Preview for example)</li>
+</ul>
+<p>Also, I guess this Embedded Mode FD is very related with some of the current OKR’s.</p>
+<p>So, what is the prioritization of next big features (AMP, Source v2, Embedded Mode,…) ? What is the planned order to do them? Does this FD need some other FD to be done before event start researching it? Which ones?</p>
+<p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> can you summarize the current status of this FD?</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/31">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/31</link>
+        <pubDate>Thu, 22 Oct 2020 08:00:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-31</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>In order to clarify a bit more what this Embedded Mode is, here you have some diagrams diagrams that show how this Embedded Mode works (compared to the current “Decoupled Mode”)</p>
+<h3>The current “Decoupled Mode”</h3>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/6/6226596214f332583726c65396bb33616caae8b1.png" data-download-href="https://community.frontity.org/uploads/default/6226596214f332583726c65396bb33616caae8b1" title="Fly-Fest 2020 - Headless WordPress (2)"><img src="https://community.frontity.org/uploads/default/optimized/2X/6/6226596214f332583726c65396bb33616caae8b1_2_690x388.png" alt="Fly-Fest 2020 - Headless WordPress (2)" data-base62-sha1="e0gXcc18VN3yY6XS566mM9g67IZ" width="690" height="388" srcset="https://community.frontity.org/uploads/default/optimized/2X/6/6226596214f332583726c65396bb33616caae8b1_2_690x388.png, https://community.frontity.org/uploads/default/original/2X/6/6226596214f332583726c65396bb33616caae8b1.png 1.5x, https://community.frontity.org/uploads/default/original/2X/6/6226596214f332583726c65396bb33616caae8b1.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/6/6226596214f332583726c65396bb33616caae8b1_2_10x10.png"></a></div><p></p>
+<h3>This “Embedded Mode”</h3>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/e/e46a3bb3acb3eafb196f6c4f2b87b2b78017e80a.png" data-download-href="https://community.frontity.org/uploads/default/e46a3bb3acb3eafb196f6c4f2b87b2b78017e80a" title="Fly-Fest 2020 - Headless WordPress (1)"><img src="https://community.frontity.org/uploads/default/optimized/2X/e/e46a3bb3acb3eafb196f6c4f2b87b2b78017e80a_2_690x388.png" alt="Fly-Fest 2020 - Headless WordPress (1)" data-base62-sha1="wAEsWDdohI0DjJBHz66EPiAMqi6" width="690" height="388" srcset="https://community.frontity.org/uploads/default/optimized/2X/e/e46a3bb3acb3eafb196f6c4f2b87b2b78017e80a_2_690x388.png, https://community.frontity.org/uploads/default/original/2X/e/e46a3bb3acb3eafb196f6c4f2b87b2b78017e80a.png 1.5x, https://community.frontity.org/uploads/default/original/2X/e/e46a3bb3acb3eafb196f6c4f2b87b2b78017e80a.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/e/e46a3bb3acb3eafb196f6c4f2b87b2b78017e80a_2_10x10.png"></a></div><p></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/8/85b78e8a1d29130b550a1d7a42598b039a1c44a7.png" data-download-href="https://community.frontity.org/uploads/default/85b78e8a1d29130b550a1d7a42598b039a1c44a7" title="Fly-Fest 2020 - Headless WordPress"><img src="https://community.frontity.org/uploads/default/optimized/2X/8/85b78e8a1d29130b550a1d7a42598b039a1c44a7_2_690x388.png" alt="Fly-Fest 2020 - Headless WordPress" data-base62-sha1="j4ULSiiEaLBErwjn1JbK6gEwLNd" width="690" height="388" srcset="https://community.frontity.org/uploads/default/optimized/2X/8/85b78e8a1d29130b550a1d7a42598b039a1c44a7_2_690x388.png, https://community.frontity.org/uploads/default/original/2X/8/85b78e8a1d29130b550a1d7a42598b039a1c44a7.png 1.5x, https://community.frontity.org/uploads/default/original/2X/8/85b78e8a1d29130b550a1d7a42598b039a1c44a7.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/8/85b78e8a1d29130b550a1d7a42598b039a1c44a7_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/30">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/30</link>
+        <pubDate>Tue, 13 Oct 2020 15:34:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-30</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We have added support for the post preview <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"></p>
+<p>You also need to update Frontity and its packages to the latest version: <a href="https://docs.frontity.org/guides/keep-frontity-updated">https://docs.frontity.org/guides/keep-frontity-updated</a></p>
+<p>If you have problems or want to give feedback, please do so in the FD of the preview: <a href="https://community.frontity.org/t/wordpress-preview-support/2419" class="inline-onebox">WordPress preview support</a></p>
+<p>Thanks!! <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/27">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/27</link>
+        <pubDate>Wed, 30 Sep 2020 13:51:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-27</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I have moved the proof of conecpt repository to the Frontity organization in GitHub and I have:</p>
+<ul>
+<li>Renamed it to Frontity Embedded.</li>
+<li>Added a proper Readme for people that want to test it out.</li>
+<li>Added support for environment variables.</li>
+<li>Added a bypass for previews, that fall back to the PHP theme.</li>
+</ul>
+<p>The new URL is:</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/frontity/frontity-embedded-proof-of-concept" target="_blank">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/c26e6efbc55697d43b123baf71e267f651feff7c.png" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/frontity/frontity-embedded-proof-of-concept" target="_blank">frontity/frontity-embedded-proof-of-concept</a></h3>
+
+<p>PoC of the Embedded mode for Frontity sites. Contribute to frontity/frontity-embedded-proof-of-concept development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/26">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/26</link>
+        <pubDate>Thu, 04 Jun 2020 11:18:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-26</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/pablo">@pablo</a>. I guess that nobody has additional complains, so I’m going to use these terms in the WCEU talk.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/19</link>
+        <pubDate>Sat, 16 May 2020 11:07:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-19</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>I agree with you <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>, this is still a bit confusing. I think that your proposal would help to clarify this.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/18</link>
+        <pubDate>Mon, 11 May 2020 19:52:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-18</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m going to back off a little because it looks like this is causing some confusion when people still think about it as decoupled. I think we should choose a name that helps with that confusion.</p>
+<p>My proposal is to use the terms:</p>
+<ul>
+<li>Decoupled mode.</li>
+<li>Embedded mode.</li>
+</ul>
+<p>And tell that “Frontity supports two modes, decoupled and embedded”.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/17</link>
+        <pubDate>Mon, 11 May 2020 18:50:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-17</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Good one! <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> I’ve added it to the opening post so we keep track there  of all the possible settings.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/16</link>
+        <pubDate>Tue, 14 Apr 2020 07:26:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-16</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I would like to add another setting which can be useful for multisite configurations.</p>
+<ul>
+<li>Choose which Frontity site you want to use.</li>
+</ul>
+<p>For this to work, the Theme Bridge should simply add that <code>?name=XXX</code> query to the request.</p>
+<p>I have added <a href="https://community.frontity.org/t/rename-name-query-to-frontity-name/1529"> another FD to rename <code>?name=</code> to <code>?frontity_name=</code> </a>.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/15</link>
+        <pubDate>Mon, 13 Apr 2020 10:07:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-15</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>A post was split to a new topic: <a href="https://community.frontity.org/t/frontity-on-wp-engine/1499">Frontity on WP Engine</a></p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/14</link>
+        <pubDate>Tue, 07 Apr 2020 08:56:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-14</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="11" data-topic="1432" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>After some more investigation, we think it would be also a great idea to add support to configure all the settings with ENV variables.</p>
+</blockquote>
+</aside>
+<p>This will work similarly to what we did for the CLI: <a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/19" class="inline-onebox">Expose Frontity commands to be used programmatically</a></p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/13</link>
+        <pubDate>Wed, 01 Apr 2020 10:40:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-13</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="luisherranz" data-post="9" data-topic="1432">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>What if the theme bridge would be just an option of the main Frontity plugin?</p>
+</blockquote>
+</aside>
+<p>Regarding this, it could be a great idea, I’ll give it a thought, thanks for the suggestion Luis! I feel it could improve the user experience of linking your WordPress and Frontity and I guess that, as it’s happening with the preview, sometimes it will be better to have this in the same plugin.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/12</link>
+        <pubDate>Wed, 01 Apr 2020 07:19:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-12</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>After some more investigation, we think it would be also a great idea to add support to configure all the settings with ENV variables.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/11</link>
+        <pubDate>Wed, 01 Apr 2020 07:11:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-11</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> and I have been taking a look at the different options to serve the static assets and we made a diagram.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/bba0d1c1d0ced5ba7a84bb69932bc71a5b4254ac.png" data-download-href="https://community.frontity.org/uploads/default/bba0d1c1d0ced5ba7a84bb69932bc71a5b4254ac" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/bba0d1c1d0ced5ba7a84bb69932bc71a5b4254ac_2_690x205.png" alt="image" data-base62-sha1="qLPQ8jdYxvUFxiRgp4v5wm7C2vy" width="690" height="205" srcset="https://community.frontity.org/uploads/default/optimized/1X/bba0d1c1d0ced5ba7a84bb69932bc71a5b4254ac_2_690x205.png, https://community.frontity.org/uploads/default/optimized/1X/bba0d1c1d0ced5ba7a84bb69932bc71a5b4254ac_2_1035x307.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/bba0d1c1d0ced5ba7a84bb69932bc71a5b4254ac_2_1380x410.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/bba0d1c1d0ced5ba7a84bb69932bc71a5b4254ac_2_10x10.png"></a></div><p></p>
+<p>External domain and Nginx/Apache file reads will be possible when we implement the <code>publicPath</code> option.</p>
+<hr>
+<p>EDIT: I have remade the diagram: <a href="https://excalidraw.com/#json=5094249578102784,nCtvPMn8e--i6pbAOxUUGg">https://excalidraw.com/#json=5094249578102784,nCtvPMn8e--i6pbAOxUUGg</a></p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/10</link>
+        <pubDate>Tue, 31 Mar 2020 16:22:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-10</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>What if the theme bridge would be just an option of the main Frontity plugin?</p>
+<p>Imagine a configuration screen that starts with these two questions:</p>
+<h3>How do you want to use Frontity?</h3>
+<ol>
+<li>With an external domain.</li>
+<li>Substitute the PHP theme.</li>
+</ol>
+<p>Then, more options appear when they choose one option or the other.</p>
+<h3>1. With an external domain</h3>
+<ul>
+<li>Enter the URL of external domain: XXX</li>
+<li>What do you want to do with the WordPress front-end?
+<ul>
+<li>Show 404s.</li>
+<li>Redirect to the external domain.<br>
+…</li>
+</ul>
+</li>
+</ul>
+<h3>2. Substitute the PHP theme</h3>
+<ul>
+<li>Enter the URL of the server: XXX</li>
+<li>Enter the URL of the statics: XXX</li>
+<li>Do you want Frontity to bypass WordPress 404s? (danger: your sitemap won’t match)<br>
+…</li>
+</ul>
+<p>I’m telling this because to make the preview work in the external domain mode we also need to know the URL of the external domain.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/9</link>
+        <pubDate>Tue, 31 Mar 2020 10:57:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-9</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>About settings, I agree with you <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a>.</p>
+<p>This is my opinion of what should go in the MVP:</p>
+<ul>
+<li>I think having separate server/static URLs is a must.</li>
+<li>We also need a query to bypass the Theme Bridge and see the original theme. We can use that for previews as well.</li>
+<li>We let Frontity manage the 404’s.</li>
+<li>We recommend using our fork of Simple Cache for caching.</li>
+</ul>
+<p>Later on:</p>
+<ul>
+<li>We add the possibility to change the <code>publicPath</code> in Frontity.</li>
+<li>We add the possibility to populate that <code>publicPath</code> directly from the Theme Bridge settings.</li>
+<li>We add the possibility to have different sets of configurations, so people can easily switch between production, staging, local development (using ngrok is site is live). Those configurations can be changed for everyone or only for that user.</li>
+<li>We add the possibility to embed the statics inside the server for people who want to use only a serverless function.</li>
+<li>We add the possibility to exclude some URLs from the Theme Bridge and fallback to the PHP theme.</li>
+<li>We add the option to warn the developer when a URL is a 200 in Frontity but a 404 in WordPress (so they can fix it).</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/8</link>
+        <pubDate>Thu, 26 Mar 2020 08:37:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-8</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="mmczaplinski" data-post="4" data-topic="1432">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>It’s really weird to pronounce “tee” because I think about a cup of tea when I say it <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+</blockquote>
+</aside>
+<p>Haha, nice one.</p>
+<p>“Bridge” also has an analogy. This is what’s inside my head when I think about it <img src="https://community.frontity.org/images/emoji/apple/laughing.png?v=9" title=":laughing:" class="emoji" alt=":laughing:"></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/3b15c91d891d9af6a0c304f7cfda8bbc013e2fdf.jpeg" data-download-href="https://community.frontity.org/uploads/default/3b15c91d891d9af6a0c304f7cfda8bbc013e2fdf" title="bridge"><img src="https://community.frontity.org/uploads/default/original/1X/3b15c91d891d9af6a0c304f7cfda8bbc013e2fdf.jpeg" alt="bridge" data-base62-sha1="8qGQsO7GDd2rMnBjZNuXb19qF5B" width="666" height="500" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/3b15c91d891d9af6a0c304f7cfda8bbc013e2fdf_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/7</link>
+        <pubDate>Thu, 26 Mar 2020 08:23:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-7</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a></p>
+<p>I think that the “Theme Bridge” is more like a <a href="https://en.wikipedia.org/wiki/Piping_and_plumbing_fitting#Tee">tee</a> than a “bridge”: <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/e7aa3ca6bf2368f04ffe35fb914af8438e1414c2.jpeg" alt="image" data-base62-sha1="x3p1EdsivBJ2GMfAL1aLQmEm8FA" width="214" height="150"></p>
+<p>Pros:</p>
+<ul>
+<li>For anyone familiar with unix, <code>tee</code> is also a command that redirects input to another output in addition to standard output. So, that semantic similarity can help people grasp the design quicker.</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>The metaphor is not 100% accurate, because we get the data back from our “tee”, unlike the real tee, which just redirects it to an additional output.</li>
+<li>It’s really weird to pronounce “tee” because I think about a cup of tea when I say it <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:">
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/4</link>
+        <pubDate>Wed, 25 Mar 2020 20:20:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-4</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Apart from all the implementation, we’d like to know your opinion about the name of the plugin. We were thinking about using something more specific than just <code>Theme Bridge</code>, something like <code>Decoupled Theme Bridge</code> or <code>Headless Theme Bridge</code>.</p>
+<p>We think that <code>Theme</code> should be included in the name because it’s a theme substitution.Maybe <code>Bridge</code> could be changed, or even use a completely different name <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"> What do you think guys?</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/3</link>
+        <pubDate>Wed, 25 Mar 2020 09:14:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-3</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="1" data-topic="1432">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Add two different options for server URL and static URL, so users can differentiate if needed. The only problem with this approach is that services like Nginx redirect the <code>.js</code> files to its own file system and users have to change the default configuration to prevent this behaviour.</p>
+</blockquote>
+</aside>
+<p>Regarding this approach, as said below, it doesn’t work with services like Nginx. I think we should have in mind what <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> explained <a href="https://community.frontity.org/t/proof-of-concept-on-pantheon-deploy-on-google-cloud-platform/280/41">here</a>:</p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="41" data-topic="280">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"><a href="https://community.frontity.org/t/proof-of-concept-on-pantheon-deploy-on-google-cloud-platform/280/41">Proof of concept on Pantheon + Deploy on Google Cloud Platform</a>
+</div>
+<blockquote>
+<p>The only problem I’ve stumbled upon so far was that the normal Nginx configuration for WordPress doesn’t send static file requests (like js, fonts, images…) to WordPress, it just returns a 404 if it doesn’t find those assets in the file system.</p>
+<p>To solve that, people would have to either:</p>
+<ol>
+<li>Change their Ngix configuration.</li>
+<li>Use a different <code>publicPath</code> setting to request the static assets directly from their Node server (or static storage).</li>
+<li>Remove extensions from Webpack. For example, <code>file.js</code> becomes <code>file--js</code> .</li>
+</ol>
+<p>But we don’t like this second idea because that means they have to configure an additional cache/CDN for that URL and we don’t like the third idea because, well… it feels really hacky and incompatible with any other system that expects files to have proper extensions.</p>
+</blockquote>
+</aside>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/2</link>
+        <pubDate>Wed, 25 Mar 2020 09:08:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-2</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+      <item>
+        <title>Embedded mode</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <h2>Description</h2>
+<p>Right now, in order to use Frontity, users just can install it with the <a href="https://docs.frontity.org/architecture">Direct to Frontity installation</a>, where they need to have two different domains, for WordPress and Frontity.</p>
+<p>We could create a “Theme Bridge” plugin that overrides the PHP Theme and does instead an HTTP call to the Frontity server to retrieve the HTML and outputs that.</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/a2af037aa512826b013519ed773eee9a5b6c9c73.png" alt="Screen Shot 2019-05-09 at 15.39.28" data-base62-sha1="ndajxfeBVVNcmjUT0zY23sercRB" width="646" height="449"><br>
+With this solution, you won’t need a new domain for your WordPress site, although you will still need a PHP Server for WordPress and a Node Server for Frontity.</p>
+<p>Users should keep in mind that there is more routing involved (it goes to WordPress, then Frontity, then WordPress outputs the HTML), so they <strong>must</strong> use a cache plugin or it will be very slow. Good news is that with these approach the cache can be done with WordPress plugins, which know when to invalidate it intelligently.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>manage everything under the same domain</strong><br>
+so that <strong>my decoupled WordPress is easier to configure</strong>.</p>
+</blockquote>
+<h2>Possible solution</h2>
+<p>As mentioned before, we could create a WordPress plugin to override the PHP Theme Bridge and do an HTTP call to the Frontity serve. <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> has been working on a proof of concept and it looks great so far:</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/frontity/frontity-embedded-proof-of-concept" target="_blank" rel="noopener">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/c26e6efbc55697d43b123baf71e267f651feff7c.png" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/frontity/frontity-embedded-proof-of-concept" target="_blank" rel="noopener">frontity/frontity-embedded-proof-of-concept</a></h3>
+
+<p>PoC of the Embedded mode for Frontity sites. Contribute to frontity/frontity-embedded-proof-of-concept development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<br>
+There are some things to consider here, in order to fully understand it:
+<h3>Deploying <code>server.js</code> and <code>/static</code> assets</h3>
+<p>Frontity users need to deploy two different things:</p>
+<ol>
+<li>The server, contained a the single <code>server.js</code> file. This generates the HTML.</li>
+<li>The static assets, contained in the <code>/static</code> folder. These are the client assets like JavaScript files, fonts and so on.</li>
+</ol>
+<p>They can approach it in two different ways:</p>
+<ul>
+<li>Using a Node server for both.</li>
+<li>Using a serverless for the <code>server.js</code> and a static server for the <code>/server</code> assets.</li>
+</ul>
+<p>In the first case, if they are using a Node server, there is no problem with the <code>/static</code> assets, as they are managed in the file system.</p>
+<p>Some serverless hostings like Zeit Now also take care of the <code>/static</code> assets without extra configuration. Others like Amazon AWS or Google Cloud, have much cheaper serverless services (AWS Lambdas and Google Functions) but they require the configuration of a different service for the <code>/static</code> assets (Google Storage or Amazon S3). This means that, in this case, Frontity users can’t use the same url for both the <code>server.js</code> and <code>/static</code>.</p>
+<p>There are different options to solve this:</p>
+<ol>
+<li>
+<p>Add two different options for server URL and static URL, so users can differentiate if needed. The only problem with this approach is that services like Nginx redirect the static files (like JavaScript, fonts, images…) to the file system of WordPress and users have to change their default Nginx configuration to prevent this behaviour. The default Apache configuration doesn’t seem to have this problem.</p>
+</li>
+<li>
+<p>Embedding static assets inside serverless function. <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> also worked on a <a href="https://github.com/luisherranz/embed-files-in-node-server">proof of concept</a> to embed all the static assets in the <code>server.js</code>, so users don’t need a <code>static</code> url. The problem with this approach is that users have to be really careful with the size of the <code>/static</code> folder, knowing that most of the assets should be inside WordPress, not here. You can find more info at its <a href="https://community.frontity.org/t/embed-static-files-on-the-server/1323">Feature Discussion</a>. It has the same Nginx problem than solution 1.</p>
+</li>
+<li>
+<p>Change the Public Path to point to the static server, bypassing the Theme Bridge. We can set the public path on the fly so we could save it in the Theme Bridge config in WordPress. This way, Nginx would work, but it will need its own cache for these files, and WordPress plugins wouldn’t be useful in this case.</p>
+</li>
+</ol>
+<h3>Cache</h3>
+<p>Users should use a cache system. We should provide, or at least recommend, a good way to deal with the cache of both the HTML output of WordPress and the REST API. We could create a new plugin to do so, include it directly in the Theme Bridge and make it optional, or just recommend another solution.</p>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> has forked the <a href="https://wordpress.org/plugins/simple-cache/">Simple Cache plugin</a> to adapt it for serving static assets apart from HTML files, load times are minimal.</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/luisherranz/simple-cache" target="_blank" rel="noopener">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/cfb10c687469441205936b703e8aceb258cd44ee.jpeg" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/luisherranz/simple-cache" target="_blank" rel="noopener">luisherranz/simple-cache</a></h3>
+
+<p>The `simple-cache` plugin for WordPress, forked to cache the static files of Frontity. - luisherranz/simple-cache</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<h3>Handle 404s</h3>
+<p>One of the benefits of this approach, is that sitemaps generated from WordPress would work as the domain is always the same one. However, we have to decide how to handle the 404s.</p>
+<p>It could happen that one page is a 404 in WordPress (because it hasn’t been created there) but not in the frontend (because it’s created directly from Frontity). For example if we create a “hardcoded” page or if we are fetching data from a different API. It’s great to have this flexibility, but ,in this case, that page created directly from Frontity wouldn’t be included in a sitemap generated from WordPress.</p>
+<p>Users should have the same content in WordPress and in Frontity, but we should allow the other approach as well. To solve this, users can also create empty pages for the ones they are hardcoding or getting from a different API, and they would be included in the sitemaps. This is something WooCommerce is doing and it could work.</p>
+<p>From the Theme Bridge perspective, our first idea is to add a setting where users can select between two options:</p>
+<ul>
+<li>All the content not included in WordPress must return a 404 in Frontity (default).</li>
+<li>404s are handled by Frontity and it doesn’t require to exist in Wordpress.</li>
+</ul>
+<p>We could add a warning while changing the settings advising the users to create empty pages instead of handling the errors from Frontity.</p>
+<h2>Possible settings</h2>
+<ul>
+<li>
+<strong>Server URL / Static URL</strong>: As explained before, sometimes users may need to differentiate between the server URL and the <code>/static</code> assets. This setting would be the one connecting Frontity with WordPress.</li>
+<li>
+<strong>Cache</strong>: Maybe this should be handled by another plugin, but if we integrate this in the Theme Bridge, we’d need to add a setting to activate/deactivate it.</li>
+<li>
+<strong>Change publicPath in WordPress</strong>: As explained before, one of the options to solve the problem with the `/static/ assets could be to point the publidPath to a static server, although users would need another cache system apart from WordPress. It could be done in Frontity build if users prefer.</li>
+<li>
+<strong>Bypass Theme Bridge</strong>: Sometimes users will want to bypass the plugin, so we should provide that option.</li>
+<li>
+<strong>Embed statics in <code>server.js</code></strong>: This wouldn’t be a setting of the plugin because it would be handled from Frontity, but it’s worth to mention it.</li>
+<li>
+<strong>Exclude URLs</strong>: We could add this option to fallback to the PHP Theme. We were using it in the old Frontity PRO and it proved to be really useful for landing pages using plugins like Contact Form 7. Sometimes, users could find easier to use the PHP Theme, or even exclude some URLs until they fully migrate them to Frontity.</li>
+<li>
+<strong>404</strong>: As explained before, it could be useful to let the users if they want Frontity to bypass WordPress 404s.</li>
+<li>
+<strong>Choose which Frontity site you want to use</strong>: This could be useful for multisite configurations. The Theme Bridge would simple add that <code>?name=XXX</code> query to the request.</li>
+</ul>
+<p>Apart from this, we may need to add support to configure all the settings with ENV variables.</p>
+          <p><a href="https://community.frontity.org/t/embedded-mode/1432/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/embedded-mode/1432/1</link>
+        <pubDate>Wed, 25 Mar 2020 09:04:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1432-1</guid>
+        <source url="https://community.frontity.org/t/embedded-mode/1432.rss">Embedded mode</source>
+      </item>
+  </channel>
+</rss>

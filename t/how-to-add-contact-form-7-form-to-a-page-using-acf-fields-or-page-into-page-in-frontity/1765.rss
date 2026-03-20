@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</title>
+    <link>https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765</link>
+    <description>I am trying to integrate my `Contact Form 7` in `frontity` on my `homepage`. 
+&gt; Initially, I have created my `contact form 7` in **`WP`** and integrated it with my [**frontity staging app**](https://app.moosaconsulting.com/contact/) using [**Frontity Contact Form 7 Package**](https://github.com/imranhsayed/frontity-contact-form-7) and its working perfectly on **[Contact](https://app.moosaconsulting.com/contact/)** page .
+ 
+
+&gt; **Issue to resolve:**
+But I want to add `Contact Form 7` in my **`&lt;Footer /&gt;`** component. I read the  [**Frontity Contact Form 7 Package**](https://github.com/imranhsayed/frontity-contact-form-7) setup guide but have found no solution. 
+Then I tried to execute the **`short-code`** into my `ACF Fields` under this endpoint: https://staging.moosaconsulting.com/MC-ACF/wp-json/acf/v3/services_section
+I got the rendered form under **`acf:`** key in the `JSON` object and then created the **`custom-handler`** to fetch the rendered form data like this:
+
+    import React from &quot;react&quot;;
+
+    import { connect } from &quot;frontity&quot;;
+
+    // In a React component that uses &quot;connect&quot;:
+
+    const Nav1 = ({ state }) =&gt; {
+
+      const data = state.source.get(&quot;acf-srvices-section&quot;)
+
+      console.log(&#39;data&#39;);
+
+      console.log(data[&#39;0&#39;].acf.content);
+
+      // return data;
+
+      return(
+
+        &lt;div
+
+        dangerouslySetInnerHTML={{
+
+          __html: data[&#39;0&#39;].acf.content
+
+        }}&gt;&lt;/div&gt;
+
+        );
+
+    };
+
+
+    export default connect(Nav);
+
+But it stopped working like **`Frontity Contact Form-7`** Package functionality as it&#39;s not getting treated as `CF-7`. Its simple text/html. 
+
+&gt; Question: Can anybody please suggest solution that how can i render **page into page** (**like Contact Page into the homepage above the footer**) or render contact form 7 in my own component not in page???
+someone who can let me know how can i use CF-7 in any component or page?**
+Thanks</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 14 Dec 2020 15:17:21 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/hammad">@hammad</a></p>
+<p>Apologies for the delay in getting back to you on this issue.</p>
+<p>To add a contact form to each page on your site in the footer I suggest creating a page in WordPress just to hold the contact form, i.e. the page contains the contact form shortcode and nothing else. Let’s assume it has the slug/path <code>/contact/</code>.</p>
+<p>Add a <code>beforeSSR</code> action to the theme’s <code>actions</code> object to “pre-fetch” the contents of the  <code>/contact/</code> page:</p>
+<pre><code class="lang-javascript">beforeSSR: async ({actions}) =&gt; {
+        await actions.source.fetch("/contact");
+}
+</code></pre>
+<p>You can then create a <code>&lt;Footer /&gt;</code> component similar to this:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { connect, styled } from "frontity";
+
+const Footer = ({ state, libraries }) =&gt; {
+
+    const data = state.source.get("/contact");
+    const contactForm = state.source.page[data.id]
+    const Html2React = libraries.html2react.Component;
+
+    return (
+      &lt;&gt;
+        &lt;ContactForm&gt;
+            &lt;Html2React html={contactForm.content.rendered} /&gt;
+        &lt;/ContactForm&gt;
+      &lt;/&gt;
+    );
+};
+
+export default connect(Footer);
+
+const ContactForm = styled.div`
+   // style the component here
+`
+</code></pre>
+<p>You need to use <code>Html2React</code> otherwise the the HTML for the form will be rendered in the footer, rather than the form itself.</p>
+<p>Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/6</link>
+        <pubDate>Tue, 07 Jul 2020 15:50:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1765-6</guid>
+        <source url="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765.rss">How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</source>
+      </item>
+      <item>
+        <title>How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</title>
+        <dc:creator><![CDATA[hammad]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> for replying:</p>
+<blockquote>
+<p>For now its hosted on our staging domain.<br>
+But I just have uploaded my <code>source code</code> here under this <code>git-repo</code>:</p>
+</blockquote>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/gigaByte404/staging_repo" target="_blank" rel="nofollow noopener">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/2X/0/0014d55af2f725d9796e264125a1ee48621d7e24.jpeg" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/gigaByte404/staging_repo" target="_blank" rel="nofollow noopener">gigaByte404/staging_repo</a></h3>
+
+<p>Contribute to gigaByte404/staging_repo development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/4</link>
+        <pubDate>Thu, 07 May 2020 19:14:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1765-4</guid>
+        <source url="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765.rss">How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</source>
+      </item>
+      <item>
+        <title>How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/hammad">@hammad</a></p>
+<p>Can you provide a repo with the code of your frontity project so we can have a look at this issue in your project?</p>
+          <p><a href="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/2</link>
+        <pubDate>Thu, 07 May 2020 15:40:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1765-2</guid>
+        <source url="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765.rss">How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</source>
+      </item>
+      <item>
+        <title>How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</title>
+        <dc:creator><![CDATA[hammad]]></dc:creator>
+        <description><![CDATA[
+            <p>I am trying to integrate my <code>Contact Form 7</code> in <code>frontity</code> on my <code>homepage</code>.</p>
+<blockquote>
+<p>Initially, I have created my <code>contact form 7</code> in <strong><code>WP</code></strong> and integrated it with my <a href="https://app.moosaconsulting.com/contact/" rel="nofollow noopener"><strong>frontity staging app</strong></a> using <a href="https://github.com/imranhsayed/frontity-contact-form-7" rel="nofollow noopener"><strong>Frontity Contact Form 7 Package</strong></a> and its working perfectly on <strong><a href="https://app.moosaconsulting.com/contact/" rel="nofollow noopener">Contact</a></strong> page .</p>
+</blockquote>
+<blockquote>
+<p><strong>Issue to resolve:</strong><br>
+But I want to add <code>Contact Form 7</code> in my <strong><code>&lt;Footer /&gt;</code></strong> component. I read the  <a href="https://github.com/imranhsayed/frontity-contact-form-7" rel="nofollow noopener"><strong>Frontity Contact Form 7 Package</strong></a> setup guide but have found no solution.<br>
+Then I tried to execute the <strong><code>short-code</code></strong> into my <code>ACF Fields</code> under this endpoint: <a href="https://staging.moosaconsulting.com/MC-ACF/wp-json/acf/v3/services_section" rel="nofollow noopener">https://staging.moosaconsulting.com/MC-ACF/wp-json/acf/v3/services_section</a><br>
+I got the rendered form under <strong><code>acf:</code></strong> key in the <code>JSON</code> object and then created the <strong><code>custom-handler</code></strong> to fetch the rendered form data like this:</p>
+</blockquote>
+<pre><code>import React from "react";
+
+import { connect } from "frontity";
+
+// In a React component that uses "connect":
+
+const Nav1 = ({ state }) =&gt; {
+
+  const data = state.source.get("acf-srvices-section")
+
+  console.log('data');
+
+  console.log(data['0'].acf.content);
+
+  // return data;
+
+  return(
+
+    &lt;div
+
+    dangerouslySetInnerHTML={{
+
+      __html: data['0'].acf.content
+
+    }}&gt;&lt;/div&gt;
+
+    );
+
+};
+
+
+export default connect(Nav);
+</code></pre>
+<p>But it stopped working like <strong><code>Frontity Contact Form-7</code></strong> Package functionality as it’s not getting treated as <code>CF-7</code>. Its simple text/html.</p>
+<blockquote>
+<p>Question: Can anybody please suggest solution that how can i render <strong>page into page</strong> (<strong>like Contact Page into the homepage above the footer</strong>) or render contact form 7 in my own component not in page???<br>
+someone who can let me know how can i use CF-7 in any component or page?**<br>
+Thanks</p>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765/1</link>
+        <pubDate>Wed, 06 May 2020 23:56:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1765-1</guid>
+        <source url="https://community.frontity.org/t/how-to-add-contact-form-7-form-to-a-page-using-acf-fields-or-page-into-page-in-frontity/1765.rss">How to add &quot;Contact Form-7&quot; form to a page using ACF fields or page into page in frontity?</source>
+      </item>
+  </channel>
+</rss>

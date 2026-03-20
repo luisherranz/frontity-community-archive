@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to access ACF Options pages</title>
+    <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075</link>
+    <description>Hi heroes of Frontity,
+
+I started playing around with Frontity this week and am very excited about it!
+
+Now, I want to try and rebuild our corporate site with Frontity. We use ACF to expand WordPress. I started trying to access an options page called &#39;theme-identity-settings&#39;, but it just won&#39;t work. I want to use the content of this endpoint on multiple pages, so I figured it should be added in the `beforeSSR`?
+
+I came across [this topic](https://community.frontity.org/t/acf-options-page/767/7), where it seems to work out for [countfak](https://community.frontity.org/u/countfak). Either I&#39;m messing up the information in this topic, or something has changed?
+
+The url of my endpoint is: https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings. Excuse me for having &#39;Gatsby&#39; in it, I was testing out Gatsby previously and saw no point in creating a new WordPress installation when I could just use this one. ;)
+
+So, this is my index.js:
+```
+import Theme from &quot;./components&quot;;
+    import image from &quot;@frontity/html2react/processors/image&quot;;
+    import iframe from &quot;@frontity/html2react/processors/iframe&quot;;
+
+    // Custom handler for ACF options
+    const acfOptionsHandler = {
+      pattern: &quot;theme-identity-settings&quot;,
+      func: async ({ route, state, libraries }) =&gt; {
+        // 1. Get ACF option page from REST API.
+        const response = await libraries.source.api.get({
+          endpoint: `/acf/v3/options/options`
+        });
+        const option = await response.json();
+
+        // 2. Add data to `source`.
+        const data = state.source.get(route);
+        Object.assign(data, { ...option, isAcfOptionsPage: true });
+      }
+    };
+
+    const marsTheme = {
+      name: &quot;@frontity/mars-theme&quot;,
+      roots: {
+        /**
+         *  In Frontity, any package can add React components to the site.
+         *  We use roots for that, scoped to the `theme` namespace.
+         */
+        theme: Theme,
+      },
+      state: {
+        /**
+         * State is where the packages store their default settings and other
+         * relevant state. It is scoped to the `theme` namespace.
+         */
+        theme: {
+          menu: [],
+          isMobileMenuOpen: false,
+          featured: {
+            showOnList: false,
+            showOnPost: false,
+          },
+        },
+      },
+      /**
+       * Actions are functions that modify the state or deal with other parts of
+       * Frontity like libraries.
+       */
+      actions: {
+        theme: {
+          beforeSSR: async ({ state, actions }) =&gt; {
+            await Promise.all([
+              actions.source.fetch(&quot;/theme-identity-settings&quot;),
+            ]);
+          },
+          toggleMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+          },
+          closeMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = false;
+          },
+        },
+      },
+      libraries: {
+        html2react: {
+          /**
+           * Add a processor to `html2react` so it processes the `&lt;img&gt;` tags
+           * inside the content HTML. You can add your own processors too
+           */
+          processors: [image, iframe],
+        },
+        handlers: [acfOptionsHandler]
+      },
+    };
+
+    export default marsTheme;
+```
+And this is on my frontpage.js, which is called when `isHome` is true.
+
+    const MyComp = ({ state }) =&gt; {
+      const options = state.source.get(&quot;theme-identity-settings&quot;);
+      console.log(options);
+      return &lt;div&gt;...&lt;/div&gt;;
+    }
+
+And this is the content of that console.log:
+```
+    {…}
+    isFetching: false
+    isReady: false
+    link: &quot;theme-identity-settings/&quot;
+    page: 1
+    query: Object {  }
+    route: &quot;theme-identity-settings/&quot;
+    &lt;prototype&gt;: Object { … }
+    frontpage.js:8:10
+```
+I&#39;m not sure where I&#39;m going wrong, if I have all the needed functionality implemented, or even too much. Any help is greatly appreciated!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 23 Jun 2020 07:12:57 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Alright, now I understand the way a pattern in a handler works. That’s very cool!<br>
+Thanks, <a class="mention" href="https://community.frontity.org/u/david">@David</a>!</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/20</link>
+        <pubDate>Tue, 23 Jun 2020 07:12:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-20</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey, <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>For accessing to the main options or a subpage, you can write a pattern for your <a href="https://docs.frontity.org/api-reference-1/wordpress-source#handlers">handler</a> that extract parameters from the link, like this one:</p>
+<pre><code class="lang-ts">const acfOptionsHandler = {
+  // This pattern gets an `option` param from the link.
+  pattern: "acfOptions/:option",
+
+  // Parameters extracted from the link are included in `params`.
+  func: async ({ route, params, state, libraries }) =&gt; {
+    // 1. Get ACF option page from REST API using `option` from `params`.
+    const response = await libraries.source.api.get({
+      endpoint: `/acf/v3/options/${params.option}`,
+    });
+    const option = await response.json();
+
+    // 2. Add data to `source`.
+    const data = state.source.get(route);
+    Object.assign(data, { ...option, isAcfOptionsPage: true });
+  },
+};
+</code></pre>
+<p>Then, to fetch the options you can do</p>
+<pre><code class="lang-ts">await Promise.all([
+  actions.source.fetch("acfOptions/options"),
+  actions.source.fetch("acfOptions/theme-identity-settings"),
+  actions.source.fetch("getWPConfig"),
+]);
+</code></pre>
+<p>And the same to get their content.</p>
+<pre><code class="lang-ts">const options = state.source.get("acfOptions/options");
+</code></pre>
+<p>Hope it helps. <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/18</link>
+        <pubDate>Mon, 22 Jun 2020 18:46:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-18</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>There was something wrong with my endpoint, indeed.</p>
+<p>I can’t figure out how to access an ACF sub options page. For now I’ve added everything on the main options page (<code>acf_add_options_page()</code>) but options from <code>acf_add_options_sub_page()</code> I can’t read out.</p>
+<p>The endpoints seem quite different. The endpoint for the main options page is:<br>
+<a href="https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/options/" class="onebox" target="_blank" rel="nofollow noopener">https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/options/</a></p>
+<p>The endpoint for the sub page is:<br>
+<a href="https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings" class="onebox" target="_blank" rel="nofollow noopener">https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/17</link>
+        <pubDate>Thu, 18 Jun 2020 15:33:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-17</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>Frontity does some kind of caching, if something was fetched from the WP REST API then is not fetched again when you call <code>actions.source.fetch</code>. You can override that passing a <code>force</code> option to <code>fetch</code>:</p>
+<pre><code class="lang-ts">await actions.source.fetch(link, { force: true });
+</code></pre>
+<p>Anyway, I guess the problem you have is that the request to <code>"theme-identity-settings"</code> is being done in <code>beforeSSR</code> so it only happens on the server. That means the value won’t update while you are navigating your Frontity site, you will have to refresh to get the new values (i.e. to make a new request to the Frontity server).</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/16</link>
+        <pubDate>Thu, 18 Jun 2020 09:48:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-16</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m a bit confused about something.</p>
+<p>My ACF endpoint for the options page (<a href="https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings" rel="nofollow noopener">https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings</a>) is now returning different data then before, as I’ve added a new option and changed the content of another one. However, the data in Frontity isn’t updating. It’s still showing the old image I chose and the new option isn’t showing.</p>
+<p>Am I not using the endpoint right? Is there some kind of caching for this endpoint that I’m not aware of?</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/14</link>
+        <pubDate>Wed, 17 Jun 2020 08:27:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-14</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>It’s working now! Thanks for helping me, <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> and <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>, and please send my thanks to the dev team! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/13</link>
+        <pubDate>Tue, 16 Jun 2020 15:30:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-13</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a>,</p>
+<p>I’ve asked the dev team to have a look at your issue and this what they have detected</p>
+<aside class="quote group-dev-team quote-modified" data-username="David" data-post="11" data-topic="2075">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<ol>
+<li>The handler is stored in the wrong place. It should be inside <code>libraries.source.handlers</code> , but it’s in <code>libraries.handlers</code> .</li>
+<li>The pattern for <code>acfOptionsHandler</code> is <code>"theme-identity-settings"</code> so the link passed to <code>state.source.get</code> should be <code>"theme-identity-settings"</code> (without the leading slash character).</li>
+</ol>
+<p>Fixing these two things the ACF is correctly populated.</p>
+</blockquote>
+</aside>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/12</link>
+        <pubDate>Tue, 16 Jun 2020 14:48:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-12</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a>,</p>
+<p>Yes, thanks a lot. With this repo → <a href="https://bitbucket.org/noesteijver/frontity">https://bitbucket.org/noesteijver/frontity</a><br>
+any member of the community (and the Frontity team) can clone the project, check it locally and debug it to help your with your issue</p>
+<p>Let me have a look at it and I’ll get back to you ASAP</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/8</link>
+        <pubDate>Tue, 16 Jun 2020 10:09:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-8</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>,</p>
+<p>I have opened up access to the repo on BitBucket: <a href="https://bitbucket.org/noesteijver/frontity/admin" rel="nofollow noopener">https://bitbucket.org/noesteijver/frontity/admin</a><br>
+Is this what you mean?</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/7</link>
+        <pubDate>Tue, 16 Jun 2020 09:48:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-7</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>Can you also <strong><a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">provide a repo or code-sandbox with your code</a></strong>? By being able to check directly your code, the community (or any member of the Frontity team) will be able to help you with your issue in a quicker and more efficient way</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/6</link>
+        <pubDate>Tue, 16 Jun 2020 09:19:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-6</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Juanma,</p>
+<p>I don’t seem to be able to edit the OP any more, but here’s a deployed version of the current code:<br>
+<a href="https://frontity-test-kej63c1mx.vercel.app/" class="onebox" target="_blank" rel="nofollow noopener">https://frontity-test-kej63c1mx.vercel.app/</a></p>
+<p>I see the following error in my terminal:</p>
+<pre><code class="lang-javascript">ServerError: post type from endpoints "posts,pages,media" with slug "theme-identity-settings" not found
+    at Object.eval (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:9:21)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at eval (webpack-internal:///./node_modules/@frontity/wp-source/src/actions.ts:22:101) {
+  name: 'ServerError',
+  status: 404,
+  statusText: 'post type from endpoints "posts,pages,media" with slug "theme-identity-settings" not found'
+}</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/5</link>
+        <pubDate>Tue, 16 Jun 2020 09:12:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-5</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>Welcome to the Community!</p>
+<p>In order to provide the best possible help as quickly and as efficiently as possible please provide the info suggested <a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">here</a></p>
+<p><strong>✓ Description of your issue</strong><br>
+✓ Specific errors you’re getting in the terminal<br>
+✓ Specific errors you’re getting in the browser’s console<br>
+<strong>✓ A repository with the code of your project</strong><br>
+✓ A deployed version of your site<br>
+<strong>✓ The URL of your WP REST API</strong></p>
+<p>You don’t have to provide them all but the more info you provide about your issue the better. <strong><a href="https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3">Providing a repo or code-sandbox with your code</a></strong> is especially helpful to deal with technical questions from specific code</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/4</link>
+        <pubDate>Tue, 16 Jun 2020 08:13:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-4</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>,</p>
+<p>Thanks for your answer!</p>
+<p>I tried this out and now I’m seeing this in errorStatusText: ​"post type from endpoints “posts,pages,media” with slug “theme-identity-settings” not found".</p>
+<p>When I do <code>frontity.state.data["/theme-identity-setings"])</code> in my browser console, I get <code>undefined</code> as a result. So I guess something in index.js is wrong, but I’m unable to figure it out.</p>
+<p>The pattern in acfOptionsHandler should be without a slash before it, right?</p>
+<p>What I also can’t figure out is that my endpoint in WordPress is <code>https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings</code>, but in the example of the other topic, I see that the acfOptionsHandler has an extra <code>/options</code> in between, so I copied that to my code as well. But is this correct?</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/3</link>
+        <pubDate>Tue, 16 Jun 2020 07:00:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-3</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a>! <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>I think that you’ve just forgotten the initial slash in:</p>
+<pre><code class="lang-javascript">const MyComp = ({ state }) =&gt; {
+  const options = state.source.get("theme-identity-settings");
+  return &lt;div&gt;...&lt;/div&gt;;
+}
+</code></pre>
+<p>So, this should be:</p>
+<pre><code class="lang-javascript">const options = state.source.get("/theme-identity-settings");
+</code></pre>
+<p>I hope this should resolve it, but if this does not work it would mean that the data is not being fetched from your acf endoint. You can verify that simply in your browser console by checking that you have data under:</p>
+<pre><code class="lang-javascript">frontity.state.data["/theme-identity-setings"]
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/2</link>
+        <pubDate>Mon, 15 Jun 2020 22:33:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-2</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+      <item>
+        <title>How to access ACF Options pages</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi heroes of Frontity,</p>
+<p>I started playing around with Frontity this week and am very excited about it!</p>
+<p>Now, I want to try and rebuild our corporate site with Frontity. We use ACF to expand WordPress. I started trying to access an options page called ‘theme-identity-settings’, but it just won’t work. I want to use the content of this endpoint on multiple pages, so I figured it should be added in the <code>beforeSSR</code>?</p>
+<p>I came across <a href="https://community.frontity.org/t/acf-options-page/767/7">this topic</a>, where it seems to work out for <a href="https://community.frontity.org/u/countfak">countfak</a>. Either I’m messing up the information in this topic, or something has changed?</p>
+<p>The url of my endpoint is: <a href="https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings" rel="nofollow noopener">https://gatsby-wp.noesteprojecten.nl/wp-json/acf/v3/options/theme-identity-settings</a>. Excuse me for having ‘Gatsby’ in it, I was testing out Gatsby previously and saw no point in creating a new WordPress installation when I could just use this one. <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+<p>So, this is my index.js:</p>
+<pre><code class="lang-javascript">import Theme from "./components";
+    import image from "@frontity/html2react/processors/image";
+    import iframe from "@frontity/html2react/processors/iframe";
+
+    // Custom handler for ACF options
+    const acfOptionsHandler = {
+      pattern: "theme-identity-settings",
+      func: async ({ route, state, libraries }) =&gt; {
+        // 1. Get ACF option page from REST API.
+        const response = await libraries.source.api.get({
+          endpoint: `/acf/v3/options/options`
+        });
+        const option = await response.json();
+
+        // 2. Add data to `source`.
+        const data = state.source.get(route);
+        Object.assign(data, { ...option, isAcfOptionsPage: true });
+      }
+    };
+
+    const marsTheme = {
+      name: "@frontity/mars-theme",
+      roots: {
+        /**
+         *  In Frontity, any package can add React components to the site.
+         *  We use roots for that, scoped to the `theme` namespace.
+         */
+        theme: Theme,
+      },
+      state: {
+        /**
+         * State is where the packages store their default settings and other
+         * relevant state. It is scoped to the `theme` namespace.
+         */
+        theme: {
+          menu: [],
+          isMobileMenuOpen: false,
+          featured: {
+            showOnList: false,
+            showOnPost: false,
+          },
+        },
+      },
+      /**
+       * Actions are functions that modify the state or deal with other parts of
+       * Frontity like libraries.
+       */
+      actions: {
+        theme: {
+          beforeSSR: async ({ state, actions }) =&gt; {
+            await Promise.all([
+              actions.source.fetch("/theme-identity-settings"),
+            ]);
+          },
+          toggleMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+          },
+          closeMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = false;
+          },
+        },
+      },
+      libraries: {
+        html2react: {
+          /**
+           * Add a processor to `html2react` so it processes the `&lt;img&gt;` tags
+           * inside the content HTML. You can add your own processors too
+           */
+          processors: [image, iframe],
+        },
+        handlers: [acfOptionsHandler]
+      },
+    };
+
+    export default marsTheme;
+</code></pre>
+<p>And this is on my frontpage.js, which is called when <code>isHome</code> is true.</p>
+<pre><code>const MyComp = ({ state }) =&gt; {
+  const options = state.source.get("theme-identity-settings");
+  console.log(options);
+  return &lt;div&gt;...&lt;/div&gt;;
+}
+</code></pre>
+<p>And this is the content of that console.log:</p>
+<pre><code class="lang-javascript">    {…}
+    isFetching: false
+    isReady: false
+    link: "theme-identity-settings/"
+    page: 1
+    query: Object {  }
+    route: "theme-identity-settings/"
+    &lt;prototype&gt;: Object { … }
+    frontpage.js:8:10
+</code></pre>
+<p>I’m not sure where I’m going wrong, if I have all the needed functionality implemented, or even too much. Any help is greatly appreciated!</p>
+          <p><a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-access-acf-options-pages/2075/1</link>
+        <pubDate>Sat, 13 Jun 2020 09:44:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2075-1</guid>
+        <source url="https://community.frontity.org/t/how-to-access-acf-options-pages/2075.rss">How to access ACF Options pages</source>
+      </item>
+  </channel>
+</rss>

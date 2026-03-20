@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Fetch multiple taxonomy with containing posts at once</title>
+    <link>https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458</link>
+    <description>I&#39;m trying to write a new `handler`.
+I have a **Custom Taxonomy for Posts** called **Folder**. 
+I want to fetch all the posts with **one** fetch in multiple folders.
+I have the ID&#39;s of the folders, like: `const folderIds = &#39;7,10,66,123&#39;`. So I want to be able to make a fetch like:
+
+    actions.source.fetch(&quot;/folders/&quot; + folderIds);
+
+And then get info about the Folders (an ACF field), and get all the posts in a Folder.
+I created a handler, and I could get all the posts in all the folders, and get the ACF field of the folders, but I could not get the posts in a specific folder.
+
+My handler looks like this, at the moment:
+
+    const FoldersHandler = {
+      pattern: &quot;/folders/:ids&quot;,
+      priority: 1,
+      func: async ({ route, params, state, libraries }) =&gt; {
+        const { ids } = params;
+       
+        //this will create a request like: https://wp.szinhaz.online/wp-json/wp/v2/posts?_embed=true&amp;folder=969,23,22,1035,25,26,27,24,371&amp;per_page=100
+        const postResponse = await libraries.source.api.get({
+          endpoint: &quot;posts&quot;,
+          params: {
+            folder: ids,
+            per_page: 100,
+            _embed: true
+          }
+        });
+        const posts = await libraries.source.populate({state, response: postResponse});
+        //if I console.log(posts), I see that a post contains only id, link, and type
+        posts.map(post =&gt;{
+          Object.assign(state.source.data[post.link],{
+            id: post.id,
+            type: post.type
+          });
+        });
+
+        //this will create a request like: https://wp.szinhaz.online/wp-json/wp/v2/folder?head_tags=false&amp;include=969,23,22,1035,25,26,27,24,371&amp;per_page=100
+        const folderResponse = await libraries.source.api.get({
+          endpoint: &quot;folder&quot;,
+          params: {
+            include: ids,
+            per_page: 100,
+            head_tags: false
+          }
+        });
+        const folders = await libraries.source.populate({ state, response: folderResponse });
+        //if I console.log(folders), I see that a folder has an id, link and type: undefined
+        folders.map(folder =&gt; {
+          Object.assign(state.source.data[folder.link],{
+            id: folder.id,
+            taxonomy: &quot;folder&quot;,
+            isArchive: true,
+            isTaxonomy: true,
+            isFolder: true
+          });
+        });
+      }
+    };
+
+After this, in `frontity.state.source.folder` I see all the folders I need, but they don&#39;t have an items field, so I don&#39;t know, what posts are in this folder.
+In `frontity.state.source.post` I see all the posts I should, and they have a folder property, with an array of id&#39;s of the folders.
+In `frontity.state.source.data` I see the posts and the folders, and by both of them `isFetching` and `isReady` are `false`.
+
+How should I assign the posts to a folder?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 01 Apr 2020 15:42:02 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Fetch multiple taxonomy with containing posts at once</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a></p>
+<p>You could loop through the array of folders in <code>frontity.state.source.folder</code> and for each folder get the posts in <code>frontity.state.source.post</code> where <code>post.folder[0] == folder.id</code>.</p>
+<p>That said, I’ve checked with one of the developers on the team and they seem to think that what you’re already doing, i.e. making a separate call for each folder, is the best approach as that way WordPress is doing all the hard work for you already.</p>
+          <p><a href="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/8</link>
+        <pubDate>Wed, 01 Apr 2020 15:42:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1458-8</guid>
+        <source url="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458.rss">Fetch multiple taxonomy with containing posts at once</source>
+      </item>
+      <item>
+        <title>Fetch multiple taxonomy with containing posts at once</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <ul>
+<li>
+<p>Each post is in only one folder.</p>
+</li>
+<li>
+<p>A post JSON: <a href="https://wp.szinhaz.online/wp-json/wp/v2/posts/5005" rel="nofollow noopener">https://wp.szinhaz.online/wp-json/wp/v2/posts/5005</a></p>
+</li>
+<li>
+<p>A folder JSON: <a href="https://wp.szinhaz.online/wp-json/wp/v2/folder/22" rel="nofollow noopener">https://wp.szinhaz.online/wp-json/wp/v2/folder/22</a></p>
+</li>
+<li>
+<p>And here are the responses what I get in the handlers:</p>
+<ul>
+<li>For all the posts in the folders: <a href="https://wp.szinhaz.online/wp-json/wp/v2/posts?_embed=true&amp;folder=969,23,22,1035,25,26,27,24,371&amp;per_page=100" rel="nofollow noopener">https://wp.szinhaz.online/wp-json/wp/v2/posts?_embed=true&amp;folder=969,23,22,1035,25,26,27,24,371&amp;per_page=100</a>
+</li>
+<li>For all the folders by ID’s: <a href="https://wp.szinhaz.online/wp-json/wp/v2/folder?head_tags=false&amp;include=969,23,22,1035,25,26,27,24,371&amp;per_page=100" rel="nofollow noopener">https://wp.szinhaz.online/wp-json/wp/v2/folder?head_tags=false&amp;include=969,23,22,1035,25,26,27,24,371&amp;per_page=100</a>
+</li>
+</ul>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/7</link>
+        <pubDate>Wed, 01 Apr 2020 14:31:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1458-7</guid>
+        <source url="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458.rss">Fetch multiple taxonomy with containing posts at once</source>
+      </item>
+      <item>
+        <title>Fetch multiple taxonomy with containing posts at once</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a></p>
+<p>Can a post be in more than one folder, or is each post in only one folder? Can you show me what comes back in the JSON for a single post so I can see what is in the folder property. Also it might be useful to see what you get in the JSON for a folder too.</p>
+          <p><a href="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/6</link>
+        <pubDate>Wed, 01 Apr 2020 14:09:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1458-6</guid>
+        <source url="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458.rss">Fetch multiple taxonomy with containing posts at once</source>
+      </item>
+      <item>
+        <title>Fetch multiple taxonomy with containing posts at once</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+The hole started here: <a href="https://community.frontity.org/t/npx-frontity-dev-aborted-core-dumped-javascript-heap-out-of-memory/1321/10" class="inline-onebox">Npx frontity dev - Aborted (core dumped) - JavaScript heap out of memory</a>. As <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> suggested, I want to reduce the number of fetches  my website makes.  Here is my live site: <a href="https://szinhaz.online/" rel="nofollow noopener">https://szinhaz.online/</a> I circled with red in this picture the folders (below each folder you can see the posts in them) :<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/296b0c2276809f959dc0351853491d2a2262c07a.jpeg" data-download-href="https://community.frontity.org/uploads/default/296b0c2276809f959dc0351853491d2a2262c07a" title="Screenshot_2020-04-01 Színház online - A színházi világ hírei"><img src="https://community.frontity.org/uploads/default/optimized/1X/296b0c2276809f959dc0351853491d2a2262c07a_2_690x500.jpeg" alt="Screenshot_2020-04-01 Színház online - A színházi világ hírei" data-base62-sha1="5UoViXtw8TUucXx91CWgtOlMhXs" width="690" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/296b0c2276809f959dc0351853491d2a2262c07a_2_690x500.jpeg, https://community.frontity.org/uploads/default/optimized/1X/296b0c2276809f959dc0351853491d2a2262c07a_2_1035x750.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/1X/296b0c2276809f959dc0351853491d2a2262c07a_2_1380x1000.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/296b0c2276809f959dc0351853491d2a2262c07a_2_10x10.png"></a></div><br>
+At the moment my <a href="https://github.com/Koli14/szinhaz.live/blob/master/packages/frontity-chakra-theme/src/components/home/folders.js" rel="nofollow noopener">code</a> looks like:<p></p>
+<pre><code>....
+{folders.map(({ term_id, slug, taxonomy, name }) =&gt; {
+   React.useEffect(() =&gt; {
+      actions.source.fetch("/" + taxonomy + "/" + slug);
+    }, []);
+
+    const data = state.source.get("/" + taxonomy + "/" + slug);
+    ....
+</code></pre>
+<p>But like this, my code make 2*8 fetch to my WordPress site (I have 8 folder, and frontity get the folder details with one fetch, and the posts in it with an other fetch).<br>
+I created a fresh clone from mars theme, and try to achieve my goal there.<br>
+Here is the git repo: <strong><a href="https://github.com/Koli14/mars-tmp" rel="nofollow noopener">mars-tmp</a></strong><br>
+And here is the live site at Zeit: <a href="https://tmp.koli14.now.sh" rel="nofollow noopener">tmp.koli14.now.sh</a><br>
+There you can check all the data in state from the dev-tools console, with <code>frontinty.state</code> .</p>
+          <p><a href="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/5</link>
+        <pubDate>Wed, 01 Apr 2020 11:50:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1458-5</guid>
+        <source url="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458.rss">Fetch multiple taxonomy with containing posts at once</source>
+      </item>
+      <item>
+        <title>Fetch multiple taxonomy with containing posts at once</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a></p>
+<p>I’m struggling to understand what you’re trying to do. Can you show us some samples of the data you have in the state that will help us understand the issue you’re having.</p>
+<p>Thanks.</p>
+          <p><a href="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/4</link>
+        <pubDate>Wed, 01 Apr 2020 08:45:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1458-4</guid>
+        <source url="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458.rss">Fetch multiple taxonomy with containing posts at once</source>
+      </item>
+      <item>
+        <title>Fetch multiple taxonomy with containing posts at once</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m trying to write a new <code>handler</code>.<br>
+I have a <strong>Custom Taxonomy for Posts</strong> called <strong>Folder</strong>.<br>
+I want to fetch all the posts with <strong>one</strong> fetch in multiple folders.<br>
+I have the ID’s of the folders, like: <code>const folderIds = '7,10,66,123'</code>. So I want to be able to make a fetch like:</p>
+<pre><code>actions.source.fetch("/folders/" + folderIds);
+</code></pre>
+<p>And then get info about the Folders (an ACF field), and get all the posts in a Folder.<br>
+I created a handler, and I could get all the posts in all the folders, and get the ACF field of the folders, but I could not get the posts in a specific folder.</p>
+<p>My handler looks like this, at the moment:</p>
+<pre><code>const FoldersHandler = {
+  pattern: "/folders/:ids",
+  priority: 1,
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const { ids } = params;
+   
+    //this will create a request like: https://wp.szinhaz.online/wp-json/wp/v2/posts?_embed=true&amp;folder=969,23,22,1035,25,26,27,24,371&amp;per_page=100
+    const postResponse = await libraries.source.api.get({
+      endpoint: "posts",
+      params: {
+        folder: ids,
+        per_page: 100,
+        _embed: true
+      }
+    });
+    const posts = await libraries.source.populate({state, response: postResponse});
+    //if I console.log(posts), I see that a post contains only id, link, and type
+    posts.map(post =&gt;{
+      Object.assign(state.source.data[post.link],{
+        id: post.id,
+        type: post.type
+      });
+    });
+
+    //this will create a request like: https://wp.szinhaz.online/wp-json/wp/v2/folder?head_tags=false&amp;include=969,23,22,1035,25,26,27,24,371&amp;per_page=100
+    const folderResponse = await libraries.source.api.get({
+      endpoint: "folder",
+      params: {
+        include: ids,
+        per_page: 100,
+        head_tags: false
+      }
+    });
+    const folders = await libraries.source.populate({ state, response: folderResponse });
+    //if I console.log(folders), I see that a folder has an id, link and type: undefined
+    folders.map(folder =&gt; {
+      Object.assign(state.source.data[folder.link],{
+        id: folder.id,
+        taxonomy: "folder",
+        isArchive: true,
+        isTaxonomy: true,
+        isFolder: true
+      });
+    });
+  }
+};
+</code></pre>
+<p>After this, in <code>frontity.state.source.folder</code> I see all the folders I need, but they don’t have an items field, so I don’t know, what posts are in this folder.<br>
+In <code>frontity.state.source.post</code> I see all the posts I should, and they have a folder property, with an array of id’s of the folders.<br>
+In <code>frontity.state.source.data</code> I see the posts and the folders, and by both of them <code>isFetching</code> and <code>isReady</code> are <code>false</code>.</p>
+<p>How should I assign the posts to a folder?</p>
+          <p><a href="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458/1</link>
+        <pubDate>Tue, 31 Mar 2020 14:43:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1458-1</guid>
+        <source url="https://community.frontity.org/t/fetch-multiple-taxonomy-with-containing-posts-at-once/1458.rss">Fetch multiple taxonomy with containing posts at once</source>
+      </item>
+  </channel>
+</rss>

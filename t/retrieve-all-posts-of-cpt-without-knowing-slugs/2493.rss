@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Retrieve all posts of CPT without knowing slugs</title>
+    <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493</link>
+    <description>OK, I thought this was simple, but apparently I can&#39;t manage it myself and after looking in the documentation and forums for a while I still can&#39;t figure it out, so I&#39;m asking for help. I&#39;m probably totally missing one step in the process.
+
+What I want is to create a Team component that loops through all posts of the custom post type called &#39;team&#39;, but currently I can&#39;t manage to populate Frontity with the posts of that CPT.
+
+The enpoint for the CPT is:
+https://frontity.noesteprojecten.nl/wp-json/wp/v2/team
+
+So far I&#39;ve added the CPT to `frontity.settings.js`:
+```
+...
+postTypes: [
+  ...
+  {
+    type: &quot;team&quot;,
+    endpoint: &quot;team&quot;,
+    archive: &quot;/team-archive&quot;,
+  },
+]
+...
+```
+
+Added the CPT to my beforeSSR (is this even right for this purpose?):
+```
+beforeSSR: async ({ state, actions }) =&gt; {
+  await Promise.all(
+    [
+      actions.source.fetch(&quot;/team&quot;),
+    ]
+  );
+},
+```
+
+And then started working on a component `Team`:
+```
+import React, {useEffect} from &quot;react&quot;;
+import { connect, styled } from &quot;frontity&quot;;
+
+const Team = ({ state, actions, libraries }) =&gt; {
+
+   useEffect(() =&gt; {
+      // No need to use `async/await` here
+      actions.source.fetch(&#39;/team&#39;)
+   }, []);
+
+   // The data will not exist at first, `dataPost.isReady` will be false.
+   // But then, it will rerender when `actions.source.fetch` is finished.
+   const dataPost = state.source.get(&quot;/team&quot;);
+
+   // This will work just fine.
+   dataPost.isReady ? console.log(dataPost, state.source.team) : console.log(&#39;nope...&#39;);
+
+   return null;
+}
+
+export default connect(Team);
+```
+
+However, dataPost returns an error: `post type from endpoints \&quot;posts,pages,media\&quot; with slug \&quot;team\&quot; not found`. But when I visit the archive page for team, the post type does exists: https://frontity-test-ten.now.sh/team-archive
+
+After visiting the CPT archive page, the posts are available for the Team component. But of course I need to have them available on the front page already. So I think I will still need to populate Frontity with the posts from the CPT, but what is the correct procedure for this?
+
+This is a link to my repo:
+https://bitbucket.org/noesteijver/frontity/src/master/</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 29 Jun 2021 09:47:31 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Retrieve all posts of CPT without knowing slugs</title>
+        <dc:creator><![CDATA[kuniejmarta]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,</p>
+<p>Thanks for a bunch of knowledge! I’m trying to do something similar and I’ve got a problem with single page - it’s always 404 (in WP these links work). List page is working fine.</p>
+<p>Does above example support single team post page?</p>
+          <p><a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/14</link>
+        <pubDate>Tue, 29 Jun 2021 09:47:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2493-14</guid>
+        <source url="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss">Retrieve all posts of CPT without knowing slugs</source>
+      </item>
+      <item>
+        <title>Retrieve all posts of CPT without knowing slugs</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi David,</p>
+<p>I missed the nuance that Frontity will receive posts from a specific ‘link’ where posts are listed. I thought the REST-endpoint was used for this. Thanks for the further explanation!</p>
+          <p><a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/13</link>
+        <pubDate>Tue, 06 Oct 2020 10:54:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2493-13</guid>
+        <source url="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss">Retrieve all posts of CPT without knowing slugs</source>
+      </item>
+      <item>
+        <title>Retrieve all posts of CPT without knowing slugs</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a>, I just saw that this thread was marked as solved <em>a long time ago</em> but I want to clarify some things about custom post types in Frontity.</p>
+<p>So, you added the following settings for your <code>@frontity/wp-source</code> package:</p>
+<pre><code class="lang-javascript">...
+postTypes: [
+  ...
+  {
+    type: "team",
+    endpoint: "team",
+    archive: "/team-archive",
+  },
+]
+...
+</code></pre>
+<p>This configurations means the following assertions are true in your WordPress site:</p>
+<ul>
+<li>
+<code>team</code> is the type of the custom post type (the value that appears in the <code>type</code> field of these entities).</li>
+<li>
+<code>team</code> is the endpoint where these entities are fetched from the WordPress REST API (i.e. <code>/wp-json/wp/v2/team</code>)</li>
+<li>
+<code>/team-archive</code> is the link in your site where posts of type <code>team</code> are listed</li>
+</ul>
+<p>When you use <code>actions.source.fetch()</code> and <code>state.source.get()</code> you should use the link, nor the type neither the endpoint. Just doing this in your <code>Team</code> component should work as expected, without having to create a new handler.</p>
+<pre><code class="lang-js">useEffect(() =&gt; {
+  actions.source.fetch("/team-archive/");
+});
+
+const data = state.source.get("/team-archive/");
+</code></pre>
+<p>If you want to use a link like <code>/team/</code> instead, you would have to change your CPT configuration in WordPress and set the <code>archive</code> field in the settings to that value, also in Frontity. Then, you could use <code>"/team/"</code> when calling <code>actions.source.fetch()</code> and <code>state.source.get()</code>.</p>
+<p>I hope this helps to clarify your doubts.</p>
+<p>Cheers!</p>
+          <p><a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/11</link>
+        <pubDate>Wed, 23 Sep 2020 10:08:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2493-11</guid>
+        <source url="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss">Retrieve all posts of CPT without knowing slugs</source>
+      </item>
+      <item>
+        <title>Retrieve all posts of CPT without knowing slugs</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I cracked it, I guess.</p>
+<p>I had to use the location of the archive in the <code>fetch</code> function. I configured the post-type to have <code>team-archive</code> as archive location, but when I changed this to <code>team</code>, things started to work…</p>
+<pre><code class="lang-javascript">   useEffect(() =&gt; {
+      actions.source.fetch("/team/");
+   });
+
+   const data = state.source.get("/team/");
+</code></pre>
+<p>Is this assumption correct?</p>
+          <p><a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/7</link>
+        <pubDate>Tue, 28 Jul 2020 15:05:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2493-7</guid>
+        <source url="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss">Retrieve all posts of CPT without knowing slugs</source>
+      </item>
+      <item>
+        <title>Retrieve all posts of CPT without knowing slugs</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m really at a loss. If I’ve got the id of the featured-image in <code>item.featured_media</code>, this should just be working, am I right?</p>
+<pre><code class="lang-javascript">&lt;FeaturedMedia id={item.featured_media} /&gt;
+</code></pre>
+<p>Or am I missing a crucial step in the process of fetching the attachment? I was under the impression that the <code>FeaturedMedia</code> component was always working when feeded an id, but maybe I’m wrong.</p>
+          <p><a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/6</link>
+        <pubDate>Mon, 27 Jul 2020 16:43:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2493-6</guid>
+        <source url="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss">Retrieve all posts of CPT without knowing slugs</source>
+      </item>
+      <item>
+        <title>Retrieve all posts of CPT without knowing slugs</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I think I solved part of the problem by writing a handler, adding it to the handlers and using it in the beforeSSR. Is this really needed when you want to use posts outside of the archive loop and single page?</p>
+<pre><code class="lang-javascript">const teamHandler = {
+  name: 'team',
+  priority: 20,
+  pattern: 'team',
+
+  func: async ({ route, params, state, libraries }) =&gt; {
+    // 1. get products data
+    const response = await libraries.source.api.get({
+      endpoint: 'team',
+      params: {per_page: 100},
+    });
+
+    const entitiesAdded = await libraries.source.populate({ response, state });
+
+    Object.assign(state.source.data[route], {
+      isTeam: true,
+      isPostType: true,
+      items: entitiesAdded.map(item =&gt; ({
+        type: item.type,
+        id: item.id,
+        link: item.link
+      }))
+    });
+  }
+}
+
+...
+
+beforeSSR: async ({ state, actions }) =&gt; {
+  // getNameAndDescription,
+  await Promise.all(
+    [
+...
+      Object.values(teamHandler).map(() =&gt;
+        actions.source.fetch("team"),
+      ),
+...
+    ]
+  );
+},
+...
+source: {
+  handlers: [teamHandler],
+}
+</code></pre>
+<p>Now I could see that <code>state.source.team</code> was populated, but odd enough I still had lots of trouble to use the data, but after loads of trial &amp; error I managed to, but I’m unsure if this is the proper way of doing it. My <code>team.js</code> looks like this now.</p>
+<pre><code class="lang-javascript">import React, {useEffect} from "react";
+import { connect, styled } from "frontity";
+import Member from "./member";
+import Item from "./list/list-item";
+
+const Team = ({ state, actions, libraries }) =&gt; {
+   useEffect(() =&gt; {
+      actions.source.fetch("team");
+    }, []);
+
+    const data = state.source.get("team");
+
+   if (data.isReady) {
+      const members = data.items.map(({ type, id }) =&gt; state.source[type][id]);
+
+      return (
+         &lt;&gt;
+            &lt;h1&gt;Team&lt;/h1&gt;
+            &lt;MemberContainer&gt;
+               {data.items.map(({ type, id }, index) =&gt; {
+               const item = state.source[type][id];
+                  return &lt;Member item={item} /&gt;;
+               })}
+            &lt;/MemberContainer&gt;
+         &lt;/&gt;
+      );
+   }
+
+   return null;
+}
+
+export default connect(Team);
+
+const MemberContainer = styled.div`
+...
+`;
+</code></pre>
+<p>And finally, the <code>member</code> component looks like this:</p>
+<pre><code class="lang-javascript">import React, {useEffect} from "react";
+import { connect, styled } from "frontity";
+import FeaturedMedia from "./featured-media";
+import Title from "./title"
+
+const Member = ({ state, item, count }) =&gt; {
+   return (
+      &lt;MemberItem href={item.link}&gt;
+         &lt;FeaturedMedia id={item.featured_media} /&gt;
+         &lt;h2 dangerouslySetInnerHTML={{ __html: item.title.rendered }} /&gt;
+         &lt;div dangerouslySetInnerHTML={{ __html: item.excerpt.rendered }} /&gt;
+      &lt;/MemberItem&gt;
+   );
+
+   return null;
+}
+
+export default connect(Member);
+
+const MemberItem = styled.a`
+...
+`;
+</code></pre>
+<p>My biggest problem at the moment is that the <code>FeaturedMedia</code> component won’t work. If I visit the specific page of a member and return to the front-page, the image is there. If I visit the page of another member and return to the front-page, the image is there, but the other image is gone. I looked how the component is used in <code>list-item.js</code> of the Mars theme, but I’m not seeing any specifics that I’m missing. So I’m unsure why the image is gone.</p>
+          <p><a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/2</link>
+        <pubDate>Sat, 25 Jul 2020 22:57:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2493-2</guid>
+        <source url="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss">Retrieve all posts of CPT without knowing slugs</source>
+      </item>
+      <item>
+        <title>Retrieve all posts of CPT without knowing slugs</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>OK, I thought this was simple, but apparently I can’t manage it myself and after looking in the documentation and forums for a while I still can’t figure it out, so I’m asking for help. I’m probably totally missing one step in the process.</p>
+<p>What I want is to create a Team component that loops through all posts of the custom post type called ‘team’, but currently I can’t manage to populate Frontity with the posts of that CPT.</p>
+<p>The enpoint for the CPT is:<br>
+<a href="https://frontity.noesteprojecten.nl/wp-json/wp/v2/team" class="onebox" target="_blank" rel="nofollow noopener">https://frontity.noesteprojecten.nl/wp-json/wp/v2/team</a></p>
+<p>So far I’ve added the CPT to <code>frontity.settings.js</code>:</p>
+<pre><code class="lang-javascript">...
+postTypes: [
+  ...
+  {
+    type: "team",
+    endpoint: "team",
+    archive: "/team-archive",
+  },
+]
+...
+</code></pre>
+<p>Added the CPT to my beforeSSR (is this even right for this purpose?):</p>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions }) =&gt; {
+  await Promise.all(
+    [
+      actions.source.fetch("/team"),
+    ]
+  );
+},
+</code></pre>
+<p>And then started working on a component <code>Team</code>:</p>
+<pre><code class="lang-javascript">import React, {useEffect} from "react";
+import { connect, styled } from "frontity";
+
+const Team = ({ state, actions, libraries }) =&gt; {
+
+   useEffect(() =&gt; {
+      // No need to use `async/await` here
+      actions.source.fetch('/team')
+   }, []);
+
+   // The data will not exist at first, `dataPost.isReady` will be false.
+   // But then, it will rerender when `actions.source.fetch` is finished.
+   const dataPost = state.source.get("/team");
+
+   // This will work just fine.
+   dataPost.isReady ? console.log(dataPost, state.source.team) : console.log('nope...');
+
+   return null;
+}
+
+export default connect(Team);
+</code></pre>
+<p>However, dataPost returns an error: <code>post type from endpoints \"posts,pages,media\" with slug \"team\" not found</code>. But when I visit the archive page for team, the post type does exists: <a href="https://frontity-test-ten.now.sh/team-archive" rel="nofollow noopener">https://frontity-test-ten.now.sh/team-archive</a></p>
+<p>After visiting the CPT archive page, the posts are available for the Team component. But of course I need to have them available on the front page already. So I think I will still need to populate Frontity with the posts from the CPT, but what is the correct procedure for this?</p>
+<p>This is a link to my repo:<br>
+<a href="https://bitbucket.org/noesteijver/frontity/src/master/" class="onebox" target="_blank" rel="nofollow noopener">https://bitbucket.org/noesteijver/frontity/src/master/</a></p>
+          <p><a href="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493/1</link>
+        <pubDate>Sat, 25 Jul 2020 09:39:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2493-1</guid>
+        <source url="https://community.frontity.org/t/retrieve-all-posts-of-cpt-without-knowing-slugs/2493.rss">Retrieve all posts of CPT without knowing slugs</source>
+      </item>
+  </channel>
+</rss>

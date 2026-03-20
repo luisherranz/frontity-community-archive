@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Fetch categories by priority/order with condition</title>
+    <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561</link>
+    <description>Hi all
+
+First - this is really great project!
+I&#39;m new here and I hope I&#39;m describing my question clear is possible:
+
+I build two &quot;widget like&quot; components that will display posts from two different categories. 
+My goal is the fetch category X and only when X is ready (`.isReady`) fetch category Y
+
+If I understand it right; the best place to this is on the root index.js under `actions:` using `afterCSR/beforeCSR` etc...
+
+This is what I did:
+
+    actions: {
+    theme: {
+      afterCSR: async ({ state, actions }) =&gt; {
+        await actions.source.fetch(&#39;/category/nba/&#39;);
+        const dataNBA = state.source.get(&#39;/category/nba/&#39;);
+        if (dataNBA.isReady) {
+          actions.source.fetch(&#39;/post_format/gallery/&#39;);
+        }
+      }, ... 
+I&#39;m not sure if this is the right solution and have the best performance.
+Please help me to understand if I&#39;m doing it right...
+
+Thanks</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 01 Jun 2021 05:53:30 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Fetch categories by priority/order with condition</title>
+        <dc:creator><![CDATA[santoshdevnath15]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>. This was a great explanation. And it really works well.</p>
+<p>I just wanted to know others that if you fetch these data in beforeSSR then it will increase the initial load time of the page. So the better idea is to use this inside useEffect so that it can fetch APIs once the initial page loading complete.</p>
+          <p><a href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/14</link>
+        <pubDate>Tue, 01 Jun 2021 05:53:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3561-14</guid>
+        <source url="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss">Fetch categories by priority/order with condition</source>
+      </item>
+      <item>
+        <title>Fetch categories by priority/order with condition</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/shani">@shani</a>,</p>
+<p>If  that case the widget component is not meant to be “independent” so I guess it makes sense the widget is not in charge of making the requests. It can be just a “dumb” component displaying the info it receives</p>
+<p>You could do something like this to assure the widgets are only rendered when the information is available</p>
+<pre><code class="lang-javascript">import React, { useEffect } from "react";
+import { connect } from "frontity";
+
+const BlockWithWidgets = ({ state, actions }) =&gt; {
+
+  // 1. we make all the requests at the same time. 
+  useEffect(() =&gt; {
+    Promise.all(
+      [
+      actions.source.fetch("/category/nba/").
+      actions.source.fetch("/category/boxing/"),
+      actions.source.fetch("/category/football/")
+      ]
+    )
+   
+  }, []);
+
+  // 2. get data from frontity state
+  const dataNba = state.source.get("/category/nba/");
+  const dataBoxing = state.source.get("/category/boxing/");
+  const dataFootball = state.source.get("/category/football/");
+
+  let categoryNba, categoryBoxing, categoryFootball
+  let postsNba, postsBoxing, categoryFootball, postsFootball
+
+  // 3. get entities from frontity state
+  if (dataNba.isReady &amp;&amp; dataNba.isCategory) {
+    const categoryNba = state.source.category[dataNba.id];
+    const postsNba = dataNba.items.map(({ type, id }) =&gt; state.source[type][id]);
+}
+
+  if (dataBoxing.isReady &amp;&amp; dataBoxing.isCategory) {
+    const categoryBoxing = state.source.category[dataBoxing.id];
+    const postsBoxing = dataBoxing.items.map(({ type, id }) =&gt; state.source[type][id]);
+}
+
+  if (dataFootball.isReady &amp;&amp; dataFootball.isCategory) {
+    const categoryFootball = state.source.category[dataFootball.id];
+    const postsFootball = dataFootball.items.map(({ type, id }) =&gt; state.source[type][id]);
+}
+
+
+if (categoryNba &amp;&amp; categoryBoxing &amp;&amp; categoryFootball)  {
+    // 4. only render widgets when all the ingormation is available
+    return (
+      &lt;&gt;
+          &lt;Widget1 category={categoryNba} posts={postsNba} /&gt;
+          &lt;Widget1 category={categoryBoxing} posts={postsBoxing} /&gt;
+          &lt;Widget1 category={categoryFootball} posts={postsFootball} /&gt;
+      &lt;/&gt;
+    );
+
+}
+
+return null;
+};
+
+export default connect(CategoryNature);
+</code></pre>
+<p>this logic will be activated on the Client Side. I you want this info to be available from SSR (you’ll need to move the logic from the <code>useEffect</code> to the <a href="https://docs.frontity.org/learning-frontity/actions#beforessr-server-only-__"><code>beforeSSR</code></a> action</p>
+          <p><a href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/12</link>
+        <pubDate>Tue, 15 Dec 2020 08:48:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3561-12</guid>
+        <source url="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss">Fetch categories by priority/order with condition</source>
+      </item>
+      <item>
+        <title>Fetch categories by priority/order with condition</title>
+        <dc:creator><![CDATA[shani]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="juanma" data-post="8" data-topic="3561">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>I still don’t understand why do you need to load one category after the other as they are independent categories that can be loaded simultaneously, and whenever the data is available in the state, each <code>&lt;Widget1&gt;</code> component will re-render accordingly</p>
+</blockquote>
+</aside>
+<p>The main reason I want to load categories depend on each other is because sometimes “boxing” category loads/rendering before “nba” <strong>(when user reloading the page/first time visit)</strong><br>
+This is interpret for my smooth HP widgets load and give the user poor experience …</p>
+<p>Imagine you have 3 boxes of <code>&lt;Widget1&gt;</code> one below the other, and the 3th widget loads before the 1st…<br>
+I want while user scroller down, the widget (categories) will load by their order</p>
+<pre><code>// 1st on to show:
+&lt;Widget1 categorySlug="/category/nba/" /&gt;
+// 2nd on to show:
+&lt;Widget1 categorySlug="/category/boxing/" /&gt;
+// 3rd on the show:
+&lt;Widget1 categorySlug="/category/football/" /&gt;
+// etc...</code></pre>
+          <p><a href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/10</link>
+        <pubDate>Sun, 13 Dec 2020 09:46:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3561-10</guid>
+        <source url="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss">Fetch categories by priority/order with condition</source>
+      </item>
+      <item>
+        <title>Fetch categories by priority/order with condition</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/shani">@shani</a>,</p>
+<p>One key idea in Frontity is that the source of data is the state. And React components that are connected to the state, can “react” (they will be re-rendered with latest data) to updates in that state.</p>
+<p>All the logic regarding data is handled by the <a href="https://docs.frontity.org/api-reference-1/wordpress-source"><code>wp-source</code></a> package.</p>
+<p><a href="https://docs.frontity.org/api-reference-1/wordpress-source#how-to-use">In the docs</a> you can find the following example with comments that I think it can help you to understand better how this works</p>
+<pre><code class="lang-javascript">import React, { useEffect } from "react";
+import { connect } from "frontity";
+
+// In a React component that uses "connect":
+const CategoryNature = ({ state, actions }) =&gt; {
+  // 1. fetch data related to a path
+  // With this useEffect we make the call to fetch
+  // only the first time the component is rendered.
+  // When the data is fetched, the state is updated with the new data
+  // so the component is re-rendered and "data" will get proper content
+
+  useEffect(() =&gt; {
+    actions.source.fetch("/category/nature/");
+  }, []);
+
+  // 2. get data from frontity state
+  const data = state.source.get("/category/nature/");
+
+  // 3. get entities from frontity state
+  if (data.isCategory) {
+    // the category entity
+    const category = state.source.category[data.id];
+
+    // posts from that category
+    const posts = data.items.map(({ type, id }) =&gt; state.source[type][id]);
+
+    // 4. render!
+    return (
+      &lt;&gt;
+        &lt;h1&gt;{category.name}&lt;/h1&gt;
+        {posts.map((p) =&gt; (
+          &lt;a href={p.link}&gt;{p.title.rendered}&lt;/a&gt;
+        ))}
+      &lt;/&gt;
+    );
+  }
+
+  return null;
+};
+
+export default connect(CategoryNature);
+</code></pre>
+<p>The key idea here is that when the <code>actions.source.fetch</code> finishes, the component is re-rendered with updated information, so the <code>state.source.get</code> method will be able to get data form the <code> actions.source.fetch</code></p>
+<p>This approach (using the state as the source of truth) have several advantages:</p>
+<ul>
+<li>The same data is used across all your React components</li>
+<li>This state can be used in both SSR and CSR versions of your pages and components</li>
+<li>Whenever the state is updated with new information all components connected (by using <a href="https://docs.frontity.org/api-reference-1/frontity#connect"><code>connect</code></a> HOC) to the state will be re-rendered</li>
+</ul>
+<hr>
+<aside class="quote no-group" data-username="shani" data-post="6" data-topic="3561">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/shani/40/1987_2.png" class="avatar"> shani:</div>
+<blockquote>
+<p>How I can tell “boxing” to start loads after nba ?</p>
+</blockquote>
+</aside>
+<p>I still don’t understand why do you need to load one category after the other as they are independent categories that can be loaded simultaneously, and whenever the data is available in the state, each <code>&lt;Widget1&gt;</code> component will re-render accordingly</p>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/8</link>
+        <pubDate>Fri, 11 Dec 2020 11:42:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3561-8</guid>
+        <source url="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss">Fetch categories by priority/order with condition</source>
+      </item>
+      <item>
+        <title>Fetch categories by priority/order with condition</title>
+        <dc:creator><![CDATA[shani]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for your answer!</p>
+<p>This may a little confusing.<br>
+Looking at this docs: <a href="https://docs.frontity.org/api-reference-1/wordpress-source#how-to-use" rel="noopener nofollow ugc">https://docs.frontity.org/api-reference-1/wordpress-source#how-to-use</a> (very similar what I need)<br>
+I’ve understand that: First I need to Fetch the data from the category and then use <code>state.source.get</code><br>
+Current me if I wrong …<br>
+I’m using <code>afterCSR</code> because I was unable to create a dynamic component that loads my data by order.</p>
+<p>Lets say I have created this component:</p>
+<pre><code>const Widget1 = ({ categorySlug, state, actions }) =&gt; {
+
+   useEffect(() =&gt; {
+      actions.source.fetch(categorySlug);
+   }, []);
+
+   const data = state.source.get(categorySlug);
+   if (data.isReady) {
+     // ... do stuff
+   }
+</code></pre>
+<p>In my HP I calling:</p>
+<pre><code>&lt;Widget1 categorySlug="/category/nba/" /&gt;
+&lt;Widget1 categorySlug="/category/boxing/" /&gt;
+// etc..
+</code></pre>
+<p>How I can tell “boxing” to start loads after nba ?</p>
+          <p><a href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/6</link>
+        <pubDate>Thu, 10 Dec 2020 10:40:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3561-6</guid>
+        <source url="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss">Fetch categories by priority/order with condition</source>
+      </item>
+      <item>
+        <title>Fetch categories by priority/order with condition</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/shani">@shani</a>!</p>
+<p>Welcome to the Community!</p>
+<p>I don’t understand well why do you need to make the <code>fetch</code> to <code>'/post_format/gallery/'</code> when <code>dataNBA.isReady</code>. As frontity access the REST API, data from both endpoints should be available anytime</p>
+<p>Maybe the names of the methods are confusing you. These methods belong to the <code>wp-source</code> package that is documented in the <a href="https://docs.frontity.org/">docs</a></p>
+<p><a href="https://docs.frontity.org/api-reference-1/wordpress-source" class="onebox" target="_blank" rel="noopener">https://docs.frontity.org/api-reference-1/wordpress-source</a></p>
+<p>Let me point out the purpose of these methods and the difference between them</p>
+<h3><a href="https://docs.frontity.org/api-reference-1/wordpress-source#actions-source-fetch"><code>actions.source.fetch()</code></a></h3>
+<p><code>fetch</code> is an action available though the <code> wp-source</code> package that fetches all entities related to a <code>link</code>. This means, this method will actually perform a request and will put the information retrieved in the state</p>
+<p>This method returns a promise, so when the promise is resolved the data will be fully available in the state.</p>
+<p>The property <code>isReady</code> available for each link info (that can be get through <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#state-source-get"><code>state.source.get()</code></a>) informs when the request triggered by <code>actions.source.fetch()</code> has finished and the data is available in the state</p>
+<h3><a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#state-source-get"><code>state.source.get()</code></a></h3>
+<p>This is the method that allow us to read data available for each link from the state. As this method returns final data (titles, contents, author names…) most of the times it will be used directly from the React component that is going to display that data.</p>
+<hr>
+<p>So, if you have created a widget component in React, maybe this logic can be directly part of that component (in the <code>useEffect</code> hook for example) because by using <code>afterCSR</code> all the pages loaded by Frontity (even those that are not using that widget) will execute that logic. If you put the logic in the widget component, the logic (fetching data and so) will be executed  only when the component is used</p>
+<p>In case you want to learn more about how the <code>fetch</code> action and <code>get</code> method works along with the state manager here you have some videos where the DevRel team talks about this</p>
+<p>            <iframe width="480" height="360" src="https://www.youtube.com/embed/e-_66W8pfdY?feature=oembed&amp;wmode=opaque&amp;list=PLC9teX20GdrTBeOzSwE-bFW-MbBEUwowS" frameborder="0" allowfullscreen="" seamless="seamless" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"></iframe>
+</p>
+<p>            <iframe width="480" height="360" src="https://www.youtube.com/embed/eW5xZlpcqQk?feature=oembed&amp;wmode=opaque&amp;list=PLC9teX20GdrTBeOzSwE-bFW-MbBEUwowS" frameborder="0" allowfullscreen="" seamless="seamless" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"></iframe>
+</p>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/4</link>
+        <pubDate>Thu, 10 Dec 2020 09:21:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3561-4</guid>
+        <source url="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss">Fetch categories by priority/order with condition</source>
+      </item>
+      <item>
+        <title>Fetch categories by priority/order with condition</title>
+        <dc:creator><![CDATA[shani]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi all</p>
+<p>First - this is really great project!<br>
+I’m new here and I hope I’m describing my question clear is possible:</p>
+<p>I build two “widget like” components that will display posts from two different categories.<br>
+My goal is the fetch category X and only when X is ready (<code>.isReady</code>) fetch category Y</p>
+<p>If I understand it right; the best place to this is on the root index.js under <code>actions:</code> using <code>afterCSR/beforeCSR</code> etc…</p>
+<p>This is what I did:</p>
+<pre><code>actions: {
+theme: {
+  afterCSR: async ({ state, actions }) =&gt; {
+    await actions.source.fetch('/category/nba/');
+    const dataNBA = state.source.get('/category/nba/');
+    if (dataNBA.isReady) {
+      actions.source.fetch('/post_format/gallery/');
+    }
+  }, ... 
+</code></pre>
+<p>I’m not sure if this is the right solution and have the best performance.<br>
+Please help me to understand if I’m doing it right…</p>
+<p>Thanks</p>
+          <p><a href="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561/1</link>
+        <pubDate>Sun, 06 Dec 2020 16:26:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3561-1</guid>
+        <source url="https://community.frontity.org/t/fetch-categories-by-priority-order-with-condition/3561.rss">Fetch categories by priority/order with condition</source>
+      </item>
+  </channel>
+</rss>

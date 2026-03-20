@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to fetch Menu from wordpress?</title>
+    <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415</link>
+    <description>Hi, I have exposed my site menus and now i want to fetch the menu in my front end.
+My menu is exposed at http://localhost:8080/wp-json/wp/v2/menu/primary</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 07 Mar 2022 13:25:04 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>That works as well. Just 1 thing I would recommend, dont use axios.<br>
+Frontity already 2 ways that it can help you avoid this. Both are safe on the server and one of them is made specifically to work for frontity.</p>
+<ol>
+<li>Fetch your data: <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries.source.api.get" class="inline-onebox" rel="noopener nofollow ugc">@frontity/wp-source - API Reference</a>
+</li>
+<li>Populate the state: <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries.source.populate" class="inline-onebox" rel="noopener nofollow ugc">@frontity/wp-source - API Reference</a>
+</li>
+</ol>
+<p>This will keep your site lighter and faster. Alternatively you can use the WHATWG API implementation of fetch that is included in frontity package: <a href="https://api.frontity.org/frontity-packages/core-package/frontity#fetch" class="inline-onebox" rel="noopener nofollow ugc">frontity - API Reference</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/109">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/109</link>
+        <pubDate>Mon, 07 Mar 2022 13:25:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-109</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[michael.ringlein]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,</p>
+<p>Thank you for your input.</p>
+<p>I found a solution by simply doing an extra axios request within the nav.js.</p>
+<p>Not the most elegant but it did work for me without digging deeper into the handler.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/108">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/108</link>
+        <pubDate>Sat, 05 Mar 2022 09:45:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-108</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey Michael,</p>
+<p>based on what I see I am assuming that the request is being handled by the default handlers of frontity.<br>
+You have to make sure you create the menu handler, so when you call <code>api.get</code> on the menus URL, frontity knows which url to request.</p>
+<p>If there is no handler, frontity by default is going to attempt to fetch from the 3 default post type endpoints: posts, pages, media.</p>
+<p>Here is how my menu handler looks like:</p>
+<pre><code class="lang-js">const menuHandler = {
+  name: "menus",
+  priority: 10,
+  pattern: "/menu/:slug",
+  func: async ({ link, params, state, libraries }) =&gt; {
+    const { slug } = params;
+
+    // Fetch the menu data from the endpoint
+    const response = await libraries.source.api.get({
+      endpoint: `/menus/v1/menus/${slug}`,
+    });
+
+    // Parse the JSON to get the object
+    const menuData = await response.json();
+
+    // Add menu items to state.source.menu
+    Object.assign(state.source.menu, {
+      [slug]: menuData.items,
+    });
+
+    // Add the metadata for menus
+    const menu = state.source.data[link];
+
+    Object.assign(menu, {
+      isMenu: true,
+    });
+  },
+};
+
+export default menuHandler;
+
+</code></pre>
+<p>Depending on how you are storing your menu items, the last part could be a bit different.</p>
+<p>Hope that helps. Good luck.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/107">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/107</link>
+        <pubDate>Mon, 14 Feb 2022 09:25:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-107</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[michael.ringlein]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello together,</p>
+<p>I tried to follow this example step by step. The video is really good and the Github as well. I think I have ruled out any typos etc.</p>
+<p>Unfortunately I get in the console</p>
+<p>errorStatusText: “post type from endpoints “posts,pages,media” with slug “main-menu” not found”</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/f/f70c08c8be8d971677b70c17845f50258c99fe42.png" data-download-href="https://community.frontity.org/uploads/default/f70c08c8be8d971677b70c17845f50258c99fe42" title="Screenshot 2022-02-12 at 10.18.53"><img src="https://community.frontity.org/uploads/default/optimized/2X/f/f70c08c8be8d971677b70c17845f50258c99fe42_2_690x189.png" alt="Screenshot 2022-02-12 at 10.18.53" data-base62-sha1="zftIyhZlC2VA3ijazXdCY1qzM4y" width="690" height="189" srcset="https://community.frontity.org/uploads/default/optimized/2X/f/f70c08c8be8d971677b70c17845f50258c99fe42_2_690x189.png, https://community.frontity.org/uploads/default/optimized/2X/f/f70c08c8be8d971677b70c17845f50258c99fe42_2_1035x283.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/f/f70c08c8be8d971677b70c17845f50258c99fe42_2_1380x378.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/f/f70c08c8be8d971677b70c17845f50258c99fe42_2_10x10.png"></a></div><p></p>
+<p>Am I doing something wrong? Has anyone else a similar issue?</p>
+<p>Best Regards<br>
+Michael</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/106">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/106</link>
+        <pubDate>Sat, 12 Feb 2022 09:20:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-106</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Sure thing <a class="mention" href="https://community.frontity.org/u/pablo">@Pablo</a>. <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<p>As well as the <a href="https://www.youtube.com/watch?v=BMJn0RZ2I9s">video tutorial in the Frontity Talks series</a> explaining the process to follow to get the menu from WordPress and use it in your Frontity project, there’s also <a href="https://github.com/frontity-demos/frontity-examples/tree/master/fetch-menu-from-wp">this accompanying code demo</a>.</p>
+<p>The code demo uses <code>mars-theme</code> which is largely unaltered apart from the additional code needed to fetch and use the menus.</p>
+<p>The additional files are the <code>handlers</code> folder and the file <a href="https://github.com/frontity-demos/frontity-examples/blob/master/fetch-menu-from-wp/packages/mars-theme/src/components/handlers/menu-handler.js"><code>menu-handler.js</code></a> which is contained within it.</p>
+<p>This is the handler code:</p>
+<pre><code class="lang-javascript">const menuHandler = {
+  name: "menus",
+  priority: 10,
+  pattern: "/menu/:slug",
+  func: async ({ link, params, state, libraries }) =&gt; {
+    console.log("PARAMS:", params);
+    const { slug } = params;
+
+    // Fetch the menu data from the endpoint
+    const response = await libraries.source.api.get({
+      endpoint: `/menus/v1/menus/${slug}`,
+    });
+
+    // Parse the JSON to get the object
+    const menuData = await response.json();
+
+    // Add the menu items to source.data
+    const menu = state.source.data[link];
+    console.log(link);
+    Object.assign(menu, {
+      items: menuData.items,
+      isMenu: true,
+    });
+  },
+};
+
+export default menuHandler;
+</code></pre>
+<p>This is the only new file in the theme. The other changes are in existing files.</p>
+<p>In <a href="https://github.com/frontity-demos/frontity-examples/blob/master/fetch-menu-from-wp/packages/mars-theme/src/index.js"><code>index.js</code></a> the handler is imported <em>(line 5)</em> and added to the <code>libraries.source.handlers</code> array <em>(line 60)</em>. Also a <code>beforeSSR</code> action is added *(lines 45 - 47).</p>
+<p>Import of handler and added to array:</p>
+<pre><code class="lang-javascript">// ...
+import menuHandler from "./components/handlers/menu-handler";
+
+// ...
+
+libraries: {
+  // ...
+  source: {
+    handlers: [menuHandler],
+  },
+},
+</code></pre>
+<p>This is the <code>beforeSSR</code> action method:</p>
+<pre><code class="lang-javascript">actions: {
+  theme: {
+    // ...
+    beforeSSR: async ({ state, actions }) =&gt; {
+      await actions.source.fetch(`/menu/${state.theme.menuUrl}/`);
+    }
+  },
+},
+</code></pre>
+<p>The menu items are then rendered in <a href="https://github.com/frontity-demos/frontity-examples/blob/master/fetch-menu-from-wp/packages/mars-theme/src/components/nav.js"><code>nav.js</code></a> where some styling can also be applied. How you implement and style this part is up to you and the requirements of your project.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/104">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/104</link>
+        <pubDate>Mon, 08 Feb 2021 17:38:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-104</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> maybe it makes sense to create an elaborated answer in this thread pointing to the resources you’ve created today for the menus and mark it as the solution for this thread?</p>
+<p>This way people accessing the thread will have an easy way to find your answer <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/102">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/102</link>
+        <pubDate>Wed, 27 Jan 2021 18:57:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-102</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<p><img src="https://community.frontity.org/images/emoji/apple/film_strip.png?v=9" title=":film_strip:" class="emoji" alt=":film_strip:"> The video is now up: <a href="https://www.youtube.com/watch?v=BMJn0RZ2I9s">https://www.youtube.com/watch?v=BMJn0RZ2I9s</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/101">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/101</link>
+        <pubDate>Wed, 27 Jan 2021 13:17:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-101</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> Looking forward to the video!! Definitely could not have gotten my code working without the countless other comments on this thread <img src="https://community.frontity.org/images/emoji/apple/facepunch.png?v=9" title=":facepunch:" class="emoji" alt=":facepunch:"> <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"> I also very much appreciate your help and the rest of the Dev Rel team!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/100">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/100</link>
+        <pubDate>Fri, 22 Jan 2021 17:01:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-100</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome work <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a>. The solution you’ve come up with is very similar to the one we’ll be presenting in the next episode of <a href="https://www.youtube.com/playlist?list=PLC9teX20GdrTBeOzSwE-bFW-MbBEUwowS">Frontity Talks</a>.</p>
+<p>Thanks for sharing your solution in the community forum. Others will benefit, I’m sure.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/99">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/99</link>
+        <pubDate>Fri, 22 Jan 2021 11:22:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-99</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+Apologies for not getting back sooner. I was determined to get this working and I finally got everything did! I couldn’t share a repo because it’s a private company project. Tbh me figuring it out was more a result of just diving into the code more to understand what was really happening.</p>
+<p>A few things did help me though, I’ve listed them below in case others read this:</p>
+<p><strong>I used this plugin to expose the menus:</strong><br>
+</p><aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://s.w.org/favicon.ico?2" class="site-icon" width="16" height="16">
+      <a href="https://wordpress.org/plugins/wp-rest-api-v2-menus/#description" target="_blank" rel="noopener nofollow ugc">WordPress.org</a>
+  </header>
+  <article class="onebox-body">
+    <img src="" class="thumbnail" width="16" height="16">
+
+<h3><a href="https://wordpress.org/plugins/wp-rest-api-v2-menus/#description" target="_blank" rel="noopener nofollow ugc">WP-REST-API V2 Menus</a></h3>
+
+<p>Adding menus endpoints on WP REST API v2</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<br>
+This plugin exposes the following routes and it’s important to be mindful of these paths.
+<blockquote>
+<ul>
+<li>
+<code>/menus/v1/menus</code> list of every registered menu.</li>
+<li>
+<code>/menus/v1/menus/&lt;slug&gt;</code> data for a specific menu.</li>
+<li>
+<code>/menus/v1/locations</code> list of every registered menu location in your theme.</li>
+<li>
+<code>/menus/v1/locations/&lt;slug&gt;</code> data for a specific menu location.</li>
+</ul>
+</blockquote>
+<p><strong>Handler Code</strong><br>
+In my handler when I was fetching the data from the source:</p>
+<blockquote>
+<pre><code>const response = await libraries.source.api.get({ 
+  endpoint: `/menus/v1/menus/${slug}`
+});
+</code></pre>
+</blockquote>
+<p>I initially had the endpoint starting without a <code>/</code>. I later read on another post the following:</p>
+<p>If the <code>"endpoint"</code> value doesn’t start with <code>"/"</code>, it will add <code>"/wp/v2"</code> first. So when my endpoint should have been:</p>
+<p><code>https://ripple-web.lndo.site/wp-json/menus/v1/menus/footer-about-us</code></p>
+<p>it was actually:</p>
+<p><code>https://ripple-web.lndo.site/wp-json/wp/v2/menus/v1/menus/footer-about-us</code></p>
+<p>Which was incorrect.</p>
+<p><strong>Handler Code and beforeSSR action</strong></p>
+<p>Lastly I think I had the path / route in my <code>actions.source.fetch</code> call incorrect in the theme actions. Here is my handler code and my beforeSSR call in my marsTheme config that works.</p>
+<pre><code>&gt; actions: {
+&gt;     theme: {
+&gt;       // special Frontity action fired to prepare the state for the React render made in the server
+&gt;       beforeSSR: async ({actions}) =&gt; {
+&gt;         await actions.source.fetch('menus/footer-menu') // /menus/v1/menus/&lt;slug&gt; data for a specific menu location.
+&gt;       },
+&gt;       toggleMobileMenu: ({ state }) =&gt; {
+&gt;         state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+&gt;       },
+&gt;       closeMobileMenu: ({ state }) =&gt; {
+&gt;         state.theme.isMobileMenuOpen = false;
+&gt;       },
+&gt;     },
+&gt;   },
+</code></pre>
+<p>// handler</p>
+<pre><code>export const footerMenuHandler = {
+  name: "footerMenu",
+  priority: 10,
+  pattern: "menus/:slug",
+  func: async ({ route, params, state, libraries, force }) =&gt; {
+
+    console.log(params.slug);
+    console.log("Route: " + route);
+
+    const { slug } = params;
+    console.log("Slug: " + slug);
+    // 1. fetch the data you want from the endpoint page
+    const response = await libraries.source.api.get({ 
+      endpoint: `/menus/v1/menus/${slug}`
+    });
+
+    // this is where we get the actual data
+    // 2. get our menu object in json format
+    const menu = await response.json();
+
+    console.log(menu);
+    // this is a reference to the state object for this link currently, get this and it wil be the target object which
+    // we assign our data from items to in object.assign
+    // 3. add data to source
+    const currentPageData = state.source.data[route];
+
+    Object.assign(currentPageData, {
+      slug,
+      items: menu.items, // @ni.bonev figured this one out because the "items" property contains an array of items
+      isMenu: true
+    });
+
+  }
+};
+</code></pre>
+<p>I believe the <code>pattern</code> in the handler and the route in my <code>actions.source.fetch</code> need to coordinate or match if you will. The menu I’m fetching is a menu created in WordPress however I had to register it in php with the register_nav_menu WordPress function in order to register it with the slug I wanted, in this case <code>footer-menu</code></p>
+<p>php code to register the menu with the slug I wanted. Though I don’t think I <strong>had</strong> to do this . . .</p>
+<blockquote>
+<pre><code>//add footer menu
+function register_footer_menu() {
+  register_nav_menu('footer-menu',__( 'Footer Menu'));
+}
+add_action( 'init', 'register_footer_menu');
+</code></pre>
+</blockquote>
+<p>Anyway long and short of it is that now it’s working like a charm and I’ve built my sites footer <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> Thanks again!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/98">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/98</link>
+        <pubDate>Thu, 21 Jan 2021 23:04:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-98</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<p>Could you provide a link to a repo please. How have you implemented your handler? Funnily enough the next episode of Frontity Talks is going to be about this very topic, i.e. fetching menus from WP. It should be available at the end of next week.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/96">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/96</link>
+        <pubDate>Tue, 12 Jan 2021 10:26:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-96</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+Yep, it’s the correct endpoint - it returns me the JSON I need for my menu. Here is a partial screen grab of what’s returned in the browser. I cropped it since I’m guessing it’s enough to show it’s working.<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/368b88ce339a699c6edbc4b856dedf29796e3e92.png" data-download-href="https://community.frontity.org/uploads/default/368b88ce339a699c6edbc4b856dedf29796e3e92" title="Screen Shot 2021-01-12 at 1.39.36 AM"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/368b88ce339a699c6edbc4b856dedf29796e3e92_2_690x328.png" alt="Screen Shot 2021-01-12 at 1.39.36 AM" data-base62-sha1="7MwJxiHWnZmrkLlFwu2MQ80CuCm" width="690" height="328" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/368b88ce339a699c6edbc4b856dedf29796e3e92_2_690x328.png, https://community.frontity.org/uploads/default/optimized/2X/3/368b88ce339a699c6edbc4b856dedf29796e3e92_2_1035x492.png 1.5x, https://community.frontity.org/uploads/default/original/2X/3/368b88ce339a699c6edbc4b856dedf29796e3e92.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/368b88ce339a699c6edbc4b856dedf29796e3e92_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/95">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/95</link>
+        <pubDate>Tue, 12 Jan 2021 09:41:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-95</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<p>Enter the URL <code>http://ripple-web.lndo.site/wp-json/menus/v1/menus/footer-about-us</code> into a browser address bar. Do you get anything? i.e. do you know that’s the correct endpoint?</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/94">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/94</link>
+        <pubDate>Tue, 12 Jan 2021 09:24:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-94</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+Thanks for the quick response. I fear I’m getting pretty despondent with development so far, seem to be so many errors, though I feel like the majority of it is because its WordPress <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I’d love any help, so here is where I’m at currently. I’m trying to output some menu content like other people in this thread.</p>
+<ul>
+<li>
+<p>I’ve set my <code>state.source.url</code> to my locally running wordpress site which uses http. So I’m no longer getting that error about the certificate.</p>
+</li>
+<li>
+<p>In the beforeSSR action I have this code:</p>
+</li>
+</ul>
+<blockquote>
+<pre><code>    beforeSSR: async ({actions}) =&gt; {
+    await actions.source.fetch('http://ripple-web.lndo.site/wp-json/menus/v1/menus/footer-about-us') // this invokes our footerMenuHandler
+  }
+</code></pre>
+</blockquote>
+<ul>
+<li>
+<p>The resource at this address:<br>
+…/wp-json/menus/v1/menus/footer-about-us returns the correct JSON I need.</p>
+</li>
+<li>
+<p>I get this error:</p>
+</li>
+</ul>
+<blockquote>
+<p>ServerError: post type from endpoints “posts,pages,media” with slug “footer-about-us” not found<br>
+at Object.eval (webpack-internal:///./node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source/src/libraries/handlers/postType.ts:37:21)<br>
+at runMicrotasks ()<br>
+at processTicksAndRejections (internal/process/task_queues.js:93:5)<br>
+at eval (webpack-internal:///./node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source/src/actions.ts:24:1) {<br>
+status: 404,<br>
+statusText: ‘post type from endpoints “posts,pages,media” with slug “footer-about-us” not found’<br>
+}</p>
+</blockquote>
+<p>I’d love any help on this, thanks!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/93">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/93</link>
+        <pubDate>Tue, 12 Jan 2021 05:29:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-93</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<p>I’m not an expert on web security, but I found <a href="https://stackoverflow.com/a/32440021/6523757">this answer</a> about adding the root certificate to your application.</p>
+<p>This may guide you in the right direction, or alternatively turn off https for that site on your local host. As it’s just local on your dev machine you don’t necessarily need https/ssl unless you’re specifically developing something that depends on it.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/92">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/92</link>
+        <pubDate>Mon, 11 Jan 2021 09:38:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-92</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Michael <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+Ok more questions <img src="https://community.frontity.org/images/emoji/apple/grinning.png?v=9" title=":grinning:" class="emoji" alt=":grinning:"><br>
+Also please let me know if I should be creating new posts for these or if there is a specific protocol. My next questions are related to my WP data source. I’m using a locally run version of WordPress. Here is the code from my <code>frontity.settings.js</code></p>
+<blockquote>
+<p>{<br>
+“name”: “<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source”,<br>
+“state”: {<br>
+“source”: {<br>
+“url”: “<a href="https://ripple-web.lndo.site/" rel="noopener nofollow ugc">https://ripple-web.lndo.site/</a>”,<br>
+}<br>
+}<br>
+},</p>
+</blockquote>
+<p>With this setup I get an error on the server console like this:</p>
+<pre><code>`FetchError: request to https://ripple-web.lndo.site/wp-json/wp/v2/posts?_embed=true&amp;slug=footer-about-us failed, reason: unable to verify the first certificate`
+</code></pre>
+<p>I can use a locally run version of the site with a non https url:</p>
+<pre><code>`http://ripple-web.lndo.site/`
+</code></pre>
+<p>When I do this my frontity site loads the header and footer but in the middle of the page I get the ’ Oops! Something went wrong message. The error in the browser console is:</p>
+<pre><code>GET http://ripple-web.lndo.site/wp-json/wp/v2/posts?_embed=true&amp;page=1 401 (Unauthorized)
+</code></pre>
+<p>Obviously these are 2 separate issues but either way I’m not able to connect to my data source. Any help or direction greatly appreciated! Thanks!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/91">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/91</link>
+        <pubDate>Sat, 09 Jan 2021 00:22:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-91</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+Thank you for the quick feedback. I was actually watching a video with you in it last night where you were delving into what Frontity objects you can inspect in the console, very helpful! Thank you!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/90">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/90</link>
+        <pubDate>Fri, 08 Jan 2021 00:30:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-90</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/david1">@david1</a>,</p>
+<p>Appreciate the thorough response! I see - I was confused in looking at the docs and didn’t read closely enough that <code>beforeSSR</code> is just a function triggered at a certain time by Frontity that you can tap into. I read the examples as method signatures, my fault. Again greatly appreciate the help!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/89">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/89</link>
+        <pubDate>Fri, 08 Jan 2021 00:28:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-89</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Just to add to what <a class="mention" href="https://community.frontity.org/u/david1">@david1</a> has said above, the <code>frontity</code> object has four properties, each of which is itself an object. The four properties are:</p>
+<ul>
+<li><a href="https://docs.frontity.org/learning-frontity/actions">actions</a></li>
+<li><a href="https://docs.frontity.org/learning-frontity/libraries">libraries</a></li>
+<li><a href="https://docs.frontity.org/learning-frontity/roots">roots</a></li>
+<li><a href="https://docs.frontity.org/learning-frontity/state">state</a></li>
+</ul>
+<p>You can examine the object by entering <code>frontity</code> in the browser console, as you can see in this screenshot:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/7/7eda74170aca5d0d327a40f915bfa4f08ece64db.png" data-download-href="https://community.frontity.org/uploads/default/7eda74170aca5d0d327a40f915bfa4f08ece64db" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/7/7eda74170aca5d0d327a40f915bfa4f08ece64db_2_690x152.png" alt="image" data-base62-sha1="i6cc8eNlmH7itiWmA6ONMkcxJuH" width="690" height="152" srcset="https://community.frontity.org/uploads/default/optimized/2X/7/7eda74170aca5d0d327a40f915bfa4f08ece64db_2_690x152.png, https://community.frontity.org/uploads/default/original/2X/7/7eda74170aca5d0d327a40f915bfa4f08ece64db.png 1.5x, https://community.frontity.org/uploads/default/original/2X/7/7eda74170aca5d0d327a40f915bfa4f08ece64db.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/7/7eda74170aca5d0d327a40f915bfa4f08ece64db_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/88">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/88</link>
+        <pubDate>Thu, 07 Jan 2021 10:15:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-88</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a>,</p>
+<p>So basically, the <code>beforeSSR: ({actions})</code> is destructuring the object passed to it.  The different parameter is what I need from the whole object, so I use the destructuring syntax <code>{actions}</code> to access it, instead of <code>(object)</code> and then later <code>object.actions</code>.  It’s just a shorthand of sorts in the new ECMAscript spec.  In your case, you don’t need anything in your <code>beforeSSR: ()</code> because you aren’t using anything.  However, if you needed <code>state</code> or <code>libraries</code>, you would write what you did.  Javascript functions don’t require a parameter be sent through if the function is provided one, you just want to pass the parameter if you’ll be using it.</p>
+<p>As far as the <code>async</code>, I need it because I’m using <code>await</code> in the function for <code>await actions.source.fetch('/menus/primary-menu')</code> and <code>await actions.source.fetch('/menus/footer-menu')</code>.  That’s because the <code>actions.source.fetch</code> needs to wait for a response from the WordPress API before.  If I don’t use <code>await</code>, the <code>actions.source.fetch()</code> calls will result in undefined data.  Without <code>async</code>, <code>await</code> will through a Javascript error and the code will break.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/87">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/87</link>
+        <pubDate>Thu, 07 Jan 2021 09:50:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-87</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<aside class="quote no-group" data-username="sattley" data-post="84" data-topic="415">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sattley/40/2057_2.png" class="avatar"> sattley:</div>
+<blockquote>
+<p>I’d like to have the menus in WordPress still configurable by some non technical folks</p>
+</blockquote>
+</aside>
+<p>Good approach! <img src="https://community.frontity.org/images/emoji/apple/ok_hand.png?v=9" title=":ok_hand:" class="emoji" alt=":ok_hand:"></p>
+<aside class="quote no-group" data-username="sattley" data-post="84" data-topic="415">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sattley/40/2057_2.png" class="avatar"> sattley:</div>
+<blockquote>
+<p>As I type this I just realized my error -&gt; it logs to the terminal if I do <code>npx frontity dev</code> since that’s the server, doh!</p>
+</blockquote>
+</aside>
+<p>Well done on figuring that out - the clue is in the name: SSR! <img src="https://community.frontity.org/images/emoji/apple/grinning.png?v=9" title=":grinning:" class="emoji" alt=":grinning:"></p>
+<aside class="quote no-group" data-username="sattley" data-post="84" data-topic="415">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/sattley/40/2057_2.png" class="avatar"> sattley:</div>
+<blockquote>
+<p>More questions to come I’m sure, thanks!</p>
+</blockquote>
+</aside>
+<p>Feel free to ask. I look forward to helping wherever I can. Good luck with your project.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/86">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/86</link>
+        <pubDate>Thu, 07 Jan 2021 09:00:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-86</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david1">@david1</a>,<br>
+Thanks for this solution. Rookie question for you but I noticed that your <code>beforeSSR</code> property it is not the same syntax as the Frontity documentation of:</p>
+<blockquote>
+<p>{<br>
+beforeSSR: ({ state, libraries }) =&gt; {<br>
+console.log(‘Gonna SSR this page’);<br>
+}<br>
+}</p>
+</blockquote>
+<p>but rather you have:</p>
+<blockquote>
+<p>beforeSSR: async ({ actions }) =&gt; {}</p>
+</blockquote>
+<p>How did you know to do this, ie the async and different parameter?<br>
+Thanks in advance!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/85">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/85</link>
+        <pubDate>Thu, 07 Jan 2021 02:18:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-85</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,<br>
+Thanks for the quick response. I’m going to use the solution that others have used since I’d like to have the menus in WordPress still configurable by some non technical folks.</p>
+<p>A few other questions if you don’t mind. I’m learning Frontity and have been reading all of the docs first.<br>
+Right now I’m just trying to console.log from the <code>beforeSSR</code> action, but it doesn’t seem to work. As I type this I just realized my error -&gt; it logs to the terminal if I do <code>npx frontity dev</code> since that’s the server, doh!</p>
+<p>More questions to come I’m sure, thanks!</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/84">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/84</link>
+        <pubDate>Thu, 07 Jan 2021 02:10:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-84</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a></p>
+<p>Welcome to the Frontity community. Great to hear that you’re thinking of using Frontity for your work project.</p>
+<p>Any of the 3 solutions proposed by <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> will work fine and could be considered good practice. However, as with many technical decisions human considerations need to be factored in.</p>
+<p>So, for example, if the people doing the content are already familiar with the WordPress admin pages and with working with WordPress’ menus then the plugin and custom handler would be the best option as the content creators/editors won’t need to be taught a different way to do things.</p>
+<p>On the other hand, if the content people are not already familiar with the WordPress admin then you could create the menu as a CPT and tell the content people that that is how it works for this site.</p>
+<p>And then, as <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> says, if the menu is unlikely to ever change or will change infrequently you could hard code it into <code>frontity.settings.js</code> and the developers can change it as and when it needs to be changed.</p>
+<p>As I said earlier, it’s not always simply a technical decision. Take into account the users, and how they’re going to work with and interact with the final technical solution.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/83">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/83</link>
+        <pubDate>Wed, 06 Jan 2021 08:48:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-83</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+      <item>
+        <title>How to fetch Menu from wordpress?</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>,<br>
+I was looking over these 3 options to create a menu myself. I initially went with option 3 using the plugin and custom handler. Subsequently I watched this talk from <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> - <a href="https://www.youtube.com/watch?v=5EIqBfD_LTY" rel="noopener nofollow ugc">Connecting Gutenberg and Frontity …</a><br>
+It seems to me that creating the menu from a CPT or template part and using Gutenberg blocks and a processor is an easier way to go. Am I missing something? I’m looking to use Frontity on a project at work and am wondering if there is a sort of list of best practices as it pertains to these common dev tasks.</p>
+          <p><a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/82">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415/82</link>
+        <pubDate>Wed, 06 Jan 2021 00:58:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-415-82</guid>
+        <source url="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415.rss">How to fetch Menu from wordpress?</source>
+      </item>
+  </channel>
+</rss>

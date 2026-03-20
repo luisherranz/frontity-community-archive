@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Adding new custom post endpoint handler - 🙋Get Help - Frontity Community Forum</title>
+    <meta name="description" content="Hi there, 
+Frontity looks like a really compelling solution; thank you so much. I am keen to give it a go. 
+I am trying to add lists and post endpoints for a new custom post type, and I found this handler for a product p&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/adding-new-custom-post-endpoint-handler/394" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Adding new custom post endpoint handler&#39;" href="/t/adding-new-custom-post-endpoint-handler/394.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/adding-new-custom-post-endpoint-handler/394" />
+<meta name="twitter:url" content="/t/adding-new-custom-post-endpoint-handler/394" />
+<meta property="og:title" content="Adding new custom post endpoint handler" />
+<meta name="twitter:title" content="Adding new custom post endpoint handler" />
+<meta property="og:description" content="Hi there,  Frontity looks like a really compelling solution; thank you so much. I am keen to give it a go.  I am trying to add lists and post endpoints for a new custom post type, and I found this handler for a product post type in the documentation: https://docs.frontity.org/api-reference-1/wordpress-source#example-1  I placed this code block in mars-theme/src/index.js within the mars-theme’s before constant, so it is called in the beforeSSR action. Unfortunately, when loading the new products ..." />
+<meta name="twitter:description" content="Hi there,  Frontity looks like a really compelling solution; thank you so much. I am keen to give it a go.  I am trying to add lists and post endpoints for a new custom post type, and I found this handler for a product post type in the documentation: https://docs.frontity.org/api-reference-1/wordpress-source#example-1  I placed this code block in mars-theme/src/index.js within the mars-theme’s before constant, so it is called in the beforeSSR action. Unfortunately, when loading the new products ..." />
+<meta property="og:article:section" content="🙋Get Help" />
+<meta property="og:article:section:color" content="3AB54A" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="2 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="9 ❤" />
+<meta property="article:published_time" content="2019-07-18T17:27:14+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Adding new custom post endpoint handler","mainEntity":{"@type":"Question","name":"Adding new custom post endpoint handler","text":"Hi there,\n\nFrontity looks like a really compelling solution; thank you so much. I am keen to give it a go.\n\nI am trying to add lists and post endpoints for a new custom post type, and I found this handler for a product post type in the documentation: <a href=\"https://docs.frontity.org/api-reference-1/wordpress-source#example-1\" rel=\"nofollow noopener\">https://docs.frontity.org/api-reference-1/wordpre&hellip;<\/a>","upvoteCount":2,"answerCount":0,"dateCreated":"2019-07-18T17:27:14.055Z","author":{"@type":"Person","name":"Toby"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/adding-new-custom-post-endpoint-handler/394">Adding new custom post endpoint handler</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/dev-talk-questions/3" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #3AB54A'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🙋Get Help</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Adding new custom post endpoint handler'>
+        <meta itemprop='articleSection' content='🙋Get Help'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/toby'><span itemprop='name'>toby</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-07-18T17:27:14Z' class='post-time'>
+                    18 July 2019 17:27
+                  </time>
+                  <meta itemprop='dateModified' content='2019-07-18T17:27:14Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>Hi there,</p>
+<p>Frontity looks like a really compelling solution; thank you so much. I am keen to give it a go.</p>
+<p>I am trying to add lists and post endpoints for a new custom post type, and I found this handler for a product post type in the documentation: <a href="https://docs.frontity.org/api-reference-1/wordpress-source#example-1" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/wordpress-source#example-1</a></p>
+<p>I placed this code block in <code>mars-theme/src/index.js</code> within the mars-theme’s <code>before</code> constant, so it is called in the <code>beforeSSR</code> action. Unfortunately, when loading the new <code>products</code> endpoint, I see a 404 error in the browser and in the terminal this error:</p>
+<blockquote>
+<p>TypeError: Cannot destructure property <code>id</code> of ‘undefined’ or ‘null’.<br>
+at attachmentHandler (webpack-internal:///./node_modules/<a class="mention" href="/u/frontity">@frontity</a>/wp-source/src/libraries/handlers/attachment.ts:4:129)<br>
+at processTicksAndRejections (internal/process/task_queues.js:85:5)<br>
+at Object.postType [as func] (webpack-internal:///./node_modules/<a class="mention" href="/u/frontity">@frontity</a>/wp-source/src/libraries/handlers/postType.ts:5:262)<br>
+at eval (webpack-internal:///./node_modules/<a class="mention" href="/u/frontity">@frontity</a>/wp-source/src/actions.ts:13:100)</p>
+</blockquote>
+<p>I have been able to get a small Create React App to list these CPTs no problem, so I know the REST API is open, and can see the JSON, but would love to better understand how Frontity works to get this working. Any help or tips hugely appreciated.</p>
+<p>Cheers,<br>
+Toby</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-07-19T09:34:04Z' class='post-time'>
+                    19 July 2019 09:34
+                  </time>
+                  <meta itemprop='dateModified' content='2019-07-19T09:34:04Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi <a class="mention" href="/u/toby">@toby</a>, and welcome! <img src="/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>I see the error occurs inside the attachment handler. This means that you may have tried to fetch a link that doesn’t match the pattern of the product handler (<code>/product/:slug</code>), or for some reason the product handler hasn’t been added to <code>libraries.source.handlers</code>.</p>
+<p>What’s the content of <code>window.frontity.libraries.source.handlers</code> in the browser?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/toby'><span itemprop='name'>toby</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+                <link itemprop="image" href="/uploads/default/original/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-07-19T16:23:12Z' class='post-time'>
+                    19 July 2019 16:23
+                  </time>
+                  <meta itemprop='dateModified' content='2019-07-19T16:23:12Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi <a class="mention" href="/u/david">@David</a>, thanks for responding. I can see the “product” handler is there:</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4.png" data-download-href="/uploads/default/5a49c752c8e7507a99d6f929b6087f1e83e087e4" title="Screenshot 2019-07-19 at 17.14.13.png"><img src="/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_690x234.png" alt="13" data-base62-sha1="cSJ2CvJYxfmiQviu9EsfcOtnMMI" width="690" height="234" srcset="/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_690x234.png, /uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_1035x351.png 1.5x, /uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_1380x468.png 2x" data-small-upload="/uploads/default/optimized/1X/5a49c752c8e7507a99d6f929b6087f1e83e087e4_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">Screenshot 2019-07-19 at 17.14.13.png</span><span class="informations">1844×626 173 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>But there’s still nothing found in the browser, just 404.</p>
+<p>If I get <a href="http://wp.local/wp-json/wp/v2/product" rel="nofollow noopener">http://wp.local/wp-json/wp/v2/product</a> in Postman I can see the products listed in a json file</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/toby'><span itemprop='name'>toby</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-07-19T17:03:21Z' class='post-time'>
+                    19 July 2019 17:03
+                  </time>
+                  <meta itemprop='dateModified' content='2019-07-19T17:03:21Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>When I enter a slug for a product that exists, the website shows “Internal Server Error”</p>
+<p>1 GET <a href="http://localhost:3000/product/pig-fiddle/" rel="nofollow noopener">http://localhost:3000/product/pig-fiddle/</a> 500 (Internal Server Error)</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-07-19T17:51:16Z' class='post-time'>
+                    19 July 2019 17:51
+                  </time>
+                  <meta itemprop='dateModified' content='2019-07-19T17:51:16Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, that means some error happenend while running the product handler (but at least it was executed).</p>
+<p>The problem could be the <code>endpoint</code> used when calling <code>libraries.source.api.get</code> inside the handler. That <code>endpoint</code> should match the endpoint of your WP REST API, and in your case it seems to be <code>product</code> instead of <code>products</code> (the value we set in the example).</p>
+<p>Try changing that value and tell me if it works!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/toby'><span itemprop='name'>toby</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-07-20T13:41:50Z' class='post-time'>
+                    20 July 2019 13:41
+                  </time>
+                  <meta itemprop='dateModified' content='2019-07-20T13:41:50Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi <a class="mention" href="/u/david">@David</a>, thanks yes I had already changed the endpoint value to singular <code>product</code>. Before then, when using the value as in the example, it was always returning 404. The 500 internal server error at least shows something is catching – but it’s not clear what is going on. At least to me it’s not <img src="/images/emoji/apple/confused.png?v=9" title=":confused:" class="emoji" alt=":confused:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-07-20T15:52:33Z' class='post-time'>
+                    20 July 2019 15:52
+                  </time>
+                  <meta itemprop='dateModified' content='2019-07-20T15:52:33Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Could you please share the code of your handler? Also, how are you dealing with it in your theme? Using something like <code>data.isProduct</code>? Or maybe put the whole repo in GitHub so we can take a look here <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Oh, and handlers give you more flexibility, but support for custom post types and taxonomies with a simple <code>wp-source</code> setting is almost finished, I think. Right <a class="mention" href="/u/david">@david</a>?</p>
+<p>By the way, here you have an example of two handlers working fine:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js" target="_blank" rel="nofollow noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js" target="_blank" rel="nofollow noopener">annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js</a></h4>
+<pre><code class="lang-js">export const players = {
+  priority: 8,
+  pattern: "/players/",
+  func: async ({ route, params, state, libraries }) =&gt; {
+    // 1. get all pages with parent "players".
+    const playersList = await libraries.source.api.get({
+      endpoint: "pages",
+      params: { parent: 48 }
+    });
+
+    // 1. get "players" page itself.
+    const playersPage = await libraries.source.api.get({
+      endpoint: "pages",
+      params: { include: 48 }
+    });
+
+    // 2. add everything to the state.
+    const items = await libraries.source.populate({
+      response: playersList,
+      state
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/utils/handlers.js" target="_blank" rel="nofollow noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/lincolnlemos'><span itemprop='name'>lincolnlemos</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-04T20:41:04Z' class='post-time'>
+                    4 September 2019 20:41
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-04T20:41:04Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/luisherranz">@luisherranz</a></p>
+<p>I tried to add my handler using the <a href="https://docs.frontity.org/api-reference-1/wordpress-source#example-1" rel="nofollow noopener">ref at docs </a>.</p>
+<p>At the line 20/21, we have:</p>
+<pre><code>  isPostType: true,
+  isProduct: true
+</code></pre>
+<p>I did the same thing for my handler, but I get an error. Looking at my network console, I see that frontity was looking at my rest-api-url/post?slug=dummy instead of rest-api-url/product?slug=dummy.</p>
+<p>As “Product” is also a “PostType”, why this is happening?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-05T08:53:08Z' class='post-time'>
+                    5 September 2019 08:53
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-05T08:53:08Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The endpoint is defined in the <code>libraries.source.api.get</code> call:</p>
+<pre><code class="lang-auto">const response = await libraries.source.api.get({
+  endpoint: "products", // &lt;- this is the endpoint Frontity tries to reach.
+  params: { slug: params.slug }
+});
+</code></pre>
+<p>If the <code>"endpoint"</code> value doesn’t start wih <code>"/"</code>, it will add <code>"/wp/v2"</code> first:</p>
+<ul>
+<li>
+<code>"products"</code>: <code>https://domain.com/wp-json/wp/v2/products</code>
+</li>
+<li>
+<code>"/products"</code>: <code>https://domain.com/wp-json/products</code>
+</li>
+</ul>
+<p>Let me know if that solves the problem.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/lincolnlemos'><span itemprop='name'>lincolnlemos</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-05T13:26:07Z' class='post-time'>
+                    5 September 2019 13:26
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-05T13:26:07Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>My error was coming from the place that I was adding the handler function.</p>
+<p>I was adding at the beforeSSR/beforeCSR action. It worked after I change the code for the init action.</p>
+<p>Looks like is a common error as we have the same questions at the <a href="/t/how-to-create-custom-pages/435" class="inline-onebox">How to create Custom Pages?</a></p>
+<p>Create custom pages and CPT’s are the main work from a lot of WP developers. I believe it’s very important to make this super clear at the docs. I struggled to create my custom page and add my CPT route at frontity. I believe that will be cool to have some CPT/CustomPage example code at the mars-theme.</p>
+<p>What do you think guys?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/lincolnlemos'><span itemprop='name'>lincolnlemos</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+                <link itemprop="image" href="/uploads/default/original/1X/24686b417a7de310972db0532057b31e318e4ab0.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-05T14:13:26Z' class='post-time'>
+                    5 September 2019 14:13
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-05T14:13:26Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/luisherranz">@luisherranz</a><br>
+I uploaded my code at <a href="https://github.com/lincolnlemos/frontity" rel="nofollow noopener">https://github.com/lincolnlemos/frontity</a><br>
+Can you check if is something wrong?</p>
+<p>I struggling to get the whole data from the CPT endpoint.<br>
+I can see only this at frontity.state.source</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/24686b417a7de310972db0532057b31e318e4ab0.png" data-download-href="/uploads/default/24686b417a7de310972db0532057b31e318e4ab0" title="Screenshot 2019-09-05 10.57.39.png"><img src="/uploads/default/optimized/1X/24686b417a7de310972db0532057b31e318e4ab0_2_587x500.png" alt="39" data-base62-sha1="5c4U8Ugyn6o49ytCmPHrKlwhjPO" width="587" height="500" srcset="/uploads/default/optimized/1X/24686b417a7de310972db0532057b31e318e4ab0_2_587x500.png, /uploads/default/original/1X/24686b417a7de310972db0532057b31e318e4ab0.png 1.5x, /uploads/default/original/1X/24686b417a7de310972db0532057b31e318e4ab0.png 2x" data-small-upload="/uploads/default/optimized/1X/24686b417a7de310972db0532057b31e318e4ab0_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">Screenshot 2019-09-05 10.57.39.png</span><span class="informations">591×503 35.7 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>I’m also having CORS issues. Any help with this? Sorry, I’m new to React.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/adding-new-custom-post-endpoint-handler/394">
+
+                <link itemprop="image" href="/uploads/default/original/1X/4c7a19e85291ee3cdcdab03aaf7ec4a4613b936f.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-07T12:38:53Z' class='post-time'>
+                    7 September 2019 12:38
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-07T12:38:53Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-post="12" data-topic="394">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/lincolnlemos/40/363_2.png" class="avatar"> lincolnlemos:</div>
+<blockquote>
+<p>I believe that will be cool to have some CPT/CustomPage example code at the mars-theme.</p>
+<p>What do you think guys?</p>
+</blockquote>
+</aside>
+<p>Absolutely. I’ve added it to our documentation roadmap.</p>
+<aside class="quote no-group" data-post="13" data-topic="394">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/lincolnlemos/40/363_2.png" class="avatar"> lincolnlemos:</div>
+<blockquote>
+<p>I’m also having CORS issues. Any help with this? Sorry, I’m new to React.</p>
+</blockquote>
+</aside>
+<p>We’ll have that functionality in <a href="/t/potential-supported-features-of-the-frontity-wp-plugin/21">our PHP plugin</a> but until we release it, you can use this other plugin: <a href="https://github.com/ahmadawais/WP-REST-Allow-All-CORS" rel="nofollow noopener">https://github.com/ahmadawais/WP-REST-Allow-All-CORS</a></p>
+<aside class="quote no-group" data-post="13" data-topic="394">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/lincolnlemos/40/363_2.png" class="avatar"> lincolnlemos:</div>
+<blockquote>
+<p>I uploaded my code at <a href="https://github.com/lincolnlemos/frontity" rel="nofollow noopener">https://github.com/lincolnlemos/frontity </a><br>
+Can you check if is something wrong?</p>
+</blockquote>
+</aside>
+<p>Your code is fine. The handler is perfect.</p>
+<p>Be aware that your CPT doesn’t have a <code>content</code> property. If you use <code>&lt;Post&gt;</code>, you’d have to make that conditional:</p>
+<pre><code class="lang-javascript">&lt;Body&gt;
+  {post.content &amp;&amp; &lt;libraries.html2react.Component html={post.content.rendered} /&gt;}
+&lt;/Body&gt;
+</code></pre>
+<p>But there’s a bug right now with CPT population. We have already fixed and it’s merged and it’s ready to be released.<br>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/185" target="_blank" rel="nofollow noopener">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+      <a href="https://github.com/luisherranz" target="_blank" rel="nofollow noopener">
+    <img alt="luisherranz" src="/uploads/default/original/1X/4c7a19e85291ee3cdcdab03aaf7ec4a4613b936f.jpeg" class="thumbnail onebox-avatar" width="90" height="90">
+  </a>
+
+<h4>
+  <a href="https://github.com/frontity/frontity/pull/185" target="_blank" rel="nofollow noopener">Fix custom post type and custom taxonomies population</a>
+</h4>
+
+<div class="date">
+  by <a href="https://github.com/luisherranz" target="_blank" rel="nofollow noopener">luisherranz</a>
+  on <a href="https://github.com/frontity/frontity/pull/185" target="_blank" rel="nofollow noopener">09:34AM - 02 Sep 19 UTC</a>
+</div>
+
+<div class="github-commit-stats">
+  <strong>2 commits</strong>
+  changed <strong>6 files</strong>
+  with <strong>407 additions</strong>
+  and <strong>38 deletions</strong>.
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+</p>
+<p>We hope to release a new version on Monday, with this fix. Once that’s ready, you should be able to see your CPTs.</p>
+<p>I’ve just tested your code with the fix and it works fine with ACF as well:</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/1X/407c597db528e479b9b3eb5fe37c626b489af4a4.png" data-download-href="/uploads/default/407c597db528e479b9b3eb5fe37c626b489af4a4" title="Screen Shot 2019-09-07 at 14.28.39.png"><img src="/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_345x241.png" alt="39" data-base62-sha1="9csYv8KGSah8JoKF3LQABoMGr5i" width="345" height="241" srcset="/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_345x241.png, /uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_517x361.png 1.5x, /uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_690x482.png 2x" data-small-upload="/uploads/default/optimized/1X/407c597db528e479b9b3eb5fe37c626b489af4a4_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">Screen Shot 2019-09-07 at 14.28.39.png</span><span class="informations">876×612 37.5 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

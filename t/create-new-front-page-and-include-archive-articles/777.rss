@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Create new front page and include archive articles</title>
+    <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777</link>
+    <description>Hey,
+I&#39;d like to create a new front page in my theme that is different from any archive page, but which includes recently created articles.
+
+My first step was to add a new homeHandler to index.js:
+&gt;     const homeHandler = {
+&gt;       name: &quot;home&quot;,
+&gt;       pattern: &quot;/&quot;,
+&gt;       func: ({ state }) =&gt; {
+&gt;         state.source.data[&quot;/&quot;].isFrontPage = true;
+&gt;         state.source.data[&quot;/&quot;].isArchive = false;
+&gt;       }
+&gt;     }
+
+...register it using
+`libraries.source.handlers.push(homeHandler);`
+in actions.theme.init and implement the component.
+
+This works fine. But now, I would like to show the newest articles in my home page component. Is there any shorter way to achieve that without implementing a separate fetching logic (calling libraries.source.api.get and populating)? Right now, the data in state.source.get(&quot;/&quot;) is missing of course and I need to do basically the same which the frontity archive handler does.
+
+Any ideas, information and best practices are welcome :)
+Thank you!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 13 Jan 2020 15:47:29 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>These are the names we are using in Frontity:</p>
+<ul>
+<li>
+<strong><code>link</code></strong>: <code>"/category/nature/page/3?param=value"</code>
+</li>
+<li>
+<strong><code>path</code></strong>: <code>"/category/nature"</code>
+</li>
+<li>
+<strong><code>page</code></strong>: <code>3</code>
+</li>
+<li>
+<strong><code>query</code></strong>: <code>{ param: "value" }</code>
+</li>
+</ul>
+<p>Right now we are only exposing the <code>link</code> in <code>data</code>, but we are going to expose everything.</p>
+<p>If you only have <code>link</code>, you can get the other values using <code>libraries.source.parse(link)</code>.</p>
+<p>If you have the <code>path</code>, <code>page</code> and <code>query</code> you can get the <code>link</code> using <code>libraries.source.stringify({ path, page, query })</code>.</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/10</link>
+        <pubDate>Mon, 13 Jan 2020 15:47:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-10</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks, will have a look at your PR.<br>
+Sorry, the naming was confusing. What I meant with <code>activePageLink</code> was the <strong>full original path</strong> including parameters and pages, AFAIK this is only provided in a normalized form after calling <code>libraries.source.normalize</code>. I didn’t want any normalized link or page. My use case is that I want to restrict access to my home page only via using <code>/</code> and not via <code>/page/...</code>, so the only possibility I saw there was to check for the whole path.</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/9</link>
+        <pubDate>Sun, 05 Jan 2020 15:39:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-9</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/cobra">@cobra</a>, interesting development.</p>
+<p>I don’t quite understand what you mean by <code>activePageLink</code>.  Could you please elaborate?</p>
+<p>On the other hand, I’m working on a PR to add things like <code>path</code> and <code>page</code> to data: <a href="https://github.com/frontity/frontity/pull/253">https://github.com/frontity/frontity/pull/253</a></p>
+<p>That way you could do things like:</p>
+<pre><code>const data = state.source.get(state.router.link);
+if (data.path === "/" &amp;&amp; data.page &gt; 1) {
+  // Do something here...
+}
+</code></pre>
+<p>or use <code>data.path</code> instead of <code>state.router.link</code> in components…</p>
+<pre><code>const data = state.source.get(state.router.link);
+return (
+  &lt;Main&gt;
+    {data.Home &amp;&amp; &lt;Home link={data.path} /&gt;}
+  &lt;/Main&gt;
+);
+</code></pre>
+<p>Would that help?</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/8</link>
+        <pubDate>Tue, 24 Dec 2019 15:29:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-8</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, found out that this is stupid and initialLink is only the initial one when accessing the whole page.</p>
+<p>My new solution:</p>
+<ol>
+<li>
+<p>I’ve extended frontity router state by router.activePageLink in router/index.ts:<br>
+<code>router: {        link: string;        activePageLink: string;   };</code></p>
+</li>
+<li>
+<p>Set “/” as initial active page link for state in tiny-router/index.ts:<br>
+<code>router: {    link: "/",    activePageLink: "/",    autoFetch: true  }</code></p>
+</li>
+<li>
+<p>Set active page link for router actions init and set in tiny-router/actions.ts:</p>
+<pre><code>  export const set: TinyRouter["actions"]["router"]["set"] = ({
+      state,
+      actions,
+      libraries
+  }) =&gt; (link): void =&gt; {
+      state.router.activePageLink = link;
+      // normalizes link
+      if (libraries.source &amp;&amp; libraries.source.normalize)
+          link = libraries.source.normalize(link);
+      //...
+</code></pre>
+<pre><code>  export const init: TinyRouter["actions"]["router"]["init"] = ({
+      state,
+      actions,
+      libraries
+  }) =&gt; {
+      if (state.frontity.platform === "server") {
+          state.router.activePageLink = state.frontity.initialLink;
+
+        // Populate the router info with the initial path and page.
+        //...
+</code></pre>
+</li>
+</ol>
+<p>I think it’s generally a good idea to save the actual page link in the state, since it seems that only the normalized version of the link is saved currently. What do you think?</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/7</link>
+        <pubDate>Sun, 22 Dec 2019 16:37:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-7</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a>! Sorry for answering that late. In my project, I wanted to completely avoid the possibility to access the main page by using URLs like /page/… - so I did some research how to check  the initial page link and I found <code>state.frontity.initialLink</code>. So right now, I’ll check for <code>state.frontity.initialLink != "/"</code> and will return a 404 for the home page.</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/6</link>
+        <pubDate>Sun, 22 Dec 2019 15:13:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-6</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Not sure about this one, for sure <a class="mention" href="https://community.frontity.org/u/david">@David</a> can confirm if I am correct. What I thought was to use the <code>parse</code> method (explained <a href="https://docs.frontity.org/api-reference-1/wordpress-source#parse-route" rel="nofollow noopener">here</a>) to check if page is included and in that case return a 404. In your case it could be something like this:</p>
+<pre><code class="lang-auto">import Page404 from "./page404";
+
+const Home = ({ state, libraries }) =&gt; {
+  const currentLink = state.router.link;
+  // Get the data of the latest posts.
+  const data = state.source.get(currentLink);
+  // Get the page of the link.
+  let { page } = libraries.source.parse(currentLink);
+
+  if (page &gt; 1) {
+    return &lt;Page404 /&gt;;
+  } else {
+    return (
+      &lt;div&gt;
+        &lt;div&gt;Some content before the posts&lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;p&gt;Load the posts here&lt;/p&gt;
+          &lt;div&gt;
+            {data.items.map(({ type, id }) =&gt; {
+              const item = state.source[type][id];
+              // Render one Item component for each post.
+              return &lt;Item key={item.id} item={item} /&gt;;
+            })}
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;Some content after the posts&lt;/div&gt;
+      &lt;/div&gt;
+    );
+  }
+};
+
+export default connect(Home);
+</code></pre>
+<p>Of course, you could change the page404 for other content if you want. I think this would solve your problem, but tell us if that’s not the case.</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/5</link>
+        <pubDate>Wed, 13 Nov 2019 18:20:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-5</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you really much, this solves my problem!<br>
+However, I’d like to do one additional thing: Right now, it’s possible to access URLs like /page/1 etc. Is it possible to (easily) prevent that with this solution? I know, it’s not the standard behaviour for a WP blog, but in my current state of the website I would like to restrict that. Thank you!</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/4</link>
+        <pubDate>Sun, 10 Nov 2019 16:31:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-4</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/cobra">@cobra</a>! Sorry for the late reply</p>
+<p>If I understood the case correctly you don’t need a handler for this. I think the best way would be to check if you are on the homepage (this info is already in Frontity state) and in that case, load a new component.</p>
+<p>At the <code>index.js</code> file of your theme you should check if it’s the homepage, and if so load your <code>&lt;Home /&gt;</code> component:</p>
+<pre><code class="lang-javascript">const Theme = ({ state }) =&gt; {
+
+  return (
+    &lt;&gt;
+      ...
+      &lt;Main&gt;
+        {(data.isFetching &amp;&amp; &lt;Loading /&gt;) ||
+          (data.isHome &amp;&amp; &lt;Home /&gt;) ||
+          (data.isArchive &amp;&amp; &lt;List /&gt;) ||
+          (data.isPostType &amp;&amp; &lt;Post /&gt;) ||
+          (data.is404 &amp;&amp; &lt;Page404 /&gt;)}
+      &lt;/Main&gt;
+    &lt;/&gt;
+  );
+};
+
+export default connect(Theme);
+</code></pre>
+<p>Apart from that, you should create your <code>&lt;Home /&gt;</code> component where you can load whatever you want, including the latest posts. You could do something like this:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { connect, styled } from "frontity";
+import Item from "./list-item";
+
+const Home = ({ state }) =&gt; {
+  // Get the data of the latest posts.
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;Container&gt;
+      &lt;div&gt;Some content before the posts&lt;/div&gt;
+
+      &lt;div&gt;
+          &lt;p&gt;Load the posts here&lt;/p&gt;
+          &lt;div&gt;
+              {data.items.map(({ type, id }) =&gt; {
+                  const item = state.source[type][id];
+                  // Render one Item component for each post.
+                  return &lt;Item key={item.id} item={item} /&gt;;
+              })}
+          &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;Some content after the posts&lt;/div&gt;
+
+    &lt;/Container&gt;
+  );
+};
+
+export default connect(Home);
+</code></pre>
+<p>This way, you’ll be importing the <code>list-item</code> that it’s already created (with its title, author, excerpt, etc), but you could also create a new one and import that instead.</p>
+<p>That should be enough, let us know if it works in your case and if you have any other questions don’t hesitate to share them <img src="https://community.frontity.org/images/emoji/apple/relaxed.png?v=9" title=":relaxed:" class="emoji" alt=":relaxed:"></p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/3</link>
+        <pubDate>Thu, 07 Nov 2019 09:40:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-3</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+      <item>
+        <title>Create new front page and include archive articles</title>
+        <dc:creator><![CDATA[cobra]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey,<br>
+I’d like to create a new front page in my theme that is different from any archive page, but which includes recently created articles.</p>
+<p>My first step was to add a new homeHandler to index.js:</p>
+<blockquote>
+<pre><code>const homeHandler = {
+  name: "home",
+  pattern: "/",
+  func: ({ state }) =&gt; {
+    state.source.data["/"].isFrontPage = true;
+    state.source.data["/"].isArchive = false;
+  }
+}
+</code></pre>
+</blockquote>
+<p>…register it using<br>
+<code>libraries.source.handlers.push(homeHandler);</code><br>
+in actions.theme.init and implement the component.</p>
+<p>This works fine. But now, I would like to show the newest articles in my home page component. Is there any shorter way to achieve that without implementing a separate fetching logic (calling libraries.source.api.get and populating)? Right now, the data in state.source.get("/") is missing of course and I need to do basically the same which the frontity archive handler does.</p>
+<p>Any ideas, information and best practices are welcome <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"><br>
+Thank you!</p>
+          <p><a href="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777/1</link>
+        <pubDate>Wed, 30 Oct 2019 00:09:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-777-1</guid>
+        <source url="https://community.frontity.org/t/create-new-front-page-and-include-archive-articles/777.rss">Create new front page and include archive articles</source>
+      </item>
+  </channel>
+</rss>

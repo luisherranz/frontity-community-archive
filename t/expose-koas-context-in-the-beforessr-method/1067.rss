@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Expose Koa&#39;s context in the beforeSSR method</title>
+    <link>https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067</link>
+    <description>**--- [Feature Card](https://www.notion.so/frontity/Expose-Koa-s-context-in-the-beforeSSR-afterSSR-methods-9aef359aa99544adad7f93734db3e035)**
+
+## Description
+It looks like sometimes we are going to need to modify the response object once we are in the `beforeSSR` method. For example, [in the case of 404 pages](https://github.com/frontity/frontity/issues/264), we need to change the status code to `404` (or any other server error code) once we know that the page doesn&#39;t exist, but we don&#39;t know that until we are in the `beforeSSR` method.
+
+## User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want to **change the response object within my beforeSSR/afterSSR methods**
+&gt; so that **I can control the response taking into account what happens in the React render**
+
+## Examples
+
+This is a possible `beforeSSR` method of `tiny-router` that is able to change the status to `404` if the current link doesn&#39;t exist:
+
+```
+export const beforeSSR: TinyRouter[&quot;actions&quot;][&quot;router&quot;][&quot;beforeSSR&quot;] = async ({
+  state,
+  actions
+}) =&gt; ({ ctx }) =&gt; {
+  if (state.router.autoFetch) {
+    if (actions.source &amp;&amp; actions.source.fetch) {
+      await actions.source.fetch(state.router.link);
+      const data = state.source.get(state.router.link);
+      if (data.isError)
+         ctx.status = data.errorStatus;
+    } else
+      console.warn(
+        &quot;You are trying to use autoFetch but no source package is installed.&quot;
+      );
+  }
+};
+```
+
+## Possible solution
+
+The server is going to be based on the Koa&#39;s `ctx` object, so I would expose that instead of just the response. It is also much nice to work with than a typical response object.
+
+1. I&#39;m not sure if the best solution is to pass `ctx` to any server action, to `beforeSSR` and `init` or only to `beforeSSR`.
+2. I&#39;m not sure if we should add `ctx` as part of the &quot;store&quot; (first function) or as a new argument (second function):
+
+```js
+// As part of the &quot;store&quot;
+beforeSSR: ({ state, actions, ctx }) =&gt; ...
+// with Typescript being something like this:
+beforeSSR?: ServerAction&lt;TinyRouter&gt;;
+beforeSSR?: BeforeSSRAction&lt;TinyRouter&gt;;
+
+// As a new argument
+beforeSSR: ({ state, actions }) =&gt; ({ ctx }) =&gt;
+// with Typescript being something like this:
+beforeSSR?: Action&lt;TinyRouter, ServerContext&gt;;
+```
+
+I think both will be backwards compatible with `beforeSSR: ({ state, actions }) =&gt; ...` but we need to be sure. Apart from that, we need to see which one is simpler with TypeScript.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 17 Mar 2020 00:15:43 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Expose Koa&#39;s context in the beforeSSR method</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>This has been implemented according to: <a href="https://github.com/frontity/frontity/pull/309">https://github.com/frontity/frontity/pull/309</a></p>
+<p>We have added a  <code>ctx</code> parameter to <code>beforeSSR</code> and return correct HTTP status code in frontity for corresponding errors from a server.</p>
+<p>Now we can <em>optionally</em> use the <a href="https://en.wikipedia.org/wiki/Currying">curried</a> version of <code>beforeSSR</code> which is called with an object that contains the <a href="https://koajs.com/#context">Koa Context</a> in the <code>ctx</code> parameter. You can use this <code>ctx</code> to modify things like status codes, headers and so on.</p>
+<pre><code>// The optional "curried" version of beforeSSR using the ctx
+{
+  beforeSSR: ({ state, libraries }) =&gt; async ({ ctx }) =&gt; {
+    // ctx is koa context: https://koajs.com/#context
+    console.log('SSR all day long', ctx.status);
+  }
+}
+</code></pre>
+<p>Docs: <a href="https://docs.frontity.org/learning-frontity/actions#actions-triggered-by-frontity">https://docs.frontity.org/learning-frontity/actions#actions-triggered-by-frontity</a>)</p>
+          <p><a href="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067/5</link>
+        <pubDate>Tue, 17 Mar 2020 00:15:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1067-5</guid>
+        <source url="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067.rss">Expose Koa&#39;s context in the beforeSSR method</source>
+      </item>
+      <item>
+        <title>Expose Koa&#39;s context in the beforeSSR method</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Let’s do it only in <code>beforeSSR</code> and within the second argument, like this:</p>
+<pre><code>beforeSSR: ({ state, actions }) =&gt; ({ ctx }) =&gt;
+</code></pre>
+<p>That way it should be trivial to implement.</p>
+          <p><a href="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067/2</link>
+        <pubDate>Fri, 07 Feb 2020 13:18:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1067-2</guid>
+        <source url="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067.rss">Expose Koa&#39;s context in the beforeSSR method</source>
+      </item>
+      <item>
+        <title>Expose Koa&#39;s context in the beforeSSR method</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Expose-Koa-s-context-in-the-beforeSSR-afterSSR-methods-9aef359aa99544adad7f93734db3e035">Feature Card</a></strong></p>
+<h2>Description</h2>
+<p>It looks like sometimes we are going to need to modify the response object once we are in the <code>beforeSSR</code> method. For example, <a href="https://github.com/frontity/frontity/issues/264">in the case of 404 pages</a>, we need to change the status code to <code>404</code> (or any other server error code) once we know that the page doesn’t exist, but we don’t know that until we are in the <code>beforeSSR</code> method.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>change the response object within my beforeSSR/afterSSR methods</strong><br>
+so that <strong>I can control the response taking into account what happens in the React render</strong></p>
+</blockquote>
+<h2>Examples</h2>
+<p>This is a possible <code>beforeSSR</code> method of <code>tiny-router</code> that is able to change the status to <code>404</code> if the current link doesn’t exist:</p>
+<pre><code class="lang-javascript">export const beforeSSR: TinyRouter["actions"]["router"]["beforeSSR"] = async ({
+  state,
+  actions
+}) =&gt; ({ ctx }) =&gt; {
+  if (state.router.autoFetch) {
+    if (actions.source &amp;&amp; actions.source.fetch) {
+      await actions.source.fetch(state.router.link);
+      const data = state.source.get(state.router.link);
+      if (data.isError)
+         ctx.status = data.errorStatus;
+    } else
+      console.warn(
+        "You are trying to use autoFetch but no source package is installed."
+      );
+  }
+};
+</code></pre>
+<h2>Possible solution</h2>
+<p>The server is going to be based on the Koa’s <code>ctx</code> object, so I would expose that instead of just the response. It is also much nice to work with than a typical response object.</p>
+<ol>
+<li>I’m not sure if the best solution is to pass <code>ctx</code> to any server action, to <code>beforeSSR</code> and <code>init</code> or only to <code>beforeSSR</code>.</li>
+<li>I’m not sure if we should add <code>ctx</code> as part of the “store” (first function) or as a new argument (second function):</li>
+</ol>
+<pre><code class="lang-js">// As part of the "store"
+beforeSSR: ({ state, actions, ctx }) =&gt; ...
+// with Typescript being something like this:
+beforeSSR?: ServerAction&lt;TinyRouter&gt;;
+beforeSSR?: BeforeSSRAction&lt;TinyRouter&gt;;
+
+// As a new argument
+beforeSSR: ({ state, actions }) =&gt; ({ ctx }) =&gt;
+// with Typescript being something like this:
+beforeSSR?: Action&lt;TinyRouter, ServerContext&gt;;
+</code></pre>
+<p>I think both will be backwards compatible with <code>beforeSSR: ({ state, actions }) =&gt; ...</code> but we need to be sure. Apart from that, we need to see which one is simpler with TypeScript.</p>
+          <p><a href="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067/1</link>
+        <pubDate>Mon, 13 Jan 2020 16:28:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1067-1</guid>
+        <source url="https://community.frontity.org/t/expose-koas-context-in-the-beforessr-method/1067.rss">Expose Koa&#39;s context in the beforeSSR method</source>
+      </item>
+  </channel>
+</rss>

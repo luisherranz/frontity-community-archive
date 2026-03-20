@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Modes and Entry Points for 1.0</title>
+    <link>https://community.frontity.org/t/modes-and-entry-points-for-1-0/225</link>
+    <description>This is my suggestion to solve some problems we have right now with modes:
+
+- No mode is `&quot;default&quot;` instead of `&quot;html&quot;`.
+- &quot;No mode&quot; entry points don&#39;t live in any folder, they live in the root.
+- Modes live in the folder of the same name. They fallback to default. This fixes the problem of creating new modes using packages that don&#39;t support them directly.
+- We get rid of the `src` folder.
+- We move type from `index.ts` to `type.ts`.
+- `client` and `server` entrypoints can be joined in an `index` if not present. The future entrypoints (koa, inline, build, sw...) will be independent of this.
+- We solve the problem of unnecessary chunks in service workers by creating service workers while running webpack **only with one entry-point**.
+
+Some examples.
+
+```bash
+/index.js # Both client and server for any mode.
+/package.json
+```
+
+```bash
+/client.js # Client for any mode.
+/server.js # Server for any mode.
+/package.json
+```
+
+```bash
+/amp/index.js # Client and server for amp mode.
+/index.js # Client and server for any mode other than amp.
+/package.json
+```
+
+```bash
+/amp/server.js # Server for amp mode.
+/index.js # Client and server for any mode and client for amp mode.
+/package.json
+```
+
+```bash
+/mymode/index.js # Client and server for mymode mode.
+/index.js # Client and server for any mode other than mymode.
+/package.json
+```
+
+```bash
+/amp/sw.js # Service worker for amp mode.
+/index.js # Client and server for any mode.
+/sw.js # Service worker for any mode other than amp.
+/package.json
+```
+
+```bash
+/index.ts # Both client and server for any mode.
+/type.ts # Type of the package, to be imported by other packages.
+/package.json
+```
+
+@development-team opinions?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 28 May 2019 17:00:53 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/modes-and-entry-points-for-1-0/225.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Modes and Entry Points for 1.0</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="1" data-topic="225">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>We get rid of the <code>src</code> folder.</p>
+</blockquote>
+</aside>
+<p>This gets ugly pretty fast <img src="https://community.frontity.org/images/emoji/apple/confused.png?v=9" title=":confused:" class="emoji" alt=":confused:"></p>
+<p>And if we keep <code>src</code> then we don’t need to do this:</p>
+<aside class="quote group-development-team" data-post="1" data-topic="225">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>We move type from <code>index.ts</code> to <code>type.ts</code> .</p>
+</blockquote>
+</aside>
+<p>And the only import users ever had to do it’s direct:</p>
+<pre><code class="lang-auto">import ExtensionExample2 from "@frontity/extension-example-2";
+
+const settings: Settings&lt;ExtensionExample2&gt; = [
+...
+];
+</code></pre>
+<p>So I think I will maintain <code>src</code>.</p>
+<p>The rest of the stuff is working great.</p>
+          <p><a href="https://community.frontity.org/t/modes-and-entry-points-for-1-0/225/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/modes-and-entry-points-for-1-0/225/2</link>
+        <pubDate>Tue, 28 May 2019 17:00:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-225-2</guid>
+        <source url="https://community.frontity.org/t/modes-and-entry-points-for-1-0/225.rss">Modes and Entry Points for 1.0</source>
+      </item>
+      <item>
+        <title>Modes and Entry Points for 1.0</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is my suggestion to solve some problems we have right now with modes:</p>
+<ul>
+<li>No mode is <code>"default"</code> instead of <code>"html"</code>.</li>
+<li>“No mode” entry points don’t live in any folder, they live in the root.</li>
+<li>Modes live in the folder of the same name. They fallback to default. This fixes the problem of creating new modes using packages that don’t support them directly.</li>
+<li>We get rid of the <code>src</code> folder.</li>
+<li>We move type from <code>index.ts</code> to <code>type.ts</code>.</li>
+<li>
+<code>client</code> and <code>server</code> entrypoints can be joined in an <code>index</code> if not present. The future entrypoints (koa, inline, build, sw…) will be independent of this.</li>
+<li>We solve the problem of unnecessary chunks in service workers by creating service workers while running webpack <strong>only with one entry-point</strong>.</li>
+</ul>
+<p>Some examples.</p>
+<pre><code class="lang-bash">/index.js # Both client and server for any mode.
+/package.json
+</code></pre>
+<pre><code class="lang-bash">/client.js # Client for any mode.
+/server.js # Server for any mode.
+/package.json
+</code></pre>
+<pre><code class="lang-bash">/amp/index.js # Client and server for amp mode.
+/index.js # Client and server for any mode other than amp.
+/package.json
+</code></pre>
+<pre><code class="lang-bash">/amp/server.js # Server for amp mode.
+/index.js # Client and server for any mode and client for amp mode.
+/package.json
+</code></pre>
+<pre><code class="lang-bash">/mymode/index.js # Client and server for mymode mode.
+/index.js # Client and server for any mode other than mymode.
+/package.json
+</code></pre>
+<pre><code class="lang-bash">/amp/sw.js # Service worker for amp mode.
+/index.js # Client and server for any mode.
+/sw.js # Service worker for any mode other than amp.
+/package.json
+</code></pre>
+<pre><code class="lang-bash">/index.ts # Both client and server for any mode.
+/type.ts # Type of the package, to be imported by other packages.
+/package.json
+</code></pre>
+<p><a class="mention-group" href="https://community.frontity.org/groups/development-team">@development-team</a> opinions?</p>
+          <p><a href="https://community.frontity.org/t/modes-and-entry-points-for-1-0/225/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/modes-and-entry-points-for-1-0/225/1</link>
+        <pubDate>Mon, 27 May 2019 08:01:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-225-1</guid>
+        <source url="https://community.frontity.org/t/modes-and-entry-points-for-1-0/225.rss">Modes and Entry Points for 1.0</source>
+      </item>
+  </channel>
+</rss>

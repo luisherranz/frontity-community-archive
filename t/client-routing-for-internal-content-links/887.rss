@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Client routing for internal `content` links</title>
+    <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887</link>
+    <description># OPENING POST
+---
+
+## Description
+Right now an internal link found in `content.rendered` triggers a new SSR. It should be captured in Frontity and switched to a client route.
+
+## User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want **to use Frontity&#39;s router for all the internal links found in `content.rendered`**
+&gt; so that **when readers click, the route change is done in the client**
+
+## Possible solution
+We have to add a processor for this.
+
+&lt;!-- ------------------------------------------------------------------------ --&gt;
+&lt;!-- This will be filled by the Frontity team, please do not remove it --&gt;
+&lt;!-- ------------------------------------------------------------------------
+
+
+## GitHub Issues
+ - [Issue](####)
+--&gt;
+
+---
+# SUMMARY
+---
+&gt; *:warning:  Please, bear in mind that this section wasn&#39;t part of the opening post. It has been added afterwards and its purpose is to keep a quick summary with the most relevant information about this FD at the top of the thread.*
+
+## Relevant links
+* [Pull Request](https://github.com/frontity/frontity/pull/520).
+* [Release changeset](https://github.com/frontity/frontity/releases/tag/%40frontity%2Fhtml2react%401.5.0).
+* [AutoPrefetch data](https://community.frontity.org/t/auto-prefetch-data/886/1).</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 04 Jan 2021 17:11:13 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="francis" data-post="20" data-topic="887">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/francis/40/1823_2.png" class="avatar"> francis:</div>
+<blockquote>
+<p>Would it make sense to write a processor to look for your current URL</p>
+</blockquote>
+</aside>
+<p>Sure. It should be easy to do a processor for that. Something like this:</p>
+<pre><code class="lang-js">const relativeToAbsoluteLinks = {
+  test: ({ node }) =&gt;
+    node.component === "a" &amp;&amp;
+    node.props?.href.startsWith("/")
+  processor: ({ state, node }) =&gt; {
+    // Add `state.frontity.url` in front of all relative links.
+    node.props.href = state.frontity.url + node.props.href
+    return node;
+  },
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/21</link>
+        <pubDate>Mon, 04 Jan 2021 17:11:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-21</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[francis]]></dc:creator>
+        <description><![CDATA[
+            <p>From an SEO perspective, I believe using absolute is the easiest to maintain.</p>
+<p>There are arguments for both, and John Mueller (Google Search Guru at Google) says both works “if done correctly.”</p>
+<p>However, if you don’t have the time or resources to focus on SEO, it’s easier to just make it all absolute for a set-it-and-leave-it point of view. That way you don’t need to worry about SEO and duplicate content etc.</p>
+<p>Would it make sense to write a processor to look for your current URL (localhost or real domain etc.) and string replace the href but also truncate it become a relative link so it can be handled internally?</p>
+<p>Possibly having two settings to choose between absolute or relative will be interesting.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://www.seoquake.com/blog/relative-or-absolute-urls/" rel="noopener nofollow ugc">https://www.seoquake.com/blog/relative-or-absolute-urls/</a></li>
+<li><a href="http://www.thesempost.com/google-absolute-versus-relative-urls-seo/" rel="noopener nofollow ugc">http://www.thesempost.com/google-absolute-versus-relative-urls-seo/</a></li>
+<li><a href="https://moz.com/blog/relative-vs-absolute-urls-whiteboard-friday" rel="noopener nofollow ugc">https://moz.com/blog/relative-vs-absolute-urls-whiteboard-friday</a></li>
+</ul>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/20</link>
+        <pubDate>Mon, 21 Dec 2020 06:28:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-20</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I think that the approach outlined by <a class="mention" href="https://community.frontity.org/u/nicholasio.oliveira">@nicholasio.oliveira</a> is in the PR is correct. We can expose the <code>match</code> property in the <code>state.frontity</code>. I don’t really see another way to solve this at the moment.</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="17" data-topic="887" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>There is an issue using the <code>match</code> property. In most cases, there will be a default site where you don’t have to use the <code>match</code>, so we couldn’t rely on the <code>match</code> property in all the cases. <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>, any ideas about which could be the best approach here?</p>
+</blockquote>
+</aside>
+<p>I think that it the in case when there is no <code>match</code> property (e.g. on a “default” site with no <code>match</code> attribute in the settings) we can check the link against <code>state.source.url</code>. That is:</p>
+<pre><code class="lang-javascript">if (link.startsWith(state.source.url)) {
+  // The link could also start with http:// or https:// so should account for that.
+  return link;
+}
+</code></pre>
+<p>(this is not tested) <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/18</link>
+        <pubDate>Mon, 23 Nov 2020 22:56:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-18</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>There is an issue using the <code>match</code> property. In most cases, there will be a default site where you don’t have to use the <code>match</code>, so we couldn’t rely on the <code>match</code> property in all the cases. <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>, any ideas about which could be the best approach here?</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/17</link>
+        <pubDate>Mon, 23 Nov 2020 15:45:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-17</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I see, I was assuming the <code>match</code> property was being exposed through the <code>useConnect</code></p>
+<p>I’ll take a look at <code>getSettings</code> and see if there’s a way to access the <code>match</code> property from a component.</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/16</link>
+        <pubDate>Mon, 23 Nov 2020 13:27:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-16</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Great <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> Thanks for the quick PR!</p>
+<p>I have tried to test it in the <a href="https://github.com/frontity/frontity.org">frontity.org repo</a> but I wasn’t able to make it work. Not sure if there’s something I am missing. I have left my feedback in the <a href="https://github.com/frontity/frontity/pull/625#issuecomment-732112302">Pull Request</a>. We can keep the conversation there.</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/14</link>
+        <pubDate>Mon, 23 Nov 2020 11:50:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-14</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>This should fix it: <a href="https://github.com/frontity/frontity/pull/625" rel="noopener nofollow ugc">https://github.com/frontity/frontity/pull/625</a></p>
+<p>Didn’t test with multiple sites but added tests that covers the edge case here. <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> Can you check if this fixes the issue for you?</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/12</link>
+        <pubDate>Fri, 20 Nov 2020 22:11:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-12</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>This feels like a bug to me and agree the easiest way is checking if the link matches the <code>match</code> property. I wonder though if it’s possible to do CSR between different sites/themes.</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/11</link>
+        <pubDate>Fri, 20 Nov 2020 20:12:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-11</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>We have encountered an issue in our web, <a href="http://frontity.org">frontity.org</a> with the link processor (I think). We have two different sites in the same project. In the <a href="https://github.com/frontity/frontity.org/blob/dev/frontity.settings.js">frontity.settings.js file</a>, we defined that, for all the urls that starts with <code>/blog</code> we are using the twentytwenty-theme, and for the others we are using our custom theme <code>frontity-org-theme</code>.</p>
+<p>The problem is that both of them use the same <code>frontity.url</code>. In some blog posts, we are linking to pages in the <code>frontity-org-theme</code>, like the <a href="https://frontity.org/about-us/">About Us page</a> for example. I assume that, as it matches <code>frontity.url</code>, it does CSR. And it renders the About Us page in CSR with the <code>twentytwenty-theme</code>, which isn’t correct. It should SSR the page with <code>frontity-org-theme</code>, as it is a url not covered by the <a href="https://github.com/frontity/frontity.org/blob/dev/frontity.settings.js#L66"><code>match</code> property of the blog</a>.</p>
+<p>We have found a workaround, and adding <code>target="_blank"</code> to the link it’s okay, as it is loading a new tab. But I feel it should work without that property.</p>
+<p>Is there something we should change in the frontity.settings.js file or is this a bug? Would it be possible to check if the link matches the <code>match</code> and, if not, do SSR?</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/10</link>
+        <pubDate>Fri, 20 Nov 2020 11:49:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-10</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Released in <code>@frontity/components@1.6.0</code> and <code>@frontity/html2react@1.5.0</code>:</p>
+<ul>
+<li><a href="https://github.com/frontity/frontity/releases/tag/%40frontity%2Fcomponents%401.6.0">https://github.com/frontity/frontity/releases/tag/%40frontity%2Fcomponents%401.6.0</a></li>
+<li><a href="https://github.com/frontity/frontity/releases/tag/%40frontity%2Fhtml2react%401.5.0">https://github.com/frontity/frontity/releases/tag/%40frontity%2Fhtml2react%401.5.0</a></li>
+</ul>
+<p>Thanks <a class="mention" href="https://community.frontity.org/u/nicholasio.oliveira">@nicholasio.oliveira</a>!! <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"><img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/9</link>
+        <pubDate>Fri, 13 Nov 2020 14:45:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-9</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I just finished my PR for this: <a href="https://github.com/frontity/frontity/pull/520" rel="noopener nofollow ugc">https://github.com/frontity/frontity/pull/520</a> the new source url made things much easier!</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/8</link>
+        <pubDate>Wed, 11 Nov 2020 02:24:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-8</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey, sorry for the delay in my answer <a class="mention" href="https://community.frontity.org/u/nicholasio.oliveira">@nicholasio.oliveira</a> <em>(I’m on holiday although I try to stay up to date)</em>.</p>
+<aside class="quote no-group" data-username="nicholasio.oliveira" data-post="6" data-topic="887">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/nicholasio.oliveira/40/1105_2.png" class="avatar"> nicholasio.oliveira:</div>
+<blockquote>
+<p>Do you think it’s worth relying on <code>state.source.api</code> for now and change it later?</p>
+</blockquote>
+</aside>
+<p>To be honest, I’d prefer to try to do it now, because… well, the sooner the better for this type of change. If we keep delaying it it’s going to be more difficult.</p>
+<p>And I think we can make it 100% backward compatible using derived state: <a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/7" class="inline-onebox">Make the backend URL a global setting</a></p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/7</link>
+        <pubDate>Fri, 31 Jul 2020 12:38:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-7</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve started working on this here: <a href="https://github.com/frontity/frontity/pull/520" rel="nofollow noopener">https://github.com/frontity/frontity/pull/520</a></p>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> Do you think it’s worth relying on <code>state.source.api</code> for now and change it later?</p>
+<p>I’m not sure we’re at a point where <a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381" class="inline-onebox">Make the backend URL a global setting</a> can be implemented.</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/6</link>
+        <pubDate>Mon, 20 Jul 2020 20:08:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-6</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is the new FD: <a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381" class="inline-onebox">Make the backend URL a global setting</a></p>
+<p>Let’s move the conversation there <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/5</link>
+        <pubDate>Mon, 13 Jul 2020 16:39:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-5</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Absolutely. Great idea.</p>
+<p>The only thing missing here is that the WordPress bakend URL is only on <code>state.source.api</code> now, and it may (or may not) contain a prefix, usually <code>/wp-json</code>.</p>
+<p>We have seen lately that many packages need to know the “WordPress URL”, not only for the <code>wp-source</code> package.</p>
+<p>I’m not 100% sure yet how that should be handled. One idea is to move it to <code>state.frontity</code>, similar to <code>url</code>:</p>
+<pre><code class="lang-js">export default {
+  state: {
+    frontity: {
+      url: "https://mars.frontity.org",
+      title: "Test Frontity Blog",
+      description: "Useful content for Frontity development",
+      backend: "https://test.frontity.org",
+    },
+  },
+  packages: [
+    {
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          prefix: "/wp-json", // This will be the default.
+          prefix: false, // This could be use to use `?rest_route=`.
+          isWpCom: true, // To support the WP.com API.
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>For example the <code>@frontity/head-tags</code> plugin is extracting the backend URL from <code>state.source.api</code> using this function: <a href="https://github.com/frontity/frontity/blob/dev/packages/head-tags/src/utils/index.ts#L29-L38">https://github.com/frontity/frontity/blob/dev/packages/head-tags/src/utils/index.ts#L29-L38</a></p>
+<p>I’ll open a new FD to discuss this.</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/4</link>
+        <pubDate>Mon, 13 Jul 2020 16:07:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-4</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="2" data-topic="887">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<pre><code class="lang-javascript">&lt;a href="https://wp.mydomain.com/some-post"&gt;
+
+&lt;a href="/some-post"&gt;
+</code></pre>
+</blockquote>
+</aside>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> now that we have a <code>&lt;Link /&gt;</code> we could simply add a processor to replace all anchor tags with our <code>&lt;Link /&gt;</code> component. It already checks for external links. We would only need to add a check for internal absolute links and convert to relative links.</p>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/3</link>
+        <pubDate>Mon, 13 Jul 2020 09:20:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-3</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Also, as noted by <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>, we should check for absolute links and change them to relative links.</p>
+<p>For example, in a site <code>www.mydomain.com</code> with a WordPress URL  <code>wp.mydomain.com</code> we need to do this change:</p>
+<pre><code class="lang-javascript">&lt;a href="https://wp.mydomain.com/some-post"&gt;
+
+&lt;a href="/some-post"&gt;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/2</link>
+        <pubDate>Fri, 22 May 2020 07:05:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-2</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+      <item>
+        <title>Client routing for internal `content` links</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>OPENING POST</h1>
+<hr>
+<h2>Description</h2>
+<p>Right now an internal link found in <code>content.rendered</code> triggers a new SSR. It should be captured in Frontity and switched to a client route.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want <strong>to use Frontity’s router for all the internal links found in <code>content.rendered</code></strong><br>
+so that <strong>when readers click, the route change is done in the client</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<p>We have to add a processor for this.</p>
+
+
+
+<hr>
+<h1>SUMMARY</h1>
+<hr>
+<blockquote>
+<p><em><img src="https://community.frontity.org/images/emoji/apple/warning.png?v=9" title=":warning:" class="emoji" alt=":warning:">  Please, bear in mind that this section wasn’t part of the opening post. It has been added afterwards and its purpose is to keep a quick summary with the most relevant information about this FD at the top of the thread.</em></p>
+</blockquote>
+<h2>Relevant links</h2>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/pull/520">Pull Request</a>.</li>
+<li>
+<a href="https://github.com/frontity/frontity/releases/tag/%40frontity%2Fhtml2react%401.5.0">Release changeset</a>.</li>
+<li>
+<a href="https://community.frontity.org/t/auto-prefetch-data/886/1">AutoPrefetch data</a>.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/client-routing-for-internal-content-links/887/1</link>
+        <pubDate>Fri, 29 Nov 2019 13:58:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-887-1</guid>
+        <source url="https://community.frontity.org/t/client-routing-for-internal-content-links/887.rss">Client routing for internal `content` links</source>
+      </item>
+  </channel>
+</rss>

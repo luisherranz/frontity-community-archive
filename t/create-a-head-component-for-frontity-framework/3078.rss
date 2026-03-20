@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Create a &lt;Head&gt; component for Frontity Framework</title>
+    <link>https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078</link>
+    <description># Description
+When developers use Frontity, the framework controls how the app is rendered (on both client and server).
+
+This gives us the opportunity to render the whole `&lt;html&gt;` element with react and not just the `&lt;body&gt; ` of the document. 
+
+Currently, Frontity is using `react-helmet` to manage the `&lt;head&gt;` of the document. This library comes with some extra bytes on top of the frontity framework (obviously) and it dynamically injects content into the `&lt;head&gt;` of the document outside of the React lifecycle.
+
+# Motivation
+
+By creating our own `&lt;Head&gt;` component we could save some bytes from the Frontity bundle and manage the injection of elements into the `&lt;head&gt;` within pure react by leveraging React Context.
+
+# Examples
+
+I have created a very simple demo of the concept: https://codesandbox.io/s/manage-document-head-with-pure-react-jz2hd</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 13 Oct 2020 08:06:49 +0000</lastBuildDate>
+    <category>🗣 Feature Discussions</category>
+    <atom:link href="https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Create a &lt;Head&gt; component for Frontity Framework</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been playing with this.</p>
+<p>It seems like we cannot do <code>&lt;Fragment dangerouslySetInnerHTML={ { __html: HTML } } /&gt;</code> to add a string to the <code>&lt;head&gt;</code>.</p>
+<p>I’ve been reading about this in the React repo:</p>
+<ul>
+<li><a href="https://github.com/facebook/react/issues/12014">https://github.com/facebook/react/issues/12014</a></li>
+<li><a href="https://github.com/reactjs/rfcs/pull/129">https://github.com/reactjs/rfcs/pull/129</a></li>
+</ul>
+<p>There are a lot of people that want to do this, but it seems a bit stuck for now.</p>
+<p>The only trick I found was to do:</p>
+<pre><code class="lang-javascript">&lt;script
+  dangerouslySetInnerHTML={{
+    __html: `&lt;/script&gt; &lt;title&gt;TEST&lt;/title&gt; &lt;script&gt;`,
+  }}
+/&gt;
+</code></pre>
+<p>which is super clever because the inner HTML closes the script opened by React and then opens a new one for the closing tag, ending with this valid markup:</p>
+<pre><code class="lang-javascript">&lt;script&gt;&lt;/script&gt;
+&lt;title&gt;TEST&lt;/title&gt;
+&lt;script&gt;&lt;/script&gt;
+</code></pre>
+<p>I tried in CodeSandbox (CRA) and it doesn’t work until you flush the head with: <code>document.head.innerHTML = document.head.innerHTML;</code>. I don’t know about SSR. I tried with Frontity and it didn’t work. I think <code>react-helmet</code> may be filtering it out.</p>
+          <p><a href="https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078/3</link>
+        <pubDate>Tue, 13 Oct 2020 08:06:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3078-3</guid>
+        <source url="https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078.rss">Create a &lt;Head&gt; component for Frontity Framework</source>
+      </item>
+      <item>
+        <title>Create a &lt;Head&gt; component for Frontity Framework</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yeah, we could create our own <code>&lt;Head&gt;</code> component and save the bytes of the code that <code>react-helmet</code> has to extract the content of the context for the HTML template because that would end up being rendered in React.</p>
+<p>And maybe even have a way to pass strings and avoid having to parse them with <code>Html2React</code> (using <code>dangeourslySetInnerHtml</code> maybe?).</p>
+<p>Good thing we are proxying <code>react-helmet</code> within a <code>"frontity"</code> import so we can do those types of things in the future without breaking backward compatibility <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078/2</link>
+        <pubDate>Tue, 13 Oct 2020 08:04:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3078-2</guid>
+        <source url="https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078.rss">Create a &lt;Head&gt; component for Frontity Framework</source>
+      </item>
+      <item>
+        <title>Create a &lt;Head&gt; component for Frontity Framework</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>When developers use Frontity, the framework controls how the app is rendered (on both client and server).</p>
+<p>This gives us the opportunity to render the whole <code>&lt;html&gt;</code> element with react and not just the <code>&lt;body&gt; </code> of the document.</p>
+<p>Currently, Frontity is using <code>react-helmet</code> to manage the <code>&lt;head&gt;</code> of the document. This library comes with some extra bytes on top of the frontity framework (obviously) and it dynamically injects content into the <code>&lt;head&gt;</code> of the document outside of the React lifecycle.</p>
+<h1>Motivation</h1>
+<p>By creating our own <code>&lt;Head&gt;</code> component we could save some bytes from the Frontity bundle and manage the injection of elements into the <code>&lt;head&gt;</code> within pure react by leveraging React Context.</p>
+<h1>Examples</h1>
+<p>I have created a very simple demo of the concept: <a href="https://codesandbox.io/s/manage-document-head-with-pure-react-jz2hd">https://codesandbox.io/s/manage-document-head-with-pure-react-jz2hd</a></p>
+          <p><a href="https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078/1</link>
+        <pubDate>Wed, 07 Oct 2020 15:41:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3078-1</guid>
+        <source url="https://community.frontity.org/t/create-a-head-component-for-frontity-framework/3078.rss">Create a &lt;Head&gt; component for Frontity Framework</source>
+      </item>
+  </channel>
+</rss>

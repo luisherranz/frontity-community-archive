@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Questions about adding custom pattern handlers</title>
+    <link>https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611</link>
+    <description>Hi,
+I&#39;m really interested in using Frontity to build a new front, but the site is heavily customized with lots of rewrites, filters etc, so there are a few kinks I need to make sure that I can work out before I can get started on a theme.
+
+I&#39;ve been trying to add a custom path pattern, but I have run in to some issues and I can&#39;t seem to find my answer in the documentation.
+
+I used the example from the documentation and edited it to fit my purpose:
+
+    init: ({ libraries }) =&gt; {
+            libraries.source.handlers.push({
+              name: &quot;country-info&quot;,
+              priority: 1,
+              pattern: &quot;/:slug&quot;,
+              func: async ({ route, params, state, libraries, force }) =&gt; {
+                const response = await libraries.source.api.get({
+                  endpoint: &quot;country-info&quot;,
+                  params: { slug: params.slug },
+                });
+
+                const [countryInfo] = await libraries.source.populate({
+                  response,
+                  state,
+                  force,
+                });
+
+                Object.assign(state.source.data[route], {
+                  id: countryInfo.id,
+                  type: countryInfo.type,
+                  isPostType: true,
+                  isCountryInfo: true,
+                });
+              },
+            });
+          },
+
+The handler works fine when the slug matches an existing post, but when I enter a non-existing slug I get this Error:
+
+      TypeError: Cannot read property &#39;id&#39; of undefined
+          at Object.func (webpack-internal:///./packages/mars-theme/src/index.js:14:558)
+          at &lt;anonymous&gt;
+          at process._tickCallback (internal/process/next_tick.js:182:7)
+
+And the site only displays &#39;Internal Server Error&#39;.
+
+So here&#39;s what I&#39;d like to know:
+
+1. What would you recommend that I check for in the response to see if a post was found or not?
+
+2. If no posts where found, what should I do to generate a proper 404 error and make the 404 page show up?
+
+3. Let&#39;s say I get a result that I for some reason want to ignore on the front end, how can I make Frontity move on and try to match the next pattern in the priority chain? (As if the pattern didn&#39;t match)
+
+Also, thank you for making this framework. I love working with WordPress and I love working with React. I have often used React apps in websites I built in WordPress, but your framework is exactly what I have been looking for! Keep up the good work!
+
+Fred</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 26 Apr 2020 09:06:34 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Questions about adding custom pattern handlers</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ll let you know once I finish the proposal so you can give us feedback <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/6</link>
+        <pubDate>Sun, 26 Apr 2020 09:06:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1611-6</guid>
+        <source url="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611.rss">Questions about adding custom pattern handlers</source>
+      </item>
+      <item>
+        <title>Questions about adding custom pattern handlers</title>
+        <dc:creator><![CDATA[pommes.fritte]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you for the quick reply, sorry for the slow response!</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="2" data-topic="1611">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Under the hood, <code>source.api.get</code> just makes a regular http request to the WP REST API using <code>fetch</code> , and gives you a <code>Response</code> back. You can check for whatever you like then, depends on what you are looking for <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</blockquote>
+</aside>
+<p>Ok, I should be able to make it work somehow then. I quickly tried your example of checking if the response status is ok, but I quickly realized that WordPress doesn’t actually send a 404 when there’s no matching post, just a normal 200 with an empty array. So I’ll have to parse the data and look for the size of the array I suppose.</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="2" data-topic="1611">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>This is a good question and I don’t have an official answer for you because we don’t have an “official” and documented way of doing that. In the framework, <a href="https://github.com/frontity/frontity/blob/b9155f8d512578cc02b19ba826b73bbd05ff7c90/packages/wp-source/src/actions.ts#L77-L92" rel="nofollow noopener">we are catching the errors</a> and then checking if it’s an internal error or an error that was thrown by the framework (e.g. because one of the handlers encountered a 404).</p>
+</blockquote>
+</aside>
+<p>Ok, I’ll try just setting the error manually!</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="3" data-topic="1611">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Not really, right now only one handler is executed per fetch. I have a proposal to change that for version 2.0 of source because it seems to be a recurring problem.</p>
+<p>What we are doing right now is handle that logic inside the handler itself, like this: <a href="https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/handlers/postType.ts#L20-L35" rel="nofollow noopener">https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/handlers/postType.ts#L20-L35 </a></p>
+<p>I hope that helps.</p>
+</blockquote>
+</aside>
+<p>I see. I guess I could just combine all overlaping handlers into one big handler. It should be possible in one request if I query multiple post types at the same time.<br>
+I’m glad to hear your working on a solution though! It would be nice to just be able to call <code>next_path()</code> or maybe return <code>false</code> to make the source library jump to the next path in line. (It would similarly be nice to have an equally simple way of letting frontity know that it the requested path is a 404. Like calling <code>not_found()</code>, returning a <code>null</code> or whatever it might be.</p>
+<p>Thanks for all the help guys!</p>
+          <p><a href="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/5</link>
+        <pubDate>Sat, 25 Apr 2020 13:07:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1611-5</guid>
+        <source url="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611.rss">Questions about adding custom pattern handlers</source>
+      </item>
+      <item>
+        <title>Questions about adding custom pattern handlers</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Whoops, sorry you’re right <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> I did not know that.</p>
+<p><a class="mention" href="https://community.frontity.org/u/pommes.fritte">@pommes.fritte</a> Please follow Luis’s advice on point 3., he’s one of the original designers of the framework <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/4</link>
+        <pubDate>Thu, 23 Apr 2020 18:43:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1611-4</guid>
+        <source url="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611.rss">Questions about adding custom pattern handlers</source>
+      </item>
+      <item>
+        <title>Questions about adding custom pattern handlers</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="mmczaplinski" data-post="2" data-topic="1611">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>the handler will not really do anything useful and move on to process the handler with the next highest priority</p>
+</blockquote>
+</aside>
+<p>Not really, right now only one handler is executed per fetch. I have a proposal to change that for version 2.0 of source because it seems to be a recurring problem.</p>
+<p>What we are doing right now is handle that logic inside the handler itself, like this: <a href="https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/handlers/postType.ts#L20-L35">https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/handlers/postType.ts#L20-L35</a></p>
+<p>I hope that helps.</p>
+          <p><a href="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/3</link>
+        <pubDate>Thu, 23 Apr 2020 11:51:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1611-3</guid>
+        <source url="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611.rss">Questions about adding custom pattern handlers</source>
+      </item>
+      <item>
+        <title>Questions about adding custom pattern handlers</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Fred! I’m happy that you’re enjoying working with Frontity! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>As to your questions:</p>
+<ol>
+<li>
+<p>Under the hood, <code>source.api.get</code> just makes a regular http request to the WP REST API using <code>fetch</code>, and gives you a <code>Response</code> back. You can check for whatever you like then, depends on what you are looking for <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</li>
+<li>
+<p>This is a good question and I don’t have an official answer for you because we don’t have an “official” and documented way of doing that. In the framework, <a href="https://github.com/frontity/frontity/blob/b9155f8d512578cc02b19ba826b73bbd05ff7c90/packages/wp-source/src/actions.ts#L77-L92">we are catching the errors</a> and then checking if it’s an internal error or an error that was thrown by the framework (e.g. because one of the handlers encountered a 404).</p>
+</li>
+</ol>
+<p>You could follow a similar strategy and if your condition fails (e.g. post was not found) you can assign an “error object” to your current route with something like:</p>
+<pre><code>const response = await libraries.source.api.get({
+   endpoint: "country-info",
+   params: { slug: params.slug },
+});
+
+if (!response.ok) {
+  const errorData = {
+    isError: true,
+    isReady: true,
+    isFetching: false,
+    is404: true,
+    errorStatus: 404,
+    errorStatusText: 'Page Not Found',
+  };
+  source.data[link] = errorData;
+}
+</code></pre>
+<p>Then your UI should just show the 404 page</p>
+<ol start="3">
+<li>If fetch the data from the WP REST API with <code>libraries.source.api.get()</code> but you <strong>don’t</strong> call <code>libraries.source.populate()</code> and <strong>don’t</strong> assign anything to <code>state.source.data</code> like mentioned <a href="https://docs.frontity.org/api-reference-1/wordpress-source#example-1">in the example</a>, the handler will not really do anything useful and move on to process the handler with the next highest priority! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:">
+</li>
+</ol>
+<p>Hope this helps!</p>
+          <p><a href="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/2</link>
+        <pubDate>Thu, 23 Apr 2020 01:31:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1611-2</guid>
+        <source url="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611.rss">Questions about adding custom pattern handlers</source>
+      </item>
+      <item>
+        <title>Questions about adding custom pattern handlers</title>
+        <dc:creator><![CDATA[pommes.fritte]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,<br>
+I’m really interested in using Frontity to build a new front, but the site is heavily customized with lots of rewrites, filters etc, so there are a few kinks I need to make sure that I can work out before I can get started on a theme.</p>
+<p>I’ve been trying to add a custom path pattern, but I have run in to some issues and I can’t seem to find my answer in the documentation.</p>
+<p>I used the example from the documentation and edited it to fit my purpose:</p>
+<pre><code>init: ({ libraries }) =&gt; {
+        libraries.source.handlers.push({
+          name: "country-info",
+          priority: 1,
+          pattern: "/:slug",
+          func: async ({ route, params, state, libraries, force }) =&gt; {
+            const response = await libraries.source.api.get({
+              endpoint: "country-info",
+              params: { slug: params.slug },
+            });
+
+            const [countryInfo] = await libraries.source.populate({
+              response,
+              state,
+              force,
+            });
+
+            Object.assign(state.source.data[route], {
+              id: countryInfo.id,
+              type: countryInfo.type,
+              isPostType: true,
+              isCountryInfo: true,
+            });
+          },
+        });
+      },
+</code></pre>
+<p>The handler works fine when the slug matches an existing post, but when I enter a non-existing slug I get this Error:</p>
+<pre><code>  TypeError: Cannot read property 'id' of undefined
+      at Object.func (webpack-internal:///./packages/mars-theme/src/index.js:14:558)
+      at &lt;anonymous&gt;
+      at process._tickCallback (internal/process/next_tick.js:182:7)
+</code></pre>
+<p>And the site only displays ‘Internal Server Error’.</p>
+<p>So here’s what I’d like to know:</p>
+<ol>
+<li>
+<p>What would you recommend that I check for in the response to see if a post was found or not?</p>
+</li>
+<li>
+<p>If no posts where found, what should I do to generate a proper 404 error and make the 404 page show up?</p>
+</li>
+<li>
+<p>Let’s say I get a result that I for some reason want to ignore on the front end, how can I make Frontity move on and try to match the next pattern in the priority chain? (As if the pattern didn’t match)</p>
+</li>
+</ol>
+<p>Also, thank you for making this framework. I love working with WordPress and I love working with React. I have often used React apps in websites I built in WordPress, but your framework is exactly what I have been looking for! Keep up the good work!</p>
+<p>Fred</p>
+          <p><a href="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611/1</link>
+        <pubDate>Wed, 22 Apr 2020 20:05:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1611-1</guid>
+        <source url="https://community.frontity.org/t/questions-about-adding-custom-pattern-handlers/1611.rss">Questions about adding custom pattern handlers</source>
+      </item>
+  </channel>
+</rss>

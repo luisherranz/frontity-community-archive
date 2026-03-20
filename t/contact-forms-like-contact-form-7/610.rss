@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Contact Forms like contact form 7</title>
+    <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610</link>
+    <description>I was going through Frontity, i did not find anything regarding forms like how i can create forms in my Wordpress and use them in my theme? any ideas?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 25 Jul 2022 21:05:36 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Contact Forms like contact form 7</title>
+        <dc:creator><![CDATA[davejmoz]]></dc:creator>
+        <description><![CDATA[
+            <p>Just FYI, for anyone coming to this thread as I was, the package mentioned in the op above no longer works, nor appears to be maintained. There is another forked, fixed, and [somewhat] maintained package here: <a href="https://github.com/aamodtgroup/frontity-contact-form-7" class="inline-onebox" rel="noopener nofollow ugc">GitHub - aamodtgroup/frontity-contact-form-7: Contact Form 7 extension for Frontity.</a></p>
+          <p><a href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610/8</link>
+        <pubDate>Mon, 25 Jul 2022 21:05:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-610-8</guid>
+        <source url="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss">Contact Forms like contact form 7</source>
+      </item>
+      <item>
+        <title>Contact Forms like contact form 7</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>With Frontity, you are in the React world, so you can create whatever you want and connect it to whatever service you want.</p>
+<p>The only two things I’d recommend you are:</p>
+<ul>
+<li>Use <code>fetch</code> instead of <code>axios</code> or <code>superagent</code>, because it won’t make your app bigger. We made sure it works in both the server and the client if you import it from <code>"frontity"</code>:</li>
+</ul>
+<pre><code class="lang-javascript">import { fetch } from "frontity";
+</code></pre>
+<ul>
+<li>Use Frontity’s state manager to simplify your components instead of internal state:</li>
+</ul>
+<p>This is a rough example, but something like this:</p>
+<pre><code class="lang-javascript">const myTheme = {
+  roots: {
+    theme: Theme
+  },
+  state: {
+    theme: {
+      form: {
+        sending: false,
+        succeed: false,
+        error: false,
+        fields: {
+          name: "",
+          email: "",
+        }
+      }
+    }
+  },
+  actions: {
+    theme: {
+      setField: ({ state }) =&gt; ({ name, value }) =&gt; {
+        state.theme.form.fields[name] = value;
+      },
+      submitForm: async ({ state }) =&gt; {
+        state.theme.form.sending = true;
+        try {
+          const response = await fetch("http...", {
+          });
+          const body = await response.json();
+          // Do something with the response of the form.
+          state.theme.form.sending = false;
+          state.theme.form.succeed = true;
+      } catch (error) {
+          state.theme.form.sending = false;
+          state.theme.form.error = error.message;
+      }
+    }
+  }
+</code></pre>
+<p>And something like this for the <code>&lt;Form&gt;</code></p>
+<pre><code class="lang-javascript">const Form = ({ state, actions }) =&gt; {
+  return (
+    {!state.theme.form.succeed ? (
+      &lt;form onSubmit={event =&gt; {
+         event.preventDefault();
+         actions.theme.submitForm();
+      }&gt;
+        &lt;input
+          name="name"
+          placeholder="Your name"
+          value={state.theme.form.fields.name}
+          onChange={event =&gt; {
+            actions.theme.setField({ name: "name", value: event.target.value });
+          }}
+        /&gt;
+        &lt;input
+          name="email"
+          placeholder="Your email"
+          value={state.theme.form.fields.email}
+          onChange={event =&gt; {
+            actions.theme.setField({ name: "email", value: event.target.value });
+          }}
+        /&gt;
+        &lt;input
+          type="submit"
+          value="Send"
+          disable={state.theme.form.sending}
+        /&gt;
+        {state.theme.form.error &amp;&amp; &lt;div&gt;Something went wrong: {state.theme.form.error}&lt;/div&gt;
+      &lt;/form&gt;
+    ) : (
+      &lt;div&gt;Form sent!&lt;/div&gt;
+    )
+  );
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610/6</link>
+        <pubDate>Sat, 05 Oct 2019 13:49:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-610-6</guid>
+        <source url="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss">Contact Forms like contact form 7</source>
+      </item>
+      <item>
+        <title>Contact Forms like contact form 7</title>
+        <dc:creator><![CDATA[afatoga]]></dc:creator>
+        <description><![CDATA[
+            <p>What about custom forms (it doesn’t need to be present at wp-admin) with custom POST endpoints? Can I see any example of such form at work (code appreciated) <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> ?</p>
+          <p><a href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610/5</link>
+        <pubDate>Thu, 03 Oct 2019 14:58:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-610-5</guid>
+        <source url="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss">Contact Forms like contact form 7</source>
+      </item>
+      <item>
+        <title>Contact Forms like contact form 7</title>
+        <dc:creator><![CDATA[memon.salman]]></dc:creator>
+        <description><![CDATA[
+            <p>That will be amazing because the only thing remaining in the introduction to frontity was the contact form. When this will be done many front end developers like me will have their life at ease <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610/4</link>
+        <pubDate>Sun, 22 Sep 2019 06:02:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-610-4</guid>
+        <source url="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss">Contact Forms like contact form 7</source>
+      </item>
+      <item>
+        <title>Contact Forms like contact form 7</title>
+        <dc:creator><![CDATA[imranhsayed]]></dc:creator>
+        <description><![CDATA[
+            <p>Yup we are on it. <img src="https://community.frontity.org/images/emoji/apple/computer.png?v=9" title=":computer:" class="emoji" alt=":computer:"><br>
+Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>  <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"><br>
+Will update on this soon <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+          <p><a href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610/3</link>
+        <pubDate>Sat, 21 Sep 2019 17:02:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-610-3</guid>
+        <source url="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss">Contact Forms like contact form 7</source>
+      </item>
+      <item>
+        <title>Contact Forms like contact form 7</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think <a class="mention" href="https://community.frontity.org/u/imranhsayed">@imranhsayed</a> and <a class="mention" href="https://community.frontity.org/u/smit.soni22">@smit.soni22</a> are about to start working on a CF7 package for Frontity <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Once that’s done, it will be as easy as adding that package in your <code>frontity.settings.js</code> file. No coding required.</p>
+<p>I’ll keep you updated.</p>
+          <p><a href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610/2</link>
+        <pubDate>Sat, 21 Sep 2019 12:02:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-610-2</guid>
+        <source url="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss">Contact Forms like contact form 7</source>
+      </item>
+      <item>
+        <title>Contact Forms like contact form 7</title>
+        <dc:creator><![CDATA[memon.salman]]></dc:creator>
+        <description><![CDATA[
+            <p>I was going through Frontity, i did not find anything regarding forms like how i can create forms in my Wordpress and use them in my theme? any ideas?</p>
+          <p><a href="https://community.frontity.org/t/contact-forms-like-contact-form-7/610/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/contact-forms-like-contact-form-7/610/1</link>
+        <pubDate>Wed, 18 Sep 2019 13:44:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-610-1</guid>
+        <source url="https://community.frontity.org/t/contact-forms-like-contact-form-7/610.rss">Contact Forms like contact form 7</source>
+      </item>
+  </channel>
+</rss>

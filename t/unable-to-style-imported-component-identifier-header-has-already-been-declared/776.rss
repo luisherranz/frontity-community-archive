@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</title>
+    <link>https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776</link>
+    <description>Okay so here&#39;s the issue. I&#39;m working on this theme. Here&#39;s my index.js
+
+```javascript
+import React from &quot;react&quot;;
+import { Global, css, connect, styled, Head } from &quot;frontity&quot;;
+import Header from &quot;./header.js&quot;;
+import Archive from &quot;./Archive&quot;;
+import Post from &quot;./post.js&quot;;
+import Page404 from &quot;./page404.js&quot;;
+import Loading from &quot;./loading.js&quot;;
+import Page from &quot;./Page/Page.js&quot;;
+import { media } from &quot;./utilities/mixins&quot;;
+
+const Theme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;&gt;
+      &lt;Head&gt;
+        &lt;title&gt;{state.frontity.title}&lt;/title&gt;
+        &lt;meta name=&quot;description&quot; content={state.frontity.description} /&gt;
+        &lt;html lang=&quot;en&quot; /&gt;
+      &lt;/Head&gt;
+      &lt;Global styles={globalStyles} /&gt;
+      &lt;HeadContainer className=&quot;header&quot;&gt;
+        &lt;Header /&gt;
+      &lt;/HeadContainer&gt;
+      &lt;Body className=&quot;content-body&quot;&gt;
+        {data.isFetching &amp;&amp; &lt;Loading /&gt;}
+        {data.isArchive &amp;&amp; &lt;Archive /&gt;}
+        {(data.isPage &amp;&amp; &lt;Page /&gt;) || (data.isPostType &amp;&amp; &lt;Post /&gt;)}
+        {}
+        {data.is404 &amp;&amp; &lt;Page404 /&gt;}
+      &lt;/Body&gt;
+    &lt;/&gt;
+  );
+};
+
+export default connect(Theme);
+//- CSS
+// GLOBAL STYLES
+const globalStyles = css`
+  @import url(&quot;https://fonts.googleapis.com/css?family=Space+Mono:400,400i,700,700i&amp;display=swap&quot;);
+
+  :root {
+    --primary: #1f38c5;
+    --snappy: cubic-bezier(0.075, 0.82, 0.165, 1);
+    --heavy-snap: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  }
+
+  body {
+    margin: 0;
+    font-family: &quot;Space Mono&quot;, &quot;Segoe UI&quot;, Roboto, &quot;Droid Sans&quot;,
+      &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+  }
+  a,
+  a:visited {
+    color: inherit;
+    text-decoration: none;
+  }
+`;
+
+
+const HeadContainer = styled.header`
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  color: black;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Body = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+```
+
+and here is my header.js file
+
+```javascript
+import React from &quot;react&quot;;
+import { connect, styled } from &quot;frontity&quot;;
+import Link from &quot;./link&quot;;
+import Nav from &quot;./nav&quot;;
+// import * as palette from &quot;./utilities/variables&quot;;
+
+const Header = ({ state }) =&gt; (
+  &lt;&gt;
+    &lt;HomeLogo className=&quot;home-logo&quot; link=&quot;/&quot;&gt;
+      {state.frontity.title}
+    &lt;/HomeLogo&gt;
+    &lt;Nav /&gt;
+  &lt;/&gt;
+);
+
+export default connect(Header);
+
+const HomeLogo = styled(Link)`
+  white-space: nowrap;
+  color: black;
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  transition: all 0.15s var(--heavy-snap);
+  border-bottom: 3px solid transparent;
+  padding: 0.1em 0.25em 0 0.25em;
+  margin: auto 0.25em;
+  display: inline;
+
+  &amp;:hover {
+    border-bottom: 3px solid var(--primary);
+    transition: all 0.15s var(--heavy-snap);
+  }
+`;
+```
+
+This currently works, and it produces the intended html markup:
+```html
+&lt;header class=&quot;header css-ot1its&quot;&gt;
+    &lt;a href=&quot;/&quot; class=&quot;home-logo css-17y2no6&quot;&gt;
+        t3 labs
+    &lt;/a&gt;
+    &lt;nav class=&quot;nav-list css-11kw5ec&quot;&gt;
+        &lt;a href=&quot;/&quot; class=&quot;css-3jufar&quot;&gt;
+            blog
+        &lt;/a&gt;
+        &lt;a href=&quot;/about-us/&quot; class=&quot;css-hvaal0&quot;&gt;
+            about-us
+        &lt;/a&gt;
+    &lt;/nav&gt;
+&lt;/header&gt;
+```
+
+But I would like to make the actual mark up in index.js cleaner. 
+
+Instead of 
+```
+&lt;HeadContainer className=&quot;header&quot;&gt;
+        &lt;Header /&gt;
+      &lt;/HeadContainer&gt;
+```
+
+I&#39;d like to make it
+```
+&lt;Header className=&quot;header&quot; /&gt;
+```
+
+But when I remove the HeadContainer (and change the styled component from HeadContainer to Header) I get the following error:
+```
+  ERROR in ./packages/t3-labs/src/components/header.js
+    Module build failed (from ./node_modules/babel-loader/lib/index.js):
+    SyntaxError: /Users/aslan.french/work/server-front/packages/t3-labs/src/components/header.js: Identifier &#39;Header&#39; has already been declared
+```
+I understand that I am getting this error because I declare &quot;Header&quot; both here:
+ ```
+import Header from &quot;./header.js&quot;;
+``` 
+
+and here:
+ ```
+const Header= styled.header`
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  color: black;
+  display: flex;
+  justify-content: space-between;
+`
+```
+
+because I can get the error to stop by either renaming the Header Component or the styled-component declaration, but I don&#39;t understand what I should to if I want to import a component and then add styled-component stylings to it without wrapping it in a container component, which I find introduces too many unecessary layers of HTML elements. (I&#39;ve mitigated this in the final HTML by using fragments but the question remains in the hypothetical. )
+
+Suggestions?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 07 Nov 2019 15:18:02 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey guys! Just to let you know ,that PR was already merged and <a href="https://community.frontity.org/t/frontity-update-4-november-2019/795">released</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> . You may need to update Frontity by the way. Here you have <a href="https://docs.frontity.org/guides/keep-frontity-updated" rel="nofollow noopener">the guide</a> in case you have any questions.</p>
+<p>Please let us know how it goes <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/6</link>
+        <pubDate>Thu, 07 Nov 2019 15:18:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-776-6</guid>
+        <source url="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776.rss">Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</source>
+      </item>
+      <item>
+        <title>Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Yeah that’s in process of being fixed here I believe: <a href="https://github.com/frontity/frontity/pull/227" rel="nofollow noopener">https://github.com/frontity/frontity/pull/227</a></p>
+          <p><a href="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/5</link>
+        <pubDate>Wed, 30 Oct 2019 23:53:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-776-5</guid>
+        <source url="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776.rss">Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</source>
+      </item>
+      <item>
+        <title>Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="3" data-topic="776">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>I’m mostly just putting those class names for readiability purposes. It’s kinda of hard to diagnose problems in Chrome Dev Tools when everything is just <code>&lt;div class="css234789234"&gt;</code></p>
+</blockquote>
+</aside>
+<p>For that purpose <code>emotion</code> is supposed to have a setting to add the React component name to the class in development, but it wasn’t working on the first version of Frontity. I don’t know the status on that now. Maybe is something fixable.</p>
+          <p><a href="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/4</link>
+        <pubDate>Wed, 30 Oct 2019 23:12:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-776-4</guid>
+        <source url="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776.rss">Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</source>
+      </item>
+      <item>
+        <title>Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="2" data-topic="776">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Also, I don’t know if you’ll need those classes you are defining to style the elements somewhere else, but it kind of defeats one of the purposes of <code>CSS-in-JS</code> , avoiding mapping <code>className</code> everywhere. I’d suggest to remove them.</p>
+</blockquote>
+</aside>
+<p>I’m mostly just putting those class names for readiability purposes. It’s kinda of hard to diagnose problems in Chrome Dev Tools when everything is just <code>&lt;div class="css234789234"&gt;</code></p>
+<aside class="quote no-group" data-post="2" data-topic="776">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<pre><code class="lang-auto">// header.jsx
+
+import React from "react";
+import { connect, styled } from "frontity";
+import Link from "./link";
+import Nav from "./nav";
+
+const Header = ({ state }) =&gt; (
+  &lt;Container className="header"&gt;
+    &lt;HomeLogo className="home-logo" link="/"&gt;
+      {state.frontity.title}
+    &lt;/HomeLogo&gt;
+    &lt;Nav /&gt;
+  &lt;/Container&gt;
+);
+
+export default connect(Header);
+
+const Container = styled.header`
+  /* your styles */
+`;
+
+const HomeLogo = styled(Link)`
+ /* your styles */
+`;
+</code></pre>
+<pre><code class="lang-auto">
+</code></pre>
+</blockquote>
+</aside>
+<p>This is probably the cleaner way to do things. The only ting I dislike is having to use a Container component. In the end the html that it produces is the same though and it more properly situates the styling of the component to it’s actual component jsx file instead of putting it in index.js, so I think I’ll follow this pattern you’ve presented. Thank you!</p>
+          <p><a href="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/3</link>
+        <pubDate>Wed, 30 Oct 2019 20:18:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-776-3</guid>
+        <source url="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776.rss">Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</source>
+      </item>
+      <item>
+        <title>Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>In this case I’d have done something like this:</p>
+<pre><code class="lang-auto">// header.jsx
+
+import React from "react";
+import { connect, styled } from "frontity";
+import Link from "./link";
+import Nav from "./nav";
+
+const Header = ({ state }) =&gt; (
+  &lt;Container className="header"&gt;
+    &lt;HomeLogo className="home-logo" link="/"&gt;
+      {state.frontity.title}
+    &lt;/HomeLogo&gt;
+    &lt;Nav /&gt;
+  &lt;/Container&gt;
+);
+
+export default connect(Header);
+
+const Container = styled.header`
+  /* your styles */
+`;
+
+const HomeLogo = styled(Link)`
+ /* your styles */
+`;
+</code></pre>
+<pre><code class="lang-auto">// theme.jsx
+
+import Header from "./header.js";
+
+const Theme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;&gt;
+      {...}
+      &lt;Header /&gt;
+      {...}
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>Also, I don’t know if you’ll need those classes you are defining to style the elements somewhere else, but it kind of defeats one of the purposes of <code>CSS-in-JS</code>, avoiding mapping <code>className</code> everywhere. I’d suggest to remove them.</p>
+<p>However, if what you want is to style a component once imported, and not when it’s defined, you can do something like this:</p>
+<pre><code class="lang-auto">import Header from './header';
+import { styled } from 'frontity';
+
+const Theme = () =&gt; {
+  return (
+    &lt;&gt;
+      { ... }
+      &lt;StyledHeader /&gt;
+      { ... }
+    &lt;/&gt;
+  );
+}
+
+export Theme;
+
+const StyledHeader = styled(Header)`
+ /* your styles */
+`;
+</code></pre>
+<p>or</p>
+<pre><code class="lang-auto">// theme.jsx
+
+import Header from './header';
+import { css } from 'frontity';
+
+const Theme = () =&gt; {
+  const headerStyles = css`
+    /* your styles for header */
+  `;
+
+  return (
+    &lt;&gt;
+      { ... }
+      &lt;Header css={headerStyles} /&gt;
+      { ... }
+    &lt;/&gt;
+  );
+}
+
+export Theme;
+</code></pre>
+<p>Note that the component that receives the styles must be ready for it, so you need to map the <code>className</code> prop. In this case it would be:</p>
+<pre><code class="lang-auto">const Header = ({ className }) =&gt; (
+  &lt;header className={className}&gt;
+    { ... }
+  &lt;/header&gt;
+);
+</code></pre>
+<p>What’s going on here, if I remember right, is that the <code>css</code> prop passed to <code>Header</code> is being transpiled into <code>className</code>, therefore you need to map it to the outer element of your <code>Header</code> component.</p>
+<p>I hope this helps! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/2</link>
+        <pubDate>Tue, 29 Oct 2019 22:35:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-776-2</guid>
+        <source url="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776.rss">Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</source>
+      </item>
+      <item>
+        <title>Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Okay so here’s the issue. I’m working on this theme. Here’s my index.js</p>
+<pre><code class="lang-javascript">import React from "react";
+import { Global, css, connect, styled, Head } from "frontity";
+import Header from "./header.js";
+import Archive from "./Archive";
+import Post from "./post.js";
+import Page404 from "./page404.js";
+import Loading from "./loading.js";
+import Page from "./Page/Page.js";
+import { media } from "./utilities/mixins";
+
+const Theme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  return (
+    &lt;&gt;
+      &lt;Head&gt;
+        &lt;title&gt;{state.frontity.title}&lt;/title&gt;
+        &lt;meta name="description" content={state.frontity.description} /&gt;
+        &lt;html lang="en" /&gt;
+      &lt;/Head&gt;
+      &lt;Global styles={globalStyles} /&gt;
+      &lt;HeadContainer className="header"&gt;
+        &lt;Header /&gt;
+      &lt;/HeadContainer&gt;
+      &lt;Body className="content-body"&gt;
+        {data.isFetching &amp;&amp; &lt;Loading /&gt;}
+        {data.isArchive &amp;&amp; &lt;Archive /&gt;}
+        {(data.isPage &amp;&amp; &lt;Page /&gt;) || (data.isPostType &amp;&amp; &lt;Post /&gt;)}
+        {}
+        {data.is404 &amp;&amp; &lt;Page404 /&gt;}
+      &lt;/Body&gt;
+    &lt;/&gt;
+  );
+};
+
+export default connect(Theme);
+//- CSS
+// GLOBAL STYLES
+const globalStyles = css`
+  @import url("https://fonts.googleapis.com/css?family=Space+Mono:400,400i,700,700i&amp;display=swap");
+
+  :root {
+    --primary: #1f38c5;
+    --snappy: cubic-bezier(0.075, 0.82, 0.165, 1);
+    --heavy-snap: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  }
+
+  body {
+    margin: 0;
+    font-family: "Space Mono", "Segoe UI", Roboto, "Droid Sans",
+      "Helvetica Neue", Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+  }
+  a,
+  a:visited {
+    color: inherit;
+    text-decoration: none;
+  }
+`;
+
+
+const HeadContainer = styled.header`
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  color: black;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Body = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+</code></pre>
+<p>and here is my header.js file</p>
+<pre><code class="lang-javascript">import React from "react";
+import { connect, styled } from "frontity";
+import Link from "./link";
+import Nav from "./nav";
+// import * as palette from "./utilities/variables";
+
+const Header = ({ state }) =&gt; (
+  &lt;&gt;
+    &lt;HomeLogo className="home-logo" link="/"&gt;
+      {state.frontity.title}
+    &lt;/HomeLogo&gt;
+    &lt;Nav /&gt;
+  &lt;/&gt;
+);
+
+export default connect(Header);
+
+const HomeLogo = styled(Link)`
+  white-space: nowrap;
+  color: black;
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  transition: all 0.15s var(--heavy-snap);
+  border-bottom: 3px solid transparent;
+  padding: 0.1em 0.25em 0 0.25em;
+  margin: auto 0.25em;
+  display: inline;
+
+  &amp;:hover {
+    border-bottom: 3px solid var(--primary);
+    transition: all 0.15s var(--heavy-snap);
+  }
+`;
+</code></pre>
+<p>This currently works, and it produces the intended html markup:</p>
+<pre><code class="lang-auto">&lt;header class="header css-ot1its"&gt;
+    &lt;a href="/" class="home-logo css-17y2no6"&gt;
+        t3 labs
+    &lt;/a&gt;
+    &lt;nav class="nav-list css-11kw5ec"&gt;
+        &lt;a href="/" class="css-3jufar"&gt;
+            blog
+        &lt;/a&gt;
+        &lt;a href="/about-us/" class="css-hvaal0"&gt;
+            about-us
+        &lt;/a&gt;
+    &lt;/nav&gt;
+&lt;/header&gt;
+</code></pre>
+<p>But I would like to make the actual mark up in index.js cleaner.</p>
+<p>Instead of</p>
+<pre><code class="lang-auto">&lt;HeadContainer className="header"&gt;
+        &lt;Header /&gt;
+      &lt;/HeadContainer&gt;
+</code></pre>
+<p>I’d like to make it</p>
+<pre><code class="lang-auto">&lt;Header className="header" /&gt;
+</code></pre>
+<p>But when I remove the HeadContainer (and change the styled component from HeadContainer to Header) I get the following error:</p>
+<pre><code class="lang-auto">  ERROR in ./packages/t3-labs/src/components/header.js
+    Module build failed (from ./node_modules/babel-loader/lib/index.js):
+    SyntaxError: /Users/aslan.french/work/server-front/packages/t3-labs/src/components/header.js: Identifier 'Header' has already been declared
+</code></pre>
+<p>I understand that I am getting this error because I declare “Header” both here:</p>
+<pre><code class="lang-auto">import Header from "./header.js";
+</code></pre>
+<p>and here:</p>
+<pre><code class="lang-auto">const Header= styled.header`
+ width: 100%;
+ max-width: 100%;
+ box-sizing: border-box;
+ padding: 24px;
+ color: black;
+ display: flex;
+ justify-content: space-between;
+`
+</code></pre>
+<p>because I can get the error to stop by either renaming the Header Component or the styled-component declaration, but I don’t understand what I should to if I want to import a component and then add styled-component stylings to it without wrapping it in a container component, which I find introduces too many unecessary layers of HTML elements. (I’ve mitigated this in the final HTML by using fragments but the question remains in the hypothetical. )</p>
+<p>Suggestions?</p>
+          <p><a href="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776/1</link>
+        <pubDate>Tue, 29 Oct 2019 19:41:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-776-1</guid>
+        <source url="https://community.frontity.org/t/unable-to-style-imported-component-identifier-header-has-already-been-declared/776.rss">Unable to style imported component &quot;Identifier &#39;Header&#39; has already been declared&quot;</source>
+      </item>
+  </channel>
+</rss>

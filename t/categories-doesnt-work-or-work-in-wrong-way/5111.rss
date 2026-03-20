@@ -1,0 +1,1149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Categories doesnt work or work in wrong way</title>
+    <link>https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111</link>
+    <description>Hello, i have an issue with post categories, in my frontity.state.source i have wrong urls
+
+![image|690x388](upload://ySxVrNnu14ExTLDWwJFTN8tcudT.jpeg)
+
+there is routes to my blog category (not a custom post) categories are on routes without /blog/ 
+for example - 
+not      /blog/category/generowanie-leadow/ 
+but     /category/generowanie-leadow/
+
+okey thats urls without /blog/ but works, unlike custom posts categories doesnt work at all (tried all urls what i can imagine)
+
+![image|690x388](upload://3Fedm2YxQv1BY0RhQo5j9tmjsYW.png)
+
+for blog i need link  /blog/category/category_name
+for casestudies i need link /casestudies_category/category_name
+
+There is link to my WP REST API  https://wp.callpage.pl
+There is link to my project git clone https://TomaszRRS@bitbucket.org/MaciejRRS/frontitypl.git
+
+
+my frontity.settings.js
+
+```
+const settings = {
+  &quot;name&quot;: &quot;call-page&quot;,
+  &quot;state&quot;: {
+    &quot;frontity&quot;: {
+      &quot;url&quot;: &quot;https://wp.callpage.pl&quot;,
+      &quot;title&quot;: &quot;CallPage | Widget kontaktowy - CallPage®&quot;,
+      &quot;description&quot;: &quot;Some text here&quot;,
+    }
+  },
+  &quot;packages&quot;: [
+    {
+      &quot;name&quot;: &quot;call-page&quot;,
+    },
+    {
+      &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+      &quot;state&quot;: {
+        &quot;source&quot;: {
+          &quot;url&quot;: &quot;https://wp.callpage.pl&quot;,
+          &quot;postsPage&quot;: &quot;/blog&quot;,
+          &quot;postTypes&quot;: [
+            {
+              type: &quot;posts&quot;,
+              endpoint: &quot;posts&quot;,
+              archive: &quot;/blog&quot;
+            },
+            {
+              type: &quot;wiedza&quot;,
+              endpoint: &quot;wiedza&quot;,
+              archive: &quot;/wiedza&quot;,
+            },
+            {
+              type: &quot;casestudies&quot;,
+              endpoint: &quot;casestudies&quot;,
+              archive: &quot;/casestudies&quot;
+            },
+            {
+              type: &quot;branze&quot;,
+              endpoint: &quot;branze&quot;,
+              archive: &quot;/branze&quot;
+            }
+          ]
+        }
+      },
+    },
+    {
+      name: &quot;@frontity/google-tag-manager-analytics&quot;,
+      state: {
+        googleTagManagerAnalytics: {
+          containerIds: [&quot;GTM-PPFXRVZ&quot;],
+        },
+      },
+    },
+    &quot;@frontity/tiny-router&quot;,
+    &quot;@frontity/html2react&quot;
+  ]
+};
+
+export default settings;
+
+```
+
+and there is my wp functions.php
+
+```
+&lt;?php
+​
+​
+​
+​
+​
+register_nav_menus( array(
+    &#39;primary&#39; =&gt; __( &#39;Primary Menu&#39;, &#39;callpage&#39; ),
+) );
+​
+​
+​
+​
+/*
+* Enable support for custom logo.
+*
+*/
+	// add_theme_support( &#39;custom-logo&#39;, array(
+	// 	&#39;height&#39;      =&gt; 400,
+	// 	&#39;width&#39;       =&gt; 100,
+	// 	&#39;flex-height&#39; =&gt; true,
+	// 	&#39;flex-width&#39;  =&gt; true,
+	// ) );
+​
+​
+​
+    add_filter(&#39;wpcf7_autop_or_not&#39;, &#39;__return_false&#39;);
+​
+​
+​
+​
+​
+// Register thumbnails
+	// add_theme_support( &#39;post-thumbnails&#39; );
+	// add_image_size( &#39;homepage-thumb&#39;, 385, 302 ); 
+​
+​
+​
+​
+​
+// This adds support for pages only:
+	// add_theme_support( &#39;post-thumbnails&#39;, array( &#39;page&#39; ) );
+​
+//add option page to panel (ACF)
+// if( function_exists(&#39;acf_add_options_page&#39;) ) {
+// 	acf_add_options_page();
+​
+// }
+​
+	//add option page to panel (ACF)
+	if( function_exists(&#39;acf_add_options_page&#39;) ) {
+		acf_add_options_page(&#39;Blog widget&#39;);
+		// acf_add_options_page(&#39;Header&#39;);
+		// acf_add_options_page(&#39;Footer&#39;);
+	}
+​
+​
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+// // wiedza
+// // Dodawanie nowego typu postów START
+function create_wiedza_posttype(){
+	$args = array(
+	&#39;label&#39; =&gt; &#39;Wiedza&#39;,
+	&#39;labels&#39; =&gt; array(
+	&#39;name&#39; =&gt; __(&#39;Wiedza&#39;),
+	&#39;singular_name&#39; =&gt; __(&#39;Wiedza&#39;),
+	&#39;add_new&#39; =&gt; __(&#39;Dodaj wiedzę&#39;),
+	&#39;add_new_item&#39; =&gt; __(&#39;Dodaj Nową wiedzę&#39;),
+	&#39;edit_item&#39; =&gt; __(&#39;Edytuj wiedzę&#39;),
+	&#39;new_item&#39; =&gt; __(&#39;Nowy wiedzę&#39;),
+	&#39;view_item&#39; =&gt; __(&#39;Zobacz wiedzę&#39;),
+	&#39;search_items&#39; =&gt; __(&#39;Szukaj wiedzy&#39;),
+	&#39;not_found&#39; =&gt; __(&#39;Nie Znaleziono wiedzy&#39;),
+	&#39;not_found_in_trash&#39; =&gt; __(&#39;Brak wiedzy w koszu&#39;),
+	&#39;all_items&#39; =&gt; __(&#39;Cała wiedza&#39;),
+	&#39;archives&#39; =&gt; __(&#39;Zarchiwizowana wiedza&#39;),
+	&#39;insert_into_item&#39; =&gt; __(&#39;Dodaj do wiedzy&#39;),
+	&#39;uploaded_to_this_item&#39; =&gt; __(&#39;Sciągnięto do bieżącej wiedzy&#39;),
+	&#39;featured_image&#39; =&gt; __(&#39;Zdjęcie wiedzy&#39;),
+	&#39;set_featured_image&#39; =&gt; __(&#39;Ustaw Zdjęcie wiedzy&#39;),
+	&#39;remove_featured_image&#39; =&gt; __(&#39;Usuń Zdjęcie wiedzy&#39;),
+	&#39;use_featured_image&#39; =&gt; __(&#39;Użyj Zdjęcie wiedzy&#39;),
+	&#39;menu_name&#39; =&gt; __(&#39;Wiedza&#39;)
+	),
+	&#39;description&#39; =&gt; __(&#39;Typ Postu zawiera treść dla wiedzy&#39;),
+	&#39;public&#39; =&gt; true,
+	&#39;exclude_from_search&#39; =&gt; false,
+	&#39;publicly_queryable&#39; =&gt; true,
+	&#39;show_ui&#39; =&gt; true,
+	&#39;show_in_nav_menus&#39; =&gt; true,
+	&#39;show_in_menu&#39; =&gt; true,
+	&#39;show_in_admin_bar&#39; =&gt; true,
+	&#39;menu_position&#39; =&gt; 5,
+	&#39;menu_icon&#39; =&gt; &#39;dashicons-coffee&#39;,
+	&#39;supports&#39; =&gt; array(&#39;title&#39;,&#39;editor&#39;,&#39;author&#39;,&#39;thumbnail&#39;,&#39;excerpt&#39;,&#39;revisions&#39;,&#39;page-attributes&#39;),
+	&#39;has_archive&#39; =&gt; false,
+	&#39;hierarchical&#39; =&gt; false,
+	&#39;show_in_rest&#39; =&gt; true,
+	&#39;rewrite&#39; =&gt; array(&#39;slug&#39;=&gt;&#39;wiedza&#39;,&#39;with_front&#39;=&gt;false),
+	&#39;capabilities&#39; =&gt; array(
+	&#39;edit_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;read_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;delete_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;edit_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;edit_others_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;delete_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;publish_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;read_private_posts&#39; =&gt; &#39;update_core&#39;
+	),
+	);
+	register_post_type(&#39;wiedza&#39;,$args);
+	}
+	add_action(&#39;init&#39;,&#39;create_wiedza_posttype&#39;,0);
+	
+	function register_taxonomy_category_wiedza() {
+	$labels = [
+	&#39;name&#39; =&gt; _x(&#39;Categories&#39;, &#39;taxonomy general name&#39;),
+	&#39;singular_name&#39; =&gt; _x(&#39;Category&#39;, &#39;taxonomy singular name&#39;),
+	&#39;search_items&#39; =&gt; __(&#39;Search Categories&#39;),
+	&#39;all_items&#39; =&gt; __(&#39;All Categories&#39;),
+	&#39;parent_item&#39; =&gt; __(&#39;Parent Category&#39;),
+	&#39;parent_item_colon&#39; =&gt; __(&#39;Parent Category:&#39;),
+	&#39;edit_item&#39; =&gt; __(&#39;Edit Category&#39;),
+	&#39;update_item&#39; =&gt; __(&#39;Update Category&#39;),
+	&#39;add_new_item&#39; =&gt; __(&#39;Add New Category&#39;),
+	&#39;new_item_name&#39; =&gt; __(&#39;New Category Name&#39;),
+	&#39;menu_name&#39; =&gt; __(&#39;Kategorie&#39;),
+	];
+	$args = [
+	&#39;hierarchical&#39; =&gt; true, // make it hierarchical (like categories)
+	&#39;labels&#39; =&gt; $labels,
+	&#39;show_ui&#39; =&gt; true,
+	&#39;show_in_rest&#39; =&gt; true,
+	&#39;show_admin_column&#39; =&gt; true,
+	&#39;query_var&#39; =&gt; true,
+	&#39;rewrite&#39; =&gt; [&#39;slug&#39; =&gt; &#39;category_wiedza&#39;],
+	];
+	register_taxonomy(&#39;category_wiedza&#39;, [&#39;wiedza&#39;], $args);
+	}
+	add_action(&#39;init&#39;, &#39;register_taxonomy_category_wiedza&#39;);	
+	
+​
+	function my_plugin_rest_route_for_post( $route, $post ) {
+		if ( $post-&gt;post_type === &#39;wiedza&#39; ) {
+			$route = &#39;/wp/v2/wiedza/&#39; . $post-&gt;ID;
+		}
+​
+		if ( $post-&gt;post_type === &#39;branze&#39; ) {
+			$route = &#39;/wp/v2/branze/&#39; . $post-&gt;ID;
+		}
+	 
+		return $route;
+	}
+	add_filter( &#39;rest_route_for_post&#39;, &#39;my_plugin_rest_route_for_post&#39;, 10, 2 );
+​
+​
+​
+​
+​
+// // case studies
+// // Dodawanie nowego typu postów START
+function create_casestudies_posttype(){
+	$args = array(
+	&#39;label&#39; =&gt; &#39;casestudies&#39;,
+	&#39;labels&#39; =&gt; array(
+	&#39;name&#39; =&gt; __(&#39;casestudies&#39;),
+	&#39;singular_name&#39; =&gt; __(&#39;casestudies&#39;),
+	&#39;add_new&#39; =&gt; __(&#39;Add case studies&#39;),
+	&#39;add_new_item&#39; =&gt; __(&#39;Add new case studies&#39;),
+	&#39;edit_item&#39; =&gt; __(&#39;Edit cases tudies&#39;),
+	&#39;new_item&#39; =&gt; __(&#39;New case studies&#39;),
+	&#39;view_item&#39; =&gt; __(&#39;See case studies&#39;),
+	&#39;search_items&#39; =&gt; __(&#39;Search case studies&#39;),
+	&#39;not_found&#39; =&gt; __(&#39;Not found case studies&#39;),
+	&#39;not_found_in_trash&#39; =&gt; __(&#39;Missing case studies in trash&#39;),
+	&#39;all_items&#39; =&gt; __(&#39;All case studies&#39;),
+	&#39;archives&#39; =&gt; __(&#39;Zarchiwizowane ebooki&#39;),
+	&#39;insert_into_item&#39; =&gt; __(&#39;Add to case studies&#39;),
+	&#39;uploaded_to_this_item&#39; =&gt; __(&#39;Sciągnięto do bieżącego ebooka&#39;),
+	&#39;featured_image&#39; =&gt; __(&#39;Thumbnail case studies&#39;),
+	&#39;set_featured_image&#39; =&gt; __(&#39;Set thumbnail case studies&#39;),
+	&#39;remove_featured_image&#39; =&gt; __(&#39;Delete thumbnail case studies&#39;),
+	&#39;use_featured_image&#39; =&gt; __(&#39;Use thumbnail case studies&#39;),
+	&#39;menu_name&#39; =&gt; __(&#39;casestudies&#39;)
+	),
+	&#39;description&#39; =&gt; __(&#39;Typ Postu zawiera treść dla case studies&#39;),
+	&#39;public&#39; =&gt; true,
+	&#39;exclude_from_search&#39; =&gt; false,
+	&#39;publicly_queryable&#39; =&gt; true,
+	&#39;show_ui&#39; =&gt; true,
+	&#39;show_in_nav_menus&#39; =&gt; true,
+	&#39;show_in_menu&#39; =&gt; true,
+	&#39;show_in_admin_bar&#39; =&gt; true,
+	&#39;menu_position&#39; =&gt; 5,
+	&#39;menu_icon&#39; =&gt; &#39;dashicons-coffee&#39;,
+	&#39;supports&#39; =&gt; array(&#39;title&#39;,&#39;editor&#39;,&#39;author&#39;,&#39;thumbnail&#39;,&#39;excerpt&#39;,&#39;revisions&#39;,&#39;page-attributes&#39;),
+	&#39;has_archive&#39; =&gt; false,
+	&#39;hierarchical&#39; =&gt; false,
+	&#39;show_in_rest&#39; =&gt; true,
+	&#39;rewrite&#39; =&gt; array(&#39;slug&#39;=&gt;&#39;casestudies&#39;,&#39;with_front&#39;=&gt;false),
+	&#39;capabilities&#39; =&gt; array(
+	&#39;edit_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;read_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;delete_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;edit_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;edit_others_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;delete_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;publish_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;read_private_posts&#39; =&gt; &#39;update_core&#39;
+	),
+	);
+	register_post_type(&#39;casestudies&#39;,$args);
+	}
+	add_action(&#39;init&#39;,&#39;create_casestudies_posttype&#39;,0);
+	
+	function register_taxonomy_category_casestudies() {
+	$labels = [
+	&#39;name&#39; =&gt; _x(&#39;Categories&#39;, &#39;taxonomy general name&#39;),
+	&#39;singular_name&#39; =&gt; _x(&#39;Category&#39;, &#39;taxonomy singular name&#39;),
+	&#39;search_items&#39; =&gt; __(&#39;Search Categories&#39;),
+	&#39;all_items&#39; =&gt; __(&#39;All Categories&#39;),
+	&#39;parent_item&#39; =&gt; __(&#39;Parent Category&#39;),
+	&#39;parent_item_colon&#39; =&gt; __(&#39;Parent Category:&#39;),
+	&#39;edit_item&#39; =&gt; __(&#39;Edit Category&#39;),
+	&#39;update_item&#39; =&gt; __(&#39;Update Category&#39;),
+	&#39;add_new_item&#39; =&gt; __(&#39;Add New Category&#39;),
+	&#39;new_item_name&#39; =&gt; __(&#39;New Category Name&#39;),
+	&#39;menu_name&#39; =&gt; __(&#39;Category&#39;),
+	];
+	$args = [
+	&#39;hierarchical&#39; =&gt; true, // make it hierarchical (like categories)
+	&#39;labels&#39; =&gt; $labels,
+	&#39;show_ui&#39; =&gt; true,
+	&#39;show_in_rest&#39; =&gt; true,
+	&#39;show_admin_column&#39; =&gt; true,
+	&#39;query_var&#39; =&gt; true,
+	&#39;rewrite&#39; =&gt; [&#39;slug&#39; =&gt; &#39;category_casestudies&#39;],
+	];
+	register_taxonomy(&#39;category_casestudies&#39;, [&#39;casestudies&#39;], $args);
+	}
+	add_action(&#39;init&#39;, &#39;register_taxonomy_category_casestudies&#39;);	
+	
+​
+	// function my_plugin_rest_route_for_post( $route, $post ) {
+	// 	if ( $post-&gt;post_type === &#39;casestudies&#39; ) {
+	// 		$route = &#39;/wp/v2/casestudies/&#39; . $post-&gt;ID;
+	// 	}
+	 
+	// 	return $route;
+	// }
+	// add_filter( &#39;rest_route_for_post&#39;, &#39;my_plugin_rest_route_for_post&#39;, 10, 2 );
+​
+​
+​
+​
+​
+​
+​
+	// add taxonomy medicine
+	function register_taxonomy_medicine_casestudies() {
+		$labels = [
+		&#39;name&#39; =&gt; _x(&#39;Medicine&#39;, &#39;taxonomy general name&#39;),
+		&#39;singular_name&#39; =&gt; _x(&#39;medicine&#39;, &#39;taxonomy singular name&#39;),
+		&#39;search_items&#39; =&gt; __(&#39;Search medicine&#39;),
+		&#39;all_items&#39; =&gt; __(&#39;All medicines&#39;),
+		&#39;parent_item&#39; =&gt; __(&#39;Parent medicine&#39;),
+		&#39;parent_item_colon&#39; =&gt; __(&#39;Parent medicine:&#39;),
+		&#39;edit_item&#39; =&gt; __(&#39;Edit medicine&#39;),
+		&#39;update_item&#39; =&gt; __(&#39;Update medicine&#39;),
+		&#39;add_new_item&#39; =&gt; __(&#39;Add New medicine&#39;),
+		&#39;new_item_name&#39; =&gt; __(&#39;New medicine Name&#39;),
+		&#39;menu_name&#39; =&gt; __(&#39;medicine&#39;),
+		];
+		$args = [
+		&#39;hierarchical&#39; =&gt; true, // make it hierarchical (like categories)
+		&#39;labels&#39; =&gt; $labels,
+		&#39;show_ui&#39; =&gt; true,
+		&#39;show_in_rest&#39; =&gt; true,
+		&#39;show_admin_column&#39; =&gt; true,
+		&#39;query_var&#39; =&gt; true,
+		&#39;rewrite&#39; =&gt; [&#39;slug&#39; =&gt; &#39;medicine_casestudies&#39;],
+		];
+		register_taxonomy(&#39;medicine_casestudies&#39;, [&#39;casestudies&#39;], $args);
+		}
+		add_action(&#39;init&#39;, &#39;register_taxonomy_medicine_casestudies&#39;);	
+	// end taxonomy medicine	
+​
+​
+// ______________________________________________ concreate industry custom post _________________________________________
+​
+​
+// // Dodawanie nowego typu postów START
+function create_branze_posttype(){
+	$args = array(
+	&#39;label&#39; =&gt; &#39;Branże&#39;,
+	&#39;labels&#39; =&gt; array(
+	&#39;name&#39; =&gt; __(&#39;Branże&#39;),
+	&#39;singular_name&#39; =&gt; __(&#39;Branże&#39;),
+	&#39;add_new&#39; =&gt; __(&#39;Dodaj Branże&#39;),
+	&#39;add_new_item&#39; =&gt; __(&#39;Dodaj Nową Branżę&#39;),
+	&#39;edit_item&#39; =&gt; __(&#39;Edytuj Branżę&#39;),
+	&#39;new_item&#39; =&gt; __(&#39;Nowa Branża&#39;),
+	&#39;view_item&#39; =&gt; __(&#39;Zobacz Branżę&#39;),
+	&#39;search_items&#39; =&gt; __(&#39;Szukaj Branży&#39;),
+	&#39;not_found&#39; =&gt; __(&#39;Nie Znaleziono Branży&#39;),
+	&#39;not_found_in_trash&#39; =&gt; __(&#39;Brak Branży w koszu&#39;),
+	&#39;all_items&#39; =&gt; __(&#39;Wszystkie Branże&#39;),
+	&#39;archives&#39; =&gt; __(&#39;Zarchiwizowane Branże&#39;),
+	&#39;insert_into_item&#39; =&gt; __(&#39;Dodaj do Branży&#39;),
+	&#39;uploaded_to_this_item&#39; =&gt; __(&#39;Sciągnięto do bieżącegj Branży&#39;),
+	&#39;featured_image&#39; =&gt; __(&#39;Zdjęcie Branży&#39;),
+	&#39;set_featured_image&#39; =&gt; __(&#39;Ustaw Zdjęcie Branży&#39;),
+	&#39;remove_featured_image&#39; =&gt; __(&#39;Usuń Zdjęcie Branży&#39;),
+	&#39;use_featured_image&#39; =&gt; __(&#39;Użyj Zdjęcie Branży&#39;),
+	&#39;menu_name&#39; =&gt; __(&#39;Branże&#39;)
+	),
+	&#39;description&#39; =&gt; __(&#39;Typ Postu zawiera treść dla Branży&#39;),
+	&#39;public&#39; =&gt; true,
+	&#39;exclude_from_search&#39; =&gt; false,
+	&#39;publicly_queryable&#39; =&gt; true,
+	&#39;show_ui&#39; =&gt; true,
+	&#39;show_in_nav_menus&#39; =&gt; true,
+	&#39;show_in_menu&#39; =&gt; true,
+	&#39;show_in_admin_bar&#39; =&gt; true,
+	&#39;menu_position&#39; =&gt; 5,
+	&#39;menu_icon&#39; =&gt; &#39;dashicons-coffee&#39;,
+	&#39;supports&#39; =&gt; array(&#39;title&#39;,&#39;editor&#39;,&#39;author&#39;,&#39;thumbnail&#39;,&#39;excerpt&#39;,&#39;revisions&#39;,&#39;page-attributes&#39;),
+	&#39;has_archive&#39; =&gt; false,
+	&#39;hierarchical&#39; =&gt; false,
+	&#39;show_in_rest&#39; =&gt; true,
+	&#39;rewrite&#39; =&gt; array(&#39;slug&#39;=&gt;&#39;branze&#39;,&#39;with_front&#39;=&gt;false),
+	&#39;capabilities&#39; =&gt; array(
+	&#39;edit_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;read_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;delete_post&#39; =&gt; &#39;update_core&#39;,
+	&#39;edit_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;edit_others_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;delete_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;publish_posts&#39; =&gt; &#39;update_core&#39;,
+	&#39;read_private_posts&#39; =&gt; &#39;update_core&#39;
+	),
+	);
+	register_post_type(&#39;branze&#39;,$args);
+	}
+	add_action(&#39;init&#39;,&#39;create_branze_posttype&#39;,0);
+	
+	function register_taxonomy_category_branze() {
+	$labels = [
+	&#39;name&#39; =&gt; _x(&#39;Categories&#39;, &#39;taxonomy general name&#39;),
+	&#39;singular_name&#39; =&gt; _x(&#39;Category&#39;, &#39;taxonomy singular name&#39;),
+	&#39;search_items&#39; =&gt; __(&#39;Search Categories&#39;),
+	&#39;all_items&#39; =&gt; __(&#39;All Categories&#39;),
+	&#39;parent_item&#39; =&gt; __(&#39;Parent Category&#39;),
+	&#39;parent_item_colon&#39; =&gt; __(&#39;Parent Category:&#39;),
+	&#39;edit_item&#39; =&gt; __(&#39;Edit Category&#39;),
+	&#39;update_item&#39; =&gt; __(&#39;Update Category&#39;),
+	&#39;add_new_item&#39; =&gt; __(&#39;Add New Category&#39;),
+	&#39;new_item_name&#39; =&gt; __(&#39;New Category Name&#39;),
+	&#39;menu_name&#39; =&gt; __(&#39;Kategorie&#39;),
+	];
+	$args = [
+	&#39;hierarchical&#39; =&gt; true, 
+	&#39;labels&#39; =&gt; $labels,
+	&#39;show_ui&#39; =&gt; true,
+	&#39;show_in_rest&#39; =&gt; true,
+	&#39;show_admin_column&#39; =&gt; true,
+	&#39;query_var&#39; =&gt; true,
+	&#39;rewrite&#39; =&gt; [&#39;slug&#39; =&gt; &#39;category_branze&#39;],
+	];
+	register_taxonomy(&#39;category_branze&#39;, [&#39;branze&#39;], $args);
+	}
+	add_action(&#39;init&#39;, &#39;register_taxonomy_category_branze&#39;);	
+	
+​
+​
+​
+	// function my_plugin_rest_route_for_post( $route, $post ) {
+	// 	if ( $post-&gt;post_type === &#39;branze&#39; ) {
+	// 		$route = &#39;/wp/v2/branze/&#39; . $post-&gt;ID;
+	// 	}
+	 
+	// 	return $route;
+	// }
+	// add_filter( &#39;rest_route_for_post&#39;, &#39;my_plugin_rest_route_for_post&#39;, 10, 2 );
+​
+​
+​
+​
+​
+	add_filter( &#39;rest_post_collection_params&#39;, function ( $params, WP_Post_Type $post_type ) {
+		if ( &#39;post&#39; === $post_type-&gt;name &amp;&amp; isset( $params[&#39;per_page&#39;] ) ) {
+			$params[&#39;per_page&#39;][&#39;maximum&#39;] = 1000;
+		}
+	
+		return $params;
+	}, 10, 2 );
+​
+​
+​
+​
+​
+​
+	function wl_page_by_slug( $slug ) {
+​
+		echo &quot;&lt;pre&gt;&quot;;
+		print_r($slug[&#39;slug&#39;]);
+		echo &quot;&lt;/pre&gt;&quot;;
+	  
+		//remember if here should always return in json
+		return array( $slug[&#39;slug&#39;] );
+	  }
+	  
+	  add_action(&#39;rest_api_init&#39;, function() {
+		register_rest_route(&#39;wl/v1&#39;, &#39;post/(?P&lt;slug&gt;[a-zA-Z0-9-]+)&#39;, [
+		  &#39;methods&#39; =&gt; &#39;GET&#39;,
+		  &#39;callback&#39; =&gt; &#39;wl_page_by_slug&#39;,
+		]);
+	  });
+​
+	?&gt;
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 09 Aug 2021 15:07:00 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Categories doesnt work or work in wrong way</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Have you checked <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#state-source-taxonomies" class="inline-onebox" rel="noopener nofollow ugc">@frontity/wp-source - API Reference</a>? Because it’s normal for Frontity to not understand taxonomies very well (especially because WP also has issues with it).</p>
+          <p><a href="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/6</link>
+        <pubDate>Mon, 09 Aug 2021 15:07:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5111-6</guid>
+        <source url="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111.rss">Categories doesnt work or work in wrong way</source>
+      </item>
+      <item>
+        <title>Categories doesnt work or work in wrong way</title>
+        <dc:creator><![CDATA[shevabogdan16]]></dc:creator>
+        <description><![CDATA[
+            <p>you dont understand me, i have custom post casestudies, which have categories medicine and test, how i can get all casestudies with category medicine?</p>
+<p>i tried somithing like this</p>
+<p>localhost:3000/medicine/<br>
+localhost:3000/casestudies/medicine/<br>
+localhost:3000/casestudies/category/medicine/<br>
+localhost:3000/casestudies/casestudies_category/medicine/<br>
+localhost:3000/casestudies_category/medicine/<br>
+localhost:3000/casestudies_category/category/medicine/<br>
+localhost:3000/category/medicine/</p>
+<p>and all of that urls give me 404</p>
+          <p><a href="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/5</link>
+        <pubDate>Mon, 09 Aug 2021 12:33:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5111-5</guid>
+        <source url="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111.rss">Categories doesnt work or work in wrong way</source>
+      </item>
+      <item>
+        <title>Categories doesnt work or work in wrong way</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>The REST API has an endpoint for them <code>https://wp.callpage.pl/wp-json/wp/v2/category_casestudies</code>.</p>
+<p>And looking at the documentation (see: <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#state-source-posttypes" class="inline-onebox" rel="noopener nofollow ugc">@frontity/wp-source - API Reference</a>) you’ll need to modify your settings to fit the correct structure:</p>
+<pre><code class="lang-js">{
+      "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "url": "https://wp.callpage.pl",
+          "postsPage": "/blog",
+          "postTypes": [
+            {
+              type: "posts",
+              endpoint: "posts",
+              archive: "/blog"
+            },
+            {
+              type: "casestudies",  // post_type
+              endpoint: "category_casestudies",  // category slug
+              archive: "/casestudies", // category archive page
+            },
+// ...
+</code></pre>
+          <p><a href="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/4</link>
+        <pubDate>Mon, 09 Aug 2021 11:31:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5111-4</guid>
+        <source url="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111.rss">Categories doesnt work or work in wrong way</source>
+      </item>
+      <item>
+        <title>Categories doesnt work or work in wrong way</title>
+        <dc:creator><![CDATA[shevabogdan16]]></dc:creator>
+        <description><![CDATA[
+            <p>In default posts urls was localhost:3000/categories/category_name<br>
+i implement posts as custom post in frontity.settings.js<br>
+{<br>
+type: “posts”,<br>
+endpoint: “posts”,<br>
+archive: “/blog”<br>
+},<br>
+i know that blog urls works ok, but my problem that i cant casestudies categories url</p>
+          <p><a href="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/3</link>
+        <pubDate>Mon, 09 Aug 2021 10:03:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5111-3</guid>
+        <source url="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111.rss">Categories doesnt work or work in wrong way</source>
+      </item>
+      <item>
+        <title>Categories doesnt work or work in wrong way</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>By default does WP use <code>/blog/category-name</code> and <code>/blog/category-name/post-name</code>, so that is correct.</p>
+<p>However you’re doing something non-standard by removing the <code>/blog/</code> part from the url for archive pages, but still expecting the <code>/blog/</code> url to be the <code>postsPage</code> and the archive page (in frontity.settings.js). This means the category pages will have the same root at <code>/blog/</code>.</p>
+<p>How did you remove the <code>/blog/</code> part in WP for categories, because I can’t find that in your functions.php?</p>
+          <p><a href="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/2</link>
+        <pubDate>Mon, 09 Aug 2021 09:57:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5111-2</guid>
+        <source url="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111.rss">Categories doesnt work or work in wrong way</source>
+      </item>
+      <item>
+        <title>Categories doesnt work or work in wrong way</title>
+        <dc:creator><![CDATA[shevabogdan16]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello, i have an issue with post categories, in my frontity.state.source i have wrong urls</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/f/f4746aef22c0da196b9b9d7e28e6400901e30205.jpeg" data-download-href="https://community.frontity.org/uploads/default/f4746aef22c0da196b9b9d7e28e6400901e30205" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/f/f4746aef22c0da196b9b9d7e28e6400901e30205_2_690x388.jpeg" alt="image" data-base62-sha1="ySxVrNnu14ExTLDWwJFTN8tcudT" width="690" height="388" srcset="https://community.frontity.org/uploads/default/optimized/2X/f/f4746aef22c0da196b9b9d7e28e6400901e30205_2_690x388.jpeg, https://community.frontity.org/uploads/default/optimized/2X/f/f4746aef22c0da196b9b9d7e28e6400901e30205_2_1035x582.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/2X/f/f4746aef22c0da196b9b9d7e28e6400901e30205_2_1380x776.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/f/f4746aef22c0da196b9b9d7e28e6400901e30205_2_10x10.png"></a></div><p></p>
+<p>there is routes to my blog category (not a custom post) categories are on routes without /blog/<br>
+for example -<br>
+not      /blog/category/generowanie-leadow/<br>
+but     /category/generowanie-leadow/</p>
+<p>okey thats urls without /blog/ but works, unlike custom posts categories doesnt work at all (tried all urls what i can imagine)</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/1/19afa074fe7d2b6cf86a09ee5a7e8cf83ba2e31a.png" data-download-href="https://community.frontity.org/uploads/default/19afa074fe7d2b6cf86a09ee5a7e8cf83ba2e31a" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/1/19afa074fe7d2b6cf86a09ee5a7e8cf83ba2e31a_2_690x388.png" alt="image" data-base62-sha1="3Fedm2YxQv1BY0RhQo5j9tmjsYW" width="690" height="388" srcset="https://community.frontity.org/uploads/default/optimized/2X/1/19afa074fe7d2b6cf86a09ee5a7e8cf83ba2e31a_2_690x388.png, https://community.frontity.org/uploads/default/optimized/2X/1/19afa074fe7d2b6cf86a09ee5a7e8cf83ba2e31a_2_1035x582.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/1/19afa074fe7d2b6cf86a09ee5a7e8cf83ba2e31a_2_1380x776.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/1/19afa074fe7d2b6cf86a09ee5a7e8cf83ba2e31a_2_10x10.png"></a></div><p></p>
+<p>for blog i need link  /blog/category/category_name<br>
+for casestudies i need link /casestudies_category/category_name</p>
+<p>There is link to my WP REST API  <a href="https://wp.callpage.pl" rel="noopener nofollow ugc">https://wp.callpage.pl</a><br>
+There is link to my project git clone <a href="https://TomaszRRS@bitbucket.org/MaciejRRS/frontitypl.git" class="inline-onebox" rel="noopener nofollow ugc">Bitbucket</a></p>
+<p>my frontity.settings.js</p>
+<pre><code class="lang-javascript">const settings = {
+  "name": "call-page",
+  "state": {
+    "frontity": {
+      "url": "https://wp.callpage.pl",
+      "title": "CallPage | Widget kontaktowy - CallPage®",
+      "description": "Some text here",
+    }
+  },
+  "packages": [
+    {
+      "name": "call-page",
+    },
+    {
+      "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "url": "https://wp.callpage.pl",
+          "postsPage": "/blog",
+          "postTypes": [
+            {
+              type: "posts",
+              endpoint: "posts",
+              archive: "/blog"
+            },
+            {
+              type: "wiedza",
+              endpoint: "wiedza",
+              archive: "/wiedza",
+            },
+            {
+              type: "casestudies",
+              endpoint: "casestudies",
+              archive: "/casestudies"
+            },
+            {
+              type: "branze",
+              endpoint: "branze",
+              archive: "/branze"
+            }
+          ]
+        }
+      },
+    },
+    {
+      name: "@frontity/google-tag-manager-analytics",
+      state: {
+        googleTagManagerAnalytics: {
+          containerIds: ["GTM-PPFXRVZ"],
+        },
+      },
+    },
+    "@frontity/tiny-router",
+    "@frontity/html2react"
+  ]
+};
+
+export default settings;
+
+</code></pre>
+<p>and there is my wp functions.php</p>
+<pre><code class="lang-javascript">&lt;?php
+​
+​
+​
+​
+​
+register_nav_menus( array(
+    'primary' =&gt; __( 'Primary Menu', 'callpage' ),
+) );
+​
+​
+​
+​
+/*
+* Enable support for custom logo.
+*
+*/
+	// add_theme_support( 'custom-logo', array(
+	// 	'height'      =&gt; 400,
+	// 	'width'       =&gt; 100,
+	// 	'flex-height' =&gt; true,
+	// 	'flex-width'  =&gt; true,
+	// ) );
+​
+​
+​
+    add_filter('wpcf7_autop_or_not', '__return_false');
+​
+​
+​
+​
+​
+// Register thumbnails
+	// add_theme_support( 'post-thumbnails' );
+	// add_image_size( 'homepage-thumb', 385, 302 ); 
+​
+​
+​
+​
+​
+// This adds support for pages only:
+	// add_theme_support( 'post-thumbnails', array( 'page' ) );
+​
+//add option page to panel (ACF)
+// if( function_exists('acf_add_options_page') ) {
+// 	acf_add_options_page();
+​
+// }
+​
+	//add option page to panel (ACF)
+	if( function_exists('acf_add_options_page') ) {
+		acf_add_options_page('Blog widget');
+		// acf_add_options_page('Header');
+		// acf_add_options_page('Footer');
+	}
+​
+​
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+// // wiedza
+// // Dodawanie nowego typu postów START
+function create_wiedza_posttype(){
+	$args = array(
+	'label' =&gt; 'Wiedza',
+	'labels' =&gt; array(
+	'name' =&gt; __('Wiedza'),
+	'singular_name' =&gt; __('Wiedza'),
+	'add_new' =&gt; __('Dodaj wiedzę'),
+	'add_new_item' =&gt; __('Dodaj Nową wiedzę'),
+	'edit_item' =&gt; __('Edytuj wiedzę'),
+	'new_item' =&gt; __('Nowy wiedzę'),
+	'view_item' =&gt; __('Zobacz wiedzę'),
+	'search_items' =&gt; __('Szukaj wiedzy'),
+	'not_found' =&gt; __('Nie Znaleziono wiedzy'),
+	'not_found_in_trash' =&gt; __('Brak wiedzy w koszu'),
+	'all_items' =&gt; __('Cała wiedza'),
+	'archives' =&gt; __('Zarchiwizowana wiedza'),
+	'insert_into_item' =&gt; __('Dodaj do wiedzy'),
+	'uploaded_to_this_item' =&gt; __('Sciągnięto do bieżącej wiedzy'),
+	'featured_image' =&gt; __('Zdjęcie wiedzy'),
+	'set_featured_image' =&gt; __('Ustaw Zdjęcie wiedzy'),
+	'remove_featured_image' =&gt; __('Usuń Zdjęcie wiedzy'),
+	'use_featured_image' =&gt; __('Użyj Zdjęcie wiedzy'),
+	'menu_name' =&gt; __('Wiedza')
+	),
+	'description' =&gt; __('Typ Postu zawiera treść dla wiedzy'),
+	'public' =&gt; true,
+	'exclude_from_search' =&gt; false,
+	'publicly_queryable' =&gt; true,
+	'show_ui' =&gt; true,
+	'show_in_nav_menus' =&gt; true,
+	'show_in_menu' =&gt; true,
+	'show_in_admin_bar' =&gt; true,
+	'menu_position' =&gt; 5,
+	'menu_icon' =&gt; 'dashicons-coffee',
+	'supports' =&gt; array('title','editor','author','thumbnail','excerpt','revisions','page-attributes'),
+	'has_archive' =&gt; false,
+	'hierarchical' =&gt; false,
+	'show_in_rest' =&gt; true,
+	'rewrite' =&gt; array('slug'=&gt;'wiedza','with_front'=&gt;false),
+	'capabilities' =&gt; array(
+	'edit_post' =&gt; 'update_core',
+	'read_post' =&gt; 'update_core',
+	'delete_post' =&gt; 'update_core',
+	'edit_posts' =&gt; 'update_core',
+	'edit_others_posts' =&gt; 'update_core',
+	'delete_posts' =&gt; 'update_core',
+	'publish_posts' =&gt; 'update_core',
+	'read_private_posts' =&gt; 'update_core'
+	),
+	);
+	register_post_type('wiedza',$args);
+	}
+	add_action('init','create_wiedza_posttype',0);
+	
+	function register_taxonomy_category_wiedza() {
+	$labels = [
+	'name' =&gt; _x('Categories', 'taxonomy general name'),
+	'singular_name' =&gt; _x('Category', 'taxonomy singular name'),
+	'search_items' =&gt; __('Search Categories'),
+	'all_items' =&gt; __('All Categories'),
+	'parent_item' =&gt; __('Parent Category'),
+	'parent_item_colon' =&gt; __('Parent Category:'),
+	'edit_item' =&gt; __('Edit Category'),
+	'update_item' =&gt; __('Update Category'),
+	'add_new_item' =&gt; __('Add New Category'),
+	'new_item_name' =&gt; __('New Category Name'),
+	'menu_name' =&gt; __('Kategorie'),
+	];
+	$args = [
+	'hierarchical' =&gt; true, // make it hierarchical (like categories)
+	'labels' =&gt; $labels,
+	'show_ui' =&gt; true,
+	'show_in_rest' =&gt; true,
+	'show_admin_column' =&gt; true,
+	'query_var' =&gt; true,
+	'rewrite' =&gt; ['slug' =&gt; 'category_wiedza'],
+	];
+	register_taxonomy('category_wiedza', ['wiedza'], $args);
+	}
+	add_action('init', 'register_taxonomy_category_wiedza');	
+	
+​
+	function my_plugin_rest_route_for_post( $route, $post ) {
+		if ( $post-&gt;post_type === 'wiedza' ) {
+			$route = '/wp/v2/wiedza/' . $post-&gt;ID;
+		}
+​
+		if ( $post-&gt;post_type === 'branze' ) {
+			$route = '/wp/v2/branze/' . $post-&gt;ID;
+		}
+	 
+		return $route;
+	}
+	add_filter( 'rest_route_for_post', 'my_plugin_rest_route_for_post', 10, 2 );
+​
+​
+​
+​
+​
+// // case studies
+// // Dodawanie nowego typu postów START
+function create_casestudies_posttype(){
+	$args = array(
+	'label' =&gt; 'casestudies',
+	'labels' =&gt; array(
+	'name' =&gt; __('casestudies'),
+	'singular_name' =&gt; __('casestudies'),
+	'add_new' =&gt; __('Add case studies'),
+	'add_new_item' =&gt; __('Add new case studies'),
+	'edit_item' =&gt; __('Edit cases tudies'),
+	'new_item' =&gt; __('New case studies'),
+	'view_item' =&gt; __('See case studies'),
+	'search_items' =&gt; __('Search case studies'),
+	'not_found' =&gt; __('Not found case studies'),
+	'not_found_in_trash' =&gt; __('Missing case studies in trash'),
+	'all_items' =&gt; __('All case studies'),
+	'archives' =&gt; __('Zarchiwizowane ebooki'),
+	'insert_into_item' =&gt; __('Add to case studies'),
+	'uploaded_to_this_item' =&gt; __('Sciągnięto do bieżącego ebooka'),
+	'featured_image' =&gt; __('Thumbnail case studies'),
+	'set_featured_image' =&gt; __('Set thumbnail case studies'),
+	'remove_featured_image' =&gt; __('Delete thumbnail case studies'),
+	'use_featured_image' =&gt; __('Use thumbnail case studies'),
+	'menu_name' =&gt; __('casestudies')
+	),
+	'description' =&gt; __('Typ Postu zawiera treść dla case studies'),
+	'public' =&gt; true,
+	'exclude_from_search' =&gt; false,
+	'publicly_queryable' =&gt; true,
+	'show_ui' =&gt; true,
+	'show_in_nav_menus' =&gt; true,
+	'show_in_menu' =&gt; true,
+	'show_in_admin_bar' =&gt; true,
+	'menu_position' =&gt; 5,
+	'menu_icon' =&gt; 'dashicons-coffee',
+	'supports' =&gt; array('title','editor','author','thumbnail','excerpt','revisions','page-attributes'),
+	'has_archive' =&gt; false,
+	'hierarchical' =&gt; false,
+	'show_in_rest' =&gt; true,
+	'rewrite' =&gt; array('slug'=&gt;'casestudies','with_front'=&gt;false),
+	'capabilities' =&gt; array(
+	'edit_post' =&gt; 'update_core',
+	'read_post' =&gt; 'update_core',
+	'delete_post' =&gt; 'update_core',
+	'edit_posts' =&gt; 'update_core',
+	'edit_others_posts' =&gt; 'update_core',
+	'delete_posts' =&gt; 'update_core',
+	'publish_posts' =&gt; 'update_core',
+	'read_private_posts' =&gt; 'update_core'
+	),
+	);
+	register_post_type('casestudies',$args);
+	}
+	add_action('init','create_casestudies_posttype',0);
+	
+	function register_taxonomy_category_casestudies() {
+	$labels = [
+	'name' =&gt; _x('Categories', 'taxonomy general name'),
+	'singular_name' =&gt; _x('Category', 'taxonomy singular name'),
+	'search_items' =&gt; __('Search Categories'),
+	'all_items' =&gt; __('All Categories'),
+	'parent_item' =&gt; __('Parent Category'),
+	'parent_item_colon' =&gt; __('Parent Category:'),
+	'edit_item' =&gt; __('Edit Category'),
+	'update_item' =&gt; __('Update Category'),
+	'add_new_item' =&gt; __('Add New Category'),
+	'new_item_name' =&gt; __('New Category Name'),
+	'menu_name' =&gt; __('Category'),
+	];
+	$args = [
+	'hierarchical' =&gt; true, // make it hierarchical (like categories)
+	'labels' =&gt; $labels,
+	'show_ui' =&gt; true,
+	'show_in_rest' =&gt; true,
+	'show_admin_column' =&gt; true,
+	'query_var' =&gt; true,
+	'rewrite' =&gt; ['slug' =&gt; 'category_casestudies'],
+	];
+	register_taxonomy('category_casestudies', ['casestudies'], $args);
+	}
+	add_action('init', 'register_taxonomy_category_casestudies');	
+	
+​
+	// function my_plugin_rest_route_for_post( $route, $post ) {
+	// 	if ( $post-&gt;post_type === 'casestudies' ) {
+	// 		$route = '/wp/v2/casestudies/' . $post-&gt;ID;
+	// 	}
+	 
+	// 	return $route;
+	// }
+	// add_filter( 'rest_route_for_post', 'my_plugin_rest_route_for_post', 10, 2 );
+​
+​
+​
+​
+​
+​
+​
+	// add taxonomy medicine
+	function register_taxonomy_medicine_casestudies() {
+		$labels = [
+		'name' =&gt; _x('Medicine', 'taxonomy general name'),
+		'singular_name' =&gt; _x('medicine', 'taxonomy singular name'),
+		'search_items' =&gt; __('Search medicine'),
+		'all_items' =&gt; __('All medicines'),
+		'parent_item' =&gt; __('Parent medicine'),
+		'parent_item_colon' =&gt; __('Parent medicine:'),
+		'edit_item' =&gt; __('Edit medicine'),
+		'update_item' =&gt; __('Update medicine'),
+		'add_new_item' =&gt; __('Add New medicine'),
+		'new_item_name' =&gt; __('New medicine Name'),
+		'menu_name' =&gt; __('medicine'),
+		];
+		$args = [
+		'hierarchical' =&gt; true, // make it hierarchical (like categories)
+		'labels' =&gt; $labels,
+		'show_ui' =&gt; true,
+		'show_in_rest' =&gt; true,
+		'show_admin_column' =&gt; true,
+		'query_var' =&gt; true,
+		'rewrite' =&gt; ['slug' =&gt; 'medicine_casestudies'],
+		];
+		register_taxonomy('medicine_casestudies', ['casestudies'], $args);
+		}
+		add_action('init', 'register_taxonomy_medicine_casestudies');	
+	// end taxonomy medicine	
+​
+​
+// ______________________________________________ concreate industry custom post _________________________________________
+​
+​
+// // Dodawanie nowego typu postów START
+function create_branze_posttype(){
+	$args = array(
+	'label' =&gt; 'Branże',
+	'labels' =&gt; array(
+	'name' =&gt; __('Branże'),
+	'singular_name' =&gt; __('Branże'),
+	'add_new' =&gt; __('Dodaj Branże'),
+	'add_new_item' =&gt; __('Dodaj Nową Branżę'),
+	'edit_item' =&gt; __('Edytuj Branżę'),
+	'new_item' =&gt; __('Nowa Branża'),
+	'view_item' =&gt; __('Zobacz Branżę'),
+	'search_items' =&gt; __('Szukaj Branży'),
+	'not_found' =&gt; __('Nie Znaleziono Branży'),
+	'not_found_in_trash' =&gt; __('Brak Branży w koszu'),
+	'all_items' =&gt; __('Wszystkie Branże'),
+	'archives' =&gt; __('Zarchiwizowane Branże'),
+	'insert_into_item' =&gt; __('Dodaj do Branży'),
+	'uploaded_to_this_item' =&gt; __('Sciągnięto do bieżącegj Branży'),
+	'featured_image' =&gt; __('Zdjęcie Branży'),
+	'set_featured_image' =&gt; __('Ustaw Zdjęcie Branży'),
+	'remove_featured_image' =&gt; __('Usuń Zdjęcie Branży'),
+	'use_featured_image' =&gt; __('Użyj Zdjęcie Branży'),
+	'menu_name' =&gt; __('Branże')
+	),
+	'description' =&gt; __('Typ Postu zawiera treść dla Branży'),
+	'public' =&gt; true,
+	'exclude_from_search' =&gt; false,
+	'publicly_queryable' =&gt; true,
+	'show_ui' =&gt; true,
+	'show_in_nav_menus' =&gt; true,
+	'show_in_menu' =&gt; true,
+	'show_in_admin_bar' =&gt; true,
+	'menu_position' =&gt; 5,
+	'menu_icon' =&gt; 'dashicons-coffee',
+	'supports' =&gt; array('title','editor','author','thumbnail','excerpt','revisions','page-attributes'),
+	'has_archive' =&gt; false,
+	'hierarchical' =&gt; false,
+	'show_in_rest' =&gt; true,
+	'rewrite' =&gt; array('slug'=&gt;'branze','with_front'=&gt;false),
+	'capabilities' =&gt; array(
+	'edit_post' =&gt; 'update_core',
+	'read_post' =&gt; 'update_core',
+	'delete_post' =&gt; 'update_core',
+	'edit_posts' =&gt; 'update_core',
+	'edit_others_posts' =&gt; 'update_core',
+	'delete_posts' =&gt; 'update_core',
+	'publish_posts' =&gt; 'update_core',
+	'read_private_posts' =&gt; 'update_core'
+	),
+	);
+	register_post_type('branze',$args);
+	}
+	add_action('init','create_branze_posttype',0);
+	
+	function register_taxonomy_category_branze() {
+	$labels = [
+	'name' =&gt; _x('Categories', 'taxonomy general name'),
+	'singular_name' =&gt; _x('Category', 'taxonomy singular name'),
+	'search_items' =&gt; __('Search Categories'),
+	'all_items' =&gt; __('All Categories'),
+	'parent_item' =&gt; __('Parent Category'),
+	'parent_item_colon' =&gt; __('Parent Category:'),
+	'edit_item' =&gt; __('Edit Category'),
+	'update_item' =&gt; __('Update Category'),
+	'add_new_item' =&gt; __('Add New Category'),
+	'new_item_name' =&gt; __('New Category Name'),
+	'menu_name' =&gt; __('Kategorie'),
+	];
+	$args = [
+	'hierarchical' =&gt; true, 
+	'labels' =&gt; $labels,
+	'show_ui' =&gt; true,
+	'show_in_rest' =&gt; true,
+	'show_admin_column' =&gt; true,
+	'query_var' =&gt; true,
+	'rewrite' =&gt; ['slug' =&gt; 'category_branze'],
+	];
+	register_taxonomy('category_branze', ['branze'], $args);
+	}
+	add_action('init', 'register_taxonomy_category_branze');	
+	
+​
+​
+​
+	// function my_plugin_rest_route_for_post( $route, $post ) {
+	// 	if ( $post-&gt;post_type === 'branze' ) {
+	// 		$route = '/wp/v2/branze/' . $post-&gt;ID;
+	// 	}
+	 
+	// 	return $route;
+	// }
+	// add_filter( 'rest_route_for_post', 'my_plugin_rest_route_for_post', 10, 2 );
+​
+​
+​
+​
+​
+	add_filter( 'rest_post_collection_params', function ( $params, WP_Post_Type $post_type ) {
+		if ( 'post' === $post_type-&gt;name &amp;&amp; isset( $params['per_page'] ) ) {
+			$params['per_page']['maximum'] = 1000;
+		}
+	
+		return $params;
+	}, 10, 2 );
+​
+​
+​
+​
+​
+​
+	function wl_page_by_slug( $slug ) {
+​
+		echo "&lt;pre&gt;";
+		print_r($slug['slug']);
+		echo "&lt;/pre&gt;";
+	  
+		//remember if here should always return in json
+		return array( $slug['slug'] );
+	  }
+	  
+	  add_action('rest_api_init', function() {
+		register_rest_route('wl/v1', 'post/(?P&lt;slug&gt;[a-zA-Z0-9-]+)', [
+		  'methods' =&gt; 'GET',
+		  'callback' =&gt; 'wl_page_by_slug',
+		]);
+	  });
+​
+	?&gt;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111/1</link>
+        <pubDate>Mon, 09 Aug 2021 09:25:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5111-1</guid>
+        <source url="https://community.frontity.org/t/categories-doesnt-work-or-work-in-wrong-way/5111.rss">Categories doesnt work or work in wrong way</source>
+      </item>
+  </channel>
+</rss>

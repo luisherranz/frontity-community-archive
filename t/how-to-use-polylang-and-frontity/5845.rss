@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to use Polylang and Frontity</title>
+    <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845</link>
+    <description>Hi to everyone, i&#39;m happy to in announcing that, i found a way to work with frontity and polylang. There is not great documentation about it, i hope that can help someone.
+
+Okay let&#39;s start. 
+I set up my polylang plugin and i have two url for homepage &quot;/&quot; -&gt; It, &quot;/en/home&quot; -&gt; eng. Unfortunately the homepage doesn&#39;t work with same slug &quot;/&quot; but other pages working fine.
+
+I setup my frontity.settings.js like as
+```
+const settings = [
+  {
+    &quot;name&quot;: &quot;frontity-react-ita&quot;,
+    &quot;match&quot;: [&quot;.*localhost:3000\/it(\/.*)?$&quot;],
+    &quot;state&quot;: {
+      &quot;frontity&quot;: {
+        &quot;url&quot;: &quot;&quot;,
+        &quot;title&quot;: &quot;Test Frontity Blog&quot;,
+        &quot;description&quot;: &quot;WordPress installation for Frontity development&quot;
+      }
+    },
+    &quot;packages&quot;: [
+      {
+        &quot;name&quot;: &quot;name-of-your-theme&quot;,
+        &quot;state&quot;: {
+          &quot;lang&quot;: &quot;it&quot;,
+          &quot;theme&quot;: {
+            &quot;menu&quot;: [],
+            &quot;featured&quot;: {
+              &quot;showOnList&quot;: false,
+              &quot;showOnPost&quot;: false
+            }
+          }
+        }
+      },
+      {
+        &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+        &quot;state&quot;: {
+          &quot;source&quot;: {
+            &quot;url&quot;: &quot;https://your-website-url.com&quot;,
+            // &quot;api&quot;: &quot;&quot;,
+            &quot;homepage&quot;: &quot;/&quot;,  // -&gt; SET YOUR FIRST LANG HOME PAGE
+            &quot;postsPage&quot;: &quot;bacheca&quot;, // -&gt; SET YOUR FIRST LANG POSTS PAGE
+            &quot;params&quot;: {
+              &quot;lang&quot;: &quot;it&quot;,
+            },
+            &quot;postTypes&quot;:[
+              {
+                type: &quot;eventi&quot;,
+                endpoint: &quot;eventi&quot;,
+                archive: &quot;/eventi&quot;
+              }
+            ]
+          }
+        }
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;
+    ]
+  },
+  {
+    &quot;name&quot;: &quot;frontity-react-eng&quot;,
+    &quot;match&quot;: [&quot;.*localhost:3000\/en(\/.*)?$&quot;],
+    &quot;state&quot;: {
+      &quot;frontity&quot;: {
+        &quot;url&quot;: &quot;&quot;,
+        &quot;title&quot;: &quot;Test Frontity Blog&quot;,
+        &quot;description&quot;: &quot;WordPress installation for Frontity development&quot;
+      }
+    },
+    &quot;packages&quot;: [
+      {
+        &quot;name&quot;: &quot;name-of-your-theme&quot;,
+        &quot;state&quot;: {
+          &quot;lang&quot;: &quot;en&quot;,
+          &quot;theme&quot;: {
+            &quot;menu&quot;: [],
+            &quot;featured&quot;: {
+              &quot;showOnList&quot;: false,
+              &quot;showOnPost&quot;: false
+            }
+          }
+        }
+      },
+      {
+        &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+        &quot;state&quot;: {
+          &quot;source&quot;: {
+            &quot;url&quot;: &quot;http://abarcalreact.local&quot;,
+            // &quot;api&quot;: &quot;&quot;,
+            &quot;homepage&quot;: &quot;/home&quot;, //-&gt; SET YOUR SECOND LANG HOMEPAGE
+            &quot;postsPage&quot;: &quot;/en/news&quot;, //-&gt; SET YOUR SECOND LANG POSTS PAGE
+            &quot;params&quot;: {
+              &quot;lang&quot;: &quot;en&quot;,
+            },
+            &quot;postTypes&quot;:[
+              {
+                type: &quot;eventi&quot;,
+                endpoint: &quot;eventi&quot;,
+                archive: &quot;/en/eventi&quot; // -&gt; SET THE SECOND LANG URL OF YOUR CPT ARCHIVE
+              }
+            ]
+          }
+        }
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;
+    ]
+  }
+  ]
+  export default settings;
+```
+
+**Set up my index.js like as**
+```
+import Root from &quot;./components&quot;
+import link from &quot;@frontity/html2react/processors/link&quot;;
+
+//handlers
+import menuHandler from &quot;./components/handlers/menu-handler&quot;;
+
+const themeName = {
+  name: &quot;theme-name&quot;,
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {
+      isUrlVisible:false,
+      menu: [],
+      lang: &quot;it&quot;,
+      rapidNavIta:&#39;navigazione-rapida&#39;, // -&gt; If you use the menu handler this is a primary lang slug of menu
+      rapidNavEng:&#39;rapid-navigation&#39;, // -&gt; If you use the menu handler this is a secondary lang slug of menu
+      relativePathEng:&#39;&#39;, // -&gt; This is for the switch from first and second lang, if for example you&#39;re on &quot;/bacheca/post-name&quot;, and you want to switch to &quot;en/news/post-name&quot; you can store here your other language post slug
+      relativePathIta:&#39;&#39;, // -&gt; See under
+    },
+  },
+  actions: {
+    theme: {
+      toggleLang:({state}) =&gt; {
+        state.theme.lang = state.lang
+      },
+      toggleUrl:({state}) =&gt; {
+        state.theme.isUrlVisible = !state.theme.isUrlVisible
+      },
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await actions.source.fetch(&quot;/pages&quot;);
+        await actions.source.fetch(&quot;/posts&quot;)
+        await actions.source.fetch(&quot;/eventi&quot;);
+        await actions.source.fetch(`/menu/${state.theme.rapidNavIta}`);
+        await actions.source.fetch(`/menu/${state.theme.rapidNavEng}`);
+      },
+    },
+  },
+  libraries: {
+    html2react: {
+      processors: [link]
+    },
+    source: {
+      handlers: [menuHandler],
+    },
+  }
+}
+
+
+export default themeName
+```
+
+**Ok, now see how to set the index.js (Root) file**.
+```
+import React from &quot;react&quot;
+import { connect, Global, css, Head } from &#39;frontity&#39;
+[... your imports]
+
+//components
+import Post from &#39;./Post&#39;
+import LangSwitch from &#39;./LangSwitch&#39;
+[... your components ...]
+
+
+const Root = ({state, actions}) =&gt; {
+  const data = state.source.get(state.router.link)
+
+  return (
+    &lt;&gt;
+    &lt;Head&gt;
+      &lt;html lang=&quot;no&quot; /&gt;
+    &lt;/Head&gt;
+    &lt;LanguageSwitch/&gt;
+    [.... your index.js file contine here]
+    &lt;/&gt;
+  )
+}
+
+export default connect(Root)
+```
+
+**Now see how to set langswitch.js**
+
+```
+import React from &quot;react&quot;;
+import { connect, styled } from &quot;frontity&quot;;
+
+
+const LanguageSwitch = ({ actions, state }) =&gt; {
+    const { lang } = state.theme;
+    return (
+        &lt;&gt;
+            &lt;Box&gt;      
+                &lt;a 
+                    href={state.theme.relativePathEng !== &#39;&#39; ? `${state.theme.relativePathEng}` : &#39;/en/home&#39;}
+                    className=&quot;toggleicon&quot;  
+                    onClick={actions.theme.toggleLang}
+                &gt;EN&lt;/a&gt;
+                &lt;a 
+                href={state.theme.relativePathIta !== &#39;&#39; ? `${state.theme.relativePathIta}` : &#39;/&#39;}
+                className=&quot;toggleicon&quot;&gt;
+                    IT
+                &lt;/a&gt;
+            &lt;/Box&gt;
+        &lt;/&gt;
+    )
+}
+
+export default connect(LanguageSwitch);
+
+const Box = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 1rem;
+    cursor: pointer;
+    z-index: 5;
+
+    img {
+        height: 25px;
+        width: 25px;
+    }
+`;
+
+```
+
+**And in the end we see how to set the useEffect to manage the related post slug of current post, the code below is for &quot;Posts.js&quot;**
+
+```
+import React, {useEffect} from &quot;react&quot;
+import { connect } from &quot;frontity&quot;
+import dayjs from &quot;dayjs&quot;
+
+const Post = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const post = state.source[data.type][data.id]
+  const formattedDate = dayjs(post.date).format(&quot;DD MMMM YYYY&quot;)
+  const Html2React = libraries.html2react.Component
+
+  useEffect(() =&gt; {
+   /// BE CAREFOUL! I SET MY CUSTOM API KEY FOR POSTS WHERE STORE THE RELATIVE SLUG FOR EACH POST.
+   // SEE THE NEXT CODE SECTION FOR READ HOW TO SET CUSTOM API KEY
+    post[&#39;translate_id&#39;].map(translate =&gt; {
+        if(translate.key === &#39;en&#39;) {
+          state.theme.relativePathEng=translate.path
+        }
+        if(translate.key === &#39;it&#39;) {
+          state.theme.relativePathIta=translate.path
+        }
+    })
+  },[])
+
+  return (
+    &lt;div&gt;
+        &lt;p&gt;
+            &lt;strong&gt;Posted: &lt;/strong&gt;
+            {formattedDate}
+        &lt;/p&gt;
+        &lt;h2&gt;{post.title.rendered}&lt;/h2&gt;
+        &lt;Html2React html={post.content.rendered} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(Post)
+```
+
+**How to set in wordpress function.php custom API key to store current post slug in other language**
+```
+
+
+  add_action( &#39;rest_api_init&#39;, function () {
+	register_rest_field( &#39;post&#39;, &#39;translate_id&#39;, my_related_translation() );
+    
+
+function my_related_translation() {
+	return array(
+		&#39;methods&#39;         =&gt; &#39;GET&#39;,
+		&#39;get_callback&#39;    =&gt; &#39;related_translate_id&#39;,
+		&#39;schema&#39;          =&gt; null,
+	);
+}
+
+function related_translate_id( $data ) {
+	$post_id = $data[&#39;id&#39;];
+    $defaultLanguage = pll_default_language();
+    $translationId = pll_get_post_translations($post_id);
+    $singlePostId = get_post($translationId);
+    $langArray = array();
+
+    foreach ($translationId as $post =&gt; $key) {
+        $postDataArray = array(
+            &#39;key&#39; =&gt; $post,
+            &#39;id&#39; =&gt; $key,
+            &#39;slug&#39; =&gt; get_post($key)-&gt;post_name,
+            &#39;path&#39; =&gt; wp_make_link_relative(get_the_permalink($key))
+        );
+        $langData = array(
+                $postDataArray
+        );
+        array_push($langArray,$postDataArray);
+
+    }
+    return $langArray;
+}
+```
+And now you find related_translate_id key in each post api.
+You can add the &quot;related_transalte_id&quot; function to all website post-type.
+
+It&#39;s not very easy to explain, i hope it&#39;s helpfull.
+
+Bye ;)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 23 Jun 2023 06:52:02 +0000</lastBuildDate>
+    <category>📚 Resources</category>
+    <atom:link href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to use Polylang and Frontity</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, i think the best way is create a variables and display it depends on the language <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/7</link>
+        <pubDate>Fri, 23 Jun 2023 06:52:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5845-7</guid>
+        <source url="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss">How to use Polylang and Frontity</source>
+      </item>
+      <item>
+        <title>How to use Polylang and Frontity</title>
+        <dc:creator><![CDATA[bc.ayrton]]></dc:creator>
+        <description><![CDATA[
+            <p>I find interesting the work you did, I have a doubt, with the static content created, how can I translate it or how can I manage it?</p>
+          <p><a href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/6</link>
+        <pubDate>Thu, 20 Apr 2023 22:58:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5845-6</guid>
+        <source url="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss">How to use Polylang and Frontity</source>
+      </item>
+      <item>
+        <title>How to use Polylang and Frontity</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Ah ok, it’s fantastic…i think i’ll use Wpml next time <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<p>Thanks a lot!</p>
+          <p><a href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/5</link>
+        <pubDate>Tue, 22 Mar 2022 19:50:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5845-5</guid>
+        <source url="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss">How to use Polylang and Frontity</source>
+      </item>
+      <item>
+        <title>How to use Polylang and Frontity</title>
+        <dc:creator><![CDATA[Hussein]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/matteo.lcd">@matteo.lcd</a> with WPML really works out of the box. No extra configuration is needed a part from setting up the frontity settings correctly. WPML gives you a json path for each language like <a href="https://yourdomain.com/en/wp-json" rel="noopener nofollow ugc">yourdomain.com/es/wp-json</a> and <a href="https://yourdomain.com/en/wp-json" rel="noopener nofollow ugc">yourdomain.com/en/wp-json</a></p>
+<p>About Qtranslate, I don’t mean the old version of Qtranslate, but the new one that is currently under development (Qtranslate XT). They always keep it updated, I will leave you the link in case you are interested. It also works out of the box: <a href="https://github.com/qtranslate/qtranslate-xt" class="inline-onebox" rel="noopener nofollow ugc">GitHub - qtranslate/qtranslate-xt: qTranslate-XT (eXTended) - reviving qTranslate-X. A new community-driven plugin soon. GUTENBERG initial support now available! Built-in modules for WooCommerce, ACF, All in one SEO, Events Made Easy, Gravity Forms.</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/4</link>
+        <pubDate>Tue, 22 Mar 2022 19:02:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5845-4</guid>
+        <source url="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss">How to use Polylang and Frontity</source>
+      </item>
+      <item>
+        <title>How to use Polylang and Frontity</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/hussein">@Hussein</a>, it’s very hard but it’s possible…for example the second language custom taxonomy does not work like as archive, if you want to display in archive a list of post with certain taxonomy you need to create a dynamic filter while preserv the post type archive url…<br>
+For now i just create the filter and it’s work for filter posts but if i want to show all the posts after filtering it doesen’t work…if i find solution will publish thath <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<p>It’s easy connect wpml to frontity? Qtranslate it’s very outdated</p>
+<p>Thanks!</p>
+          <p><a href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/3</link>
+        <pubDate>Tue, 22 Mar 2022 18:08:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5845-3</guid>
+        <source url="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss">How to use Polylang and Frontity</source>
+      </item>
+      <item>
+        <title>How to use Polylang and Frontity</title>
+        <dc:creator><![CDATA[Hussein]]></dc:creator>
+        <description><![CDATA[
+            <p>Wow, thanks for this! I only managed to connect Qtranslate XT and WPML and I had given up Polylang as impossible. Will be really helpful <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/2</link>
+        <pubDate>Tue, 22 Mar 2022 15:19:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5845-2</guid>
+        <source url="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss">How to use Polylang and Frontity</source>
+      </item>
+      <item>
+        <title>How to use Polylang and Frontity</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi to everyone, i’m happy to in announcing that, i found a way to work with frontity and polylang. There is not great documentation about it, i hope that can help someone.</p>
+<p>Okay let’s start.<br>
+I set up my polylang plugin and i have two url for homepage “/” → It, “/en/home” → eng. Unfortunately the homepage doesn’t work with same slug “/” but other pages working fine.</p>
+<p>I setup my frontity.settings.js like as</p>
+<pre><code class="lang-javascript">const settings = [
+  {
+    "name": "frontity-react-ita",
+    "match": [".*localhost:3000\/it(\/.*)?$"],
+    "state": {
+      "frontity": {
+        "url": "",
+        "title": "Test Frontity Blog",
+        "description": "WordPress installation for Frontity development"
+      }
+    },
+    "packages": [
+      {
+        "name": "name-of-your-theme",
+        "state": {
+          "lang": "it",
+          "theme": {
+            "menu": [],
+            "featured": {
+              "showOnList": false,
+              "showOnPost": false
+            }
+          }
+        }
+      },
+      {
+        "name": "@frontity/wp-source",
+        "state": {
+          "source": {
+            "url": "https://your-website-url.com",
+            // "api": "",
+            "homepage": "/",  // -&gt; SET YOUR FIRST LANG HOME PAGE
+            "postsPage": "bacheca", // -&gt; SET YOUR FIRST LANG POSTS PAGE
+            "params": {
+              "lang": "it",
+            },
+            "postTypes":[
+              {
+                type: "eventi",
+                endpoint: "eventi",
+                archive: "/eventi"
+              }
+            ]
+          }
+        }
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react"
+    ]
+  },
+  {
+    "name": "frontity-react-eng",
+    "match": [".*localhost:3000\/en(\/.*)?$"],
+    "state": {
+      "frontity": {
+        "url": "",
+        "title": "Test Frontity Blog",
+        "description": "WordPress installation for Frontity development"
+      }
+    },
+    "packages": [
+      {
+        "name": "name-of-your-theme",
+        "state": {
+          "lang": "en",
+          "theme": {
+            "menu": [],
+            "featured": {
+              "showOnList": false,
+              "showOnPost": false
+            }
+          }
+        }
+      },
+      {
+        "name": "@frontity/wp-source",
+        "state": {
+          "source": {
+            "url": "http://abarcalreact.local",
+            // "api": "",
+            "homepage": "/home", //-&gt; SET YOUR SECOND LANG HOMEPAGE
+            "postsPage": "/en/news", //-&gt; SET YOUR SECOND LANG POSTS PAGE
+            "params": {
+              "lang": "en",
+            },
+            "postTypes":[
+              {
+                type: "eventi",
+                endpoint: "eventi",
+                archive: "/en/eventi" // -&gt; SET THE SECOND LANG URL OF YOUR CPT ARCHIVE
+              }
+            ]
+          }
+        }
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react"
+    ]
+  }
+  ]
+  export default settings;
+</code></pre>
+<p><strong>Set up my index.js like as</strong></p>
+<pre><code class="lang-javascript">import Root from "./components"
+import link from "@frontity/html2react/processors/link";
+
+//handlers
+import menuHandler from "./components/handlers/menu-handler";
+
+const themeName = {
+  name: "theme-name",
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {
+      isUrlVisible:false,
+      menu: [],
+      lang: "it",
+      rapidNavIta:'navigazione-rapida', // -&gt; If you use the menu handler this is a primary lang slug of menu
+      rapidNavEng:'rapid-navigation', // -&gt; If you use the menu handler this is a secondary lang slug of menu
+      relativePathEng:'', // -&gt; This is for the switch from first and second lang, if for example you're on "/bacheca/post-name", and you want to switch to "en/news/post-name" you can store here your other language post slug
+      relativePathIta:'', // -&gt; See under
+    },
+  },
+  actions: {
+    theme: {
+      toggleLang:({state}) =&gt; {
+        state.theme.lang = state.lang
+      },
+      toggleUrl:({state}) =&gt; {
+        state.theme.isUrlVisible = !state.theme.isUrlVisible
+      },
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await actions.source.fetch("/pages");
+        await actions.source.fetch("/posts")
+        await actions.source.fetch("/eventi");
+        await actions.source.fetch(`/menu/${state.theme.rapidNavIta}`);
+        await actions.source.fetch(`/menu/${state.theme.rapidNavEng}`);
+      },
+    },
+  },
+  libraries: {
+    html2react: {
+      processors: [link]
+    },
+    source: {
+      handlers: [menuHandler],
+    },
+  }
+}
+
+
+export default themeName
+</code></pre>
+<p><strong>Ok, now see how to set the index.js (Root) file</strong>.</p>
+<pre><code class="lang-javascript">import React from "react"
+import { connect, Global, css, Head } from 'frontity'
+[... your imports]
+
+//components
+import Post from './Post'
+import LangSwitch from './LangSwitch'
+[... your components ...]
+
+
+const Root = ({state, actions}) =&gt; {
+  const data = state.source.get(state.router.link)
+
+  return (
+    &lt;&gt;
+    &lt;Head&gt;
+      &lt;html lang="no" /&gt;
+    &lt;/Head&gt;
+    &lt;LanguageSwitch/&gt;
+    [.... your index.js file contine here]
+    &lt;/&gt;
+  )
+}
+
+export default connect(Root)
+</code></pre>
+<p><strong>Now see how to set langswitch.js</strong></p>
+<pre><code class="lang-javascript">import React from "react";
+import { connect, styled } from "frontity";
+
+
+const LanguageSwitch = ({ actions, state }) =&gt; {
+    const { lang } = state.theme;
+    return (
+        &lt;&gt;
+            &lt;Box&gt;      
+                &lt;a 
+                    href={state.theme.relativePathEng !== '' ? `${state.theme.relativePathEng}` : '/en/home'}
+                    className="toggleicon"  
+                    onClick={actions.theme.toggleLang}
+                &gt;EN&lt;/a&gt;
+                &lt;a 
+                href={state.theme.relativePathIta !== '' ? `${state.theme.relativePathIta}` : '/'}
+                className="toggleicon"&gt;
+                    IT
+                &lt;/a&gt;
+            &lt;/Box&gt;
+        &lt;/&gt;
+    )
+}
+
+export default connect(LanguageSwitch);
+
+const Box = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 1rem;
+    cursor: pointer;
+    z-index: 5;
+
+    img {
+        height: 25px;
+        width: 25px;
+    }
+`;
+
+</code></pre>
+<p><strong>And in the end we see how to set the useEffect to manage the related post slug of current post, the code below is for "Posts.js"</strong></p>
+<pre><code class="lang-javascript">import React, {useEffect} from "react"
+import { connect } from "frontity"
+import dayjs from "dayjs"
+
+const Post = ({ state, libraries }) =&gt; {
+  const data = state.source.get(state.router.link)
+  const post = state.source[data.type][data.id]
+  const formattedDate = dayjs(post.date).format("DD MMMM YYYY")
+  const Html2React = libraries.html2react.Component
+
+  useEffect(() =&gt; {
+   /// BE CAREFOUL! I SET MY CUSTOM API KEY FOR POSTS WHERE STORE THE RELATIVE SLUG FOR EACH POST.
+   // SEE THE NEXT CODE SECTION FOR READ HOW TO SET CUSTOM API KEY
+    post['translate_id'].map(translate =&gt; {
+        if(translate.key === 'en') {
+          state.theme.relativePathEng=translate.path
+        }
+        if(translate.key === 'it') {
+          state.theme.relativePathIta=translate.path
+        }
+    })
+  },[])
+
+  return (
+    &lt;div&gt;
+        &lt;p&gt;
+            &lt;strong&gt;Posted: &lt;/strong&gt;
+            {formattedDate}
+        &lt;/p&gt;
+        &lt;h2&gt;{post.title.rendered}&lt;/h2&gt;
+        &lt;Html2React html={post.content.rendered} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default connect(Post)
+</code></pre>
+<p><strong>How to set in wordpress function.php custom API key to store current post slug in other language</strong></p>
+<pre><code class="lang-javascript">
+
+  add_action( 'rest_api_init', function () {
+	register_rest_field( 'post', 'translate_id', my_related_translation() );
+    
+
+function my_related_translation() {
+	return array(
+		'methods'         =&gt; 'GET',
+		'get_callback'    =&gt; 'related_translate_id',
+		'schema'          =&gt; null,
+	);
+}
+
+function related_translate_id( $data ) {
+	$post_id = $data['id'];
+    $defaultLanguage = pll_default_language();
+    $translationId = pll_get_post_translations($post_id);
+    $singlePostId = get_post($translationId);
+    $langArray = array();
+
+    foreach ($translationId as $post =&gt; $key) {
+        $postDataArray = array(
+            'key' =&gt; $post,
+            'id' =&gt; $key,
+            'slug' =&gt; get_post($key)-&gt;post_name,
+            'path' =&gt; wp_make_link_relative(get_the_permalink($key))
+        );
+        $langData = array(
+                $postDataArray
+        );
+        array_push($langArray,$postDataArray);
+
+    }
+    return $langArray;
+}
+</code></pre>
+<p>And now you find related_translate_id key in each post api.<br>
+You can add the “related_transalte_id” function to all website post-type.</p>
+<p>It’s not very easy to explain, i hope it’s helpfull.</p>
+<p>Bye <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=12" title=":wink:" class="emoji" alt=":wink:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845/1</link>
+        <pubDate>Tue, 22 Mar 2022 10:03:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5845-1</guid>
+        <source url="https://community.frontity.org/t/how-to-use-polylang-and-frontity/5845.rss">How to use Polylang and Frontity</source>
+      </item>
+  </channel>
+</rss>

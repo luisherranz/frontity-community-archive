@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Helpers to ease access to WP API data - 🗣 Feature Discussions - Frontity Community Forum</title>
+    <meta name="description" content="Working on this demo → https://github.com/frontity-juanmaguitar/bootstrap-theme-demo 
+that took mars-theme as a reference 
+I realized there are a lot of operations where you need to know exactly the structure of the data&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/helpers-to-ease-access-to-wp-api-data/1394" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Helpers to ease access to WP API data&#39;" href="/t/helpers-to-ease-access-to-wp-api-data/1394.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/helpers-to-ease-access-to-wp-api-data/1394" />
+<meta name="twitter:url" content="/t/helpers-to-ease-access-to-wp-api-data/1394" />
+<meta property="og:title" content="Helpers to ease access to WP API data" />
+<meta name="twitter:title" content="Helpers to ease access to WP API data" />
+<meta property="og:description" content="Working on this demo → https://github.com/frontity-juanmaguitar/bootstrap-theme-demo  that took mars-theme as a reference  I realized there are a lot of operations where you need to know exactly the structure of the data received and the location of that data  Trying to apply good patterns in software development I tried to extract that logic into an external file  Something like…  https://github.com/frontity-juanmaguitar/bootstrap-theme-demo/blob/master/packages/bootstrap-theme/src/helpers/inde..." />
+<meta name="twitter:description" content="Working on this demo → https://github.com/frontity-juanmaguitar/bootstrap-theme-demo  that took mars-theme as a reference  I realized there are a lot of operations where you need to know exactly the structure of the data received and the location of that data  Trying to apply good patterns in software development I tried to extract that logic into an external file  Something like…  https://github.com/frontity-juanmaguitar/bootstrap-theme-demo/blob/master/packages/bootstrap-theme/src/helpers/inde..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:tag" content="devrel" />
+<meta property="og:article:tag" content="hooks" />
+<meta property="og:article:tag" content="packages" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="4 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="3 ❤" />
+<meta property="article:published_time" content="2020-03-18T09:39:37+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Helpers to ease access to WP API data","mainEntity":{"@type":"Question","name":"Helpers to ease access to WP API data","text":"Working on this demo → <a href=\"https://github.com/frontity-juanmaguitar/bootstrap-theme-demo\">https://github.com/frontity-juanmaguitar/bootstrap-theme-demo<\/a>\n\nthat took <a href=\"https://github.com/frontity/frontity/tree/dev/packages/mars-theme\">mars-theme<\/a> as a reference\n\nI realized there are a lot of operations where you need to know exactly the structure of the data received and the location of that data\n\nTrying to apply good patterns in softwa&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2020-03-18T09:39:36.916Z","author":{"@type":"Person","name":"JuanMa Garrido"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/helpers-to-ease-access-to-wp-api-data/1394">Helpers to ease access to WP API data</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/devrel' class='discourse-tag' rel="tag">devrel</a>, 
+            <a href='/tag/hooks' class='discourse-tag' rel="tag">hooks</a>, 
+            <a href='/tag/packages' class='discourse-tag' rel="tag">packages</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Helpers to ease access to WP API data'>
+        <meta itemprop='articleSection' content='🗣 Feature Discussions'>
+      <meta itemprop='keywords' content='devrel, hooks, packages'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/helpers-to-ease-access-to-wp-api-data/1394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-03-18T09:39:37Z' class='post-time'>
+                    18 March 2020 09:39
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-17T08:03:56Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>Working on this demo → <a href="https://github.com/frontity-juanmaguitar/bootstrap-theme-demo">https://github.com/frontity-juanmaguitar/bootstrap-theme-demo</a><br>
+that took <a href="https://github.com/frontity/frontity/tree/dev/packages/mars-theme"><code>mars-theme</code></a> as a reference</p>
+<p>I realized there are a lot of operations where you need to know exactly the structure of the data received and the location of that data</p>
+<p>Trying to apply good patterns in software development I tried to extract that logic into an external file<br>
+Something like…</p>
+<p><a href="https://github.com/frontity-juanmaguitar/bootstrap-theme-demo/blob/master/packages/bootstrap-theme/src/helpers/index.js"><code>https://github.com/frontity-juanmaguitar/bootstrap-theme-demo/blob/master/packages/bootstrap-theme/src/helpers/index.js</code></a></p>
+<pre><code>export const getMedia = state =&gt; id =&gt; {
+  const media = state.source.attachment[id];
+  const srcset = Object.values(media.media_details.sizes)
+.map(item =&gt; [item.source_url, item.width])
+.reduce(
+  (final, current, index, array) =&gt;
+    final.concat(
+      `${current.join(" ")}w${index !== array.length - 1 ? ", " : ""}`
+    ),
+  ""
+) || null;
+  return { media, srcset }
+}
+
+export const getTaxonomy = state =&gt; taxonomy =&gt; idTaxonomy =&gt; state.source[taxonomy][idTaxonomy];
+export const getTaxonomyCapitalized = taxonomy =&gt; taxonomy.charAt(0).toUpperCase() + taxonomy.slice(1);
+export const getAuthor = state =&gt; idAuthor =&gt; state.source.author[idAuthor]
+export const getPost  = state =&gt; type =&gt; idPost =&gt; state.source[type][idPost]
+</code></pre>
+<p>I think it would be great for developers creating things w/ Frontity to have a set of helpers directly available from state that they can use to access some common data:</p>
+<ul>
+<li>
+<code>getAuthor</code> → get author details given an id</li>
+<li>
+<code>getMedia</code> → get media details given an id</li>
+</ul>
+<p>…and so on</p>
+<p>We could document this in the official documentation and I think this approach has some advantages:</p>
+<ul>
+<li>We allow people to decouple their code from the current WP Rest API structure (I don’t know how often is changing but it’s usually a good practice)</li>
+<li>We simplify the development (I think it’s easier to remember <code>state.getAuthor(2)</code> than <code>state.source.author[idAuthor]</code>)</li>
+</ul>
+<p>Of course the whole <code>state.source</code> should continue to be available but we could make developments w/ Frontity easier by providing a set of tools to access the data in an easier way</p>
+<p>The mindset behind is something like → <code>It's not the responsibility of a component to know how to get the details of an author, I'm just going to use this method to get the details given its id</code></p>
+<p>I’m not sure what is the best way to handle this, if there’s some kind of client we can actually use, or if we would complicate things even more by adding more methods to learn</p>
+<p>What are your thoughts about this?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/juanma'><span itemprop='name'>juanma</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/helpers-to-ease-access-to-wp-api-data/1394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-03-18T16:45:11Z' class='post-time'>
+                    18 March 2020 16:45
+                  </time>
+                  <meta itemprop='dateModified' content='2020-03-18T16:48:05Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>To add more info/context regarding this. After talking w/ <a class="mention" href="/u/luisherranz">@luisherranz</a> and <a class="mention" href="/u/mburridge">@mburridge</a> I realized that some other developers doing things w/ Frontity have reached to the same conclusion</p>
+<p><a class="mention" href="/u/alexaspalato">@alexaspalato</a> is working on this custom theme → <a href="https://github.com/alexadark/frontity-starter-project">https://github.com/alexadark/frontity-starter-project</a><br>
+For this she has created the following <a href="https://github.com/alexadark/frontity-starter-project/blob/master/packages/frontity-starter-theme/src/helpers/index.js">set of helpers</a></p>
+<pre><code>export const buildUrl = (libraries, path, page, query) =&gt;
+  libraries.source.stringify({ path, page, query });
+
+export function isUrl(str) {
+  var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&amp;%@!-/]))?/;
+  return regexp.test(str);
+}
+
+export const getUrlData = state =&gt; state.source.get(state.router.link);
+
+function getSrcSet(media) {
+  const srcset =
+Object.values(media.media_details.sizes)
+  // Get the url and width of each size.
+  .map(item =&gt; [item.source_url, item.width])
+  // Recude them to a string with the format required by `srcset`.
+  .reduce(
+    (final, current, index, array) =&gt;
+      final.concat(
+        `${current.join(" ")}w${index !== array.length - 1 ? ", " : ""}`
+      ),
+    ""
+  ) || null;
+  return srcset;
+}
+
+export function getMediaAttributes(state, id) {
+  const media = state.source.attachment[id];
+  if (!media) return {};
+
+  const srcSet = getSrcSet(media);
+
+  return {
+id,
+alt: media.title.rendered,
+src: media.source_url,
+srcSet
+  };
+}
+
+export function getTaxonomies(state, post, taxonomy, taxonomies) {
+  const allTaxonomies = state.source[taxonomy];
+  const taxs =
+post[taxonomies] &amp;&amp; post[taxonomies].map(itemId =&gt; allTaxonomies[itemId]);
+  return taxs ? taxs.filter(Boolean) : [];
+}
+
+export function getPostAuthor(state, post) {
+  return state.source.author[post.author];
+}
+
+export function getPostData(state) {
+  const data = state.source.get(state.router.link);
+  const post = state.source[data.type][data.id];
+  return { ...post, isReady: data.isReady, isPage: data.isPage };
+}
+
+export function formatPostData(state, post) {
+  return {
+id: post.id,
+author: getPostAuthor(state, post),
+publishDate: post.date,
+title: post.title &amp;&amp; post.title.rendered,
+categories: getTaxonomies(state, post, "category", "categories"),
+tags: getTaxonomies(state, post, "tag", "tags"),
+link: post.link,
+featured_media: getMediaAttributes(state, post.featured_media),
+content: post.content &amp;&amp; post.content.rendered,
+excerpt: post.excerpt &amp;&amp; post.excerpt.rendered,
+acf: post.acf
+  };
+} 
+</code></pre>
+<p>Also <a class="mention" href="/u/segun">@Segun</a> for his <a href="https://github.com/chakra-ui/frontity-chakra-ui-theme">https://github.com/chakra-ui/frontity-chakra-ui-theme</a> has created the following <a href="https://github.com/chakra-ui/frontity-chakra-ui-theme/blob/master/packages/frontity-chakra-theme/src/components/helpers.js">set of helpers</a></p>
+<pre><code>function getSrcSet(media) {
+  const srcset =
+    Object.values(media.media_details.sizes)
+      // Get the url and width of each size.
+      .map(item =&gt; [item.source_url, item.width])
+      // Recude them to a string with the format required by `srcset`.
+      .reduce(
+        (final, current, index, array) =&gt;
+          final.concat(
+            `${current.join(" ")}w${index !== array.length - 1 ? ", " : ""}`
+          ),
+        ""
+      ) || null;
+  return srcset;
+}
+
+export function getMediaAttributes(state, id) {
+  const media = state.source.attachment[id];
+  if (!media) return {};
+
+  const srcSet = getSrcSet(media);
+
+  return {
+    id,
+    alt: media.title.rendered,
+    src: media.source_url,
+    srcSet
+  };
+}
+
+export function getPostCategories(state, post) {
+  const allCategories = state.source.category;
+  const categories =
+    post.categories &amp;&amp; post.categories.map(catId =&gt; allCategories[catId]);
+  return categories ? categories.filter(Boolean) : [];
+}
+
+export function getPostAuthor(state, post) {
+  return state.source.author[post.author];
+}
+
+export function getPostTags(state, post) {
+  const allTags = state.source.tag;
+  const tags = post.tags &amp;&amp; post.tags.map(tagId =&gt; allTags[tagId]);
+  return tags ? tags.filter(Boolean) : [];
+}
+
+export function getPostData(state) {
+  const data = state.source.get(state.router.link);
+  const post = state.source[data.type][data.id];
+  return { ...post, isReady: data.isReady, isPage: data.isPage };
+}
+
+export function formatPostData(state, post) {
+  return {
+    id: post.id,
+    author: getPostAuthor(state, post),
+    publishDate: post.date,
+    title: post.title.rendered,
+    categories: getPostCategories(state, post),
+    tags: getPostTags(state, post),
+    link: post.link,
+    featured_media: getMediaAttributes(state, post.featured_media),
+    content: post.content.rendered,
+    excerpt: post.excerpt.rendered
+  };
+}
+
+export function splitPosts(state, routeData) {
+  const firstThreePosts = [];
+  const otherPosts = [];
+
+  routeData.forEach((item, idx) =&gt; {
+    const itemData = state.source[item.type][item.id];
+    if (idx &lt; 3) firstThreePosts.push(itemData);
+    else otherPosts.push(itemData);
+  });
+
+  return [firstThreePosts, otherPosts];
+}
+
+export function omitConnectProps(props) {
+  const out = {};
+  const propsToOmit = [
+    "state",
+    "actions",
+    "roots",
+    "fills",
+    "libraries",
+    "getSnapshot"
+  ];
+  const isGetSnapshot = prop =&gt;
+    typeof prop === "function" &amp;&amp; prop.name === "getSnapshot";
+
+  for (const prop in props) {
+    if (propsToOmit.includes(prop) || isGetSnapshot(prop)) continue;
+    out[prop] = props[prop];
+  }
+
+  return out;
+}
+
+const monthNames = [...];
+const formatDay = day =&gt; {...};
+export function formatDate(date) {...}
+
+export function isUrl(str) {
+  var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&amp;%@!-/]))?/;
+  return regexp.test(str);
+}
+
+export function debounce(fn) { ... }</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/helpers-to-ease-access-to-wp-api-data/1394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-03-24T10:19:53Z' class='post-time'>
+                    24 March 2020 10:19
+                  </time>
+                  <meta itemprop='dateModified' content='2020-03-24T10:25:32Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey <a class="mention" href="/u/juanma">@juanma</a>, thanks for starting this conversation. I think offering a set of helpers can be a good idea <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Maybe we could provide hooks instead of getters.</p>
+<pre><code>const Post = () =&gt; {
+  const post = usePost();
+  const author = useAuthor();
+
+  return ...
+}
+</code></pre>
+<p>Take a look at the Feature Discussion for <code>useConnect</code>: <a href="/t/useconnect-hook/1079" class="inline-onebox">useConnect hook</a> and let us know what you think <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Apart from that, I think the only issue would be to be careful with these abstractions when people is learning Frontity to make sure they also learn where they come from. So we need to keep in mind that if the first time they use Frontity they see something like this:</p>
+<pre><code>import { useConnect } from "frontity";
+
+const link = useConnect(({ state }) =&gt; state.router.link);
+</code></pre>
+<p>It’s much more clear that:</p>
+<ul>
+<li>The link is coming from the router.</li>
+<li>It is stored in <code>state.router.link</code>.</li>
+<li>They can use <code>useConnect</code> to get things from the state.</li>
+</ul>
+<p>Than if you show them something like this:</p>
+<pre><code>import { useLink } from "@frontity/hooks";
+
+const link = useLink();
+</code></pre>
+<p>And also I think we would need to teach them to create their own abstractions.</p>
+<pre><code>const useCustomHook = useConnect(({ state }) =&gt; state.someplace.custom);
+</code></pre>
+<hr>
+<aside class="quote group-community-team" data-username="juanma" data-post="1" data-topic="1394">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>We allow people to decouple their code from the current WP Rest API structure (I don’t know how often is changing but it’s usually a good practice)</p>
+</blockquote>
+</aside>
+<p>This is a very interesting topic.</p>
+<p>We have some experience with this because that was how it worked with the old version of the framework. The problem of that approach, and the reason we decided to stop doing an abstract structure on top of the native REST API structure, was that it added an additional layer of complexity between the REST API and the consumer of the data (React). That meant an additional thing to learn and to take care of.</p>
+<p>The REST API is extensible, so both devs and plugins can change its output. It’s something quite common actually. When people inspect the output of the REST API, they expect to get the same data structure in the consumer. If they don’t, it may not be clear why or where they have to configure that data.</p>
+<p>For exmaple, <a href="https://github.com/chakra-ui/frontity-chakra-ui-theme/blob/master/packages/frontity-chakra-theme/src/components/helpers.js#L54-L67">this post helper</a> that <a class="mention" href="/u/segun">@Segun</a> did for the Chakra theme is great, but it won’t work as soon as someone adds a custom field to their REST API. They have to find and modify that helper and that is not obvious if they don’t know what’s happening under the hood. It gets much worse if the helper is not even accessible because it belongs to some external package. So I think that’s another thing to keep in mind when designing these helpers/hooks.</p>
+<hr>
+<p>Finally, I think we can turn this topic into a Feature Discussion itself for the helpers and make it official feature request in Frontity’s roadmap. I’m sure more people would chime in <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Would you mind doing so?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/Pablo'><span itemprop='name'>Pablo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/helpers-to-ease-access-to-wp-api-data/1394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-03-24T10:42:46Z' class='post-time'>
+                    24 March 2020 10:42
+                  </time>
+                  <meta itemprop='dateModified' content='2020-03-24T10:42:46Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Regarding this,<a class="mention" href="/u/segun">@Segun</a> had a project in mind of creating hooks for Frontity, you can take a look at it here: <a href="https://www.notion.so/frontity/Frontity-Hooks-Segun-89dd825d05bc4273b38d4095f8043ac9">https://www.notion.so/frontity/Frontity-Hooks-Segun-89dd825d05bc4273b38d4095f8043ac9</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/helpers-to-ease-access-to-wp-api-data/1394">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-03-24T11:11:09Z' class='post-time'>
+                    24 March 2020 11:11
+                  </time>
+                  <meta itemprop='dateModified' content='2020-03-24T11:11:09Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Right, thanks <a class="mention" href="/u/pablo">@Pablo</a>. I’m going to copy &amp; paste his ideas here.</p>
+<p>Please note that this implementation is not valid because it’s based in an implementation of <code>useConnect</code> that is not possible to do in the current Frontity Connect. <code>useConnect</code> must use a mapState function.</p>
+<p>For example, instead of this:</p>
+<pre><code>function usePageData(){
+ const { state } = useConnect()
+ const data = state.source.get(state.router.link)
+ return data
+}
+</code></pre>
+<p>It has to be like this:</p>
+<pre><code>const usePageDate = () =&gt;
+  useConnect(({ state }) =&gt; state.source.get(state.router.link);
+</code></pre>
+<p>More about that in the <a href="/t/useconnect-hook/1079">Hook Feature Discussion</a>.</p>
+<p>Other than that, the ideas are valid.</p>
+<h1>Frontity + Hooks (by <a class="mention" href="/u/segun">@Segun</a>)</h1>
+<p>Once we add the <code>useConnect</code> hook, here are some ideas for other custom hooks that might improve productivity.</p>
+<p>Add a <code>usePageData</code> react hook to make it easy to get the data for the current link.</p>
+<pre><code>function usePageData(){
+ const { state } = useConnect()
+ const data = state.source.get(state.router.link)
+ return data
+}
+</code></pre>
+<p>Add a <code>usePostData</code> react hook to format the post data in a way that makes it easy to consume</p>
+<pre><code>function usePostData(){
+ const {state} = useConnect()
+ const {id, type} = usePageData()
+ const post = state.source[type][id]
+
+ // a custom function to format the data
+ const formattedPost = format(post)
+
+ return formattedPost
+}
+
+// The final structure will look like
+const result = {
+ id: 3, 
+ author: {}, // all author data,
+ publishDate: "", // date the post was published
+ title: "", // the "rendered" part of the title
+ categories: [], // a list of all categories data,
+ tags: [], // a list of all tags data,
+ link: "", // the url of the post,
+ featuredMedia: {}, // all featured media attributes (src, srcSet, etc.)
+ content: "", // the "rendered" part of the content
+ excerpt: "", // the excerpt of the post
+ ...rest, // any other data
+}
+</code></pre>
+<p>Add a <code>useMedia</code> hook to get the props for any featured media</p>
+<pre><code>function useMedia(id){
+ const {state} = useConnect()
+ const media = state.source.attachment[id]
+ 
+ if(!media) return null
+ 
+ // function that resolves the media object and extracts the srcSet
+ const srcSet = getSrcSet(media)
+
+ const result = {
+  alt: media.title.rendered,
+  src: media.source_url,
+  srcSet
+ }
+ 
+ return result
+}
+
+// This can be consumed in any media related component
+</code></pre>
+<p>Add a simple helper to format post dates to a human readable format. Using <code>toLocaleString</code> doesn’t create a complete readable date.</p>
+<pre><code>function formatPostDate(post){
+ const date = new Date(post.date)
+ const day = date.getDate()
+
+ const month = date.getMonth() + 1,
+ const monthName = getMonthName(month)
+
+ const year = date.getFullYear()
+
+ return {day, month, monthName, year}
+}
+
+// We'll return an object so users can format the date anyhow they want
+</code></pre>
+<p>Add a <code>useRouter</code> hook that exposes the properties and methods from the router. Ideally, it can also expose listeners for the route changes.</p>
+<pre><code>function useRouter(){
+ const {state, actions} = useConnect()
+
+ // Custom route change listener so users can so some stuff
+ const onRouteChange = (prevUrl, url) =&gt; {
+  // 1. like close a mobile menu
+  // 2. show a promotion popup if you're coming from a particular url
+ }
+ 
+ // I know we currently have a set method, i'd like to see if we can add a query params 
+ const set = (url, params) =&gt; {
+ }
+ 
+ // return all router actions, properties, and listeners
+ return {}
+}
+
+// so if i'm in a search modal, and I need to trigger a search
+const router = useRouter()
+const onSubmit = () =&gt; {
+ // url here is the current page url
+ router.set(router.url, {s: "testing"})
+}
+</code></pre>
+<p>Add a <code>useSearch</code> hook to help users create easy search forms for their website or blog. This hook returns valid HTML props that can be spread unto the <code>form</code> and <code>input</code> elements.</p>
+<pre><code>function useSearch(onComplete){
+ const {state, actions } = useConnect()
+
+ // get the current page query
+ const router = useRouter()
+ const searchQuery = router.query["s"]
+ 
+ const inputRef = React.useRef(null)
+
+ const handleSubmit = event =&gt; {
+  event.preventDefault()
+
+  // get the input's value
+  const inputValue = inputRef.current.value
+  
+  // set the router url
+  if(inputValue.length){
+    router.set(router.url, {s: inputValue})
+  }
+
+  // scroll the page to the top
+  window.scrollTo(0, 0);
+
+  // function to run after search
+  // users could close any opened modal or call some notifier
+  if(onComplete) onComplete()
+  
+ }
+
+ const formProps = {
+  role : "search",
+  "aria-label": "Search this website",
+  onSubmit: handleSubmit
+ }
+
+ const inputProps = {
+  defaultValue: searchQuery,
+  ref: inputRef
+ }
+
+ return { formProps, inputProps }
+}
+</code></pre>
+<p>These are my ideas for hooks that could help improve the developer experience of frontity having created 2 themes with Frontity.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

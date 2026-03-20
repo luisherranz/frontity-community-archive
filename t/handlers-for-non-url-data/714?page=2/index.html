@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Handlers for non-URL data - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="I’m opening this topic to discuss how to work in wp-source with handlers with non-URL data like comments, menus, widgets, attachments, etc. I was thinking of working on the comments handler but we should take a decision &amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/handlers-for-non-url-data/714" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Handlers for non-URL data&#39;" href="714.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/handlers-for-non-url-data/714?page=2" />
+<meta name="twitter:url" content="/t/handlers-for-non-url-data/714?page=2" />
+<meta property="og:title" content="Handlers for non-URL data" />
+<meta name="twitter:title" content="Handlers for non-URL data" />
+<meta property="og:description" content="I see. Well, one problem is fetching the comments (handled by wp-source via actions.source.fetch(&quot;@comments/1232&quot;) but another is creating new comments. I don’t think themes should have to implement the logic of creating a new comment…  The @frontity/wp-comments could expose:    Comments: a component that shows both the comments and the form to create a new one.  CommentForm a component to create a new comment.  actions.comments.create(...): an action for those themes that want to create the for..." />
+<meta name="twitter:description" content="I see. Well, one problem is fetching the comments (handled by wp-source via actions.source.fetch(&quot;@comments/1232&quot;) but another is creating new comments. I don’t think themes should have to implement the logic of creating a new comment…  The @frontity/wp-comments could expose:    Comments: a component that shows both the comments and the form to create a new one.  CommentForm a component to create a new comment.  actions.comments.create(...): an action for those themes that want to create the for..." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta property="og:article:tag" content="menu-support" />
+<meta property="og:article:tag" content="wp-comments" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="7 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="10 ❤" />
+<meta property="article:published_time" content="2020-02-20T18:11:19+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="prev" href="./">
+
+    
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">Handlers for non-URL data</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/menu-support' class='discourse-tag' rel="tag">menu-support</a>, 
+            <a href='/tag/wp-comments' class='discourse-tag' rel="tag">wp-comments</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Handlers for non-URL data'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content='menu-support, wp-comments'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_21' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-20T18:11:19Z' class='post-time'>
+                    20 February 2020 18:11
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-20T18:11:19Z'>
+              <span itemprop='position'>21</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I see. Well, one problem is fetching the comments (handled by wp-source via <code>actions.source.fetch("@comments/1232")</code> but another is creating new comments. I don’t think themes should have to implement the logic of creating a new comment…</p>
+<p>The <code>@frontity/wp-comments</code> could expose:</p>
+<ul>
+<li>
+<code>Comments</code>: a component that shows both the comments and the form to create a new one.</li>
+<li>
+<code>CommentForm</code> a component to create a new comment.</li>
+<li>
+<code>actions.comments.create(...)</code>: an action for those themes that want to create the form themselves, but don’t want to implement the logic.</li>
+</ul>
+<p>Apart from that, we need to investigate a way to pass down styles to an external component:</p>
+<p>I think this works, but I’m not 100% sure:</p>
+<pre><code>const commentsStyles = css`
+  margin: 0;
+
+  .commentItem {
+    color: red;
+  }
+`;
+
+const Post = ({ ... }) =&gt; {
+  return (
+    &lt;&gt;
+      ...
+      &lt;Comments className={commentsStyles} /&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_22' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-21T09:08:33Z' class='post-time'>
+                    21 February 2020 09:08
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-21T09:08:33Z'>
+              <span itemprop='position'>22</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Okay, I like the approach you suggest. I’ve opened a <a href="/t/native-wordpress-comments/1267">new topic</a> in order to keep talking about this. Let’s keep this one for the handlers for non-URL data.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_23' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-05T08:26:40Z' class='post-time'>
+                    5 August 2020 08:26
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-05T08:26:40Z'>
+              <span itemprop='position'>23</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi there! Just wanted to say (in case you are not aware of it) that currently when I use a <code>@something</code> pattern, the <code>data</code> object still gets populated with <code>link</code> and <code>query</code> and those things. I think this doesn’t make much sense. Is this something you already thought about?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_24' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-03T01:34:57Z' class='post-time'>
+                    3 September 2020 01:34
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-04T17:53:55Z'>
+              <span itemprop='position'>24</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><s>Hey <a class="mention" href="/u/orballo">@orballo</a> <img src="../../../images/emoji/apple/wave.png%3Fv=9" title=":wave:" class="emoji" alt=":wave:"> Yes, I’m working on updating the wp-comments package to use the REST API in <a href="https://github.com/frontity/frontity/pull/542/">https://github.com/frontity/frontity/pull/542/</a> and I’ve just realized the same problem.</s></p>
+<p><s>I think that we’ll have to update the <code>source.libraries.populate()</code>, the <code>CommentData</code> source type and the comments handler to account for that (and possibly something else).</s></p>
+<p>My bad, it’s actually unrelated</p>
+<p>However, I think it’s quite harmless to populate those. Since we populate every link with entity with <code>link</code>, <code>route</code>, <code>query</code> &amp; <code>page</code> <a href="https://github.com/frontity/frontity/blob/f403171a671d5278af0d41302e4e422b6490df18/packages/wp-source/src/state.ts#L14-L16">here</a></p>
+<p>I’m guessing that we just could add a simple check to not add a query &amp; link or route if the link starts with <code>@</code>:</p>
+<pre><code class="lang-js">// This is state.source.get
+
+get: ({ state }) =&gt; (link) =&gt; {
+	// ...
+	if (normalizedLink.startsWith("@")) {
+	  return { page, isFetching: false, isReady: false }
+	} else { 
+	    return {
+	      link: normalize(normalizedLink),
+	      route,
+	      query,
+	      page,
+	      isFetching: false,
+	      isReady: false,
+	    };
+	}
+}
+</code></pre>
+<p>Any reasons against it?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_25' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-10T23:27:35Z' class='post-time'>
+                    10 September 2020 23:27
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-10T23:27:35Z'>
+              <span itemprop='position'>25</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/orballo">@orballo</a> Update: This will be updated according to how I mentioned previously. The <code>query</code>, <code>route</code> and <code>link</code> will be removed from non-URL entities in the <code>data</code> object like:</p>
+<pre><code class="lang-javascript">if (normalizedLink.startsWith("@")) {
+  return { page, isFetching: false, isReady: false }
+} else { 
+   return {
+      link: normalize(normalizedLink),
+      route,
+      query,
+      page,
+      isFetching: false,
+      isReady: false,
+   };
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_26' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/leogardner12'><span itemprop='name'>leogardner12</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-01-15T15:52:16Z' class='post-time'>
+                    15 January 2021 15:52
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-15T15:52:16Z'>
+              <span itemprop='position'>26</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="David" data-post="14" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>About the others, we have already in mind to create a bunch of plugins to help WordPress integrate with Frontity, so thanks for your suggestions! <img src="../../../images/emoji/apple/blush.png%3Fv=9" title=":blush:" class="emoji" alt=":blush:"></p>
+</blockquote>
+</aside>
+<p>Have these plugins been released yet?</p>
+<p>Im currently using a plugin called WP REST API Sidebars, <a href="https://en-gb.wordpress.org/plugins/wp-rest-api-sidebars/" rel="noopener nofollow ugc">https://en-gb.wordpress.org/plugins/wp-rest-api-sidebars/</a>, to expose and get my sidebars. However, all of the links point back to the original WordPress site. For example when I click on a post in the Recent Posts widget im directed back to the original WordPress site.</p>
+<p>Do you have any suggestions on how best to fix this?</p>
+<p>Any help would be appreciated.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_27' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-02-10T12:55:43Z' class='post-time'>
+                    10 February 2021 12:55
+                  </time>
+                  <meta itemprop='dateModified' content='2021-02-10T12:55:43Z'>
+              <span itemprop='position'>27</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi <a class="mention" href="/u/leogardner12">@leogardner12</a>!</p>
+<aside class="quote no-group" data-username="leogardner12" data-post="26" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../letter_avatar_proxy/v4/letter/l/839c29/40.png" class="avatar"> leogardner12:</div>
+<blockquote>
+<p>Have these plugins been released yet?</p>
+</blockquote>
+</aside>
+<p>Right now we only have the <a href="https://wordpress.org/plugins/rest-api-head-tags/">REST API - Head Tags plugin</a> and we are working on a <a href="https://github.com/frontity/frontity-embedded-proof-of-concept/">plugin for the embedded mode</a>.</p>
+<aside class="quote no-group" data-username="leogardner12" data-post="26" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../letter_avatar_proxy/v4/letter/l/839c29/40.png" class="avatar"> leogardner12:</div>
+<blockquote>
+<p>Do you have any suggestions on how best to fix this?</p>
+</blockquote>
+</aside>
+<p>Regarding this, I would recommend you a couple of things:</p>
+<ul>
+<li>Redirect your WordPress urls to Frontity urls, excludings the ones for the admiin, the REST API…</li>
+<li>Use our link processor to handle the routing, and use <a href="https://docs.frontity.org/api-reference-1/frontity-html2react">html2react</a> for the widgets you mention. You can see more information at <a href="/t/client-routing-for-internal-content-links/887">this other Feature Discussion</a> that has already been released.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_28' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/Johan'><span itemprop='name'>Johan</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-05-20T12:38:48Z' class='post-time'>
+                    20 May 2021 12:38
+                  </time>
+                  <meta itemprop='dateModified' content='2021-05-20T12:38:48Z'>
+              <span itemprop='position'>28</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><em>Putting this down for people searching for the reason why their translations/multisites aren’t working properly, and how this topic is the solution.</em><br>
+<em>Additionally I hope that the solutions implemented won’t break any workaround, like the one described below.</em></p>
+<p>While working on a multilingual website in Frontity I noticed that custom handlers break on subdirectories (eg. <a href="https://example.com/nl/" rel="noopener nofollow ugc">https://example.com/nl/</a>) because the handler route was being “redirected”.</p>
+<p>For example retrieving the menu on the main website worked without a problem, but didn’t even reach the menuHandler (like <a href="https://github.com/frontity-demos/frontity-examples/blob/master/fetch-menu-from-wp/packages/mars-theme/src/components/handlers/menu-handler.js" rel="noopener nofollow ugc">menu-handler.js</a>).</p>
+<p>After a lot of debugging I fixed it by simply adding an <code>@</code> in front of the route of the handler(s), so they wouldn’t be redirected and therefor return nothing.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><a rel="prev" itemprop="url" href="./">← previous page</a></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

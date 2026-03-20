@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Multilanguage site and Polylang/WPML support</title>
+    <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128</link>
+    <description>Hi guys,
+I&#39;m experiencing some difficulties in implementing a multilanguage website. I DON&#39;T want to create a multisite, just handle two languages. I tried with Polylang and WPML without success.
+
+I&#39;ve been looking for websites with effective multilanguage support to better understand but seems no website created with frontity has more than one language.
+
+My main problem is about reaching both languages. Setting 2 different website URLs with regex for matching the &quot;/en&quot; or in my case the it version (without using &quot;/it&quot; in the URL being the default option), just return me 404 on calling the /en version.
+
+Here&#39;s my frontity.settings.js:
+
+```js
+const settings = [
+  {
+    name: &quot;test ita&quot;,
+    match: [&quot;^.*(?:localhost:3000)((?!(/en))).*$&quot;],
+    state: {
+      frontity: {
+        url: &quot;localhost:3000&quot;,
+        title: &quot;Test&quot;,
+        description: &quot;WordPress installation for Frontity development&quot;,
+      },
+      theme: {
+        lang: &quot;it&quot;,
+      },
+    },
+    packages: [
+      {
+        name: &quot;my-theme&quot;,
+        state: {
+          theme: {
+            menu: [],
+            featured: {
+              showOnList: false,
+              showOnPost: false,
+            },
+          },
+        },
+      },
+      {
+        name: &quot;@frontity/wp-source&quot;,
+        state: {
+          source: {
+            api: &quot;http://localhost/wp-json&quot;,
+            homepage: &quot;/hp&quot;,
+          },
+        },
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;,
+    ],
+  },
+  {
+    name: &quot;test eng&quot;,
+    match: [&quot;localhost:3000/en(/.*)?$&quot;],
+    state: {
+      frontity: {
+        url: &quot;localhost:3000&quot;,
+        title: &quot;Test&quot;,
+        description: &quot;WordPress installation for Frontity development&quot;,
+      },
+      theme: {
+        lang: &quot;en&quot;,
+      },
+    },
+    packages: [
+      {
+        name: &quot;my-theme&quot;,
+        state: {
+          theme: {
+            menu: [],
+            featured: {
+              showOnList: false,
+              showOnPost: false,
+            },
+          },
+        },
+      },
+      {
+        name: &quot;@frontity/wp-source&quot;,
+        state: {
+          source: {
+            api: &quot;http://localhost/wp-json&quot;,
+            homepage: &quot;/hp&quot;,
+          },
+        },
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;,
+    ],
+  },
+];
+
+export default settings;
+
+```
+
+I noticed that with both plugins, sharing the same slug returns me 404 when calling both language homepages. I also don&#39;t understand if i have to set &quot;hp&quot; or &quot;/en/hp&quot; for the english version.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 23 Oct 2020 17:11:45 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Multilanguage site and Polylang/WPML support</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jacopo.bombardieri">@jacopo.bombardieri</a></p>
+<p>Your language switcher looks fine to me!</p>
+<p>I’m unfortunately not familiar with how the multi-language WP plugins that you have mentioned work.</p>
+<p>I suspect that the incorrect <a href="https://docs.frontity.org/api-reference-1/wordpress-source#libraries-source-handlers">handler</a> is being called for your <code>/en</code> site but I’d be happy to take a proper look once you’re able to share your project publicly <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/8</link>
+        <pubDate>Fri, 23 Oct 2020 17:11:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3128-8</guid>
+        <source url="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss">Multilanguage site and Polylang/WPML support</source>
+      </item>
+      <item>
+        <title>Multilanguage site and Polylang/WPML support</title>
+        <dc:creator><![CDATA[jacopo.bombardieri]]></dc:creator>
+        <description><![CDATA[
+            <p>If you want to reproduce the problem:<br>
+create a “standard language” homepage in spanish for example, and another page, lets call it “investors” (slug: <code>investors</code>).<br>
+So until now you have a homepage and investors’ page in spanish.<br>
+Now we create the english version of homepage and investors’ page setting <code>/en</code> as slug for the first and choose en homepage as parent page for <code>investors</code> page; this way the en URL will be build in this way <code>/en</code> + <code>/investors</code> =&gt; <code>/en/investors</code></p>
+<p>If you invert the creation of the pages (/en version before the spanish/italian/whatever) you will get 404s when switching the english page with a IT|EN language switch (code below)</p>
+<pre><code>import React from "react";
+import { connect } from "frontity";
+
+const LangSelector = ({ state, actions }) =&gt; {
+  const changeLanguage = (lang) =&gt;
+    state.test.currentLang !== lang ? actions.theme.setLanguage(lang) : false;
+
+  return (
+    &lt;React.Fragment&gt;
+      &lt;a
+        onClick={() =&gt; changeLanguage("it-IT")}
+        className={`it-IT ${state.test.currentLang == "it-IT" ? "current" : ""}`}
+      &gt;
+        IT
+      &lt;/a&gt;
+      |
+      &lt;a
+        onClick={() =&gt; changeLanguage("en-EN")}
+        className={`en-EN ${state.test.currentLang == "en-EN" ? "current" : ""}`}
+      &gt;
+        EN
+      &lt;/a&gt;
+    &lt;/React.Fragment&gt;
+  );
+};
+
+export default connect(LangSelector);
+</code></pre>
+<p>In <code>actions.theme</code> in the <code>src/index.js</code></p>
+<pre><code>setLanguage: ({ state, actions }) =&gt; (lang) =&gt; {
+    state.test.currentLang = lang;
+    sessionStorage.setItem("testSessionLang", state.test.currentLang);
+
+    let newlink;
+    let ishome = state.router.link.match(/(^\/$)|(^\/en\/$)/);
+    if (null === ishome &amp;&amp; state.test.currentLang == 'it-IT') {
+      newlink = state.router.link.replace(/(^\/en)/, '')
+      actions.router.set(newlink);
+    }
+    if (null === ishome &amp;&amp; state.test.currentLang == 'en-EN') {
+      newlink = `/en${state.router.link}`
+      actions.router.set(newlink);
+    }
+    console.log(state.test.currentLang, state.router.link, ishome, newlink);
+  },
+</code></pre>
+<p>These are the plugins I’m actually using in WP<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/2/242a2631342eb321eed7d1f044286b91c9351e65.png" data-download-href="https://community.frontity.org/uploads/default/242a2631342eb321eed7d1f044286b91c9351e65" title="image"><img src="https://community.frontity.org/uploads/default/original/2X/2/242a2631342eb321eed7d1f044286b91c9351e65.png" alt="image" data-base62-sha1="59VuzGMR7hw1UBvo3UOYqI7iuRT" width="303" height="375" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/2/242a2631342eb321eed7d1f044286b91c9351e65_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/7</link>
+        <pubDate>Fri, 23 Oct 2020 09:23:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3128-7</guid>
+        <source url="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss">Multilanguage site and Polylang/WPML support</source>
+      </item>
+      <item>
+        <title>Multilanguage site and Polylang/WPML support</title>
+        <dc:creator><![CDATA[jacopo.bombardieri]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>!<br>
+you are right about the regex! The match setting was correctly working also without traling slashes but now is surely better.<br>
+Unfortunately, as answered to <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, I cannot share repo and urls.<br>
+I’ve put apart the polylang and wpml solution for now, since using a parent /en page for handling english version was seeming to work… with some problems! <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"><br>
+Changing creation order in pages could give 404s. If you create the /en version first it will break, if instead you create the italian version first, it works. Try it out</p>
+          <p><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/6</link>
+        <pubDate>Fri, 23 Oct 2020 09:05:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3128-6</guid>
+        <source url="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss">Multilanguage site and Polylang/WPML support</source>
+      </item>
+      <item>
+        <title>Multilanguage site and Polylang/WPML support</title>
+        <dc:creator><![CDATA[jacopo.bombardieri]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a><br>
+thank you.<br>
+Unfortunately I’m working on a company demo and cannot share repo and live website. Will provide a personal project attempt in the next days.<br>
+I’m lately trying to use just parent page in order to have a second language (<code>www.website.test/it/generic-slug</code> for en and<code> /generic-slug</code> for standard english)<br>
+Just try to create a 2 lang website, try to use the same slugs as above.</p>
+          <p><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/5</link>
+        <pubDate>Fri, 23 Oct 2020 08:48:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3128-5</guid>
+        <source url="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss">Multilanguage site and Polylang/WPML support</source>
+      </item>
+      <item>
+        <title>Multilanguage site and Polylang/WPML support</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jacopo.bombardieri">@jacopo.bombardieri</a></p>
+<p>I think your regexes are not correct because you’re not escaping the slashes. They should be:</p>
+<p><code>^.*(?:localhost:3000)(?!(\/en)).*$</code></p>
+<p>and</p>
+<p><code>localhost:3000\/en(\/.*)?$</code></p>
+<p>respectively <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>In any case, the <code>match: []</code> is setting is explicitly for multi-site which you say that you don’t want, so I’m a bit confused about your use case. Did you know that in development you can also <a href="https://docs.frontity.org/learning-frontity/settings#multiple-sites">access your site using the <code>?frontity_name=site-name</code></a> syntax?</p>
+<p>(By the way,  the documentation still shows <code>name</code> instead of <code>frontity_name</code>, so I’ve made a tiny PR to update it: <a href="https://github.com/frontity/docs/pull/235">https://github.com/frontity/docs/pull/235</a>)</p>
+<p>Finally, could you share a repo of what you’re working on and your wordpress REST API url, I think it would be much easier to understand your use case</p>
+          <p><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/4</link>
+        <pubDate>Wed, 14 Oct 2020 20:50:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3128-4</guid>
+        <source url="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss">Multilanguage site and Polylang/WPML support</source>
+      </item>
+      <item>
+        <title>Multilanguage site and Polylang/WPML support</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jacopo.bombardieri">@jacopo.bombardieri</a></p>
+<p>Welcome to the Frontity community. We’re delighted that you’re interested in trying Frontity.</p>
+<p>I haven’t really had any experience of working with either of the plugins you mention, but have you checked what the WP REST API returns when trying the endpoints? This may give you an idea of the <code>api</code> to specify in each case. You can just type the paths into the browser address bar, or use a utility such as <a href="https://www.postman.com/downloads/">Postman</a>.</p>
+<p>If you’re still having an issue after trying this could you please provide a link to a repo so that we can clone it and try to reproduce the error. A live WP site would also be useful - I see from your <code>frontity.settings.js</code> snippet above that you’re currently using <code>localhost</code>.</p>
+          <p><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/2</link>
+        <pubDate>Wed, 14 Oct 2020 16:47:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3128-2</guid>
+        <source url="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss">Multilanguage site and Polylang/WPML support</source>
+      </item>
+      <item>
+        <title>Multilanguage site and Polylang/WPML support</title>
+        <dc:creator><![CDATA[jacopo.bombardieri]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi guys,<br>
+I’m experiencing some difficulties in implementing a multilanguage website. I DON’T want to create a multisite, just handle two languages. I tried with Polylang and WPML without success.</p>
+<p>I’ve been looking for websites with effective multilanguage support to better understand but seems no website created with frontity has more than one language.</p>
+<p>My main problem is about reaching both languages. Setting 2 different website URLs with regex for matching the “/en” or in my case the it version (without using “/it” in the URL being the default option), just return me 404 on calling the /en version.</p>
+<p>Here’s my frontity.settings.js:</p>
+<pre><code class="lang-js">const settings = [
+  {
+    name: "test ita",
+    match: ["^.*(?:localhost:3000)((?!(/en))).*$"],
+    state: {
+      frontity: {
+        url: "localhost:3000",
+        title: "Test",
+        description: "WordPress installation for Frontity development",
+      },
+      theme: {
+        lang: "it",
+      },
+    },
+    packages: [
+      {
+        name: "my-theme",
+        state: {
+          theme: {
+            menu: [],
+            featured: {
+              showOnList: false,
+              showOnPost: false,
+            },
+          },
+        },
+      },
+      {
+        name: "@frontity/wp-source",
+        state: {
+          source: {
+            api: "http://localhost/wp-json",
+            homepage: "/hp",
+          },
+        },
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react",
+    ],
+  },
+  {
+    name: "test eng",
+    match: ["localhost:3000/en(/.*)?$"],
+    state: {
+      frontity: {
+        url: "localhost:3000",
+        title: "Test",
+        description: "WordPress installation for Frontity development",
+      },
+      theme: {
+        lang: "en",
+      },
+    },
+    packages: [
+      {
+        name: "my-theme",
+        state: {
+          theme: {
+            menu: [],
+            featured: {
+              showOnList: false,
+              showOnPost: false,
+            },
+          },
+        },
+      },
+      {
+        name: "@frontity/wp-source",
+        state: {
+          source: {
+            api: "http://localhost/wp-json",
+            homepage: "/hp",
+          },
+        },
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react",
+    ],
+  },
+];
+
+export default settings;
+
+</code></pre>
+<p>I noticed that with both plugins, sharing the same slug returns me 404 when calling both language homepages. I also don’t understand if i have to set “hp” or “/en/hp” for the english version.</p>
+          <p><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128/1</link>
+        <pubDate>Mon, 12 Oct 2020 15:50:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3128-1</guid>
+        <source url="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128.rss">Multilanguage site and Polylang/WPML support</source>
+      </item>
+  </channel>
+</rss>

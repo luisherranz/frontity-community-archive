@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Scrolling Frameborder</title>
+    <link>https://community.frontity.org/t/scrolling-frameborder/961</link>
+    <description>More fun questions! This time, I&#39;ve been asked to add a black border around the in-browser-view of the site, but when certain components scroll into view, the border needs to change (sometimes to transparent, sometimes to white).  I think the best way to do this would be to update the state variable but being new-ish to React, I&#39;m not sure how to do that while using Frontity. Thanks!
+
+EDIT: These are my components:
+https://github.com/minnifer/FortStudio2019/tree/master/packages/mars-theme/src/components/partials
+When the clientIntro component scrolls into view (the yellow component) on this page: https://fortstudio2019.now.sh/what-we-do/
+The border goes from black to nonexistent and then to black again once the user scrolls past it to the grid below.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 19 Dec 2019 17:37:22 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/scrolling-frameborder/961.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Scrolling Frameborder</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You can use our <code>useInView</code> hook which uses the <a href="https://blog.arnellebalane.com/the-intersection-observer-api-d441be0b088d">Intersection Observer</a> underneath.</p>
+<p>You have to install <code>@frontity/hooks</code> in your project and then import it using:</p>
+<pre><code class="lang-bash">import useInView from "@frontity/hooks/use-in-view";
+</code></pre>
+<p>It returns an array with</p>
+<ul>
+<li>A boolean variable that is <code>true</code> when the HTML enters the screen and <code>false</code> when it leaves</li>
+<li>A ref to attach to the HTML element that you want to use to control the boolean variable.</li>
+</ul>
+<p>You can pass an object of options with the <code>rootMargin</code> that will be passed down to the intersection observer and an <code>onlyOnce</code> property in case you want it to trigger only the first time (it never goes back to <code>false</code>).</p>
+<hr>
+<p>In your case, you can create a <code>ClientIntro</code> component that uses an action to set some part to the state to a certain value when it enters the screen.</p>
+<p>Create the state and the action:</p>
+<pre><code>export default {
+  state: {
+    theme: {
+      // other state...
+      clientOnScreen: false
+    }
+  },
+  actions: {
+    theme: {
+      setClientOnScreen: ({ state }) =&gt; isVisible =&gt; {
+        state.theme.clientOnScreen = isVisible;
+      }
+    }
+  }
+}
+</code></pre>
+<p>Create the component that triggers the change:</p>
+<pre><code>const ClientIntro = ({ actions, children }) =&gt; {
+  const [isVisible, scrollRef] = useInView({
+    rootMargin: "100px",
+    onlyOnce: false
+  });
+
+  // When isVisible changes, we trigger an action to update the state.
+  React.useEffect(() =&gt; {
+    actions.theme.setClientOnScreen(isVisible);
+  }, [isVisible]);
+
+  return (
+    &lt;div ref={scrollRef}&gt;
+       {children}
+    &lt;/div&gt;
+  );
+};
+
+export default connect(ClientIntro);
+</code></pre>
+<p>Finally, consume the state somewhere else in your app:</p>
+<pre><code>const BorderContainer = ({ state, children }) =&gt; (
+  &lt;Border isVisible={state.theme.isVisible}&gt;
+    {children}
+  &lt;/Border&gt;
+);
+
+export default connect(BorderContainer);
+
+const Border = styled.button`
+  color: ${props =&gt; props.isVisible ? "red" : "blue";
+`
+</code></pre>
+<aside class="quote no-group" data-post="1" data-topic="961">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/m/7c8e57/40.png" class="avatar"> min:</div>
+<blockquote>
+<p>border around the in-browser-view</p>
+</blockquote>
+</aside>
+<p>I have no idea how to create a border around the in-browser-view (I’m really bad with CSS!) so I wrote the example with a normal button, but I hope you get the idea. Maybe someone else can help with that <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/scrolling-frameborder/961/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/scrolling-frameborder/961/2</link>
+        <pubDate>Thu, 19 Dec 2019 17:37:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-961-2</guid>
+        <source url="https://community.frontity.org/t/scrolling-frameborder/961.rss">Scrolling Frameborder</source>
+      </item>
+      <item>
+        <title>Scrolling Frameborder</title>
+        <dc:creator><![CDATA[min]]></dc:creator>
+        <description><![CDATA[
+            <p>More fun questions! This time, I’ve been asked to add a black border around the in-browser-view of the site, but when certain components scroll into view, the border needs to change (sometimes to transparent, sometimes to white).  I think the best way to do this would be to update the state variable but being new-ish to React, I’m not sure how to do that while using Frontity. Thanks!</p>
+<p>EDIT: These are my components:<br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/minnifer/FortStudio2019/tree/master/packages/mars-theme/src/components/partials" target="_blank" rel="nofollow noopener">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/79c193256c658b24cc4f2b5ed15eaa5370393b10.png" class="thumbnail onebox-avatar" width="420" height="420">
+
+<h3><a href="https://github.com/minnifer/FortStudio2019/tree/master/packages/mars-theme/src/components/partials" target="_blank" rel="nofollow noopener">minnifer/FortStudio2019</a></h3>
+
+<p>Contribute to minnifer/FortStudio2019 development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<br>
+When the clientIntro component scrolls into view (the yellow component) on this page: <a href="https://fortstudio2019.now.sh/what-we-do/" rel="nofollow noopener">https://fortstudio2019.now.sh/what-we-do/</a><br>
+The border goes from black to nonexistent and then to black again once the user scrolls past it to the grid below.<p></p>
+          <p><a href="https://community.frontity.org/t/scrolling-frameborder/961/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/scrolling-frameborder/961/1</link>
+        <pubDate>Thu, 19 Dec 2019 14:05:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-961-1</guid>
+        <source url="https://community.frontity.org/t/scrolling-frameborder/961.rss">Scrolling Frameborder</source>
+      </item>
+  </channel>
+</rss>

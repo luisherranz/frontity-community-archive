@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>onMouseMove causes component to completely re-render</title>
+    <link>https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597</link>
+    <description>I&#39;m trying to build a section like in the screen capture below (it&#39;s the intro block of [our current website](https://noesteijver.nl)). For the movement of the individual images, I&#39;m using `translate(X, Y)`.
+
+Screen capture:
+https://drive.google.com/file/d/1S1WKFlw5Q9k6QtTBYJwEfoI1kgTY4mT-/view?usp=sharing
+
+I managed to re-create it with Frontity/React, but I the animation seems way less smooth than what we did on our current site. I noticed that the component completely re-renders when applying the new CSS values. Isn&#39;t that more heavy than it should be? 
+
+Can I change something, so only the transformation will be applied, instead of a complete re-rendering? Or is this something that is caused by the core of React?
+
+This is my code for the images:
+```
+import React, { useEffect, useState } from &quot;react&quot;;
+import { connect, styled, css } from &quot;frontity&quot;;
+import FeaturedMedia from &quot;./featured-media&quot;;
+
+const FeaturedProjectImages = ({ state, actions, imgs, imagesKeys, item }) =&gt; {
+   useEffect(() =&gt; {
+      actions.source.fetch(`/media/${imgs}`);
+   }, []);
+
+   const img = state.source.get(`/media/${imgs}`);
+
+   // setting up an array with multipliers
+   const imageProperties = {
+      &#39;back_parallax_layer&#39;: {
+         &#39;multiplier&#39;: 0.025,
+         &#39;size&#39;: &#39;110%&#39;,
+      },
+      &#39;middle_parallax_layer&#39;: {
+         &#39;multiplier&#39;: 0.05,
+         &#39;size&#39;: &#39;110%&#39;,
+      },
+      &#39;front_parallax_layer&#39;: {
+         &#39;multiplier&#39;: 0.075,
+         &#39;size&#39;: &#39;110%&#39;,
+      },
+      &#39;static_layer&#39;: {
+         &#39;multiplier&#39;: 0.0025,
+         &#39;size&#39;: &#39;75%&#39;,
+      },
+      &#39;top_static_layer&#39;: {
+         &#39;multiplier&#39;: 0.1,
+         &#39;size&#39;: &#39;80%&#39;,
+      },
+   };
+
+   const { mouseMove } = actions.theme;
+
+   return (img.isReady ? (
+      &lt;FeaturedProjectImagesWrapper onMouseMove={(event) =&gt; { mouseMove({ event: event }) }} onMouseLeave={resetMove} className=&quot;mouseMoveTarget&quot;&gt;
+         {
+            imagesKeys.map(key =&gt; {
+
+               return (
+                  &lt;FeaturedMedia
+                     id={item.acf.intro_block_images[key].id}
+                     css={css`
+                        position: absolute;
+                        height: ${imageProperties[key].size};
+                        width: ${imageProperties[key].size};
+                        transform: translate(${state.theme.introBlockPosition.x * imageProperties[key].multiplier}px, ${state.theme.introBlockPosition.y * imageProperties[key].multiplier}px);
+                        will-change: transform;
+                        transition: .05s ease-in-out;
+                        transition-property: all;
+                        transition-property: transform;
+                        margin-top: auto;
+                        margin-bottom: auto;
+                        margin-left: auto;
+                        margin-right: auto;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                     `}
+                  /&gt;
+               )
+            })
+         }
+      &lt;/FeaturedProjectImagesWrapper&gt;
+   ) : null);
+}
+
+export default connect(FeaturedProjectImages);
+
+const FeaturedProjectImagesWrapper = styled.div`
+   width: 100%;
+   height: 100%;
+`;
+```
+
+And this is my action in the `index.js`:
+```
+const marsTheme = {
+  ...
+  state: {
+    theme: {
+      ...
+      introBlockPosition: {
+        x: 0,
+        y: 0,
+        wait: false
+      },
+    },
+  },
+  /**
+   * Actions are functions that modify the state or deal with other parts of
+   * Frontity like libraries.
+   */
+  actions: {
+    theme: {
+      ...
+      mouseMove: ({ state }) =&gt; ({ event }) =&gt; {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (state.theme.introBlockPosition.wait == false) {
+          const mouseMoveTarget = document.querySelector(&#39;.mouseMoveTarget&#39;);
+
+          state.theme.introBlockPosition.x = (mouseMoveTarget.offsetWidth / 2 + (event.clientX - mouseMoveTarget.offsetWidth));
+          state.theme.introBlockPosition.y = (mouseMoveTarget.offsetHeight / 2 + (event.clientY - mouseMoveTarget.offsetHeight));
+
+          state.theme.introBlockPosition.wait = true;
+
+          // setting a timeout to throttle the animation somewhat
+          setTimeout(function () {
+              state.theme.introBlockPosition.wait = false;
+              // console.log(&#39;waiting no more&#39;);
+          }, 25);
+        }
+      }
+    },
+  },
+};
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 06 Aug 2020 16:46:42 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>onMouseMove causes component to completely re-render</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, I thought so as well, so I tried it already and it does seem to make things better, although the component still gets re-rendered completely.</p>
+          <p><a href="https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597/3</link>
+        <pubDate>Thu, 06 Aug 2020 16:46:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2597-3</guid>
+        <source url="https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597.rss">onMouseMove causes component to completely re-render</source>
+      </item>
+      <item>
+        <title>onMouseMove causes component to completely re-render</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>I admit that I’ve not done much with CSS transforms, but rather than doing the <code>translate</code> inside the <code>&lt;FeaturedMedia&gt;</code> component  with <code>css</code> would it not make more sense to do it in a <code>styled</code> component, then it’s just the CSS that’s being updated rather than the component itself.</p>
+<p>I’m not sure, it’s just a theory, but it might mean that the component doesn’t re-render on every mouse move.</p>
+<p>I think it might be worth a try. Let me know how you get on if you decide to try this.</p>
+          <p><a href="https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597/2</link>
+        <pubDate>Thu, 06 Aug 2020 16:11:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2597-2</guid>
+        <source url="https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597.rss">onMouseMove causes component to completely re-render</source>
+      </item>
+      <item>
+        <title>onMouseMove causes component to completely re-render</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m trying to build a section like in the screen capture below (it’s the intro block of <a href="https://noesteijver.nl" rel="nofollow noopener">our current website</a>). For the movement of the individual images, I’m using <code>translate(X, Y)</code>.</p>
+<p>Screen capture:<br>
+<a href="https://drive.google.com/file/d/1S1WKFlw5Q9k6QtTBYJwEfoI1kgTY4mT-/view?usp=sharing" class="onebox" target="_blank" rel="nofollow noopener">https://drive.google.com/file/d/1S1WKFlw5Q9k6QtTBYJwEfoI1kgTY4mT-/view?usp=sharing</a></p>
+<p>I managed to re-create it with Frontity/React, but I the animation seems way less smooth than what we did on our current site. I noticed that the component completely re-renders when applying the new CSS values. Isn’t that more heavy than it should be?</p>
+<p>Can I change something, so only the transformation will be applied, instead of a complete re-rendering? Or is this something that is caused by the core of React?</p>
+<p>This is my code for the images:</p>
+<pre><code class="lang-javascript">import React, { useEffect, useState } from "react";
+import { connect, styled, css } from "frontity";
+import FeaturedMedia from "./featured-media";
+
+const FeaturedProjectImages = ({ state, actions, imgs, imagesKeys, item }) =&gt; {
+   useEffect(() =&gt; {
+      actions.source.fetch(`/media/${imgs}`);
+   }, []);
+
+   const img = state.source.get(`/media/${imgs}`);
+
+   // setting up an array with multipliers
+   const imageProperties = {
+      'back_parallax_layer': {
+         'multiplier': 0.025,
+         'size': '110%',
+      },
+      'middle_parallax_layer': {
+         'multiplier': 0.05,
+         'size': '110%',
+      },
+      'front_parallax_layer': {
+         'multiplier': 0.075,
+         'size': '110%',
+      },
+      'static_layer': {
+         'multiplier': 0.0025,
+         'size': '75%',
+      },
+      'top_static_layer': {
+         'multiplier': 0.1,
+         'size': '80%',
+      },
+   };
+
+   const { mouseMove } = actions.theme;
+
+   return (img.isReady ? (
+      &lt;FeaturedProjectImagesWrapper onMouseMove={(event) =&gt; { mouseMove({ event: event }) }} onMouseLeave={resetMove} className="mouseMoveTarget"&gt;
+         {
+            imagesKeys.map(key =&gt; {
+
+               return (
+                  &lt;FeaturedMedia
+                     id={item.acf.intro_block_images[key].id}
+                     css={css`
+                        position: absolute;
+                        height: ${imageProperties[key].size};
+                        width: ${imageProperties[key].size};
+                        transform: translate(${state.theme.introBlockPosition.x * imageProperties[key].multiplier}px, ${state.theme.introBlockPosition.y * imageProperties[key].multiplier}px);
+                        will-change: transform;
+                        transition: .05s ease-in-out;
+                        transition-property: all;
+                        transition-property: transform;
+                        margin-top: auto;
+                        margin-bottom: auto;
+                        margin-left: auto;
+                        margin-right: auto;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                     `}
+                  /&gt;
+               )
+            })
+         }
+      &lt;/FeaturedProjectImagesWrapper&gt;
+   ) : null);
+}
+
+export default connect(FeaturedProjectImages);
+
+const FeaturedProjectImagesWrapper = styled.div`
+   width: 100%;
+   height: 100%;
+`;
+</code></pre>
+<p>And this is my action in the <code>index.js</code>:</p>
+<pre><code class="lang-javascript">const marsTheme = {
+  ...
+  state: {
+    theme: {
+      ...
+      introBlockPosition: {
+        x: 0,
+        y: 0,
+        wait: false
+      },
+    },
+  },
+  /**
+   * Actions are functions that modify the state or deal with other parts of
+   * Frontity like libraries.
+   */
+  actions: {
+    theme: {
+      ...
+      mouseMove: ({ state }) =&gt; ({ event }) =&gt; {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (state.theme.introBlockPosition.wait == false) {
+          const mouseMoveTarget = document.querySelector('.mouseMoveTarget');
+
+          state.theme.introBlockPosition.x = (mouseMoveTarget.offsetWidth / 2 + (event.clientX - mouseMoveTarget.offsetWidth));
+          state.theme.introBlockPosition.y = (mouseMoveTarget.offsetHeight / 2 + (event.clientY - mouseMoveTarget.offsetHeight));
+
+          state.theme.introBlockPosition.wait = true;
+
+          // setting a timeout to throttle the animation somewhat
+          setTimeout(function () {
+              state.theme.introBlockPosition.wait = false;
+              // console.log('waiting no more');
+          }, 25);
+        }
+      }
+    },
+  },
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597/1</link>
+        <pubDate>Thu, 06 Aug 2020 14:13:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2597-1</guid>
+        <source url="https://community.frontity.org/t/onmousemove-causes-component-to-completely-re-render/2597.rss">onMouseMove causes component to completely re-render</source>
+      </item>
+  </channel>
+</rss>

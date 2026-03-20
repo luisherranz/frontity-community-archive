@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Fetching from multiple WP API to one Site</title>
+    <link>https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572</link>
+    <description>Hi,
+
+I&#39;m trying to pull pages/posts from two different WP API. I tried adding a second source in the  frontity.settings.js file, but that didn&#39;t seem to affect anything. I also tried just using the native js fetch request on the second site, and that gives me a reference error where fetch is not defined. All of the multisite posts are about serving frontity to two different existing domains, feels like I&#39;m trying to do the opposite. Essentially, I want to have one component on my site that uses the data from a different set of posts (i.e. separate wp json data) than the rest of my content. Any help would be appreciated.
+
+Update: Going back through the docs I made some further progress. Using the multisite information [here](https://docs.frontity.org/learning-frontity/settings) I adjusted my frontity.settings.js. Just as a note, it seemed I had to make my match settings into an array
+
+```
+ {
+    &quot;name&quot;: &quot;abc&quot;,
+    match: [&quot;(?!\/events-calendar)&quot;],
+    ...
+    },
+    &quot;packages&quot;: [
+      {
+        &quot;name&quot;: &quot;abc-theme&quot;,
+      },
+      {
+        &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+        &quot;state&quot;: {
+          &quot;source&quot;: {
+            &quot;url&quot;: &quot;https://source1.com&quot;,
+          }
+        }
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;
+    ]
+  },
+  {
+    &quot;name&quot;: &quot;abc-events&quot;,
+    match: [&quot;\/events-calendar&quot;],
+   ...
+    },
+    &quot;packages&quot;: [
+      {
+        &quot;name&quot;: &quot;abc-theme&quot;,
+      },
+      {
+        &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+        &quot;state&quot;: {
+          &quot;source&quot;: {
+            &quot;url&quot;: &quot;https://source2.com&quot;,
+          }
+        }
+      },
+      &quot;@frontity/tiny-router&quot;,
+      &quot;@frontity/html2react&quot;
+    ]
+  }
+```
+
+Then following some of the advice form [this post](https://community.frontity.org/t/getting-the-contents-of-a-specific-page/993) by @luisherranz I tried adding a useEffect hook to the component I want to fetch from the second site, using the /events-calendar path
+
+```
+React.useEffect(() =&gt; {
+    actions.source.fetch(&quot;/events-calendar&quot;)
+  }, [ ])
+
+const data = state.source.get(&quot;/events-calendar&quot;)
+```
+
+However, now when I try to log &quot;data&quot; in order to see how I can map the items, I am receiving a 404 error.
+Maybe this was the wrong way to go, still open to any help possible.
+
+Thanks,
+Gideon</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 01 Jun 2021 14:02:46 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Fetching from multiple WP API to one Site</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>,</p>
+<p>I’ll open a feature discussion soon.</p>
+<p>As for your second question, I think the main issue is that I was expecting a native js function to work without import in frontity. Because I couldn’t find the correct way to import a second API to the same url on the forum, I assumed the Reference Error I was receiving was the result of that issue. In hindsight, I should have paid better attention to what the error was telling me, but it just didn’t occur to me that it would need to be imported, because I’ve never needed to do that in other applications. And, I didn’t look for it in the frontity docs at first (although it is there), for the same reason.</p>
+<p>So, perhaps there should be an area in the documentation for specific things that frontity handles differently than native js.</p>
+          <p><a href="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/6</link>
+        <pubDate>Tue, 01 Jun 2021 14:02:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4572-6</guid>
+        <source url="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572.rss">Fetching from multiple WP API to one Site</source>
+      </item>
+      <item>
+        <title>Fetching from multiple WP API to one Site</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/gideonjb">@gideonjb</a> ,</p>
+<p>Glad you were able to solve your issue.</p>
+<aside class="quote no-group" data-username="gideonjb" data-post="4" data-topic="4572">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/g/8491ac/40.png" class="avatar"> gideonjb:</div>
+<blockquote>
+<p>it seems like something frontity should be able to do under the hood. If we can have frontity serve on API, why not two?</p>
+</blockquote>
+</aside>
+<p>Can you please <a href="https://community.frontity.org/c/feature-discussions/33">open a Feature Discussion</a> with this improvement so the community can have a proper conversation about it?</p>
+<aside class="quote no-group" data-username="gideonjb" data-post="4" data-topic="4572">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/g/8491ac/40.png" class="avatar"> gideonjb:</div>
+<blockquote>
+<p>Either way, first you have to import { fetch } from “frontity”, which is actually difficult to find documentation on when you are searching for it, and the standard js fetch is not available by default.</p>
+</blockquote>
+</aside>
+<p>Thanks for the feedback.<br>
+Which terms did you use to look for this in the docs?<br>
+Is there any specific sections you were expecting to find this information?</p>
+          <p><a href="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/5</link>
+        <pubDate>Tue, 01 Jun 2021 13:15:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4572-5</guid>
+        <source url="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572.rss">Fetching from multiple WP API to one Site</source>
+      </item>
+      <item>
+        <title>Fetching from multiple WP API to one Site</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>For anyone interested, I did solve this issue, although it seems like something frontity should be able to do under the hood. If we can have frontity serve on API, why not two?</p>
+<p>Either way, first you have to import { fetch } from “frontity”, which is actually difficult to find documentation on when you are searching for it, and the standard js fetch is not available by default. Then I resolved the fetched json object and saved it to frontity state like so:</p>
+<pre><code class="lang-javascript">const fetchFromAPI = async() =&gt; {
+    const response = await fetch("https://yoururl.com/wp-json/...");
+    const body = await response.json();
+    return body;
+  };
+
+  const getPromise = () =&gt; {
+    return Promise.resolve(fetchFromAPI())
+  }
+
+  useEffect(() =&gt; {
+    getPromise().then((fetchedData) =&gt; {
+      actions.theme.setEventsCalendar(fetchedData.events)
+    })
+  }, [])
+</code></pre>
+<p>So when the component mounts it fetches the data, and then I can use the data form state.</p>
+          <p><a href="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/4</link>
+        <pubDate>Tue, 01 Jun 2021 13:08:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4572-4</guid>
+        <source url="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572.rss">Fetching from multiple WP API to one Site</source>
+      </item>
+      <item>
+        <title>Fetching from multiple WP API to one Site</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, thanks for the welcome.</p>
+<p>Unfortunately, I can’t provide that information right now. That’s why I was trying to post my use case in general terms (I altered my code above for privacy as well). So, assuming both API are public, and you want both sets of data to be available from frontity state at the same url, is this possible, and how should I configure my settings?</p>
+          <p><a href="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/3</link>
+        <pubDate>Fri, 14 May 2021 14:55:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4572-3</guid>
+        <source url="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572.rss">Fetching from multiple WP API to one Site</source>
+      </item>
+      <item>
+        <title>Fetching from multiple WP API to one Site</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/gideonjb">@gideonjb</a>, and welcome to the Frontity community.</p>
+<p>Could you provide a link to a repo so members of the community can view your code and clone your project if necessary. Also if your two APIs are on publicly accessible sites that will help in reproducing your problem.</p>
+<p>Please <a href="https://community.frontity.org/t/about-the-get-help-category/2/3">see here</a> for the kind of information that you can provide that will best help the community to help you.</p>
+          <p><a href="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/2</link>
+        <pubDate>Fri, 14 May 2021 14:06:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4572-2</guid>
+        <source url="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572.rss">Fetching from multiple WP API to one Site</source>
+      </item>
+      <item>
+        <title>Fetching from multiple WP API to one Site</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>I’m trying to pull pages/posts from two different WP API. I tried adding a second source in the  frontity.settings.js file, but that didn’t seem to affect anything. I also tried just using the native js fetch request on the second site, and that gives me a reference error where fetch is not defined. All of the multisite posts are about serving frontity to two different existing domains, feels like I’m trying to do the opposite. Essentially, I want to have one component on my site that uses the data from a different set of posts (i.e. separate wp json data) than the rest of my content. Any help would be appreciated.</p>
+<p>Update: Going back through the docs I made some further progress. Using the multisite information <a href="https://docs.frontity.org/learning-frontity/settings" rel="noopener nofollow ugc">here</a> I adjusted my frontity.settings.js. Just as a note, it seemed I had to make my match settings into an array</p>
+<pre><code class="lang-javascript"> {
+    "name": "abc",
+    match: ["(?!\/events-calendar)"],
+    ...
+    },
+    "packages": [
+      {
+        "name": "abc-theme",
+      },
+      {
+        "name": "@frontity/wp-source",
+        "state": {
+          "source": {
+            "url": "https://source1.com",
+          }
+        }
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react"
+    ]
+  },
+  {
+    "name": "abc-events",
+    match: ["\/events-calendar"],
+   ...
+    },
+    "packages": [
+      {
+        "name": "abc-theme",
+      },
+      {
+        "name": "@frontity/wp-source",
+        "state": {
+          "source": {
+            "url": "https://source2.com",
+          }
+        }
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react"
+    ]
+  }
+</code></pre>
+<p>Then following some of the advice form <a href="https://community.frontity.org/t/getting-the-contents-of-a-specific-page/993">this post</a> by <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> I tried adding a useEffect hook to the component I want to fetch from the second site, using the /events-calendar path</p>
+<pre><code class="lang-javascript">React.useEffect(() =&gt; {
+    actions.source.fetch("/events-calendar")
+  }, [ ])
+
+const data = state.source.get("/events-calendar")
+</code></pre>
+<p>However, now when I try to log “data” in order to see how I can map the items, I am receiving a 404 error.<br>
+Maybe this was the wrong way to go, still open to any help possible.</p>
+<p>Thanks,<br>
+Gideon</p>
+          <p><a href="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572/1</link>
+        <pubDate>Fri, 14 May 2021 03:42:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4572-1</guid>
+        <source url="https://community.frontity.org/t/fetching-from-multiple-wp-api-to-one-site/4572.rss">Fetching from multiple WP API to one Site</source>
+      </item>
+  </channel>
+</rss>

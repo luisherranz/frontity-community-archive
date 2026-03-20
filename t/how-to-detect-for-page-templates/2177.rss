@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to detect for page templates?</title>
+    <link>https://community.frontity.org/t/how-to-detect-for-page-templates/2177</link>
+    <description>So my use-case is that I really enjoy developing WordPress themes with ACF Pro and found it blazing fast development when paired with Timber.  Now, I&#39;ve got some React under my belt and using Frontity seems like it would yield more modern and much faster websites.  However, as I&#39;m just learning, I&#39;m sort of bumbling through the docs, so apologies if this is an oft-asked or already-answered question:
+
+What I&#39;ve done in the past is create multiple templates for various types of pages and use ACF Pro to target those templates.  The huge advantage to it is that the users can change their title or slugs at will, whether for SEO or organizational reasons, and the pages will work.  This also enables pages with the same templates to be re-used, saving copying and pasting code you want to reuse.
+
+In addition, I use the front page to determine a specific layout.  Therefore I need to be able to switch components based on a combination of `data.isHome` and `post.template`.  However, because I use the `data.isHome`, I get an error that `state.source[data.type]` is undefined unless I do some kind of silly undefined checking:
+
+    const Root = ({state}) =&gt; {
+      const data = state.source.get(state.router.link)
+      
+      // This seems silly:
+      let post = null
+
+      if(typeof data.type !== &#39;undefined&#39; &amp;&amp; !!!data.isHome) {
+        post = state.source[data.type][data.id]
+      }
+      // Thank god the silliness is over!
+
+      return (
+        &lt;&gt;
+          &lt;header&gt;
+            &lt;h1&gt;Page title&lt;/h1&gt;
+
+            &lt;nav&gt;
+              &lt;Link href=&quot;/&quot;&gt;Home&lt;/Link&gt;
+              &lt;Link href=&quot;/menus/&quot;&gt;Menus&lt;/Link&gt;
+              &lt;Link href=&quot;/about-us/&quot;&gt;About Us&lt;/Link&gt;
+              &lt;Link href=&quot;/contact-us/&quot;&gt;Contact Us&lt;/Link&gt;
+            &lt;/nav&gt;
+          &lt;/header&gt;
+
+          &lt;main&gt;
+            &lt;Switch&gt;
+              &lt;Loading when={data.isFetching} /&gt;
+              &lt;Home when={data.isHome} /&gt;
+              &lt;Menus when={post !== null &amp;&amp; post.template == &#39;menus.php&#39;} /&gt;
+              &lt;AboutUs when={post !== null &amp;&amp; post.template == &#39;about.php&#39;} /&gt;
+              &lt;ContactUs when={post !== null &amp;&amp; post.template == &#39;contact.php&#39;} /&gt;
+            &lt;/Switch&gt;
+          &lt;/main&gt;
+        &lt;/&gt;
+      )
+    }
+
+Anyways, I&#39;m fairly certain this is the wrong way to be doing this but it works *sometimes*.  Is there a better way to do this?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 25 Jun 2020 16:24:04 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-detect-for-page-templates/2177.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to detect for page templates?</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david1">@david1</a></p>
+<p>Welcome to the community forum. Great to hear that you’re trying out Frontity.</p>
+<p>It would be better to create a new component, or use the existing <code>&lt;Post /&gt;</code> component if you’re using <code>mars-theme</code>, and put the check in there. That way you can be sure that you’ve got a post (by virtue of the <code>&lt;Switch&gt;</code> in the <code>&lt;Root /&gt;</code> component).</p>
+<p>Then in the <code>&lt;Post /&gt;</code> component have another <code>&lt;Switch&gt;</code> that does the check you have above, like this:</p>
+<pre><code class="lang-javascript">&lt;Switch&gt;
+    &lt;Menus when={post.template == 'menus.php'} /&gt;
+    &lt;AboutUs when={post.template == 'about.php'} /&gt;
+    &lt;ContactUs when={post.template == 'contact.php'} /&gt;
+&lt;/Switch&gt;
+</code></pre>
+<p>The <code>&lt;Switch&gt;</code> in the <code>&lt;Root /&gt;</code> component can then just look like this:</p>
+<pre><code class="lang-javascript">&lt;Switch&gt;
+    &lt;Loading when={data.isFetching} /&gt;
+    &lt;Home when={data.isHome} /&gt;
+    &lt;List when={data.isArchive} /&gt;
+    &lt;Post when={data.isPostType} /&gt;
+    &lt;PageError when={data.isError} /&gt;
+&lt;/Switch&gt;
+</code></pre>
+<p>Hope this helps.</p>
+          <p><a href="https://community.frontity.org/t/how-to-detect-for-page-templates/2177/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-detect-for-page-templates/2177/3</link>
+        <pubDate>Thu, 25 Jun 2020 16:24:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2177-3</guid>
+        <source url="https://community.frontity.org/t/how-to-detect-for-page-templates/2177.rss">How to detect for page templates?</source>
+      </item>
+      <item>
+        <title>How to detect for page templates?</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p>So my use-case is that I really enjoy developing WordPress themes with ACF Pro and found it blazing fast development when paired with Timber.  Now, I’ve got some React under my belt and using Frontity seems like it would yield more modern and much faster websites.  However, as I’m just learning, I’m sort of bumbling through the docs, so apologies if this is an oft-asked or already-answered question:</p>
+<p>What I’ve done in the past is create multiple templates for various types of pages and use ACF Pro to target those templates.  The huge advantage to it is that the users can change their title or slugs at will, whether for SEO or organizational reasons, and the pages will work.  This also enables pages with the same templates to be re-used, saving copying and pasting code you want to reuse.</p>
+<p>In addition, I use the front page to determine a specific layout.  Therefore I need to be able to switch components based on a combination of <code>data.isHome</code> and <code>post.template</code>.  However, because I use the <code>data.isHome</code>, I get an error that <code>state.source[data.type]</code> is undefined unless I do some kind of silly undefined checking:</p>
+<pre><code>const Root = ({state}) =&gt; {
+  const data = state.source.get(state.router.link)
+  
+  // This seems silly:
+  let post = null
+
+  if(typeof data.type !== 'undefined' &amp;&amp; !!!data.isHome) {
+    post = state.source[data.type][data.id]
+  }
+  // Thank god the silliness is over!
+
+  return (
+    &lt;&gt;
+      &lt;header&gt;
+        &lt;h1&gt;Page title&lt;/h1&gt;
+
+        &lt;nav&gt;
+          &lt;Link href="/"&gt;Home&lt;/Link&gt;
+          &lt;Link href="/menus/"&gt;Menus&lt;/Link&gt;
+          &lt;Link href="/about-us/"&gt;About Us&lt;/Link&gt;
+          &lt;Link href="/contact-us/"&gt;Contact Us&lt;/Link&gt;
+        &lt;/nav&gt;
+      &lt;/header&gt;
+
+      &lt;main&gt;
+        &lt;Switch&gt;
+          &lt;Loading when={data.isFetching} /&gt;
+          &lt;Home when={data.isHome} /&gt;
+          &lt;Menus when={post !== null &amp;&amp; post.template == 'menus.php'} /&gt;
+          &lt;AboutUs when={post !== null &amp;&amp; post.template == 'about.php'} /&gt;
+          &lt;ContactUs when={post !== null &amp;&amp; post.template == 'contact.php'} /&gt;
+        &lt;/Switch&gt;
+      &lt;/main&gt;
+    &lt;/&gt;
+  )
+}
+</code></pre>
+<p>Anyways, I’m fairly certain this is the wrong way to be doing this but it works <em>sometimes</em>.  Is there a better way to do this?</p>
+          <p><a href="https://community.frontity.org/t/how-to-detect-for-page-templates/2177/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-detect-for-page-templates/2177/1</link>
+        <pubDate>Mon, 22 Jun 2020 18:08:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2177-1</guid>
+        <source url="https://community.frontity.org/t/how-to-detect-for-page-templates/2177.rss">How to detect for page templates?</source>
+      </item>
+  </channel>
+</rss>

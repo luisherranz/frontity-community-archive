@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>ACF Options page (bumped)</title>
+    <link>https://community.frontity.org/t/acf-options-page-bumped/5508</link>
+    <description>Hi, i´m new to Frontity and i&#39;m on my way to build a WP back-end heavily based on ACF. 
+
+However I have issues with the the custom fetching to the state.
+I have read [Dominique´s post](https://community.frontity.org/t/how-to-access-acf-options-pages/2075) about this, I can&#39;t really say i understand much of it unfortunately :no_mouth:. 
+
+I have manages to create a custom endpoint via ```frontity-settings.js ```
+
+```
+    &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+      &quot;state&quot;: {
+        &quot;source&quot;: {
+          &quot;url&quot;: &quot;https://mydomain.com&quot;,
+          &quot;ACF&quot;: &quot;https://mydomain.com/wp-json/acf/v3/options/options&quot;,
+           &quot;homepage&quot; : &quot;/my-startpage&quot;
+        }
+      }
+```
+
+This gives me something to work with.  ```frontity.state.source``` in the console gives me the url back.
+
+```
+Sources: {
+   ACF: &quot;https://mydomain.com/wp-json/acf/v3/options/options&quot;
+} 
+```
+
+Dominique is using a acfOptionsHandler function in the outer ```index.js```. However it dose not work for me. Noting happens. Probably I missed some steps here. 
+ 
+Could someone give me an explanation on how (and where in the theme structure) to correctly fetch and populate custom endpoints?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 25 Nov 2021 20:44:22 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/acf-options-page-bumped/5508.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>ACF Options page (bumped)</title>
+        <dc:creator><![CDATA[RustyJames]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m answering my own question.</p>
+<p>Don’t bother with the frontity.state.source. Here is a modified version of the old thread that works.</p>
+<p>Your index.js should look like this</p>
+<pre><code class="lang-javascript">import Theme from "./components";
+import image from "@frontity/html2react/processors/image";
+import iframe from "@frontity/html2react/processors/iframe";
+
+    // Custom handler for ACF options
+    const acfOptionsHandler = {
+      pattern: "acf-settings",
+      func: async ({ route, state, libraries }) =&gt; {
+        // 1. Get ACF option page from REST API.
+        const response = await libraries.source.api.get({
+          endpoint: `/acf/v3/options/options`
+        });
+        const option = await response.json();
+
+        // 2. Add data to `source`.
+        const data = state.source.get(route);
+        Object.assign(data, { ...option, isAcfOptionsPage: true });
+      }
+    };
+
+    const marsTheme = {
+      name: "ThemeName",
+      roots: {
+        /**
+         *  In Frontity, any package can add React components to the site.
+         *  We use roots for that, scoped to the `theme` namespace.
+         */
+        theme: Theme,
+      },
+      state: {
+        /**
+         * State is where the packages store their default settings and other
+         * relevant state. It is scoped to the `theme` namespace.
+         */
+        theme: {
+          menu: [],
+          isMobileMenuOpen: false,
+          featured: {
+            showOnList: false,
+            showOnPost: false,
+          },
+        },
+      },
+      /**
+       * Actions are functions that modify the state or deal with other parts of
+       * Frontity like libraries.
+       */
+      actions: {
+        theme: {
+          beforeSSR: async ({ state, actions }) =&gt; {
+            await Promise.all([
+              actions.source.fetch("acf-settings"),
+            ]);
+          },
+          toggleMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+          },
+          closeMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = false;
+          },
+        },
+      },
+      libraries: {
+        html2react: {
+          /**
+           * Add a processor to `html2react` so it processes the `&lt;img&gt;` tags
+           * inside the content HTML. You can add your own processors too
+           */
+          processors: [image, iframe],
+        },
+        source: {
+        handlers: [acfOptionsHandler]
+        }
+      },
+    };
+
+    export default marsTheme;
+</code></pre>
+<p>Then you can request ACF Settings like this</p>
+<pre><code class="lang-javascript">const Root = ( {state} ) =&gt; {
+  const options = state.source.get("acf-settings");
+  console.log(options);
+  ...
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/acf-options-page-bumped/5508/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-options-page-bumped/5508/2</link>
+        <pubDate>Thu, 25 Nov 2021 20:44:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5508-2</guid>
+        <source url="https://community.frontity.org/t/acf-options-page-bumped/5508.rss">ACF Options page (bumped)</source>
+      </item>
+      <item>
+        <title>ACF Options page (bumped)</title>
+        <dc:creator><![CDATA[RustyJames]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, i´m new to Frontity and i’m on my way to build a WP back-end heavily based on ACF.</p>
+<p>However I have issues with the the custom fetching to the state.<br>
+I have read <a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075">Dominique´s post</a> about this, I can’t really say i understand much of it unfortunately <img src="https://community.frontity.org/images/emoji/apple/no_mouth.png?v=10" title=":no_mouth:" class="emoji" alt=":no_mouth:">.</p>
+<p>I have manages to create a custom endpoint via <code>frontity-settings.js </code></p>
+<pre><code class="lang-javascript">    "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "url": "https://mydomain.com",
+          "ACF": "https://mydomain.com/wp-json/acf/v3/options/options",
+           "homepage" : "/my-startpage"
+        }
+      }
+</code></pre>
+<p>This gives me something to work with.  <code>frontity.state.source</code> in the console gives me the url back.</p>
+<pre><code class="lang-javascript">Sources: {
+   ACF: "https://mydomain.com/wp-json/acf/v3/options/options"
+} 
+</code></pre>
+<p>Dominique is using a acfOptionsHandler function in the outer <code>index.js</code>. However it dose not work for me. Noting happens. Probably I missed some steps here.</p>
+<p>Could someone give me an explanation on how (and where in the theme structure) to correctly fetch and populate custom endpoints?</p>
+          <p><a href="https://community.frontity.org/t/acf-options-page-bumped/5508/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-options-page-bumped/5508/1</link>
+        <pubDate>Thu, 25 Nov 2021 17:13:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5508-1</guid>
+        <source url="https://community.frontity.org/t/acf-options-page-bumped/5508.rss">ACF Options page (bumped)</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Using Material UI Pagination Component to Paginate Blog Posts</title>
+    <link>https://community.frontity.org/t/using-material-ui-pagination-component-to-paginate-blog-posts/5148</link>
+    <description>Hello, I am pretty new to Frontity and Web Development in general so please excuse any lack of perspective I may have.
+
+My issue is effectively using the Material UI component [pagination][1] to route through an already paginated blog archive. 
+
+
+```
+import React from &#39;react&#39;
+import { connect, styled } from &quot;frontity&quot;
+import Link from &quot;@frontity/components/link&quot;
+import { Pagination, PaginationItem } from &#39;@material-ui/lab&#39;;
+
+
+function PaginationComponent( { state, actions, libraries }) {
+    const { totalPages } = state.source.get(state.router.link);
+    const { path, page, query } = libraries.source.parse(state.router.link)
+    
+    const isThereNextPage = page &lt; totalPages;
+    const isTherePreviousPage = page &gt; 1;
+
+    const nextPageLink = libraries.source.stringify({path, page: page + 1, query});
+    const prevPageLink = libraries.source.stringify({path, page: page - 1, query})
+    
+    
+    return (
+        &lt;div&gt;
+            {isTherePreviousPage &amp;&amp; (
+                &lt;Link link={prevPageLink}&gt;New Posts&lt;/Link&gt;
+            ) }
+            
+            &lt;Pagination
+              page={page}
+              count={totalPages}
+              renderItem={(item) =&gt; (
+                &lt;PaginationItem
+                  component={Link}
+                  to={`/blog${page === 1 ? &#39;&#39; : `/page/${page}`}`}
+                  {...item}
+                /&gt;
+              )}
+            /&gt;
+            {isThereNextPage &amp;&amp; (
+                &lt;Link link={nextPageLink}&gt;Older Posts&lt;/Link&gt;
+            ) }
+            
+        &lt;/div&gt;
+    )
+}
+
+export default connect(PaginationComponent)
+``` 
+
+I so far have been able to create pagination and route through the pages using the Link component, through a technique I discovered on this forum. What I would like to do, however, is use the Material UI component for it. I was able find [this][1] to help guide me, where it says &quot;Router Intergration&quot;. From there this code is given,
+```
+import React from &#39;react&#39;;
+import { MemoryRouter, Route } from &#39;react-router&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+import Pagination from &#39;@material-ui/lab/Pagination&#39;;
+import PaginationItem from &#39;@material-ui/lab/PaginationItem&#39;;
+
+export default function PaginationLink() {
+  return (
+    &lt;MemoryRouter initialEntries={[&#39;/inbox&#39;]} initialIndex={0}&gt;
+      &lt;Route&gt;
+        {({ location }) =&gt; {
+          const query = new URLSearchParams(location.search);
+          const page = parseInt(query.get(&#39;page&#39;) || &#39;1&#39;, 10);
+          return (
+            &lt;Pagination
+              page={page}
+              count={10}
+              renderItem={(item) =&gt; (
+                &lt;PaginationItem
+                  component={Link}
+                  to={`/inbox${item.page === 1 ? &#39;&#39; : `?page=${item.page}`}`}
+                  {...item}
+                /&gt;
+              )}
+            /&gt;
+          );
+        }}
+      &lt;/Route&gt;
+    &lt;/MemoryRouter&gt;
+  );
+}
+
+```
+My question is how can I adapt this code that uses purely React to work in Frontity? [Here](https://github.com/Jesuss27/New-Umm) is my repo.
+
+[1]:https://material-ui.com/components/pagination/</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 19 Aug 2021 05:26:16 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/using-material-ui-pagination-component-to-paginate-blog-posts/5148.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Using Material UI Pagination Component to Paginate Blog Posts</title>
+        <dc:creator><![CDATA[jesuss129]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello, I am pretty new to Frontity and Web Development in general so please excuse any lack of perspective I may have.</p>
+<p>My issue is effectively using the Material UI component <a href="https://material-ui.com/components/pagination/" rel="noopener nofollow ugc">pagination</a> to route through an already paginated blog archive.</p>
+<pre><code class="lang-javascript">import React from 'react'
+import { connect, styled } from "frontity"
+import Link from "@frontity/components/link"
+import { Pagination, PaginationItem } from '@material-ui/lab';
+
+
+function PaginationComponent( { state, actions, libraries }) {
+    const { totalPages } = state.source.get(state.router.link);
+    const { path, page, query } = libraries.source.parse(state.router.link)
+    
+    const isThereNextPage = page &lt; totalPages;
+    const isTherePreviousPage = page &gt; 1;
+
+    const nextPageLink = libraries.source.stringify({path, page: page + 1, query});
+    const prevPageLink = libraries.source.stringify({path, page: page - 1, query})
+    
+    
+    return (
+        &lt;div&gt;
+            {isTherePreviousPage &amp;&amp; (
+                &lt;Link link={prevPageLink}&gt;New Posts&lt;/Link&gt;
+            ) }
+            
+            &lt;Pagination
+              page={page}
+              count={totalPages}
+              renderItem={(item) =&gt; (
+                &lt;PaginationItem
+                  component={Link}
+                  to={`/blog${page === 1 ? '' : `/page/${page}`}`}
+                  {...item}
+                /&gt;
+              )}
+            /&gt;
+            {isThereNextPage &amp;&amp; (
+                &lt;Link link={nextPageLink}&gt;Older Posts&lt;/Link&gt;
+            ) }
+            
+        &lt;/div&gt;
+    )
+}
+
+export default connect(PaginationComponent)
+</code></pre>
+<p>I so far have been able to create pagination and route through the pages using the Link component, through a technique I discovered on this forum. What I would like to do, however, is use the Material UI component for it. I was able find <a href="https://material-ui.com/components/pagination/" rel="noopener nofollow ugc">this</a> to help guide me, where it says “Router Intergration”. From there this code is given,</p>
+<pre><code class="lang-javascript">import React from 'react';
+import { MemoryRouter, Route } from 'react-router';
+import { Link } from 'react-router-dom';
+import Pagination from '@material-ui/lab/Pagination';
+import PaginationItem from '@material-ui/lab/PaginationItem';
+
+export default function PaginationLink() {
+  return (
+    &lt;MemoryRouter initialEntries={['/inbox']} initialIndex={0}&gt;
+      &lt;Route&gt;
+        {({ location }) =&gt; {
+          const query = new URLSearchParams(location.search);
+          const page = parseInt(query.get('page') || '1', 10);
+          return (
+            &lt;Pagination
+              page={page}
+              count={10}
+              renderItem={(item) =&gt; (
+                &lt;PaginationItem
+                  component={Link}
+                  to={`/inbox${item.page === 1 ? '' : `?page=${item.page}`}`}
+                  {...item}
+                /&gt;
+              )}
+            /&gt;
+          );
+        }}
+      &lt;/Route&gt;
+    &lt;/MemoryRouter&gt;
+  );
+}
+
+</code></pre>
+<p>My question is how can I adapt this code that uses purely React to work in Frontity? <a href="https://github.com/Jesuss27/New-Umm" rel="noopener nofollow ugc">Here</a> is my repo.</p>
+          <p><a href="https://community.frontity.org/t/using-material-ui-pagination-component-to-paginate-blog-posts/5148/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-material-ui-pagination-component-to-paginate-blog-posts/5148/1</link>
+        <pubDate>Thu, 19 Aug 2021 05:26:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5148-1</guid>
+        <source url="https://community.frontity.org/t/using-material-ui-pagination-component-to-paginate-blog-posts/5148.rss">Using Material UI Pagination Component to Paginate Blog Posts</source>
+      </item>
+  </channel>
+</rss>

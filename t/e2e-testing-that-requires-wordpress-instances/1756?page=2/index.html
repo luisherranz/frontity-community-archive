@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>E2E testing that requires WordPress instances - Released - Frontity Community Forum</title>
+    <meta name="description" content="Description
+The goal is to create a testing system that can: 
+
+
+Spin up a WordPress instance inside of a Docker container 
+
+
+Create custom WP instances with  but not limited to: 
+
+With fixed or latest version of WordPres&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/e2e-testing-that-requires-wordpress-instances/1756" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;E2E testing that requires WordPress instances&#39;" href="1756.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/e2e-testing-that-requires-wordpress-instances/1756?page=2" />
+<meta name="twitter:url" content="/t/e2e-testing-that-requires-wordpress-instances/1756?page=2" />
+<meta property="og:title" content="E2E testing that requires WordPress instances" />
+<meta name="twitter:title" content="E2E testing that requires WordPress instances" />
+<meta property="og:description" content="We have decided that we will simplify the implementation a bit and only run one instance of WP at a time and run the specs in parallel. We will only use the following parameters to paralellize the test runs:   WP version build type of the frontity project es / all  type of the browser to test in: chrome / FF / electron  Tasks that are remaining for the completion of the e2e tests (this is a non-exhaustive list, as there are probably more smaller tasks that are required):   Move the current e2e t..." />
+<meta name="twitter:description" content="We have decided that we will simplify the implementation a bit and only run one instance of WP at a time and run the specs in parallel. We will only use the following parameters to paralellize the test runs:   WP version build type of the frontity project es / all  type of the browser to test in: chrome / FF / electron  Tasks that are remaining for the completion of the e2e tests (this is a non-exhaustive list, as there are probably more smaller tasks that are required):   Move the current e2e t..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Released" />
+<meta property="og:article:section:color" content="D3ABFF" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="19 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="6 ❤" />
+<meta property="article:published_time" content="2020-08-17T16:50:00+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="prev" href="./">
+
+    
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">E2E testing that requires WordPress instances</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/released/40" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #D3ABFF'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Released</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='E2E testing that requires WordPress instances'>
+        <meta itemprop='articleSection' content='Released'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_24' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-17T16:50:00Z' class='post-time'>
+                    17 August 2020 16:50
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-17T16:50:00Z'>
+              <span itemprop='position'>24</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>We have decided that we will simplify the implementation a bit and only run <strong>one</strong> instance of WP at a time and run the specs in parallel. We will only use the following parameters to paralellize the test runs:</p>
+<ul>
+<li>WP version</li>
+<li>build type of the frontity project <code>es</code> / <code>all</code>
+</li>
+<li>type of the browser to test in: chrome / FF / electron</li>
+</ul>
+<p>Tasks that are remaining for the completion of the e2e tests (this is a non-exhaustive list, as there are probably more smaller tasks that are required):</p>
+<ul>
+<li>Move the current e2e tests inside the “new” e2e tests. Basically merge the two systems into one.</li>
+<li>To start the frontity server in <code>dev</code> when in development and build for production when on CI</li>
+<li>Add an option to either <code>open</code> the cypress test runner or just run the tests when in development</li>
+<li>Create only one <code>docker-compose</code> file at the root level. We can use <code>.env</code> files to substitute the variables in the docker-compose file thus we do not need to create separate files for each version of wordpress.</li>
+<li>Move the code that does the per instance setup into a root <code>start.js</code> file.</li>
+<li>Use the <code>minimist</code> library in the root <code>start.js</code> file to create a “CLI” for launching the e2e tests</li>
+<li>The database files (<code>db.sql</code>) that are dumped/loaded for particular tests should be stored next to the spec files and not stored per instance as earlier.</li>
+<li>We can can simplify the tasks for <code>install-plugin</code>, etc. because they will not need to use the WP-instance-specific <code>docker-compose.yml</code> files anymore.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_25' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+                <link itemprop="image" href="../../../uploads/default/original/2X/6/6af6a95dd2518c06fd4b2608677f20c7059a71b4.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-18T08:36:49Z' class='post-time'>
+                    18 August 2020 08:36
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-18T08:36:49Z'>
+              <span itemprop='position'>25</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Awesome <img src="../../../images/emoji/apple/slight_smile.png%3Fv=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<p>I have uploaded our session yesterday:</p>
+<div class="youtube-onebox lazy-video-container" data-video-id="V_qrSvTvhA4" data-video-title="E2E system - Session 1" data-video-start-time="0" data-provider-name="youtube">
+  <a href="https://www.youtube.com/watch?v=V_qrSvTvhA4" target="_blank" rel="noopener">
+    <img class="youtube-thumbnail" src="../../../uploads/default/original/2X/6/6af6a95dd2518c06fd4b2608677f20c7059a71b4.jpeg" title="E2E system - Session 1" data-dominant-color="1E202A" width="480" height="360">
+  </a>
+</div>
+
+<p>I’ve tested your latest code on <a href="https://github.com/frontity/frontity/pull/450" class="inline-onebox">E2E Tests that create custom "test" WordPress instances by michalczaplinski · Pull Request #450 · frontity/frontity · GitHub</a> and it works great! I think we’re really close to finish this <img src="../../../images/emoji/apple/tada.png%3Fv=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"><img src="../../../images/emoji/apple/smile.png%3Fv=12" title=":smile:" class="emoji" alt=":smile:" loading="lazy" width="20" height="20"></p>
+<p>Some afterthoughts:</p>
+<p><strong>1. We can rename the <code>start.js</code> file to <code>e2e.js</code></strong></p>
+<p>So people can do this to run the tests:</p>
+<pre><code class="lang-bash">cd e2e &amp;&amp; node e2e.js
+</code></pre>
+<p><strong>2. This could be the list of arguments</strong></p>
+<p>I’d make the defaults more appropiate for running this manually in our local enviornments, so <code>node e2e.js</code> with no args is usually what you need.</p>
+<p>Let me know what you think <img src="../../../images/emoji/apple/slight_smile.png%3Fv=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<ul>
+<li>
+<p><strong>WordPress version</strong>:</p>
+<pre><code class="lang-bash">node e2e.js --wp-version 5.4
+</code></pre>
+<p>Default: <code>latest</code></p>
+</li>
+<li>
+<p><strong>Target</strong>:</p>
+<p>The target option of <code>npx frontity dev/build</code>.</p>
+<pre><code class="lang-bash">node e2e.js --target es5
+</code></pre>
+<p>Default: <code>all</code></p>
+</li>
+<li>
+<p><strong>Broswer</strong>:</p>
+<p>The browser option of Cypress.</p>
+<pre><code class="lang-bash">node e2e.js --browser firefox
+</code></pre>
+<p>Default: <code>chrome</code></p>
+</li>
+<li>
+<p><strong>Frontity Development/Production</strong>:</p>
+<p>Whether to run Frontity in development (<code>npx frontity dev</code>) or production (<code>npx frontity build &amp;&amp; npx frontity serve</code>).</p>
+<pre><code class="lang-bash">node e2e.js --prod
+</code></pre>
+<p>Default: It runs Frontity in development.</p>
+</li>
+<li>
+<p><strong>Cypress Open/Run</strong>:</p>
+<p>Whether to run Cypress in open mode (<code>npx cypress open</code>) or run (<code>npx cypress run</code>).</p>
+<pre><code class="lang-bash">node e2e.js --run
+</code></pre>
+<p>Default: It runs Cypress in open mode.</p>
+</li>
+</ul>
+<p><strong>Question:</strong></p>
+<p>I see you have not included Cyress <code>run/open</code> inside the latest <code>start.js</code> file. Is it better to run it outside, doing <code>node e2e.js &amp;&amp; cypress run</code>? Is that to be able to use the Cypress GH Action?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_26' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-18T09:00:10Z' class='post-time'>
+                    18 August 2020 09:00
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-18T09:00:10Z'>
+              <span itemprop='position'>26</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve run a couple of tests and it seems like locally it’s going to be easier to run Cypress inside the <code>e2e.js</code> file programatically to pass the <code>WORDPRESS_VERSION</code> env variable, which is needed for the <code>InstallPlugin</code> task.</p>
+<p>I’ve pushed a commit with the test. It brings back what you were doing previously:</p>
+<pre><code class="lang-js">// Run Cypress.
+await cypress.open({ env: { WORDPRESS_VERSION: "latest" } });
+</code></pre>
+<p>As I think it’d be nice to keep using the official Cypress GH action, maybe we can add an additional argument for that case:</p>
+<ul>
+<li>
+<p><strong>Don’t run Cypress:</strong></p>
+<p>Whether to run Cypress or just start the servers.</p>
+<pre><code class="lang-bash">node e2e.js --no-cypress
+</code></pre>
+<p>Default: It runs Cypress.</p>
+</li>
+</ul>
+<p>Adding the env variables in the GH action is trivial.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_27' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-18T15:57:00Z' class='post-time'>
+                    18 August 2020 15:57
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-18T15:57:00Z'>
+              <span itemprop='position'>27</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group">
+<blockquote>
+<p><strong>1. We can rename the <code>start.js</code> file to <code>e2e.js</code></strong></p>
+</blockquote>
+</aside>
+<p>agreed, makes more sense <img src="../../../images/emoji/apple/slight_smile.png%3Fv=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="25" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>the list of arguments</p>
+</blockquote>
+</aside>
+<p>yup, I think this list of arguments makes sense <img src="../../../images/emoji/apple/+1.png%3Fv=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="26" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><strong>Don’t run Cypress:</strong></p>
+<p>Whether to run Cypress or just start the servers.</p>
+<pre><code class="lang-javascript">node e2e.js --no-cypress
+</code></pre>
+</blockquote>
+</aside>
+<p><img src="../../../images/emoji/apple/+1.png%3Fv=9" title=":+1:" class="emoji only-emoji" alt=":+1:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_28' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+                <link itemprop="image" href="../../../uploads/default/original/2X/9/9dfdde7503985e09b7e296add5b91dfa56fe390a.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-19T09:56:00Z' class='post-time'>
+                    19 August 2020 09:56
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-19T09:56:00Z'>
+              <span itemprop='position'>28</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This was the last session:</p>
+<div class="youtube-onebox lazy-video-container" data-video-id="btGVb-R1dJc" data-video-title="E2E system - Session 2" data-video-start-time="0" data-provider-name="youtube">
+  <a href="https://www.youtube.com/watch?v=btGVb-R1dJc" target="_blank" rel="noopener">
+    <img class="youtube-thumbnail" src="../../../uploads/default/original/2X/9/9dfdde7503985e09b7e296add5b91dfa56fe390a.jpeg" title="E2E system - Session 2" data-dominant-color="6E767B" width="480" height="360">
+  </a>
+</div>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_29' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-20T09:12:56Z' class='post-time'>
+                    20 August 2020 09:12
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-20T09:40:13Z'>
+              <span itemprop='position'>29</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve been taking a look at the progress of <a href="https://github.com/frontity/frontity/pull/450/files/4c6775a35f4fc86184ef60faa6629d27f1febf26..42c46b74f05729c8c99f85f6f094e2c291cfdbef">the PR</a>. Looks great <img src="../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"> I think only the final details are missing.</p>
+<p>These are some of the things we may still be missing:</p>
+<p><strong>1. We are going to start too many containers.</strong></p>
+<p>Right now we have all these variables in the matrix: <a href="https://github.com/frontity/frontity/blob/42c46b74f05729c8c99f85f6f094e2c291cfdbef/.github/workflows/e2e-tests.yml#L10-L14">https://github.com/frontity/frontity/blob/42c46b74f05729c8c99f85f6f094e2c291cfdbef/.github/workflows/e2e-tests.yml#L10-L14</a></p>
+<pre><code class="lang-javascript">matrix:
+  target: ["both", "module", "es5"]
+  wordpress_version: ["latest", "5.4"]
+  browsers: ["chrome", "firefox", "edge"]
+  publicPath: ["/custom/path", "http://localhost:3001/custom/path/"]
+</code></pre>
+<p>If we add another WordPress version and Firefox, we would spin up 24 containers. If we want to add Edge, we would spin up 48 containers. I don’t think that makes sense. We need to be able to join some of these args.</p>
+<p>Let’s see what makes and doesn’t make sense:</p>
+<ul>
+<li>
+<p><strong>target</strong>:</p>
+<ul>
+<li>It doesn’t make sense to test <code>both</code> and <code>module</code>, we can test only <code>both</code>.</li>
+<li>It makes sense to run all the tests using <code>es5</code> instead of <code>module</code> in each browser because I guess browsers may be different in the way they execute JavaScript.</li>
+<li>I don’t think it makes sense to test <code>es5</code> against different versions of WordPress. They are not directly related.</li>
+<li>I don’t think it makes sense to test <code>es5</code> against different public paths. They are not directly related.</li>
+</ul>
+</li>
+<li>
+<p><strong>wordpress_version</strong>:</p>
+<ul>
+<li>It doesn’t make sense to test against different targets and public paths anything but the latest version of WordPress. There should not be differences.</li>
+<li>It may make sense to test against different browsers, I guess. I’m not 100% sure.</li>
+</ul>
+</li>
+<li>
+<p><strong>browser</strong>:</p>
+<ul>
+<li>It doesn’t make sense to test the different browsers against different public paths. There should not be differences.</li>
+</ul>
+</li>
+</ul>
+<p>With those constraints, maybe we could run:</p>
+<ul>
+<li>
+<strong>Test Chrome</strong>
+<ul>
+<li>browser: chrome</li>
+<li>wordpress_version: latest</li>
+<li>target: module (both)</li>
+<li>publicPath: –</li>
+</ul>
+</li>
+<li>
+<strong>Test Firefox</strong>
+<ul>
+<li>browser: firefox</li>
+<li>wordpress_version: latest</li>
+<li>target: module (both)</li>
+<li>publicPath: –</li>
+</ul>
+</li>
+<li>
+<strong>Test Edge</strong>
+<ul>
+<li>browser: edge</li>
+<li>wordpress_version: latest</li>
+<li>target: module (both)</li>
+<li>publicPath: –</li>
+</ul>
+</li>
+<li>
+<strong>Test ES5 in Chrome</strong>
+<ul>
+<li>browser: chrome</li>
+<li>wordpress_version: latest</li>
+<li>target: es5</li>
+<li>publicPath: –</li>
+</ul>
+</li>
+<li>
+<strong>Test ES5 in Firefox</strong>
+<ul>
+<li>browser: firefox</li>
+<li>wordpress_version: latest</li>
+<li>target: es5</li>
+<li>publicPath: –</li>
+</ul>
+</li>
+<li>
+<strong>Test ES5 in Edge</strong>
+<ul>
+<li>browser: edge</li>
+<li>wordpress_version: latest</li>
+<li>target: es5</li>
+<li>publicPath: –</li>
+</ul>
+</li>
+<li>
+<strong>Test previous WordPress version</strong>
+<ul>
+<li>browser: chrome</li>
+<li>wordpress_version: 5.4</li>
+<li>target: module (both)</li>
+<li>publicPath: –</li>
+</ul>
+</li>
+<li>
+<strong>Test custom relative publicPath</strong>
+<ul>
+<li>browser: chrome</li>
+<li>wordpress_version: latest</li>
+<li>target: module (both)</li>
+<li>publicPath: /custom/path</li>
+</ul>
+</li>
+<li>
+<strong>Test custom absolute publicPath</strong>
+<ul>
+<li>browser: chrome</li>
+<li>wordpress_version: latest</li>
+<li>target: module (both)</li>
+<li>publicPath: <a href="http://localhost:3001/custom/path">http://localhost:3001/custom/path</a>
+</li>
+</ul>
+</li>
+</ul>
+<p>That would be 9 instead of 48 <img src="../../../images/emoji/apple/sweat_smile.png%3Fv=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>We could even reduce it if we need to by mixing some of those together or add more if we think we need to test with another configuration.</p>
+<p>The matrix would be the args required for each test:</p>
+<pre><code class="lang-javascript">matrix:
+  args:
+    - "--wp-version latest --browser chrome --target both"
+    - "--wp-version latest --browser firefox --target both"
+    - "--wp-version latest --browser edge --target both"
+    - "--wp-version latest --browser chrome --target es5"
+    - "--wp-version latest --browser firefox --target es5"
+    - "--wp-version latest --browser edge --target es5"
+    - "--wp-version 5.4 --browser chrome --target both"
+    - "--wp-version latest --browser chrome --target both --public-path /custom/path"
+    - "--wp-version latest --browser chrome --target both --public-path http://localhost:3001/custom/path"
+</code></pre>
+<hr>
+<p>Apart from that, I made a mistake when we added the <code>--publicPath</code> arg to our CLI. It should have been <code>--public-path</code> because the rest of the CLI args are not using camelcase.</p>
+<p>I’ll do a PR to fix it: <a href="/t/change-publicpath/1461" class="inline-onebox">Change publicPath</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_30' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-20T09:34:10Z' class='post-time'>
+                    20 August 2020 09:34
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-20T09:40:51Z'>
+              <span itemprop='position'>30</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>My bad, we cannot do the matrix that way because we need access to the different variables isolated.</p>
+<p>GH actions have another way to define this using <code>include</code>. It is documented here: <a href="https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations">https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations</a></p>
+<p>This would be the proper matrix:</p>
+<pre><code class="lang-javascript">matrix:
+  name:
+    - Test Chrome
+    - Test Firefox
+    - Test Edge
+    - Test ES5 in Chrome
+    - Test ES5 in Firefox
+    - Test ES5 in Edge
+    - Test previous WordPress version
+    - Test custom relative public-path
+    - Test custom absolute public-path
+
+  include:
+    - name: Test Chrome
+      wp-version: latest
+      browser: chrome
+      target: both
+
+    - name: Test Firefox
+      wp-version: latest
+      browser: firefox
+      target: both
+
+    - name: Test Edge
+      wp-version: latest
+      browser: edge
+      target: both
+
+    - name: Test ES5 in Chrome
+      wp-version: latest
+      browser: chrome
+      target: es5
+
+    - name: Test ES5 in Firefox
+      wp-version: latest
+      browser: firefox
+      target: es5
+
+    - name: Test ES5 in Edge
+      wp-version: latest
+      browser: edge
+      target: es5
+
+    - name: Test previous WordPress version
+      wp-version: 5.4
+      browser: chrome
+      target: both
+
+    - name: Test custom relative public-path
+      wp-version: latest
+      browser: chrome
+      target: both
+      public-path: /custom/path
+
+    - name: Test custom absolute public-path
+      wp-version: latest
+      browser: chrome
+      target: both
+      public-path: http://localhost:3001/custom/path
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_31' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-20T17:05:30Z' class='post-time'>
+                    20 August 2020 17:05
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-20T17:05:30Z'>
+              <span itemprop='position'>31</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="luisherranz" data-post="30" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>GH actions have another way to define this using <code>include</code> . It is documented here: <a href="https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations">https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations </a></p>
+</blockquote>
+</aside>
+<p>Yep, this makes sense.</p>
+<p>However, the GH Action for cypress requires that</p>
+<ul>
+<li>if you run <code>edge</code> you have to do it using the <code>windows</code> image <a href="https://github.com/cypress-io/github-action#edge">https://github.com/cypress-io/github-action#edge</a>
+</li>
+<li>when running firefox, you have to use a different user <a href="https://github.com/cypress-io/github-action#firefox">https://github.com/cypress-io/github-action#firefox</a>
+</li>
+</ul>
+<p>So we will have to also add  <code>os</code> and <code>user</code> to the matrix.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_32' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-20T22:15:44Z' class='post-time'>
+                    20 August 2020 22:15
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-20T22:15:44Z'>
+              <span itemprop='position'>32</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="luisherranz" data-post="30" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>This would be the proper matrix:</p>
+<pre><code class="lang-javascript">matrix:
+  name:
+    - Test Chrome
+    - Test Firefox
+    - Test Edge
+    - Test ES5 in Chrome
+    - Test ES5 in Firefox
+    - Test ES5 in Edge
+    - Test previous WordPress version
+    - Test custom relative public-path
+    - Test custom absolute public-path
+
+  include:
+    - name: Test Chrome
+      wp-version: latest
+      browser: chrome
+      target: both
+</code></pre>
+</blockquote>
+</aside>
+<p>Unfortunately, the GH actions don’t work with this this syntax. <img src="../../../images/emoji/apple/slightly_frowning_face.png%3Fv=9" title=":slightly_frowning_face:" class="emoji" alt=":slightly_frowning_face:"></p>
+<p>In this example, the actions would run one time for each <code>name</code> (with all the other matrix parameters set to <code>""</code>) and then run once for each object included in the <code>include</code> section.</p>
+<p>I’ve tried a slightly different approach:</p>
+<pre><code class="lang-javascript">e2e-tests:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        name: [Test chrome]
+        wp-version: [latest]
+        browser: [chrome]
+        target: [both]
+        image: ["cypress/browsers:node12.18.0-chrome83-ff77"]
+        os: [ubuntu-16.04]
+        options: ["--user 1000"]
+
+        include:
+          - name: Test Firefox
+            wp-version: latest
+            browser: firefox
+            target: both
+            image: cypress/browsers:node12.18.0-chrome83-ff77
+            os: ubuntu-16.04
+            options: --user 1001
+
+          - name: Test Edge
+            wp-version: latest
+            browser: edge
+            target: both
+            image: cypress/browsers:node12.18.0-chrome83-ff77 # &lt;--- This is the problem
+            os: ubuntu-16.04
+            options: --user 1001
+            
+          ## etc...
+</code></pre>
+<p>The first issue is that we have to specify each matrix variable explicitly when using the <code>include</code>, which is a bit verbose.</p>
+<p>Secondly, and more importantly, because we have to <a href="https://github.com/cypress-io/github-action#firefox">specify a different  <code>image</code> for running firefox</a> we will also have to specify the <code>image</code> when running edge. However, the tests for edge should not be running in a custom container!</p>
+<p>I think the best solution for now is to make a <code>chrome-e2e</code> workflow, a <code>firefox-e2e</code> workflow and <code>edge-e2e</code> workflow.</p>
+<p>Unfortunately, this will mean that there is some repetition across those workflows.</p>
+<p>However, I think that in the future we could use the <a href="https://github.blog/changelog/2020-08-07-github-actions-composite-run-steps/">Composite Run Steps</a> feature that github has just released to compose the “initial” steps and then create 3 separate jobs<br>
+for <code>chrome</code> <code>edge</code> and <code>firefox</code> inside of the same workflow file.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_33' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-20T23:55:44Z' class='post-time'>
+                    20 August 2020 23:55
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-20T23:55:44Z'>
+              <span itemprop='position'>33</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It seems that getting the tests to work across <code>firefox</code> and <code>edge</code> is a bit harder than just adding some config to the yaml:</p>
+<p>If we specify the following as is required to run the tests on firefox:</p>
+<pre><code class="lang-javascript"> container:
+      image: cypress/browsers:node12.16.1-chrome80-ff73
+      options: --user 1001
+</code></pre>
+<p>Then all the steps are going to run on that container instead of on ubuntu. This image does not have <code>docker-compose</code> installed so we would have to create our own image that includes docker-compose. Here’s a list of all the software installed on the github actions images: <a href="https://docs.github.com/en/actions/reference/software-installed-on-github-hosted-runners">https://docs.github.com/en/actions/reference/software-installed-on-github-hosted-runners</a></p>
+<p>The <code>windows</code> tests fail with another problem: <a href="https://stackoverflow.com/questions/48066994/docker-no-matching-manifest-for-windows-amd64-in-the-manifest-list-entries">https://stackoverflow.com/questions/48066994/docker-no-matching-manifest-for-windows-amd64-in-the-manifest-list-entries</a></p>
+<p>For the moment I will remove the edge and firefox tests and we can include them later on as I think they are not strictly necessary for what we are trying to achieve with the E2E tests.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_34' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-21T12:55:20Z' class='post-time'>
+                    21 August 2020 12:55
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-21T12:55:20Z'>
+              <span itemprop='position'>34</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="33" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>For the moment I will remove the edge and firefox tests and we can include them later on as I think they are not strictly necessary for what we are trying to achieve with the E2E tests</p>
+</blockquote>
+</aside>
+<p>Ok, I agree <img src="../../../images/emoji/apple/slight_smile.png%3Fv=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_35' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-24T15:13:37Z' class='post-time'>
+                    24 August 2020 15:13
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-24T15:13:37Z'>
+              <span itemprop='position'>35</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve merged the PR: <a href="https://github.com/frontity/frontity/pull/450">https://github.com/frontity/frontity/pull/450</a> <img src="../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"><img src="../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"><img src="../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"></p>
+<p>All the information on how to use it is in the <code>README.md</code> file of the <code>e2e</code> folder: <a href="https://github.com/frontity/frontity/blob/dev/e2e/README.md">https://github.com/frontity/frontity/blob/dev/e2e/README.md</a></p>
+<p>Thanks <a class="mention" href="/u/mmczaplinski">@mmczaplinski</a> for your work!!! <img src="../../../images/emoji/apple/smile.png%3Fv=9" title=":smile:" class="emoji" alt=":smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="4" />
+              <span class='post-likes'>4 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><a rel="prev" itemprop="url" href="./">← previous page</a></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

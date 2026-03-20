@@ -1,0 +1,1320 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Slot and Fill</title>
+    <link>https://community.frontity.org/t/slot-and-fill/895</link>
+    <description># Description
+There&#39;s a powerful pattern in React called **Slot and Fill** which allows the insertion of any React component in different places of the app. It is perfect when the application is extensible, like Frontity.
+
+In the case of Frontity, this will allow the theme developer to insert `&lt;Slot&gt;` components among the theme, and other package developers to add `&lt;Fill&gt;` components hooked to a particular Slot.
+
+# User Stories
+&gt; As a **Frontity theme consumer**
+&gt; I want to **add additional components to the theme**
+&gt; so that **I can customize  to my needs**
+
+&gt; As a **Frontity theme consumer**
+&gt; I want to **substitute certain components of the theme**
+&gt; so that **I can completely override parts of the theme**
+
+&gt; &lt;s&gt;As a **Frontity theme consumer**&lt;/s&gt;
+&gt; &lt;s&gt;I want to **specify some data assertions for my fills**&lt;/s&gt;
+&gt; &lt;s&gt;so that **I can fill the slots only under certain conditions**&lt;/s&gt;
+
+Moved to: https://community.frontity.org/t/data-assertions-for-fills/1591
+
+&gt; &lt;s&gt;As a **Frontity theme creator**&lt;/s&gt;
+&gt; &lt;s&gt;I want to **use a hook instead of a component for Slots**&lt;/s&gt;
+&gt; &lt;s&gt;so that **I can have more control of the insides**&lt;/s&gt;
+
+Moved to: https://community.frontity.org/t/usefills-hooks/1601
+
+# Examples
+
+- Add an ad above the first post of any archive.
+- Add a newsletter subscription widget after the eighth post of the home.
+- Add more elements to a menu, for example, a link to the GDPR or a notifications switch.
+- Substitute the theme footer for a new custom one.
+
+# Possible solution
+
+[details=&quot;Initial proposed solution (click to open)&quot;]
+## Slots in the theme
+
+The theme developers can add Slots wherever they want.
+
+```javascript
+import { Slot } from &quot;frontity&quot;;
+
+const Menu = () =&gt; {
+  return (
+    &lt;&gt;
+      &lt;Slot name=&quot;before-menu&quot; /&gt;
+      &lt;MenuContainer&gt;
+        &lt;MenuItem1 /&gt;
+        &lt;MenuItem2 /&gt;
+        &lt;MenuItem3 /&gt;
+        &lt;Slot name=&quot;menu-items&quot; /&gt;
+      &lt;/MenuContainer&gt;
+      &lt;Slot name=&quot;after-menu&quot; /&gt;
+    &lt;/&gt;
+  )
+};
+```
+
+Themes need to export a list of Slots to be used in the upcoming Frontity Admin UI.
+
+## Slots in the `content`
+
+Slots in the content don&#39;t need to be added by the theme because any package can add processors.
+
+Possible Solutions:
+
+1. Add common Slot processors to `html2react` for things like:
+   - `&quot;after-third-paragraph&quot;`
+   - `&quot;before-first-image&quot;`
+   - `&quot;after 500 characters&quot;`
+
+This would need the ability to **add components** instead of substituting them in `html2react`. I don&#39;t know if this is possible.
+
+```javascript
+import { afterThirdParagraph } from &quot;@frontity/html2react/processors/slots&quot;;
+
+{
+  ...
+  libraries: {
+    html2react: {
+      processors: [image, afterThirdParagraph]
+    }
+  }
+}
+```
+
+2. Add multiple Slot processors at once:
+
+```javascript
+import slots from &quot;@frontity/html2react/processors/slots&quot;;
+
+{
+  ...
+  libraries: {
+    html2react: {
+      processors: [image, slots]
+    }
+  }
+}
+```
+
+3. Let &quot;Fill package&quot; deal with this themselves:
+
+```javascript
+  packages: [
+  ...
+  {
+    name: &quot;some-ads-package&quot;,
+    state: {
+      fills: [
+        {
+          name: &quot;ad-1&quot;,
+          id: &quot;123456&quot;,
+          slot: &quot;content-after-third-paragraph&quot;
+        }
+      ]
+    }
+  }
+  ]
+```
+
+## Passing props to `Fills`
+
+Decisions:
+
+1. How to pass props to `Fills`?
+2. Are there some standard props that need to be passed or is it up to the theme and `Slot` to decide?
+
+### How to pass props to `Fills`?
+- **By including the data in the `Slot`.**
+  - Pro: It is simpler.
+
+```javascript
+const SomeSlot = ({ state }) =&gt; {
+  return (
+    &lt;Slot name=&quot;footer&quot; data={state.source.get(&quot;/some-page&quot;)} /&gt;
+  )
+};
+```
+
+- **By using a render prop.**
+  - Pro: It is more hackable.
+
+```javascript
+const SomeSlot = ({ state }) =&gt; {
+  return (
+    &lt;Slot name=&quot;footer&quot;&gt;
+     {fills =&gt;
+       fills.map(Fill =&gt; &lt;Fill data={state.source.get(&quot;/some-page&quot;)} /&gt;
+     }
+    &lt;/Slot&gt;
+  )
+};
+```
+
+In both cases, the props are passed down to any direct children of `Fill`, like `Page` here:
+```javascript
+const SomeFill = ({ state }) =&gt; {
+  return (
+    &lt;Fill name=&quot;footer&quot;&gt;
+      &lt;Page&gt;
+    &lt;/Fill&gt;
+  )
+};
+```
+
+`Post` now has access to `data`.
+
+```javascript
+const Page = ({ state, data }) =&gt; {
+  const page = state.source.page[data.id];
+  return &lt;div&gt;{page.title.rendered}&lt;/div&gt;;
+};
+```
+
+Although this is a bit too magical for the developer creating the `Fill`. Maybe a render prop could be used instead:
+
+```javascript
+const SomeFill = ({ state }) =&gt; {
+  return (
+    &lt;Fill name=&quot;footer&quot;&gt;
+      {({ data }) =&gt; &lt;Page data={data}&gt;
+    &lt;/Fill&gt;
+  )
+};
+```
+
+We need to take a good look at how TypeScript can work here.
+
+## Slot substitution
+
+- Fallback to a component by passing a default component as `children`.
+  - Pro: It is simpler.
+```javascript
+const SomeSlot = () =&gt; {
+  return (
+    &lt;Slot name=&quot;footer&quot;&gt;
+       &lt;DefaultFooter /&gt;
+    &lt;/Slot&gt;
+  )
+};
+```
+
+- Fallback to a component by checking the length of `fills`.
+  - Pro: It is more hackable.
+```javascript
+const SomeSlot = () =&gt; {
+  return (
+    &lt;Slot name=&quot;footer&quot;&gt;
+     {({ fills }) =&gt; {
+       if (fills.length === 0) return &lt;DefaultFooter /&gt;;
+       return fills.map(Fill =&gt; &lt;Fill /&gt;);
+     }}
+    &lt;/Slot&gt;
+  )
+};
+```
+
+- This could be the default `children` if no render prop is passed:
+
+```javascript
+const SomeSlot = () =&gt; {
+  return (
+    &lt;Slot name=&quot;footer&quot;&gt;
+     {fills =&gt; fills.map(Fill =&gt; &lt;Fill /&gt;)}
+    &lt;/Slot&gt;
+  )
+};
+```
+
+Which is actually equivalent to this, but somehow seems simpler to understand what&#39;s going on:
+```javascript
+const SomeSlot = () =&gt; {
+  return (
+    &lt;Slot name=&quot;footer&quot;&gt;
+     {fills =&gt; fills}
+    &lt;/Slot&gt;
+  )
+};
+```
+
+[/details]
+
+# References
+
+1. This is the library that started the pattern: https://github.com/camwest/react-slot-fill
+As far as I know, it is still based on the old context API.
+2. Gutenberg has its own implementation, based on camwest library: https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill
+It&#39;s a modern implementation of the same, so it&#39;s probably great to take a look.
+3. Javi Velasco made a very similar one: https://github.com/javivelasco/react-tunnels
+4. There&#39;s another library made by a guy named Jonatan Salas: https://github.com/BlackBoxVision/react-slot-fill
+5. Jason Miller did a SlotFill library for Preact as well: https://github.com/developit/preact-slots
+
+
+# Implementation proposal
+
+https://community.frontity.org/t/slot-and-fill/895/6?u=luisherranz</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 11 Aug 2020 20:01:19 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/slot-and-fill/895.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="orballo" data-post="23" data-topic="895">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Is there a way I can set one fill for more than one slot? Like passing an array of names to the <code>slot</code> field of the fill?</p>
+</blockquote>
+</aside>
+<p>Sorry, there’s no built-in way to do that. I guess that you could try create that yourself by creating the array of “slots” as you mentioned. Then you could map over it and for each <code>slot</code> return an object sth like:</p>
+<pre><code class="lang-javascript">const slots = ["slot-1", "slot2", "slot3"];
+let mappedFills = {};
+
+slots.forEach((slot, index) =&gt; {
+  mappedFills.push({
+    [`${slot}-${index}`]: {
+      slot
+      library: "namespace.ComponentName",
+    }
+  })
+});
+
+const state = {
+  fills: {
+    namespace: mappedFills
+  },
+};
+</code></pre>
+<aside class="quote no-group" data-username="orballo" data-post="23" data-topic="895">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>One more question, is the <code>state.frontity.debug</code> flag implemented? If so, how should it behave?</p>
+</blockquote>
+</aside>
+<p>Yup, it’s implemented. You can just set <code>state.frontity.debug</code> to true and it will show a “debug” fill in each slot. This is implemented in <a href="https://github.com/frontity/frontity/blob/49a863b37a5a6234588b020e409781fad68fd98a/packages/frontity/src/utils/slot-and-fill/use-fills.tsx#L70">https://github.com/frontity/frontity/blob/49a863b37a5a6234588b020e409781fad68fd98a/packages/frontity/src/utils/slot-and-fill/use-fills.tsx#L70</a></p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/24">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/24</link>
+        <pubDate>Tue, 11 Aug 2020 20:01:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-24</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Is there a way I can set one fill for more than one slot? Like passing an array of names to the <code>slot</code> field of the fill?</p>
+<p>One more question, is the <code>state.frontity.debug</code> flag implemented? If so, how should it behave?</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/23">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/23</link>
+        <pubDate>Sat, 08 Aug 2020 02:07:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-23</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I believe that <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> is referring to this example:</p>
+<pre><code class="lang-javascript">{/* You can optionally pass data to the Fill with the data prop */}
+&lt;Slot data={data} name="Below Header" &gt; 
+  &lt;DefaultFill data={data} /&gt; {/* should we have to pass data here or should it be passed automatically from the Slot ??? */}
+&lt;/Slot&gt;
+</code></pre>
+<p>I think that the answer should be “no”. Since this default Fill is created by the Slot creator as well, the slot creator can pass whatever props they want. We shouldn’t “magically” pass them from the parent - I think this would be confusing.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/22</link>
+        <pubDate>Tue, 14 Jul 2020 21:38:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-22</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Does it make sense for a child component of a Slot, i.e. the default content if no Fill is provided, to also receive the props in the same way that a Fill allocated to that Slot does?</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/21</link>
+        <pubDate>Tue, 14 Jul 2020 16:15:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-21</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>This has been included in the latest release <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"> : <a href="https://community.frontity.org/t/frontity-release-first-stable-version-of-google-analytics-google-tag-manager-and-comscores-packages/2293">Read the full Release Announcement</a>.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/20</link>
+        <pubDate>Mon, 06 Jul 2020 07:57:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-20</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>We have implemented the <code>Slot</code> component in <a href="https://github.com/frontity/frontity/pull/475">https://github.com/frontity/frontity/pull/475</a> according to <a href="https://community.frontity.org/t/slot-and-fill/895/8" class="inline-onebox">Slot and Fill</a></p>
+<p>The <code>Slot</code> uses the <code>useFills</code> hook under the hood:</p>
+<pre><code class="lang-javascript">const Slot: SlotType = ({ name, children, ...slotProps }) =&gt; {
+  const { state } = useConnect&lt;Package&gt;();
+
+  // Get the data, either from props or the current link.
+  const data = slotProps.data || state.source.get(state.router.link);
+
+  // Get the fills for this name.
+  const fills = useFills(name);
+
+  return (
+    // Returning a &lt;Fragment/&gt; because returning an array of components results in a typescript error
+    // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20356
+    &lt;&gt;
+      {fills.length &gt; 0
+        ? fills.map(({ Fill, props, key }) =&gt; (
+            &lt;Fill key={key} name={key} data={data} {...slotProps} {...props} /&gt;
+          ))
+        : children}
+    &lt;/&gt;
+  );
+};
+
+</code></pre>
+<p>The usage is the same as suggested initially in the Implementation Proposal:</p>
+<pre><code class="lang-javascript">import { Slot } from "frontity";
+
+const Theme = ({ state, link }) =&gt; {
+  const data = state.source.get(link);
+  return (
+    &lt;&gt;
+      &lt;Slot name="Above Header" /&gt;
+      &lt;Header /&gt;
+      
+      {/* You can optionally pass data to the Fill with the data prop */}
+      &lt;Slot data={data} name="Below Header" &gt; 
+        &lt;DefaultFill /&gt; {/* This child component is optional */}
+      &lt;/Slot&gt;
+    {/* ... */}
+    &lt;/&gt;
+  );
+};
+
+</code></pre>
+<p><strong>NOTE:</strong> The data assertions that have been suggested in: <a href="https://community.frontity.org/t/slot-and-fill/895/3" class="inline-onebox">Slot and Fill</a> have <strong>not</strong> been implemented yet and will probably come in a future update.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/19</link>
+        <pubDate>Fri, 19 Jun 2020 18:04:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-19</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We have released the <code>useFills</code> hook in the last release: <a href="https://community.frontity.org/t/frontity-release-support-to-use-robots-txt-in-the-root/2013" class="inline-onebox">Frontity release: Support to use robots.txt in the root</a></p>
+<p>The usage is like this:</p>
+<pre><code class="lang-javascript">import { useFills } from "frontity";
+
+const Comp = () =&gt; {
+  const fills = useFills("slot 1");
+
+  return (
+    &lt;&gt;
+      {fills.map(({ Fill, props, key }) =&gt; (
+        &lt;Fill key={key} {...props} /&gt;
+      ))}
+    &lt;/&gt;
+  );
+};
+
+export default connect(Comp);
+</code></pre>
+<p>We have also added a new frontity flag for debugging purposes:</p>
+<pre><code class="lang-javascript">state.frontity.debug;
+</code></pre>
+<p>It’s <code>false</code> by default but if users switch it to <code>true</code>, the <code>useFills</code> hook returns a placeholder for each of the fills.</p>
+<p>We will continue with the implementation of the <code>Slot</code> component in the next sprint.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/18</link>
+        <pubDate>Fri, 05 Jun 2020 08:27:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-18</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>After working on other parts of Frontity that are going to follow the same <code>library: "code"</code> pattern in a configuration object and realizing that we are going to need namespaces for some of them to avoid name collisions, I have decided to use namespaces for all of them, including <code>fills</code>. I think that if we don’t do it it’s going to be confusing which pattern has namespaces and which not.</p>
+<p>I have edited the Implementation Proposal to reflect this change:</p>
+<pre><code class="lang-js">export default {
+  state: {
+    fills: {
+      namespace: {
+        fillName: {
+          library: "namespace.ComponentName",
+          /* other properties */
+        },
+      },
+    },
+  },
+  libraries: {
+    fills: {
+      namespace: {
+        ComponentName,
+      },
+    },
+  },
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/17</link>
+        <pubDate>Sun, 24 May 2020 19:47:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-17</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Totally my fault that I didn’t mention this, but this APIs should go on the main <code>"frontity"</code> package.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/16</link>
+        <pubDate>Fri, 22 May 2020 15:23:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-16</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>The <code>useFills</code> hook is implemented in <a href="https://github.com/frontity/gitbook-docs/pull/69">https://github.com/frontity/gitbook-docs/pull/69</a><br>
+according to <a href="https://community.frontity.org/t/slot-and-fill/895/8" class="inline-onebox">Slot and Fill</a></p>
+<p>The <code>&lt;Slot/&gt;</code> component is going to be implemented in another PR (to be completed)</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/15</link>
+        <pubDate>Fri, 22 May 2020 00:20:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-15</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="13" data-topic="895">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Do you think that is a problem?</p>
+</blockquote>
+</aside>
+<p>Hmmm, I think I misunderstood how the “key” ('nameOfTheFill`) is going to be used. I’ve realized that that it’s not going to be a problem, in fact.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/14</link>
+        <pubDate>Wed, 13 May 2020 20:59:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-14</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>But there can be many fills for a single slot and all them will have different names. For example, a package can expose:</p>
+<pre><code class="lang-js">const state = {
+  fills: {
+    adPackage: {
+      ads1: {
+        slot: "Slot 1",
+        library: "adPackage.AdComponent",
+        props: {
+          slotId: 123,
+        },
+      },
+      ads2: {
+        slot: "Slot 1",
+        library: "adPackage.AdComponent",
+        props: {
+          slotId: 456,
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<p>And users can choose to disable only one on their <code>frontity.settings.js</code> file:</p>
+<pre><code class="lang-js">const settings = {
+  state: {
+    fills: {
+      adPackage: {
+        ads2: false,
+      },
+    },
+  },
+};
+</code></pre>
+<p>Do you think that is a problem?</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/13</link>
+        <pubDate>Wed, 13 May 2020 07:17:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-13</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="6" data-topic="895">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Fills configuration objects can have a <code>false</code> value.</p>
+<pre><code class="lang-javascript">const state = {
+  fills: {
+    nameOfTheFill: false
+  }
+};
+</code></pre>
+<p>This is useful if a package creates a fill by default and a user (or another package) wants to turn it off.</p>
+</blockquote>
+</aside>
+<p>As far as I understand this would have to be more like:</p>
+<pre><code class="lang-javascript">const state = {
+	fills: {
+    	nameOfTheFill: {
+			slot: "Name of the slot they want to fill",
+			library: null,
+			priority: 1
+		}
+	}
+}
+
+</code></pre>
+<p>because the <code>nameOfTheFill</code> is just a key that is assigned by the user of a theme. They still have to specify which <code>slot</code> and from which library they want to “turn off”.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/12</link>
+        <pubDate>Wed, 13 May 2020 01:10:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-12</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>As fills are going to be a framework feature, it would be nice to add typings for <code>state.fills</code> and <code>libraries.fills</code> in <a href="https://github.com/frontity/frontity/blob/dev/packages/types/src/settings.ts">Settings</a> and <a href="https://github.com/frontity/frontity/blob/dev/packages/types/src/package.ts">Package</a>.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/11</link>
+        <pubDate>Tue, 12 May 2020 08:22:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-11</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Fills are going to need the key and the fill name is a perfect candidate, because it’s guaranteed to be unique (is the key of an object), so let’s add that to the final array as well.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/10</link>
+        <pubDate>Mon, 11 May 2020 08:57:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-10</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I feel it’s great, thanks Luis <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> I’ve already updated the GitHub board with both issues and I’ve seen that <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> started a Pull Request for the hook - <a href="https://github.com/frontity/frontity/pull/430">https://github.com/frontity/frontity/pull/430</a></p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/9</link>
+        <pubDate>Mon, 11 May 2020 06:07:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-9</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Implementation Proposal Update</h1>
+<p>Now that we are <a href="https://github.com/frontity/frontity/pull/404">about to merge the <code>useConnect</code> hook</a>, I don’t think it make sense anymore to create the <code>Slot</code> component and the <code>useFills</code> hook separately. We should create the <code>useFills</code> hook and then add use that logic inside the <code>Slot</code> component.</p>
+<p>The <code>useFills</code> hook could be something like this:</p>
+<pre><code class="lang-js">const useFills = (name) =&gt; {
+  const { state, libraries } = useConnect();
+
+  return (
+    Object.values(state.fills)
+      // Match only the fills for this name.
+      .filter((fill) =&gt; fill.slot === name)
+      // Add the real component and default priority to the fill object.
+      .map((fill) =&gt; ({
+        ...fill,
+        Fill: libraries.fills[fill.library],
+        priority: fill.priority || 10,
+      }))
+      // Sort fills by priority.
+      .sort((a, b) =&gt; a.priority &gt; b.priority)
+  );
+};
+</code></pre>
+<p>And can be used like this:</p>
+<pre><code class="lang-js">const Menu = ({ state }) =&gt; {
+  const menuItems = state.theme.menu;
+  const menuFills = useFills("Menu items");
+
+  return (
+    &lt;&gt;
+      &lt;Slot name="Before menu" /&gt;
+      &lt;ul&gt;
+        {menuItems.map((item) =&gt; (
+          &lt;li&gt;
+            &lt;Link href={item[1]}&gt;{item[0]}&lt;/Link&gt;
+          &lt;/li&gt;
+        ))}
+        {menuFills.map(({ Fill, props }) =&gt; (
+          &lt;li&gt;
+            &lt;Fill {...props} /&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+      &lt;Slot name="After menu" /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>And the <code>Slot</code> component will use the <code>useFills</code> hook internally. Something like this:</p>
+<pre><code class="lang-js">const Slot = ({ name, children, ...slotProps }) =&gt; {
+  // Get the data, either from props or the current link.
+  const data = slotProps.data || state.source.get(state.router.link);
+  // Get the fills for this name.
+  const fills = useFills(name);
+
+  return fills.length &gt; 0
+    ? fills.map(({ Fill, props }) =&gt; &lt;Fill {...slotProps} {...props} /&gt;)
+    : children;
+};
+</code></pre>
+<p>This adds a little bit of work to the sprint, but it’s less work in the long run because we will reuse the logic of <code>useFills</code> internally in <code>Slot</code>.</p>
+<h1>Possible issues</h1>
+<ul>
+<li>Create the <code>useFills</code> hook.</li>
+<li>Create the <code>Slot</code> component.</li>
+</ul>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@santosguillamot</a>, if you consider this interesting, add the new task to the current sprint and divide the points between both. My take is that from the 8 points, we could assign 5 to the hook and 3 to the component.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/8</link>
+        <pubDate>Fri, 08 May 2020 13:36:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-8</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Implementation Proposal</h1>
+<h2>1. Fill configuration</h2>
+<p>Fills are defined in the <code>state</code>, under the namespace <code>state.fills</code>.</p>
+<p>That can be done in either the <code>frontity.settings.js</code> or a package <code>state</code>.</p>
+<pre><code class="lang-js">// frontity.settings.js
+const settings = {
+  packages: [
+    {
+      name: "smartads",
+      state: {
+        fills: {
+          smartAdserver: {
+            ad1: {
+              slot: "Below Header",
+              library: "SmartAdserver.Ad",
+              priority: 10,
+              props: {
+                networkId: "123",
+                id: "456",
+              },
+            },
+            ad1: {
+              slot: "Below Header",
+              library: "SmartAdserver.Ad",
+              priority: 5,
+              props: {
+                networkId: "123",
+                id: "789",
+              },
+            },
+          },
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>Fills configuration objects have:</p>
+<pre><code class="lang-js">const state = {
+  fills: {
+    namespace: {
+      nameOfTheFill: {
+        slot: "Name of the slot they want to feel",
+        library: "namespace.NameOfTheFillInLibraries",
+        priority: 5,
+        props: {
+          // Object with props that will be passed to the component.
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<ul>
+<li>
+<strong>object key</strong>: Name of your fill, must be unique.</li>
+<li>
+<strong>slot</strong>: Name of the slot they want to feel. Required.</li>
+<li>
+<strong>library</strong>: Name of the component they want to use. Required.</li>
+<li>
+<strong>priority</strong>: Priority of the fill. Default is 10.</li>
+<li>
+<strong>props</strong>: Object with props that will be passed to the component. Optional.</li>
+</ul>
+<p>Fills configuration objects can have a <code>false</code> value.</p>
+<pre><code class="lang-js">const state = {
+  fills: {
+    namespace: {
+      nameOfTheFill: false,
+    },
+  },
+};
+</code></pre>
+<p>This is useful if a package creates a fill by default and a user (or another package) wants to turn it off.</p>
+<p>There’s nothing to do about this part in our code, except for docs and tests.</p>
+<h2>2. Fill components</h2>
+<p>The <code>Fill</code> components are going to be exposed in <code>libraries.fills</code> by Frontity packages. Like this:</p>
+<pre><code class="lang-js">import { MyFill1, MyFill2 } from "./fills";
+
+export default {
+  state: {
+    //...
+  },
+  actions: {
+    //...
+  },
+  libraries: {
+    fills: {
+      namespace: {
+        MyFill1,
+        MyFill2,
+      },
+    },
+  },
+};
+</code></pre>
+<p>Packages should document the fills in their own docs. Which props the accept and so on. A good example are the fills of the ads packages, like:</p>
+<ul>
+<li><a href="https://community.frontity.org/t/smart-adserver/1586" class="inline-onebox">Smart Adserver</a></li>
+<li><a href="https://community.frontity.org/t/google-ad-manager/1587" class="inline-onebox">Google Ad Manager</a></li>
+</ul>
+<p>There’s nothing to do about this part in our code, except for docs and tests.</p>
+<h2>3. Slot component</h2>
+<p>The <code>Slot</code> component will be exposed in <code>frontity</code> package.</p>
+<p>It receives these props:</p>
+<ul>
+<li>
+<strong>name</strong>: The name that describes the placement of this Slot inside the theme. For example “Above the footer” or “After post 7”.</li>
+<li>
+<strong>children</strong>: The default component rendered if not fills for that Slot are present.</li>
+<li>
+<strong>data</strong>: The data object relevant for this Slot. If no data object is provided, the Slot will use the data object of the current URL.</li>
+<li>
+<strong>any other prop</strong>: The theme can specify other props and they will be passed down to the fills.</li>
+</ul>
+<p>Slots without <code>data</code> prop are like this:</p>
+<pre><code class="lang-js">import { Slot } from "frontity";
+
+const Theme = ({ state }) =&gt; (
+  &lt;&gt;
+    &lt;Slot name="Above Header" /&gt;
+    &lt;Header /&gt;
+    &lt;Slot name="Below Header" /&gt;
+    {/* ... */}
+  &lt;/&gt;
+);
+</code></pre>
+<p>Slots with <code>data</code> prop are like this:</p>
+<pre><code class="lang-js">import { Slot } from "frontity";
+
+const Carrousel = ({ state }) =&gt; {
+  // Get latest posts.
+  const homeData = state.source.get("/");
+
+  return homeData.items.map((post, index) =&gt; {
+    const data = state.source.get(post.link);
+    return (
+      &lt;&gt;
+        &lt;Slot data={data} name={`Before post ${index}`} /&gt;
+        &lt;PostCard /&gt;
+        &lt;Slot data={data} name={`After post ${index}`} /&gt;
+      &lt;/&gt;
+    );
+  });
+};
+</code></pre>
+<p>The Slot component will support an optional children that is rendered if no fills are present.</p>
+<pre><code class="lang-jsx">const Post = () =&gt; (
+  &lt;&gt;
+    {/* ... */}
+    &lt;PostTitle /&gt;
+    &lt;Slot name="Between post title and post meta"&gt;
+      &lt;Seperator /&gt;
+    &lt;/Slot&gt;
+    &lt;PostMeta /&gt;
+    {/* ... */}
+  &lt;/&gt;
+);
+</code></pre>
+<p>The Slot component implementation could be something like this:</p>
+<pre><code class="lang-jsx">const Slot = ({ state, libraries, name, children, ...slotProps }) =&gt; {
+  // Get the data, either from props or the current link.
+  const data = slotProps.data || state.source.get(state.router.link);
+  // Get the fills for this name and sort them by priority.
+  const fills = Object.values(state.fills)
+    .find((fill) =&gt; fill.slot === name)
+    .map((fill) =&gt; ({ ...fill, priority: fill.priority || 10 }))
+    .sort((a, b) =&gt; a.priority &gt; b.priority);
+
+  return fills.length &gt; 0
+    ? fills.map((fill) =&gt; {
+        const Fill = libraries.fills[fill.library];
+        return &lt;Fill {...slotProps} {...fill.props} /&gt;;
+      })
+    : children;
+};
+</code></pre>
+<h1>Possible issues</h1>
+<ul>
+<li>Create the <code>Slot</code> component.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/6</link>
+        <pubDate>Wed, 22 Apr 2020 13:05:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-6</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>While talking with <a class="mention" href="https://community.frontity.org/u/david">@David</a> about this we thought that we could add <code>data</code> assertions to the fills.</p>
+<p>They will look like this:</p>
+<pre><code>const state = {
+  fills: {
+    homeAd: {
+      slot: "Below header",
+      library: "Adsense",
+      props: {
+        adId: 123
+      },
+      assertions: {
+        data: {
+          isHome: true
+        }
+      }
+    },
+    postsAd: {
+      slot: "Below header",
+      library: "Adsense",
+      props: {
+        adId: 456
+      },
+      assertions: {
+        data: {
+          isPostType: true
+        }
+      }
+    },
+    categoriesAd: {
+      slot: "Below header",
+      library: "Adsense",
+      props: {
+        adId: 789
+      },
+      assertions: {
+        data: {
+          isTaxonomy: true,
+          taxonomy: category
+        }
+      }
+    }
+  }
+};
+</code></pre>
+<p>The <code>Slot</code> component will run those assertions against <code>data</code>:</p>
+<pre><code>const Slot = ({
+  state,
+  actions,
+  libraries,
+  data: dataProp,
+  name,
+  ...slotProps
+}) =&gt; {
+  const data = dataProp || state.source.get(state.router.link);
+  const fills = Object.values(state.fills)
+    .find(fill =&gt; fill.name === name)
+    .sort((a, b) =&gt; a.priority &gt; b.priority);
+
+  return fills.map(fill =&gt; {
+    const Fill = libraries.fills[fill.library];
+    const show = assert(data, fill.assertions);
+    return show ? &lt;Fill {...slotProps} {...fill.props} /&gt; : null;
+  });
+};
+</code></pre>
+<p>As you can see, <code>Slot</code> can receive a custom <code>data</code> object. If it doesn’t, the assertions run against the current <code>data</code> object.</p>
+<p>To support more than “equal” assertions, they can be a value or an object. We can start with <code>"equal"</code> and <code>"notEqual"</code> and add more in the future.</p>
+<p>The default will be “equal” so these are equivalent:</p>
+<pre><code>const assertions = {
+  data: {
+    isHome: true,
+    isHome: {
+      type: "equal",
+      value: true
+    }
+  }
+};
+</code></pre>
+<p>Using an object opens new possibilities:</p>
+<pre><code>const state = {
+  fills: {
+    allPostTypesButProducts: {
+      assertions: {
+        data: {
+          isPostType: true,
+          type: {
+            type: "notEqual",
+            value: "products"
+          }
+        }
+      }
+    }
+  }
+};
+</code></pre>
+<p>ORs could be done with arrays:</p>
+<pre><code>const state = {
+  fills: {
+    homeAndCategories: {
+      assertions: {
+        data: [
+          {
+            isHome: true
+          },
+          {
+            isTaxonomy: true,
+            taxonomy: "category"
+          }
+        ]
+      }
+    }
+  }
+};
+</code></pre>
+<p>This system can be used in other parts of Frontity, like the handlers of Source v2.</p>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/3</link>
+        <pubDate>Wed, 01 Apr 2020 15:16:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-3</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I would like to propose a new implementation which is slightly different than what I proposed in the OP but it’s more native to Frontity.</p>
+<p>My idea is that, instead of using an internal React context, the fills are saved in the <code>state</code>. The actual match between slots and fills is done by the <code>Slot</code> component, but accessing the <code>state</code>, insead of a React context.<br>
+<em>Moving configuration to the <code>state</code> is going to be a common pattern in Frontity.</em></p>
+<p>The slots are added by the theme:</p>
+<pre><code>const Header = () =&gt; (
+  &lt;Slot name="Above header" /&gt;
+  &lt;Menu /&gt;
+  &lt;MobileMenu /&gt;
+  { /* ... */ }
+  &lt;Slot name="Below header" /&gt;
+);
+</code></pre>
+<p>And the fills are added to the state, to a common namespace called <code>fills</code>.</p>
+<pre><code>// frontity.settings.js
+const settings = {
+  packages: [
+    {
+      name: "smartads",
+      state: {
+        fills: {
+          smartads1: {
+            slot: "Below Header",
+            library: "SmartAd",
+            props: {
+              networkId: "123",
+              id: "456"
+            }
+          },
+          smartads2: {
+            slot: "Below Header",
+            library: "SmartAd",
+            priority: 5,
+            props: {
+              networkId: "123",
+              id: "789"
+            }
+          }
+        }
+      }
+    }
+  ]
+};
+</code></pre>
+<p>The <code>Fill</code> component is specificed by the property <code>library</code> and stored in <code>libraries</code>:</p>
+<pre><code>// /packages/smartads/src/index.ts
+import HeadScripts from "./components/head-scripts";
+import SmartAd from "./components/ad";
+
+export default {
+  roots: {
+    smartads: HeadScripts
+  },
+  libraries: {
+    fills: {
+      SmartAd
+    }
+  }
+};
+</code></pre>
+<p>With this technique, maybe we can also get rid of the weird name <code>Roots</code> because we won’t need fills anymore, and rename it to something easier to understand. Also, fills can have priorities.</p>
+<p>If fills need to access the state they can do so themselves.</p>
+<pre><code>const SmartAd = ({ state, networkId, id }) =&gt; {
+  // ...
+  return &lt;div smartads-id={id} /&gt;;
+};
+
+export default connect(SmartAd);
+</code></pre>
+<p>The <code>Slot</code> component will get the fills it needs from the <code>state</code>.</p>
+<pre><code>const Slot = ({ state, actions, libraries, name, ...slotProps }) =&gt; {
+  const fills = Object.values(state.fills)
+    .find(fill =&gt; fill.name === name)
+    .sort((a, b) =&gt; a.priority &gt; b.priority);
+
+  return fills.map(fill =&gt; {
+    const Fill = libraries.fills[fill.library];
+    return &lt;Fill {...slotProps} {...fill.props} /&gt;;
+  });
+};
+</code></pre>
+<p>As you can see, it passes down the props it receives along with the props of fill itself. That means that people can document their slots to instruct people about the props that their fills will receive.</p>
+<p>For example, the slots of a Home Carrousel package can pass info about each post.</p>
+<pre><code>const HomeCarrousel = ({ state }) =&gt; {
+  // Get first 5 items from the home.
+  const homePosts = state.source.get("/").items.slice(0, 4);
+
+  return (
+    &lt;&gt;
+      &lt;Slot name="Before all posts in home carrousel" /&gt;
+
+      {homePosts.map((item, index) =&gt; {
+        const data = state.source.get(item.link);
+        return (
+          &lt;&gt;
+            &lt;Slot name={`Before post ${index} in home carrousel`} data={data} /&gt;
+            &lt;Post data={data} /&gt;
+            &lt;Slot name={`After post ${index} in home carrousel`} data={data} /&gt;
+          &lt;/&gt;
+        );
+      })}
+
+      &lt;Slot name="After all posts in home carrousel" /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>The <code>Slot</code> component can support an optional children that is rendered if no fills are present.</p>
+<pre><code>const Post = () =&gt; (
+  &lt;&gt;
+    {/* ... */}
+    &lt;PostTitle /&gt;
+    &lt;Slot name="Between post title and post meta"&gt;
+      &lt;Seperator /&gt;
+    &lt;/Slot&gt;
+    &lt;PostMeta /&gt;
+    {/* ... */}
+  &lt;/&gt;
+);
+</code></pre>
+<p>In the future, once we implement the <code>useConnect</code> hook, we can expose a <code>useFills</code> hook to make Slots even more hackable.</p>
+<pre><code>const useFills = name =&gt;
+  useConnect(({ state }) =&gt;
+    Object.values(state.fills)
+      // Match only the fills for this name.
+      .find(fill =&gt; fill.name === name)
+      // Sort fills by priority.
+      .sort((a, b) =&gt; a.priority &gt; b.priority)
+      // Add real component to the array.
+      .map(fill =&gt; {
+        const Fill = libraries.fills[fill.library];
+        return {
+          ...fill,
+          Fill
+        };
+      })
+  );
+</code></pre>
+<p>And then use that hook instead of the <code>Slot</code> component.</p>
+<p>For example, a theme can use <code>useFills</code> to render the fills in-between <code>&lt;li&gt;</code> tags:</p>
+<pre><code>const Menu = ({ state }) =&gt; {
+  const menuItems = state.theme.menu;
+  const menuFills = useFills("Menu items");
+
+  return (
+    &lt;&gt;
+      &lt;Slot name="Before menu" /&gt;
+      &lt;ul&gt;
+        {menuItems.map(item =&gt; (
+          &lt;li&gt;
+            &lt;Link href={item[1]}&gt;{item[0]}&lt;/Link&gt;
+          &lt;/li&gt;
+        ))}
+        {menuFills.map(({ Fill, props }) =&gt; (
+          &lt;li&gt;
+            &lt;Fill {...props} /&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+      &lt;Slot name="After menu" /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/2</link>
+        <pubDate>Mon, 30 Mar 2020 12:05:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-2</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+      <item>
+        <title>Slot and Fill</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>There’s a powerful pattern in React called <strong>Slot and Fill</strong> which allows the insertion of any React component in different places of the app. It is perfect when the application is extensible, like Frontity.</p>
+<p>In the case of Frontity, this will allow the theme developer to insert <code>&lt;Slot&gt;</code> components among the theme, and other package developers to add <code>&lt;Fill&gt;</code> components hooked to a particular Slot.</p>
+<h1>User Stories</h1>
+<blockquote>
+<p>As a <strong>Frontity theme consumer</strong><br>
+I want to <strong>add additional components to the theme</strong><br>
+so that <strong>I can customize  to my needs</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity theme consumer</strong><br>
+I want to <strong>substitute certain components of the theme</strong><br>
+so that <strong>I can completely override parts of the theme</strong></p>
+</blockquote>
+<blockquote>
+<p><s>As a <strong>Frontity theme consumer</strong></s><br>
+<s>I want to <strong>specify some data assertions for my fills</strong></s><br>
+<s>so that <strong>I can fill the slots only under certain conditions</strong></s></p>
+</blockquote>
+<p>Moved to: <a href="https://community.frontity.org/t/data-assertions-for-fills/1591" class="inline-onebox">Data assertions for Fills</a></p>
+<blockquote>
+<p><s>As a <strong>Frontity theme creator</strong></s><br>
+<s>I want to <strong>use a hook instead of a component for Slots</strong></s><br>
+<s>so that <strong>I can have more control of the insides</strong></s></p>
+</blockquote>
+<p>Moved to: <a href="https://community.frontity.org/t/usefills-hooks/1601" class="inline-onebox">useFills hooks</a></p>
+<h1>Examples</h1>
+<ul>
+<li>Add an ad above the first post of any archive.</li>
+<li>Add a newsletter subscription widget after the eighth post of the home.</li>
+<li>Add more elements to a menu, for example, a link to the GDPR or a notifications switch.</li>
+<li>Substitute the theme footer for a new custom one.</li>
+</ul>
+<h1>Possible solution</h1>
+
+Initial proposed solution (click to open) <a href="https://community.frontity.org/t/slot-and-fill/895/1">(click for more details)</a>
+<h1>References</h1>
+<ol>
+<li>This is the library that started the pattern: <a href="https://github.com/camwest/react-slot-fill">https://github.com/camwest/react-slot-fill</a><br>
+As far as I know, it is still based on the old context API.</li>
+<li>Gutenberg has its own implementation, based on camwest library: <a href="https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill">https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill</a><br>
+It’s a modern implementation of the same, so it’s probably great to take a look.</li>
+<li>Javi Velasco made a very similar one: <a href="https://github.com/javivelasco/react-tunnels">https://github.com/javivelasco/react-tunnels</a>
+</li>
+<li>There’s another library made by a guy named Jonatan Salas: <a href="https://github.com/BlackBoxVision/react-slot-fill">https://github.com/BlackBoxVision/react-slot-fill</a>
+</li>
+<li>Jason Miller did a SlotFill library for Preact as well: <a href="https://github.com/developit/preact-slots">https://github.com/developit/preact-slots</a>
+</li>
+</ol>
+<h1>Implementation proposal</h1>
+<aside class="quote quote-modified" data-post="6" data-topic="895">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/slot-and-fill/895/6">Slot and Fill</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/feature-discussions/released/40"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Features that are ready!">Released</span></a>
+  </div>
+  <blockquote>
+    Implementation Proposal
+1. Fill configuration
+Fills are defined in the state, under the namespace state.fills. 
+That can be done in either the frontity.settings.js or a package state. 
+// frontity.settings.js
+const settings = {
+  packages: [
+    {
+      name: "smartads",
+      state: {
+        fills: {
+          smartAdserver: {
+            ad1: {
+              slot: "Below Header",
+              library: "SmartAdserver.Ad",
+              priority: 10,
+              props: {
+                netw…
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/slot-and-fill/895/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/slot-and-fill/895/1</link>
+        <pubDate>Mon, 02 Dec 2019 09:56:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-895-1</guid>
+        <source url="https://community.frontity.org/t/slot-and-fill/895.rss">Slot and Fill</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Refreshing page Redirects to homepage</title>
+    <link>https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112</link>
+    <description>Hey there. I am having a bit of an issue with the theme I am building. Whenever I refresh a page in my browser, the app loads the page and the redirects to homepage. I have tried to simplify it as much as possible but the issue persists.
+
+I have made a component `Page`. Here is how it looks:
+```
+import React, { useEffect } from &quot;react&quot;
+import { connect, styled } from &quot;frontity&quot;
+// import List from &quot;./list&quot;;
+import FeaturedMedia from &quot;./featured-media&quot;
+
+const Post = ({ state, actions, libraries, data }) =&gt; {
+
+  // Get the data of the post.
+  const page = state.source[data.type][data.id];
+
+  // Get the html2react component.
+  const Html2React = libraries.html2react.Component;
+
+  /**
+   * Once the page has loaded in the DOM, prefetch both the
+   * home pages and the list component so if the user visits
+   * the home page, everything is ready and it loads instantly.
+   */
+  useEffect(() =&gt; {
+    actions.source.fetch(&quot;/&quot;)
+    // List.preload()
+  }, [])
+
+  // Load the page, but only if the data is ready.
+  return data.isReady ? (
+    &lt;&gt;
+      {/* Look at the settings to see if we should include the featured image */}
+      {state.theme.featured.showOnPost &amp;&amp; (
+        &lt;FeaturedMedia id={page.featured_media} title={page.title} /&gt;
+      )}
+
+      {/* Render the content using the Html2React component so the HTML is processed
+       by the processors we included in the libraries.html2react.processors array. */}
+      &lt;Container&gt;
+  			&lt;Html2React html={page.content.rendered} /&gt;
+      &lt;/Container&gt;
+
+    &lt;/&gt;
+  ) : null;
+};
+
+export default connect(Post);
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`
+```
+
+And here my switch component on the homepage index:
+```
+&lt;Switch&gt;
+  &lt;Loading when={data.isFetching} /&gt;
+  &lt;Page when={data.isPage} data={data}/&gt;
+  &lt;List when={data.isArchive} /&gt;
+  &lt;Post when={data.isPostType} /&gt;
+  &lt;PageError when={data.isError} /&gt;
+&lt;/Switch&gt;
+```
+If I navgiate to a page via my menu, it all works fine, the issue only happens when trying to land on a specific page for example `example.com/example-page`
+
+Moreover I am basically just using a very slightly modified version of Mars theme. Only thing I have added is a custom handler for a menu. I tried completely removing that and it didn&#39;t change anything. Issue persists.
+
+Please let me know what else I can provide to make this easier.  Any help will be appreciated.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 10 Jul 2020 16:33:24 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Refreshing page Redirects to homepage</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome, glad you managed to sort it <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a></p>
+          <p><a href="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/6</link>
+        <pubDate>Fri, 10 Jul 2020 16:33:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2112-6</guid>
+        <source url="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112.rss">Refreshing page Redirects to homepage</source>
+      </item>
+      <item>
+        <title>Refreshing page Redirects to homepage</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,</p>
+<p>just as I wrote your message I had an epiphany and managed to find the issue. It was completely my mistake, nothing to do with frontity, just a beginner JS mistake.<br>
+In my logo, I had added an <code>onClick</code> event handler but instead of passing an arrow function with <code>actions.router.set('/')</code> I was actually invoking the function. <img src="https://community.frontity.org/images/emoji/apple/see_no_evil.png?v=9" title=":see_no_evil:" class="emoji" alt=":see_no_evil:"></p>
+<p>So in my code I had this: <code>onClick={actions.router.set('/')}</code><br>
+Instead of this: <code>onClick={() =&gt; actions.router.set('/')}</code></p>
+<p>Thanks for your help. I will close this issue.</p>
+          <p><a href="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/5</link>
+        <pubDate>Fri, 10 Jul 2020 15:57:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2112-5</guid>
+        <source url="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112.rss">Refreshing page Redirects to homepage</source>
+      </item>
+      <item>
+        <title>Refreshing page Redirects to homepage</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>.</p>
+<p>Thanks for the quick reply. The repository is private and unfortunately I don’t have the opportunity to make it public. However, if you give me a bitbucket email I can give you access or I can share all the code that would be needed to test this.</p>
+<p>Greetings,<br>
+Nikolay</p>
+          <p><a href="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/4</link>
+        <pubDate>Fri, 10 Jul 2020 15:52:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2112-4</guid>
+        <source url="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112.rss">Refreshing page Redirects to homepage</source>
+      </item>
+      <item>
+        <title>Refreshing page Redirects to homepage</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a></p>
+<p>Do you have a repo with your project that we can take a look at? If so we can clone your project to see if we can reproduce the issue you’re experiencing. We can also see the code examples you’ve given above in the broader context which might help us in getting to the root of the issue.</p>
+          <p><a href="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/3</link>
+        <pubDate>Fri, 10 Jul 2020 14:30:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2112-3</guid>
+        <source url="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112.rss">Refreshing page Redirects to homepage</source>
+      </item>
+      <item>
+        <title>Refreshing page Redirects to homepage</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Can anyone help with this? Issue still persists for me.</p>
+          <p><a href="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/2</link>
+        <pubDate>Fri, 10 Jul 2020 14:09:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2112-2</guid>
+        <source url="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112.rss">Refreshing page Redirects to homepage</source>
+      </item>
+      <item>
+        <title>Refreshing page Redirects to homepage</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey there. I am having a bit of an issue with the theme I am building. Whenever I refresh a page in my browser, the app loads the page and the redirects to homepage. I have tried to simplify it as much as possible but the issue persists.</p>
+<p>I have made a component <code>Page</code>. Here is how it looks:</p>
+<pre><code class="lang-javascript">import React, { useEffect } from "react"
+import { connect, styled } from "frontity"
+// import List from "./list";
+import FeaturedMedia from "./featured-media"
+
+const Post = ({ state, actions, libraries, data }) =&gt; {
+
+  // Get the data of the post.
+  const page = state.source[data.type][data.id];
+
+  // Get the html2react component.
+  const Html2React = libraries.html2react.Component;
+
+  /**
+   * Once the page has loaded in the DOM, prefetch both the
+   * home pages and the list component so if the user visits
+   * the home page, everything is ready and it loads instantly.
+   */
+  useEffect(() =&gt; {
+    actions.source.fetch("/")
+    // List.preload()
+  }, [])
+
+  // Load the page, but only if the data is ready.
+  return data.isReady ? (
+    &lt;&gt;
+      {/* Look at the settings to see if we should include the featured image */}
+      {state.theme.featured.showOnPost &amp;&amp; (
+        &lt;FeaturedMedia id={page.featured_media} title={page.title} /&gt;
+      )}
+
+      {/* Render the content using the Html2React component so the HTML is processed
+       by the processors we included in the libraries.html2react.processors array. */}
+      &lt;Container&gt;
+  			&lt;Html2React html={page.content.rendered} /&gt;
+      &lt;/Container&gt;
+
+    &lt;/&gt;
+  ) : null;
+};
+
+export default connect(Post);
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`
+</code></pre>
+<p>And here my switch component on the homepage index:</p>
+<pre><code class="lang-javascript">&lt;Switch&gt;
+  &lt;Loading when={data.isFetching} /&gt;
+  &lt;Page when={data.isPage} data={data}/&gt;
+  &lt;List when={data.isArchive} /&gt;
+  &lt;Post when={data.isPostType} /&gt;
+  &lt;PageError when={data.isError} /&gt;
+&lt;/Switch&gt;
+</code></pre>
+<p>If I navgiate to a page via my menu, it all works fine, the issue only happens when trying to land on a specific page for example <code>example.com/example-page</code></p>
+<p>Moreover I am basically just using a very slightly modified version of Mars theme. Only thing I have added is a custom handler for a menu. I tried completely removing that and it didn’t change anything. Issue persists.</p>
+<p>Please let me know what else I can provide to make this easier.  Any help will be appreciated.</p>
+          <p><a href="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112/1</link>
+        <pubDate>Tue, 16 Jun 2020 15:14:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2112-1</guid>
+        <source url="https://community.frontity.org/t/refreshing-page-redirects-to-homepage/2112.rss">Refreshing page Redirects to homepage</source>
+      </item>
+  </channel>
+</rss>

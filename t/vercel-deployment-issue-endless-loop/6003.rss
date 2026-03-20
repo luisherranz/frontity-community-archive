@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Vercel Deployment Issue - Endless Loop</title>
+    <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003</link>
+    <description>Hi all,
+
+I have been running a project on Vercel for several months with no issues. I have my repository connected to git, and whenever I have pushed to the main branch, it has built and configured on vercel just fine. About 4 days ago, I noticed a change in the vercel logs, and I am getting errors on the build because it loops over the dependency packages without stopping. I had changed nothing in the dependencies.
+
+Old log screenshot:
+![Screen Shot 2022-05-09 at 1.33.19 PM|646x500](upload://u28txB9qWB4ZpcDXMSP9xw2elHf.png)
+
+New log screenshot:
+![Screen Shot 2022-05-09 at 1.33.48 PM|621x500](upload://ziYjrcdan4qHlgC6Ua07PvRmsmx.png)
+
+It will continue looping in that fashion for 45 minutes until vercel times out. I don&#39;t seem to be able to change the fact that it is using yarn, and I&#39;m not sure why. I tried looking into the vercel build settings, but when you have a &quot;builds&quot; option in your vercel.json file it overrides them. So, because of @frontity/now, it overrides any build setting changes.
+
+I have tried deleting the &quot;builds&quot; option from the vercel.json file, and then everthing builds correctly, but when I&#39;m finished vercel gives a 404 because it can&#39;t find anything in the build repository. I&#39;ve tried changing the location to public, build, . , package.json, etc. Nothing seems to resolve correctly.
+
+I&#39;m hoping this is a simple fix on something I am missing, but my fear is that some change in vercel has caused the @frontity/now package to break the way it builds on their servers. I even attempted forking and cloning @frontity/now to attempt to resolve some of the dependecy issues that currently exist on that package (possible pull request incoming at a future date), but I still end up in the endless yarn loop.
+
+Any help would be appreciated
+github repository:
+https://github.com/GideonJB/ABC-Greater-Baltimore
+
+If you are going to respond with &quot;update your own dependency tree,&#39; or &quot;make sure forntity is up to date&quot; please be specific, as it is clear that frontity is not being maintained as it once was, and will require some love form the open source community. I&#39;ve been trying to finish this project first before I dive into some of those issues.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 12 May 2022 13:15:23 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>I can confirm the issue is resolved for now as well. Someone pushed a change for vercel builds. See the conversation here:</p>
+<aside class="onebox githubissue" data-onebox-src="https://github.com/frontity/now-builder/issues/33">
+  <header class="source">
+
+      <a href="https://github.com/frontity/now-builder/issues/33" target="_blank" rel="noopener nofollow ugc">github.com/frontity/now-builder</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Issue">
+	  <svg width="60" height="60" class="github-icon" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/now-builder/issues/33" target="_blank" rel="noopener nofollow ugc">Builder broken since May 2022</a>
+    </h4>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2022-05-07" data-time="08:03:04" data-timezone="UTC">08:03AM - 07 May 22 UTC</span>
+      </div>
+
+        <div class="date">
+          closed <span class="discourse-local-date" data-format="ll" data-date="2022-05-12" data-time="09:30:02" data-timezone="UTC">09:30AM - 12 May 22 UTC</span>
+        </div>
+
+      <div class="user">
+        <a href="https://github.com/IlyaSemenov" target="_blank" rel="noopener nofollow ugc">
+          <img alt="IlyaSemenov" src="https://community.frontity.org/uploads/default/original/2X/4/49b93efc2b76c81be3401e8c2afb7e79472eee6f.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          IlyaSemenov
+        </a>
+      </div>
+    </div>
+
+    <div class="labels">
+    </div>
+  </div>
+</div>
+
+  <div class="github-row">
+    <p class="github-body-container">As of today (May 7th, 2022), the builder doesn't work at Vercel with empty start<span class="show-more-container"><a href="https://community.frontity.org" rel="noopener" class="show-more">…</a></span><span class="excerpt hidden">er project and instructions from https://docs.frontity.org/deployment/deploy-using-vercel
+
+Last time I had a successful deploy was May 4th, 2022.
+
+Steps to reproduce the problem from scratch:
+
+```
+❯ npx frontity create my-first-frontity-project
+? Pick a starter theme to clone: @frontity/mars-theme (recommended)
+✔ Creating README.md.
+✔ Creating package.json.
+✔ Creating frontity.settings.js.
+✔ Cloning @frontity/mars-theme.
+✔ Installing dependencies.
+✔ Downloading favicon.ico.
+✔ Initializing git repo.
+
+Frontity project created.
+
+
+Run cd my-first-frontity-project &amp;&amp; npx frontity dev and have fun! 🎉
+
+You can find docs at https://docs.frontity.org/.
+For technical support and assistance please join our community at https://community.frontity.org/.
+
+❯ npx vercel login
+Need to install the following packages:
+  vercel
+Ok to proceed? (y) y
+Vercel CLI 24.1.0
+&gt; Log in to Vercel github
+&gt; Success! GitHub authentication complete for ilya@south.io
+Congratulations! You are now logged in. In order to deploy something, run `vercel`.
+💡  Connect your Git Repositories to deploy every branch push automatically (https://vercel.link/git).
+
+❯ vi vercel.json
+
+❯ cat vercel.json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@frontity/now"
+    }
+  ]
+}
+
+❯ npx vercel
+Need to install the following packages:
+  vercel
+Ok to proceed? (y) y
+Vercel CLI 24.1.0
+? Set up and deploy “~/tmp/my-first-frontity-project”? [Y/n] y
+? Which scope do you want to deploy to? ilya-south
+? Link to existing project? [y/N] n
+? What’s your project’s name? my-first-frontity-project
+? In which directory is your code located? ./
+🔗  Linked to ilya-south/my-first-frontity-project (created .vercel and added it to .gitignore)
+🔍  Inspect: https://vercel.com/ilya-south/my-first-frontity-project/GvhrpHmvJKQ26zVKnMHwNFFzvvVD [17s]
+The deployment has been canceled.
+```
+
+The actual deployment happening on Vercel loops endlessly (until I cancel it):
+
+```
+[14:56:01.215] Retrieving list of deployment files...
+[14:56:03.457] Downloading 33 deployment files...
+[14:56:04.903] Looking up build cache...
+[14:56:05.224] Build Cache not found
+[14:56:05.524] Warning: Due to "engines": { "node": "&gt;=10.0.0" } in your `package.json` file, the Node.js Version defined in your Project Settings ("14.x") will not apply. Learn More: http://vercel.link/node-version
+[14:56:05.525] Running "vercel build"
+[14:56:05.979] Vercel CLI 24.2.0 build (beta) — https://vercel.com/feedback
+[14:56:05.995] ┌──────────────────────────────────────────────────────────────────────────────────────┐
+[14:56:05.995] │ WARN! Did you mean to deploy the subdirectory "build"? Use `vc --cwd build` instead. │
+[14:56:05.995] └──────────────────────────────────────────────────────────────────────────────────────┘
+[14:56:06.089] ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+[14:56:06.089] │ WARN! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings │
+[14:56:06.089] └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[14:56:06.457] yarn add v1.22.17
+[14:56:06.468] warning package.json: No license field
+[14:56:06.478] info No lockfile found.
+[14:56:06.497] warning No license field
+[14:56:06.498] [1/4] Resolving packages...
+[14:56:08.243] warning @frontity/now &gt; @now/node-bridge@1.3.1: "@now/node-bridge" is deprecated and will stop receiving updates January 2021. Please use "@vercel/node-bridge" instead.
+[14:56:08.244] [2/4] Fetching packages...
+[14:56:08.740] [3/4] Linking dependencies...
+[14:56:08.740] warning " &gt; @frontity/now@1.2.0" has unmet peer dependency "@now/build-utils@^0.9.4".
+[14:56:08.817] [4/4] Building fresh packages...
+[14:56:08.820] success Saved lockfile.
+[14:56:08.822] warning No license field
+[14:56:08.824] success Saved 3 new dependencies.
+[14:56:08.825] info Direct dependencies
+[14:56:08.825] ├─ @frontity/now@1.2.0
+[14:56:08.825] └─ @vercel/build-utils@2.16.0
+[14:56:08.825] info All dependencies
+[14:56:08.825] ├─ @frontity/now@1.2.0
+[14:56:08.825] ├─ @now/node-bridge@1.3.1
+[14:56:08.825] └─ @vercel/build-utils@2.16.0
+[14:56:08.827] Done in 2.38s.
+[14:56:09.089] yarn add v1.22.17
+[14:56:09.101] warning package.json: No license field
+[14:56:09.130] warning No license field
+[14:56:09.131] [1/4] Resolving packages...
+[14:56:10.008] [2/4] Fetching packages...
+[14:56:10.018] [3/4] Linking dependencies...
+[14:56:10.019] warning " &gt; @frontity/now@1.2.0" has unmet peer dependency "@now/build-utils@^0.9.4".
+[14:56:10.043] [4/4] Building fresh packages...
+[14:56:10.047] warning No license field
+[14:56:10.049] success Saved 2 new dependencies.
+[14:56:10.049] info Direct dependencies
+[14:56:10.050] ├─ @frontity/now@1.2.0
+[14:56:10.050] └─ @vercel/build-utils@2.16.0
+[14:56:10.050] info All dependencies
+[14:56:10.050] ├─ @frontity/now@1.2.0
+[14:56:10.050] └─ @vercel/build-utils@2.16.0
+[14:56:10.051] Done in 0.97s.
+[14:56:10.305] yarn add v1.22.17
+[14:56:10.316] warning package.json: No license field
+[14:56:10.346] warning No license field
+[14:56:10.347] [1/4] Resolving packages...
+[14:56:11.345] [2/4] Fetching packages...
+[14:56:11.354] [3/4] Linking dependencies...
+[14:56:11.354] warning " &gt; @frontity/now@1.2.0" has unmet peer dependency "@now/build-utils@^0.9.4".
+...
+```
+
+Full gist with the log of 17 seconds of build here: https://gist.github.com/IlyaSemenov/a27531b87a8b0f05cfb0324b4df535ff</span></p>
+  </div>
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/14</link>
+        <pubDate>Thu, 12 May 2022 13:15:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-14</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[techno_cowgirl]]></dc:creator>
+        <description><![CDATA[
+            <p>The previous build with vercel build:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/32724f4a00632349bf679fec77aef992a0125e5a.png" data-download-href="https://community.frontity.org/uploads/default/32724f4a00632349bf679fec77aef992a0125e5a" title="Screen Shot 2022-05-11 at 2.42.29 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/32724f4a00632349bf679fec77aef992a0125e5a_2_690x321.png" alt="Screen Shot 2022-05-11 at 2.42.29 PM" data-base62-sha1="7cgMq42T2R2rkMozmYBrdq2Ro4a" width="690" height="321" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/32724f4a00632349bf679fec77aef992a0125e5a_2_690x321.png, https://community.frontity.org/uploads/default/original/2X/3/32724f4a00632349bf679fec77aef992a0125e5a.png 1.5x, https://community.frontity.org/uploads/default/original/2X/3/32724f4a00632349bf679fec77aef992a0125e5a.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/32724f4a00632349bf679fec77aef992a0125e5a_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/13</link>
+        <pubDate>Wed, 11 May 2022 21:46:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-13</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[techno_cowgirl]]></dc:creator>
+        <description><![CDATA[
+            <p>Good news, everyone! I have a client’s site I’ve been building with Frontity but hadn’t yet hooked up to a WP install or connected to Vercel yet. I was curious to see what would happen if I took this virgin Frontity project and tried deploying it. To my surpise, it deployed from the command line. To greater surprise it also deployed from merging into main after connecting Vercel to the project’s github and merging a PR.</p>
+<p>I was like okay this makes no sense, I have to try my stupid deploy ONE more time on my personal site I’ve been crying over for days. And it worked this time! MY SITE IS BACK!!!</p>
+<p>I will check in with recent changes Vercel made but it looks like when things were broken Vercel was running <code>vercel build</code> and now it is back to running <code>frontity build</code>. I think it was treating Frontity projects like Next projects for about a week there. Again, a hypothesis, but objectively something has changed based on the build messages.</p>
+<p>Going to check out the Vercel Github now, I would like to understand what happened this week.</p>
+<p>The working build with frontity build command:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/b/b0d73bc248e1dcebae8a88b606376cd26b8c3abe.png" data-download-href="https://community.frontity.org/uploads/default/b0d73bc248e1dcebae8a88b606376cd26b8c3abe" title="Screen Shot 2022-05-11 at 2.40.01 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/b/b0d73bc248e1dcebae8a88b606376cd26b8c3abe_2_555x500.png" alt="Screen Shot 2022-05-11 at 2.40.01 PM" data-base62-sha1="pepayE0sr7NYiDhAzppNM0KNLWu" width="555" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/b/b0d73bc248e1dcebae8a88b606376cd26b8c3abe_2_555x500.png, https://community.frontity.org/uploads/default/optimized/2X/b/b0d73bc248e1dcebae8a88b606376cd26b8c3abe_2_832x750.png 1.5x, https://community.frontity.org/uploads/default/original/2X/b/b0d73bc248e1dcebae8a88b606376cd26b8c3abe.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/b/b0d73bc248e1dcebae8a88b606376cd26b8c3abe_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/12</link>
+        <pubDate>Wed, 11 May 2022 21:46:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-12</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[mckenna.niall]]></dc:creator>
+        <description><![CDATA[
+            <p>Do you need to have vercel installed as a dependency?</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/11</link>
+        <pubDate>Wed, 11 May 2022 21:44:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-11</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>I have tried both ways, and both produce the same result.</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/10</link>
+        <pubDate>Wed, 11 May 2022 21:24:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-10</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[mckenna.niall]]></dc:creator>
+        <description><![CDATA[
+            <p>Just to be clear, are you deploying your project using Vercel build command from the CLI ?</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/9</link>
+        <pubDate>Wed, 11 May 2022 13:30:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-9</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[mckenna.niall]]></dc:creator>
+        <description><![CDATA[
+            <p>I have both deployed via a push straight to github &amp; also building the project first with the frontity build command &amp; then a push to github.</p>
+<p>I have noticed that Frontity handles it’s deployment to Vercel differently to how a Nextjs project is deployed to Vercel - Next requires a public directory inside it’s build directory. So it’s difficult to find any help online for deploying Frontity to Vercel as it’s all Nextjs specific.</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/8</link>
+        <pubDate>Wed, 11 May 2022 13:15:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-8</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mckenna.niall">@mckenna.niall</a> how are you deploying your project? Are you issuing the build command directly form your CLI, or do you have a github repository connected to vercel that you are pushing to that triggers the vercel build?</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/7</link>
+        <pubDate>Wed, 11 May 2022 12:06:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-7</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[mckenna.niall]]></dc:creator>
+        <description><![CDATA[
+            <p>I don’t know if this is of any help but my vercel.json looks like this. I’ve recently been deploying my project to Vercel without problems. </p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/39dd442313ea7a8ca7be3beeadd982e2bcc2a392.png" data-download-href="https://community.frontity.org/uploads/default/39dd442313ea7a8ca7be3beeadd982e2bcc2a392" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/39dd442313ea7a8ca7be3beeadd982e2bcc2a392_2_230x500.png" alt="image" data-base62-sha1="8fTh8ovVNvLheUHbHC7lTeLDHrA" width="230" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/39dd442313ea7a8ca7be3beeadd982e2bcc2a392_2_230x500.png, https://community.frontity.org/uploads/default/optimized/2X/3/39dd442313ea7a8ca7be3beeadd982e2bcc2a392_2_345x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/3/39dd442313ea7a8ca7be3beeadd982e2bcc2a392_2_460x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/39dd442313ea7a8ca7be3beeadd982e2bcc2a392_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/6</link>
+        <pubDate>Wed, 11 May 2022 11:32:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-6</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[techno_cowgirl]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mckenna.niall">@mckenna.niall</a> I understand why you said that, intuitively you might think that is a solution. I tried it again just in case and to directly confirm it wouldn’t work and sure enough it failed again. This time I am getting the other error I was getting over the last couple of days, that I don’t have a public folder in my build folder. That is how I got in the whole mess of taking my site down… because I troubleshot that at some point and it “successfully deployed” but went to the Vercel 404 page.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/0/03e7a6ee974274b211b4137eb2877da2fde92f71.png" data-download-href="https://community.frontity.org/uploads/default/03e7a6ee974274b211b4137eb2877da2fde92f71" title="vercelerror"><img src="https://community.frontity.org/uploads/default/optimized/2X/0/03e7a6ee974274b211b4137eb2877da2fde92f71_2_690x214.png" alt="vercelerror" data-base62-sha1="yxKaCNlYPht2rgsQz3ZPXDGXap" width="690" height="214" srcset="https://community.frontity.org/uploads/default/optimized/2X/0/03e7a6ee974274b211b4137eb2877da2fde92f71_2_690x214.png, https://community.frontity.org/uploads/default/original/2X/0/03e7a6ee974274b211b4137eb2877da2fde92f71.png 1.5x, https://community.frontity.org/uploads/default/original/2X/0/03e7a6ee974274b211b4137eb2877da2fde92f71.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/0/03e7a6ee974274b211b4137eb2877da2fde92f71_2_10x10.png"></a></div><p></p>
+<p><a class="mention" href="https://community.frontity.org/u/gideonjb">@gideonjb</a> I’m at the same place as you both in terms of thinking it’s Vercel’s thing and being very unhappy about the prospect of switching to Heroku or something. Vercel was excellent when it worked!</p>
+<p>There is a <a href="https://github.com/vercel/vercel/discussions/7769" rel="noopener nofollow ugc">discussion on the Vercel github</a> and I linked <a href="https://github.com/vercel/vercel/pull/7753" rel="noopener nofollow ugc">the PR I think might have broken it</a> for us.</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/5</link>
+        <pubDate>Wed, 11 May 2022 01:40:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-5</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[mckenna.niall]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/techno_cowgirl">@techno_cowgirl</a> is there anyway for you to roll back to a previous commit on your Git so that Vercel is using one that is working? It would get you back online for now.</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/4</link>
+        <pubDate>Tue, 10 May 2022 17:05:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-4</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/techno_cowgirl">@techno_cowgirl</a>,</p>
+<p>I first thought the main issue was coming out of <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/now as well. That’s why I forked it to try to resolve some of the deprecation warnings, but that still resulted in the same looping output from vercel using the “yarn add v1.22.17” command. <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> may be able to chime in on how easy it would be to update <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/now to remove the deprecations and do a better job than me.</p>
+<p>At this point, unfortunately, I think the problem is on the vercel side, and I haven’t heard back from them yet. Hoping to find a solution soon, because otherwise I have to switch hosting servers or completely rebuild. Neither of which are very appealing to me.</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/3</link>
+        <pubDate>Tue, 10 May 2022 12:57:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-3</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[techno_cowgirl]]></dc:creator>
+        <description><![CDATA[
+            <p>DUDE I am so glad you posted this because I was about to make the same post. I have been struggling with it for 3 days now feeling insane. I have tried many things… finally I got it to “deploy” by taking the</p>
+<pre><code class="lang-javascript">    "builds": [
+      {
+        "src": "package.json",
+        "use": "@frontity/now"
+      }
+    ]
+</code></pre>
+<p>out of the vercel.json file and then changing the Build and Development settings to use ‘build’ as the output directory and ‘npx frontity build’ as the build command. But that screwed everything more because it deployed a bunk version and now my domain is showing Vercel’s 404 page.</p>
+<p>My theory on this based on the errors I am seeing is that @ frontity/now having the unmet peer dependency @ now/build-utils is getting confused because it seems there is now a @ vercel/build-utils. Was the @ now/build-utils deprecated? I see that the repo for @ frontity/now (<a href="https://github.com/frontity/now-builder" class="inline-onebox" rel="noopener nofollow ugc">GitHub - frontity/now-builder: A Frontity builder for the Vercel hosting</a>) has not been updated since July 2020.</p>
+<p>Anyways, thanks gideonjb for making me feel less insane. I have exhausted my investigation and attempts at trying to fix this and now think it is not something that I can even fix and something to do with Frontity’s Vercel package.</p>
+<p>Frontity peeps please reply because now my site is down indefinitely. I love Frontity and have been considering creating a new business around using Frontity for development for clients but this has me freaked out.</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/2</link>
+        <pubDate>Mon, 09 May 2022 20:56:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-2</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+      <item>
+        <title>Vercel Deployment Issue - Endless Loop</title>
+        <dc:creator><![CDATA[gideonjb]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi all,</p>
+<p>I have been running a project on Vercel for several months with no issues. I have my repository connected to git, and whenever I have pushed to the main branch, it has built and configured on vercel just fine. About 4 days ago, I noticed a change in the vercel logs, and I am getting errors on the build because it loops over the dependency packages without stopping. I had changed nothing in the dependencies.</p>
+<p>Old log screenshot:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/d/d27f0d50e76a4fb216ab04ae360aa3447f0d3e3d.png" data-download-href="https://community.frontity.org/uploads/default/d27f0d50e76a4fb216ab04ae360aa3447f0d3e3d" title="Screen Shot 2022-05-09 at 1.33.19 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/d/d27f0d50e76a4fb216ab04ae360aa3447f0d3e3d_2_646x500.png" alt="Screen Shot 2022-05-09 at 1.33.19 PM" data-base62-sha1="u28txB9qWB4ZpcDXMSP9xw2elHf" width="646" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/d/d27f0d50e76a4fb216ab04ae360aa3447f0d3e3d_2_646x500.png, https://community.frontity.org/uploads/default/optimized/2X/d/d27f0d50e76a4fb216ab04ae360aa3447f0d3e3d_2_969x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/d/d27f0d50e76a4fb216ab04ae360aa3447f0d3e3d_2_1292x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/d/d27f0d50e76a4fb216ab04ae360aa3447f0d3e3d_2_10x10.png"></a></div><p></p>
+<p>New log screenshot:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/f/f77121174f81fb1f3b68b082d3e50a91d706b3e5.png" data-download-href="https://community.frontity.org/uploads/default/f77121174f81fb1f3b68b082d3e50a91d706b3e5" title="Screen Shot 2022-05-09 at 1.33.48 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/f/f77121174f81fb1f3b68b082d3e50a91d706b3e5_2_621x500.png" alt="Screen Shot 2022-05-09 at 1.33.48 PM" data-base62-sha1="ziYjrcdan4qHlgC6Ua07PvRmsmx" width="621" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/f/f77121174f81fb1f3b68b082d3e50a91d706b3e5_2_621x500.png, https://community.frontity.org/uploads/default/optimized/2X/f/f77121174f81fb1f3b68b082d3e50a91d706b3e5_2_931x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/f/f77121174f81fb1f3b68b082d3e50a91d706b3e5_2_1242x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/f/f77121174f81fb1f3b68b082d3e50a91d706b3e5_2_10x10.png"></a></div><p></p>
+<p>It will continue looping in that fashion for 45 minutes until vercel times out. I don’t seem to be able to change the fact that it is using yarn, and I’m not sure why. I tried looking into the vercel build settings, but when you have a “builds” option in your vercel.json file it overrides them. So, because of <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/now, it overrides any build setting changes.</p>
+<p>I have tried deleting the “builds” option from the vercel.json file, and then everthing builds correctly, but when I’m finished vercel gives a 404 because it can’t find anything in the build repository. I’ve tried changing the location to public, build, . , package.json, etc. Nothing seems to resolve correctly.</p>
+<p>I’m hoping this is a simple fix on something I am missing, but my fear is that some change in vercel has caused the <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/now package to break the way it builds on their servers. I even attempted forking and cloning <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/now to attempt to resolve some of the dependecy issues that currently exist on that package (possible pull request incoming at a future date), but I still end up in the endless yarn loop.</p>
+<p>Any help would be appreciated<br>
+github repository:</p><aside class="onebox allowlistedgeneric" data-onebox-src="https://github.com/GideonJB/ABC-Greater-Baltimore">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+
+      <a href="https://github.com/GideonJB/ABC-Greater-Baltimore" target="_blank" rel="noopener nofollow ugc">GitHub</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/345;"><img src="https://community.frontity.org/uploads/default/optimized/2X/5/50dd697aacad0ad81454442441a204e47cceeebc_2_690x345.png" class="thumbnail" width="690" height="345" srcset="https://community.frontity.org/uploads/default/optimized/2X/5/50dd697aacad0ad81454442441a204e47cceeebc_2_690x345.png, https://community.frontity.org/uploads/default/optimized/2X/5/50dd697aacad0ad81454442441a204e47cceeebc_2_1035x517.png 1.5x, https://community.frontity.org/uploads/default/original/2X/5/50dd697aacad0ad81454442441a204e47cceeebc.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/5/50dd697aacad0ad81454442441a204e47cceeebc_2_10x10.png"></div>
+
+<h3><a href="https://github.com/GideonJB/ABC-Greater-Baltimore" target="_blank" rel="noopener nofollow ugc">GitHub - GideonJB/ABC-Greater-Baltimore</a></h3>
+
+  <p>Contribute to GideonJB/ABC-Greater-Baltimore development by creating an account on GitHub.</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>If you are going to respond with "update your own dependency tree,’ or “make sure forntity is up to date” please be specific, as it is clear that frontity is not being maintained as it once was, and will require some love form the open source community. I’ve been trying to finish this project first before I dive into some of those issues.</p>
+          <p><a href="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003/1</link>
+        <pubDate>Mon, 09 May 2022 17:41:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6003-1</guid>
+        <source url="https://community.frontity.org/t/vercel-deployment-issue-endless-loop/6003.rss">Vercel Deployment Issue - Endless Loop</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Data assertions for Fills</title>
+    <link>https://community.frontity.org/t/data-assertions-for-fills/1591</link>
+    <description># Description
+
+Right now fills can only be used in the whole web and there&#39;s no way to specify a fill that should be used only in some part, like only in the home, or only for a custom post type.
+
+# User Stories
+
+&gt; As a **Frontity theme consumer**
+&gt; I want to **specify some data assertions for my fills**
+&gt; so that **I can fill the slots only under certain conditions**
+
+# Examples
+
+- Use an ad fill only in the home.
+- Use a newsletter fill only in the pages.
+- Use a comments fill only in the posts.
+
+# Possible solution
+
+While talking with @David in the Slot and Fill FD (https://community.frontity.org/t/slot-and-fill/895/) we thought it could work like this.
+
+Fills can have a `assertions.data` property:
+
+```js
+const state = {
+  fills: {
+    homeAd: {
+      slot: &quot;Below header&quot;,
+      library: &quot;Adsense&quot;,
+      props: {
+        adId: 123
+      },
+      assertions: {
+        data: {
+          isHome: true
+        }
+      }
+    },
+    postsAd: {
+      slot: &quot;Below header&quot;,
+      library: &quot;Adsense&quot;,
+      props: {
+        adId: 456
+      },
+      assertions: {
+        data: {
+          isPostType: true
+        }
+      }
+    },
+    categoriesAd: {
+      slot: &quot;Below header&quot;,
+      library: &quot;Adsense&quot;,
+      props: {
+        adId: 789
+      },
+      assertions: {
+        data: {
+          isTaxonomy: true,
+          taxonomy: category
+        }
+      }
+    }
+  }
+};
+```
+
+The `Slot` component will run those assertions against `data`:
+
+```js
+const Slot = ({
+  state,
+  actions,
+  libraries,
+  data: dataProp,
+  name,
+  ...slotProps
+}) =&gt; {
+  const data = dataProp || state.source.get(state.router.link);
+  const fills = Object.values(state.fills)
+    .find(fill =&gt; fill.name === name)
+    .sort((a, b) =&gt; a.priority &gt; b.priority);
+
+  return fills.map(fill =&gt; {
+    const Fill = libraries.fills[fill.library];
+    const show = assert(data, fill.assertions);
+    return show ? &lt;Fill {...slotProps} {...fill.props} /&gt; : null;
+  });
+};
+```
+
+As you can see, `Slot` can receive a custom `data` object. If it doesn&#39;t, the assertions run against the current `data` object.
+
+To support more than &quot;equal&quot; assertions, they can be a value or an object. We can start with `&quot;equal&quot;` and `&quot;notEqual&quot;` and add more in the future.
+
+The default will be &quot;equal&quot; so these are equivalent:
+
+```js
+const assertions = {
+  data: {
+    isHome: true,
+    isHome: {
+      type: &quot;equal&quot;,
+      value: true
+    }
+  }
+};
+```
+
+Using an object opens new possibilities:
+
+```js
+const state = {
+  fills: {
+    allPostTypesButProducts: {
+      assertions: {
+        data: {
+          isPostType: true,
+          type: {
+            type: &quot;notEqual&quot;,
+            value: &quot;products&quot;
+          }
+        }
+      }
+    }
+  }
+};
+```
+
+ORs could be done with arrays:
+
+```js
+const state = {
+  fills: {
+    homeAndCategories: {
+      assertions: {
+        data: [
+          {
+            isHome: true
+          },
+          {
+            isTaxonomy: true,
+            taxonomy: &quot;category&quot;
+          }
+        ]
+      }
+    }
+  }
+};
+```
+
+----
+
+This system can be used in other parts of Frontity, like the handlers of Source v2. It can also support other types of assertions, hence the `assertions.data` property.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 21 Apr 2020 13:17:10 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/data-assertions-for-fills/1591.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Data assertions for Fills</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>Right now fills can only be used in the whole web and there’s no way to specify a fill that should be used only in some part, like only in the home, or only for a custom post type.</p>
+<h1>User Stories</h1>
+<blockquote>
+<p>As a <strong>Frontity theme consumer</strong><br>
+I want to <strong>specify some data assertions for my fills</strong><br>
+so that <strong>I can fill the slots only under certain conditions</strong></p>
+</blockquote>
+<h1>Examples</h1>
+<ul>
+<li>Use an ad fill only in the home.</li>
+<li>Use a newsletter fill only in the pages.</li>
+<li>Use a comments fill only in the posts.</li>
+</ul>
+<h1>Possible solution</h1>
+<p>While talking with <a class="mention" href="https://community.frontity.org/u/david">@David</a> in the Slot and Fill FD (<a href="https://community.frontity.org/t/slot-and-fill/895/" class="inline-onebox">Slot and Fill</a>) we thought it could work like this.</p>
+<p>Fills can have a <code>assertions.data</code> property:</p>
+<pre><code>const state = {
+  fills: {
+    homeAd: {
+      slot: "Below header",
+      library: "Adsense",
+      props: {
+        adId: 123
+      },
+      assertions: {
+        data: {
+          isHome: true
+        }
+      }
+    },
+    postsAd: {
+      slot: "Below header",
+      library: "Adsense",
+      props: {
+        adId: 456
+      },
+      assertions: {
+        data: {
+          isPostType: true
+        }
+      }
+    },
+    categoriesAd: {
+      slot: "Below header",
+      library: "Adsense",
+      props: {
+        adId: 789
+      },
+      assertions: {
+        data: {
+          isTaxonomy: true,
+          taxonomy: category
+        }
+      }
+    }
+  }
+};
+</code></pre>
+<p>The <code>Slot</code> component will run those assertions against <code>data</code>:</p>
+<pre><code>const Slot = ({
+  state,
+  actions,
+  libraries,
+  data: dataProp,
+  name,
+  ...slotProps
+}) =&gt; {
+  const data = dataProp || state.source.get(state.router.link);
+  const fills = Object.values(state.fills)
+    .find(fill =&gt; fill.name === name)
+    .sort((a, b) =&gt; a.priority &gt; b.priority);
+
+  return fills.map(fill =&gt; {
+    const Fill = libraries.fills[fill.library];
+    const show = assert(data, fill.assertions);
+    return show ? &lt;Fill {...slotProps} {...fill.props} /&gt; : null;
+  });
+};
+</code></pre>
+<p>As you can see, <code>Slot</code> can receive a custom <code>data</code> object. If it doesn’t, the assertions run against the current <code>data</code> object.</p>
+<p>To support more than “equal” assertions, they can be a value or an object. We can start with <code>"equal"</code> and <code>"notEqual"</code> and add more in the future.</p>
+<p>The default will be “equal” so these are equivalent:</p>
+<pre><code>const assertions = {
+  data: {
+    isHome: true,
+    isHome: {
+      type: "equal",
+      value: true
+    }
+  }
+};
+</code></pre>
+<p>Using an object opens new possibilities:</p>
+<pre><code>const state = {
+  fills: {
+    allPostTypesButProducts: {
+      assertions: {
+        data: {
+          isPostType: true,
+          type: {
+            type: "notEqual",
+            value: "products"
+          }
+        }
+      }
+    }
+  }
+};
+</code></pre>
+<p>ORs could be done with arrays:</p>
+<pre><code>const state = {
+  fills: {
+    homeAndCategories: {
+      assertions: {
+        data: [
+          {
+            isHome: true
+          },
+          {
+            isTaxonomy: true,
+            taxonomy: "category"
+          }
+        ]
+      }
+    }
+  }
+};
+</code></pre>
+<hr>
+<p>This system can be used in other parts of Frontity, like the handlers of Source v2. It can also support other types of assertions, hence the <code>assertions.data</code> property.</p>
+          <p><a href="https://community.frontity.org/t/data-assertions-for-fills/1591/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/data-assertions-for-fills/1591/1</link>
+        <pubDate>Tue, 21 Apr 2020 13:17:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1591-1</guid>
+        <source url="https://community.frontity.org/t/data-assertions-for-fills/1591.rss">Data assertions for Fills</source>
+      </item>
+  </channel>
+</rss>

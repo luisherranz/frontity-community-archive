@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Using Wordpress as mainly a CMS for photos - how to fetch individual images?</title>
+    <link>https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866</link>
+    <description>Hi there, 
+
+I&#39;m in the process of using Frontity to re-do my site in React.
+My old site is a Wordpress site and I really only want to continue using it as a CMS for storing the many previously uploaded images.
+
+I&#39;m having trouble understanding how I would go about using the Wordpress REST API to access these images
+
+So in my `frontity.settings.js` file I have
+
+```
+{
+      name: &quot;@frontity/wp-source&quot;,
+      state: {
+        source: {
+          api: &quot;https://www.scramblelock.com/wp-json&quot;,
+        },
+      },
+    },
+```
+
+and I am creating a Navigation component wherein I want to fetch the image of my logo.
+
+I can make a Postman call to get the image object with this 
+`http://www.scramblelock.com/wp-json/wp/v2/media/10325`
+
+I just dont know how to integrate it into my Navigation component, which currently includes:
+
+```
+const Navigation = () =&gt; {
+   return (
+      &lt;nav&gt;
+        &lt;Image src={&lt;image object&#39;s .link attribute to go here&gt;} alt=&quot;&quot; /&gt;
+        &lt;Link link=&quot;/&quot;&gt;Home&lt;/Link&gt;
+        &lt;Link link=&quot;/about&quot;&gt;About&lt;/Link&gt;
+        &lt;Link link=&quot;/services&quot;&gt;Services&lt;/Link&gt;
+        &lt;Link link=&quot;/contact&quot;&gt;Contact&lt;/Link&gt;
+    &lt;/nav&gt;
+   )
+}
+```
+
+I&#39;ve seen some previous posts that talk about using `actions.source.fetch()` within a `useEffect` within the component, and others that do `beforeSSR` calls in the top most `index.js` file but it&#39;s getting super confusing
+
+It would help to know what exactly is needed here to fetch this particular image and have it displayed in my component as clear and concise as possible. Thank you!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 29 Mar 2022 20:24:17 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Using Wordpress as mainly a CMS for photos - how to fetch individual images?</title>
+        <dc:creator><![CDATA[scramblelock]]></dc:creator>
+        <description><![CDATA[
+            <p>Crystal clear now. Thank you very much <a class="mention" href="https://community.frontity.org/u/alexis.doroszkiewicz">@alexis.doroszkiewicz</a> <img src="https://community.frontity.org/images/emoji/apple/pray.png?v=12" title=":pray:" class="emoji" alt=":pray:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866/3</link>
+        <pubDate>Tue, 29 Mar 2022 20:24:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5866-3</guid>
+        <source url="https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866.rss">Using Wordpress as mainly a CMS for photos - how to fetch individual images?</source>
+      </item>
+      <item>
+        <title>Using Wordpress as mainly a CMS for photos - how to fetch individual images?</title>
+        <dc:creator><![CDATA[alexis.doroszkiewicz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="onebox allowlistedgeneric" data-onebox-src="https://api.frontity.org/frontity-packages/features-packages/wp-source#how-to-use">
+  <header class="source">
+      
+
+      <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#how-to-use" target="_blank" rel="noopener nofollow ugc">api.frontity.org</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://app.gitbook.com/share/space/thumbnail/-MGEBKftKaozBi6jrrAw.png?color=%232238BE&amp;logo=https%3A%2F%2F2555015443-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-legacy-files%2Fo%2Fspaces%252F-MGEBKftKaozBi6jrrAw%252Favatar-1606211793241.png%3Fgeneration%3D1606211793453526%26alt%3Dmedia&amp;theme=light" class="thumbnail" width="690" height="362"></div>
+
+<h3><a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#how-to-use" target="_blank" rel="noopener nofollow ugc">@frontity/wp-source</a></h3>
+
+  <p>API reference of `@frontity/wp-source` package</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>There are multiple ways you can do this as you already noticed.<br>
+In most cases, your images are going to reside inside your page ‘content’ and will be accessible after getting your page’s data doing the following :</p>
+<pre><code class="lang-javascript">const data = state.source.get(frontity.state.router.link)
+const page = state.source[data.type][data.id]
+</code></pre>
+<p>data contains information about your page, is it fetching? is it ready? is it a page? is it a post? page id? and so on.<br>
+once page data is ready, you can access it in the state using state.source[data.type][data.id]<br>
+there you will get an object with your page content, including attachment images and so on.</p>
+<p>In your specific case however, since your Logo image is not attached to a specific page, i would recommand adding it to your state before SSR.</p>
+<p>to do so, you could do the following (code goes into your root index.js containing theme state and actions, put this under the actions.theme namespace</p>
+<pre><code class="lang-javascript">// import fetch at top of file
+import { fetch } from "frontity";
+
+// this goes into actions: { theme: { ...
+
+ beforeSSR: async ({ state }) =&gt; {
+        // // fetch the logo
+        await fetch('http://www.scramblelock.com/wp-json/wp/v2/media/10325')
+        // convert the response to json format
+          .then((response) =&gt; response.json())
+         // add your image to the theme state
+          .then((image) =&gt; (state.theme.logo = image));
+}
+</code></pre>
+<p>by doing so, your image should now be accessible in your site’s state</p>
+<p>you access the frontity state by using the ‘connect’ function so your component looks like this <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<pre><code class="lang-javascript">import { connect } from 'frontity'
+
+const Navigation = ({ state }) =&gt; {
+   return (
+      &lt;nav&gt;
+        &lt;Image src={state.theme.logo.url} alt="" /&gt;
+        &lt;Link link="/"&gt;Home&lt;/Link&gt;
+        &lt;Link link="/about"&gt;About&lt;/Link&gt;
+        &lt;Link link="/services"&gt;Services&lt;/Link&gt;
+        &lt;Link link="/contact"&gt;Contact&lt;/Link&gt;
+    &lt;/nav&gt;
+   )
+}
+
+export default connect(Navigation)
+</code></pre>
+<p>hope this help <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866/2</link>
+        <pubDate>Tue, 29 Mar 2022 19:04:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5866-2</guid>
+        <source url="https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866.rss">Using Wordpress as mainly a CMS for photos - how to fetch individual images?</source>
+      </item>
+      <item>
+        <title>Using Wordpress as mainly a CMS for photos - how to fetch individual images?</title>
+        <dc:creator><![CDATA[scramblelock]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi there,</p>
+<p>I’m in the process of using Frontity to re-do my site in React.<br>
+My old site is a Wordpress site and I really only want to continue using it as a CMS for storing the many previously uploaded images.</p>
+<p>I’m having trouble understanding how I would go about using the Wordpress REST API to access these images</p>
+<p>So in my <code>frontity.settings.js</code> file I have</p>
+<pre><code class="lang-javascript">{
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          api: "https://www.scramblelock.com/wp-json",
+        },
+      },
+    },
+</code></pre>
+<p>and I am creating a Navigation component wherein I want to fetch the image of my logo.</p>
+<p>I can make a Postman call to get the image object with this<br>
+<code>http://www.scramblelock.com/wp-json/wp/v2/media/10325</code></p>
+<p>I just dont know how to integrate it into my Navigation component, which currently includes:</p>
+<pre><code class="lang-javascript">const Navigation = () =&gt; {
+   return (
+      &lt;nav&gt;
+        &lt;Image src={&lt;image object's .link attribute to go here&gt;} alt="" /&gt;
+        &lt;Link link="/"&gt;Home&lt;/Link&gt;
+        &lt;Link link="/about"&gt;About&lt;/Link&gt;
+        &lt;Link link="/services"&gt;Services&lt;/Link&gt;
+        &lt;Link link="/contact"&gt;Contact&lt;/Link&gt;
+    &lt;/nav&gt;
+   )
+}
+</code></pre>
+<p>I’ve seen some previous posts that talk about using <code>actions.source.fetch()</code> within a <code>useEffect</code> within the component, and others that do <code>beforeSSR</code> calls in the top most <code>index.js</code> file but it’s getting super confusing</p>
+<p>It would help to know what exactly is needed here to fetch this particular image and have it displayed in my component as clear and concise as possible. Thank you!</p>
+          <p><a href="https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866/1</link>
+        <pubDate>Tue, 29 Mar 2022 15:17:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5866-1</guid>
+        <source url="https://community.frontity.org/t/using-wordpress-as-mainly-a-cms-for-photos-how-to-fetch-individual-images/5866.rss">Using Wordpress as mainly a CMS for photos - how to fetch individual images?</source>
+      </item>
+  </channel>
+</rss>

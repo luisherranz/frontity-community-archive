@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Styling the HTML content with the `css` prop</title>
+    <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250</link>
+    <description>I&#39;m testing how to apply CSS to the HTML that comes from WordPress.
+
+The first way that may come to mind is to create a styled component and use a processor to add it:
+
+```js
+const Styled1 = styled.a`
+  color: blue;
+`;
+
+export const blockButtonStyled1 = {
+  test: node =&gt;
+    node.component === &quot;a&quot; &amp;&amp;
+    node.props.className.split(&quot; &quot;).includes(&quot;wp-block-button__link&quot;),
+  process: node =&gt; {
+    node.component = Styled1;
+    return node;
+  }
+};
+```
+
+The problem with this approach is that it makes impossible to add more styles to the `wp-block-button__link` after the first processor.
+
+For example, this won&#39;t work because `node.component` is not `a` anymore (it is `Styled1`):
+
+```js
+const Styled2 = styled.a`
+  background-color: yellow;
+`;
+
+export const blockButtonStyled2 = {
+  test: node =&gt;
+    node.component === &quot;a&quot; &amp;&amp;
+    node.props.className.split(&quot; &quot;).includes(&quot;wp-block-button__link&quot;),
+  process: node =&gt; {
+    node.component = Styled2;
+    return node;
+  }
+};
+```
+
+so you can either add the blue color or the yellow background, but not both.
+
+To solve it, we can promote the usage of the `css` prop:
+
+```js
+export const blockButtonCssProp1 = {
+  test: node =&gt;
+    node.component === &quot;a&quot; &amp;&amp;
+    node.props.className.split(&quot; &quot;).includes(&quot;wp-block-button__link&quot;),
+  process: node =&gt; {
+    node.props.css = css`
+      ${node.props.css};
+      color: blue;
+    `;
+    return node;
+  }
+};
+```
+
+This processor adds the color blue, but the `node.component` is not modified and can be found by another processor executed later:
+
+```
+export const blockButtonCssProp2 = {
+  test: node =&gt;
+    node.component === &quot;a&quot; &amp;&amp;
+    node.props.className.split(&quot; &quot;).includes(&quot;wp-block-button__link&quot;),
+  process: node =&gt; {
+    node.props.css = css`
+      ${node.props.css};
+      background-color: yellow;
+    `;
+    return node;
+  }
+};
+```
+
+Now, your `wp-block-button__link` has both a blue color and a white background.
+
+You can also control which CSS takes precedence by positioning the `${node.props.css}` before or after your CSS:
+
+```js
+node.props.css = css`
+  ${node.props.css};
+  background-color: yellow;  // &lt;-- this will overwrite node.props.css
+`;
+```
+
+```js
+node.props.css = css`
+  background-color: yellow;  // &lt;-- this won&#39;t overwrite node.props.css
+  ${node.props.css};
+`;
+```
+
+Apart from that, I&#39;m not sure how&#39;s the best way to propose, if using `node.props.css` inside the css props or using an array like this:
+
+```js
+const blue = css`
+  color: blue;
+`;
+
+export const blockButtonCssProp1 = {
+  test: node =&gt;
+    node.component === &quot;a&quot; &amp;&amp;
+    node.props.className.split(&quot; &quot;).includes(&quot;wp-block-button__link&quot;),
+  process: node =&gt; {
+    node.props.css = [node.props.css, blue];
+    return node;
+  }
+};
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 16 Mar 2020 07:17:29 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We can use <code>state</code> inside processors now: <a href="https://community.frontity.org/t/access-state-inside-a-processor/1294/2" class="inline-onebox">Access state inside a processor</a> <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/12</link>
+        <pubDate>Mon, 16 Mar 2020 07:17:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-12</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m going to open a Feature Discussion for <strong>Accessing <code>state</code> inside a processor</strong>.</p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/11</link>
+        <pubDate>Thu, 27 Feb 2020 10:18:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-11</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Great, thanks. <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/10</link>
+        <pubDate>Thu, 27 Feb 2020 10:10:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-10</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is the relevant Feature Discussion: <a href="https://community.frontity.org/t/theming/883" class="inline-onebox">Theming</a></p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/9</link>
+        <pubDate>Thu, 27 Feb 2020 10:10:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-9</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="David" data-post="7" data-topic="1250">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Did we finally add the <code>ThemeProvider</code> that exposes <a href="https://emotion.sh/docs/theming"> <code>emotion-theming</code> </a>?</p>
+</blockquote>
+</aside>
+<p>No, we didn’t because it was not clear.</p>
+<p>Ok, we need to think about a solution to access <code>state</code> in processors then, right?</p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/8</link>
+        <pubDate>Thu, 27 Feb 2020 10:09:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-8</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>My only concern (I’m working right now in the <a href="https://github.com/frontity/frontity.org/issues/2">frontity/frontity.org#2</a> feature) is how to access to the state from the <code>css</code> prop.</p>
+<p>I rembeber that we had a conversation about this but I don’t remember the conclusions. <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"> Did we finally add the <code>ThemeProvider</code> that exposes <a href="https://emotion.sh/docs/theming"><code>emotion-theming</code></a>?</p>
+<p>I think we didn’t (not shure about that).</p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/7</link>
+        <pubDate>Thu, 27 Feb 2020 10:06:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-7</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I really like that idea!</p>
+<p>Maybe it can be added to the node instead of <code>node.hasClass</code>:</p>
+<pre><code>{
+ test: node =&gt; node.is(".wp-block-button"),
+ test: node =&gt; node.is("a.wp-block-button"),
+ test: node =&gt; node.is("#accept"),
+ test: node =&gt; node.is('input[type="submit"]'),
+}
+</code></pre>
+<p>I’ve added it to this feature topic: <a href="https://community.frontity.org/t/better-class-name-tests-in-processors/966/7" class="inline-onebox">Better class name tests in processors</a><br>
+Please continue the conversation about it in that topic.</p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/6</link>
+        <pubDate>Wed, 19 Feb 2020 18:08:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-6</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="luisherranz" data-post="3" data-topic="1250">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>A simple helper can be created to facilite the task:</p>
+</blockquote>
+</aside>
+<p>It would be nice to have such utility in <code>html2react</code>. I think it would be nice to write it in a way that behaves like <code>Document.querySelector()</code>. So I could write:</p>
+<pre><code>export blueButton = createCssProcessor('a.wp-block-button', blue);
+export greenButton = createCssProcessor('#accept', green);
+export yellowButton = createCssProcessor('input[type="submit"]', yellow);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/5</link>
+        <pubDate>Wed, 19 Feb 2020 16:41:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-5</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="luisherranz" data-post="1" data-topic="1250">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Apart from that, I’m not sure how’s the best way to propose, if using <code>node.props.css</code> inside the css props or using an array like this:</p>
+</blockquote>
+</aside>
+<p>I do like the cleanliness of the array, but I also think it’s counter-intuitive and might be confusing for people. But if it’s the way promoted by Frontity and people can find examples written this way in the docs, it shouldn’t be a problem.</p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/4</link>
+        <pubDate>Wed, 19 Feb 2020 16:31:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-4</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>A simple helper can be created to facilite the task:</p>
+<pre><code>const cssProcessor = (component, className, css) =&gt; ({
+  test: node =&gt;
+    node.component === component &amp;&amp;
+    node.props.className.split(" ").includes(className),
+  process: node =&gt; {
+    node.props.css = [node.props.css, css];
+    return node;
+  }
+});
+</code></pre>
+<p>And then:</p>
+<pre><code>const blue = css`
+  color: blue;
+`;
+
+const yellowBg = css`
+  background-color: yellow;
+`;
+
+export const blueButton = cssProcessor("a", "wp-block-button", blue);
+export const yellowBgButton = cssProcessor("a", "wp-block-button", yellowBg);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/3</link>
+        <pubDate>Wed, 19 Feb 2020 08:49:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-3</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s great <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>! Thanks for the analysis <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>It seems that adding it using the <code>css</code> prop is the right approach.</p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="1" data-topic="1250">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Apart from that, I’m not sure how’s the best way to propose, if using <code>node.props.css</code> inside the css props or using an array</p>
+</blockquote>
+</aside>
+<p>I guess this will depend in each case, but I’d recommend using an array. I think it will be cleaner sometimes. Although I know it’s different, it similar to the way it’s done in the <a href="https://github.com/frontity/frontity/blob/dev/packages/twentytwenty-theme/src/components/styles/global-styles.js#L458-L469">twentytwenty theme</a>.</p>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/2</link>
+        <pubDate>Tue, 18 Feb 2020 16:30:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-2</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+      <item>
+        <title>Styling the HTML content with the `css` prop</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m testing how to apply CSS to the HTML that comes from WordPress.</p>
+<p>The first way that may come to mind is to create a styled component and use a processor to add it:</p>
+<pre><code>const Styled1 = styled.a`
+  color: blue;
+`;
+
+export const blockButtonStyled1 = {
+  test: node =&gt;
+    node.component === "a" &amp;&amp;
+    node.props.className.split(" ").includes("wp-block-button__link"),
+  process: node =&gt; {
+    node.component = Styled1;
+    return node;
+  }
+};
+</code></pre>
+<p>The problem with this approach is that it makes impossible to add more styles to the <code>wp-block-button__link</code> after the first processor.</p>
+<p>For example, this won’t work because <code>node.component</code> is not <code>a</code> anymore (it is <code>Styled1</code>):</p>
+<pre><code>const Styled2 = styled.a`
+  background-color: yellow;
+`;
+
+export const blockButtonStyled2 = {
+  test: node =&gt;
+    node.component === "a" &amp;&amp;
+    node.props.className.split(" ").includes("wp-block-button__link"),
+  process: node =&gt; {
+    node.component = Styled2;
+    return node;
+  }
+};
+</code></pre>
+<p>so you can either add the blue color or the yellow background, but not both.</p>
+<p>To solve it, we can promote the usage of the <code>css</code> prop:</p>
+<pre><code>export const blockButtonCssProp1 = {
+  test: node =&gt;
+    node.component === "a" &amp;&amp;
+    node.props.className.split(" ").includes("wp-block-button__link"),
+  process: node =&gt; {
+    node.props.css = css`
+      ${node.props.css};
+      color: blue;
+    `;
+    return node;
+  }
+};
+</code></pre>
+<p>This processor adds the color blue, but the <code>node.component</code> is not modified and can be found by another processor executed later:</p>
+<pre><code>export const blockButtonCssProp2 = {
+  test: node =&gt;
+    node.component === "a" &amp;&amp;
+    node.props.className.split(" ").includes("wp-block-button__link"),
+  process: node =&gt; {
+    node.props.css = css`
+      ${node.props.css};
+      background-color: yellow;
+    `;
+    return node;
+  }
+};
+</code></pre>
+<p>Now, your <code>wp-block-button__link</code> has both a blue color and a white background.</p>
+<p>You can also control which CSS takes precedence by positioning the <code>${node.props.css}</code> before or after your CSS:</p>
+<pre><code>node.props.css = css`
+  ${node.props.css};
+  background-color: yellow;  // &lt;-- this will overwrite node.props.css
+`;
+</code></pre>
+<pre><code>node.props.css = css`
+  background-color: yellow;  // &lt;-- this won't overwrite node.props.css
+  ${node.props.css};
+`;
+</code></pre>
+<p>Apart from that, I’m not sure how’s the best way to propose, if using <code>node.props.css</code> inside the css props or using an array like this:</p>
+<pre><code>const blue = css`
+  color: blue;
+`;
+
+export const blockButtonCssProp1 = {
+  test: node =&gt;
+    node.component === "a" &amp;&amp;
+    node.props.className.split(" ").includes("wp-block-button__link"),
+  process: node =&gt; {
+    node.props.css = [node.props.css, blue];
+    return node;
+  }
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250/1</link>
+        <pubDate>Tue, 18 Feb 2020 13:17:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1250-1</guid>
+        <source url="https://community.frontity.org/t/styling-the-html-content-with-the-css-prop/1250.rss">Styling the HTML content with the `css` prop</source>
+      </item>
+  </channel>
+</rss>

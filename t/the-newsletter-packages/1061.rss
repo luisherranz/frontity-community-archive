@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The `newsletter` packages</title>
+    <link>https://community.frontity.org/t/the-newsletter-packages/1061</link>
+    <description>I&#39;m currently working on the Chakra UI Theme (), which has support for a newletter subscription. I believe it&#39;s a common pattern in most websites &amp; blog to include a newsletter form.
+
+I&#39;d like to propose that we add support for newsletter package within frontity. Perhaps this can be a separate library that users can install and configure.
+
+Here&#39;s what I have in mind:
+
+**Draft package name: `frontity-plugin-newsletter`**
+
+**Draft API Spec**
+```
+import { init } from &quot;frontity-plugin-newsletter&quot;
+
+// initialize &amp; configure
+const mailchimp = init({ client: &quot;mailchimp&quot;, apiKey: &quot;&quot;})
+
+// keep track of subscription status 
+state: {
+  theme: {
+   subscribeStatus: null, // &quot;pending&quot; | &quot;complete&quot; | &quot;failed&quot; | null 
+ }
+},
+
+// The `mailchimp` has access to methods specific to mailchimp&#39;s API 
+actions: {
+  theme: {
+     subscribe: ({state, actions}) =&gt; {
+       state.subscribeStatus = &quot;pending&quot;
+       mailchimp.addToList(&quot;subscribers&quot;).then(() =&gt; {
+         state.subscribeStatus = &quot;complete&quot;
+      })
+     }
+} 
+}
+```
+
+Let me know what you guys think about this. Feel free to suggestion possible solutions if you think it can be better.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 04 Jan 2021 11:45:10 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/the-newsletter-packages/1061.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[Kent]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> ill look into this… Appreciate all the help <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/16</link>
+        <pubDate>Mon, 04 Jan 2021 11:45:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-16</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, I see. Thanks <a class="mention" href="https://community.frontity.org/u/kent">@Kent</a>.</p>
+<p>There are several options:</p>
+<ol>
+<li>
+<p>Use the form that the plugin adds to the content HTML and processors to control the input fields and the submission with React.</p>
+<p>If I am not mistaken, that plugin should add a form to the HTML. Maybe with a shortcode, or with a Gutenberg block, or with a Widget block. Whatever it is, you will receive it inside <code>content.rendered</code>, right?</p>
+<p>If you use processors to capture the input fields and the form, you can control how the information is saved and sent to WordPress with React.</p>
+<p>It seems like you can use this REST API endpoint for that: <a href="https://www.thenewsletterplugin.com/documentation/api-reference/#/subscribers/post_subscribers">https://www.thenewsletterplugin.com/documentation/api-reference/#/subscribers/post_subscribers</a></p>
+<p>The contact form 7 package is a good example of a package that works like that. You can read this thread to get an idea of how it works: <a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623" class="inline-onebox">How to create a Frontity package for Contact Form 7</a> and take a look at the code in this repo: <a href="https://github.com/imranhsayed/frontity-contact-form-7">https://github.com/imranhsayed/frontity-contact-form-7</a></p>
+</li>
+<li>
+<p>Use a dumb block and create the whole form in React.</p>
+<p>You can use a dumb block, for example, a paragraph block with no content, and the class <code>newsletter</code>  to have the ability to add the newsletter in the content of your posts, but then add all the logic in React.</p>
+<p>For that, you can use a processor that checks for any paragraphs with the class <code>newsletter</code> and replaces it with a form created in React that contains all the input fields and logic.</p>
+<p>If I am not mistaken, I think this or something similar is what we did on our website.</p>
+</li>
+</ol>
+<p>You could also use any combination, for example creating more complex Gutenberg blocks that can be added to the post content and capturing them with processors in React.</p>
+<p>The backend functionality (connecting the plugin to SES and so on) should work fine. The only part that needs to be changed is the form submit.</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/15</link>
+        <pubDate>Mon, 04 Jan 2021 11:31:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-15</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[Kent]]></dc:creator>
+        <description><![CDATA[
+            <p>Let me try to explain it a bit better…<br>
+How did you create the Newsletter integration mentioned here:<br>
+</p><aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <a href="https://frontity.org/blog/connecting-gutenberg-and-frontity/" target="_blank" rel="noopener nofollow ugc" title="08:48AM - 24 November 2020">Frontity – 24 Nov 20</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/345;"><img src="https://i0.wp.com/frontity.org/wp-content/uploads/2020/11/gutenberg-frontity-asset.png?fit=2048%2C1024&amp;ssl=1" class="thumbnail" width="690" height="345"></div>
+
+<h3><a href="https://frontity.org/blog/connecting-gutenberg-and-frontity/" target="_blank" rel="noopener nofollow ugc">Connecting Gutenberg and Frontity</a></h3>
+
+<p>In this post, we walk you through the process we followed to rebuild our website with Gutenberg and Frontity.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Did you create a Gutenberg block in React to be able to edit the form’s content from the WordPress instalment?<br>
+We want to be able to place the newsletter forms where we want from Gutenberg.<br>
+We want to use this newsletter plugin: <a href="https://www.thenewsletterplugin.com/documentation/subscription/newsletter-forms/" rel="noopener nofollow ugc">https://www.thenewsletterplugin.com/documentation/subscription/newsletter-forms/</a></p>
+<p>And link it to Amazon SES:  <a href="https://www.thenewsletterplugin.com/documentation/addons/delivery-addons/amazon-ses-extension/" rel="noopener nofollow ugc">https://www.thenewsletterplugin.com/documentation/addons/delivery-addons/amazon-ses-extension/</a></p>
+<p>REST API: <a href="https://www.thenewsletterplugin.com/documentation/developers/newsletter-api-2/" rel="noopener nofollow ugc">https://www.thenewsletterplugin.com/documentation/developers/newsletter-api-2/</a></p>
+<p>And perhaps we need to use this for transactional emails if not The Newsletter Plugin can handle them <a href="https://deliciousbrains.com/wp-offload-ses/" rel="noopener nofollow ugc">https://deliciousbrains.com/wp-offload-ses/</a></p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/14</link>
+        <pubDate>Wed, 09 Dec 2020 20:51:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-14</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Do you mean creating forms for different types of newsletter services?</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/13</link>
+        <pubDate>Fri, 04 Dec 2020 16:57:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-13</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[Kent]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,<br>
+I was reading here that you where using React for the newsletter integration:<br>
+</p><aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <a href="https://frontity.org/blog/connecting-gutenberg-and-frontity/" target="_blank" rel="noopener nofollow ugc" title="08:48AM - 24 November 2020">Frontity – 24 Nov 20</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/345;"><img src="https://i0.wp.com/frontity.org/wp-content/uploads/2020/11/gutenberg-frontity-asset.png?fit=2048%2C1024&amp;ssl=1" class="thumbnail" width="690" height="345"></div>
+
+<h3><a href="https://frontity.org/blog/connecting-gutenberg-and-frontity/" target="_blank" rel="noopener nofollow ugc">Connecting Gutenberg and Frontity</a></h3>
+
+<p>In this post, we walk you through the process we followed to rebuild our website with Gutenberg and Frontity.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Is it possible to use Frontity with this plugin <a href="https://nb.wordpress.org/plugins/wp-ses/" rel="noopener nofollow ugc">https://nb.wordpress.org/plugins/wp-ses/</a></p>
+<p>It could be smart to use Amazon SES…</p>
+<p>The WP OFFLOAD SES is also compatible with this plugin: <a href="https://automatewoo.com/docs/email/making-sure-your-emails-are-delivered/" rel="noopener nofollow ugc">https://automatewoo.com/docs/email/making-sure-your-emails-are-delivered/</a></p>
+<p>Do you think it’s possible to run AutomateWoo with Frontity and WooCommerce as well?</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/12</link>
+        <pubDate>Wed, 02 Dec 2020 21:38:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-12</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[mymakarim]]></dc:creator>
+        <description><![CDATA[
+            <p>mailchimp</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/11</link>
+        <pubDate>Sat, 22 Aug 2020 07:48:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-11</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Sorry, I meant which newsletter service, like Mailchimp or GetResponse.</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/10</link>
+        <pubDate>Fri, 21 Aug 2020 12:48:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-10</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[mymakarim]]></dc:creator>
+        <description><![CDATA[
+            <p>Subscription to newsletter! Just like frontity’s, where people come and submit there email and you send them weekly updates!</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/9</link>
+        <pubDate>Thu, 20 Aug 2020 13:41:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-9</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We haven’t done an Implementation Proposal for this namespace yet.</p>
+<p>What service do you want to integrate?</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/8</link>
+        <pubDate>Thu, 20 Aug 2020 10:58:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-8</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[mymakarim]]></dc:creator>
+        <description><![CDATA[
+            <p>Please tell me if there is any progress on this topic?<br>
+Do we have the package?</p>
+<p>I need to implement one on my website <a href="https://componentity.com" rel="nofollow noopener">https://componentity.com</a></p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/7</link>
+        <pubDate>Sat, 08 Aug 2020 14:50:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-7</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>.</p>
+<aside class="quote no-group" data-post="5" data-topic="1061">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Though using it with services as <code>mailchimp</code> I don’t know if it’s useful, because I don’t know if they need private keys to subscribe or can indeed be used on the client side.</p>
+</blockquote>
+</aside>
+<p>Yes, they usually have a tool to export HTML forms you can copy and paste on your site, so they should work without problems.</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/6</link>
+        <pubDate>Wed, 22 Jan 2020 22:52:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-6</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Well, the workflow makes sense. Having a <code>subscribe</code> action and a current status seems useful (though I think it should cover three states: before subscribing, subscribing and subscribed). Maybe it should implement some kind of validation/sanitation of the fields.</p>
+<p>Though using it with services as <code>mailchimp</code> I don’t know if it’s useful, because I don’t know if they need private keys to subscribe or can indeed be used on the client side.</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/5</link>
+        <pubDate>Mon, 20 Jan 2020 10:30:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-5</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>What I meant was: you are creating a theme that has a newsletter widget. What do you think about the methods explained here? Do they make sense to you for your theme?</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/4</link>
+        <pubDate>Mon, 20 Jan 2020 10:03:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-4</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I haven’t worked with a newsletter before that I remember. In my current project I opted for keeping the same call the original WP theme was doing because it seemed quite simple that way.</p>
+<p>So I’m afraid I have nothing to contribute to this conversation <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/3</link>
+        <pubDate>Mon, 13 Jan 2020 17:23:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-3</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is a nice idea, thanks <a class="mention" href="https://community.frontity.org/u/segun">@Segun</a>!</p>
+<p>Maybe, instead of doing it “the npm way”, we can do it “the frontity way” and create a new <code>newsletter</code> namespace.</p>
+<p>The main difference is:</p>
+<ul>
+<li>With “the npm way”, users of the theme need to change the code.</li>
+<li>With “the frontity way”, users of the theme just need to install and configure a package.</li>
+</ul>
+<p>That may not seem like a great difference now, but we are already thinking about the moment when Frontity users can install and configure packages from an Admin UI. Once that moment comes, we want them to be able to install the theme they want, then search for a “newsletter” package for their platform, for example MailChimp, install it, add the <code>apiKey</code> to the configuration and they are good to go. Just like they are used to do it today in the WordPress dashboard.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity theme user</strong><br>
+I want to <strong>integrate any newsletter platform with a theme using Frontity packages</strong><br>
+so that <strong>I don’t have to write the integration myself</strong></p>
+</blockquote>
+<h2>Posible solution</h2>
+<p>These are some ways it could be built. Feel free to add your feedback.</p>
+<h3>Newsletter packages can use theme slots</h3>
+<p>This is similar to what <code>ads</code> packages do. The theme exposes “slots” and the package “fills” one of the slots.</p>
+<pre><code>// Theme.
+const Footer = () =&gt; {
+  return (
+    &lt;&gt;
+      &lt;Slot id="above-the-footer" /&gt;
+      { /* more stuff */ }
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>The slot id could be configurable via settings:</p>
+<pre><code>state: {
+  newsletter: {
+    slot: "above-the-footer"
+  }
+}
+</code></pre>
+<pre><code>// Newsletter package.
+const NewsletterFill = ({ state }) =&gt; {
+  return (
+    &lt;Fill id={state.newsletter.slot}&gt;
+      &lt;Newsletter /&gt;
+    &lt;Fill /&gt;
+  );
+};
+</code></pre>
+<h3>Newsletter packages can expose their own component</h3>
+<p>This is similar to what <code>comments</code> packages do.</p>
+<pre><code>// Theme
+const Footer = ({ libraries }) =&gt; {
+  const Newsletter = libraries.newsletter.Newsletter || null;
+  return (
+    &lt;&gt;
+      &lt;Newsletter /&gt;
+      { /* more stuff */ }
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<h3>Newsletter packages can expose actions</h3>
+<p>This is in case the theme developer want to control the style of the form:</p>
+<pre><code class="lang-jsx">// Theme.
+const Newsletter = ({ actions }) =&gt; {
+  return (
+    &lt;form onSubmit={actions.newsletter.subscribe} &gt;
+      &lt;Input name="name" /&gt;
+      &lt;Input name="email" /&gt;
+      &lt;SendButton /&gt;
+    &lt;form /&gt;
+  );
+};
+
+const Footer = ({ actions }) =&gt; {
+  return (
+    &lt;&gt;
+      { /* Check if there is a newsletter package */ }
+      {actions.newsletter &amp;&amp; &lt;Newsletter /&gt;}   
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<h3>Type of newsletter namespace</h3>
+<p>This is only a suggestion of how the types could look like.</p>
+<pre><code>interface Subscribe {
+  name?: string;
+  email: string;
+}
+
+interface Newsletter {
+  state: {
+    newsletter: {
+      isSubscribing: false;
+    }
+  };
+  actions: {
+    newsletter: {
+       subscribe: AsyncAction&lt;Newsletter, Subscribe&gt;;
+    }
+  };
+  libraries: {
+    newsletter: {
+      Newsletter: React.ReactType;
+    }
+  }
+}
+</code></pre>
+<h3>Type of a MailChimp newsletter package</h3>
+<p>Again, this is only a suggestion.</p>
+<pre><code>interface MailChimp extends Newsletter {
+  state: Newsletter["state"] &amp; {
+    newsletter: {
+      apiKey: string;
+      listId: string;
+    }
+  }
+}
+</code></pre>
+<p>Then, the <code>actions.newsletter.subscribe</code> method can add those fields before sending the request to the MailChimp server.</p>
+<hr>
+<p>Feel free to add your opinion.</p>
+<p>cc: <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>, you’ve worked with a newsletter. Would something like this make sense for you?</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/2</link>
+        <pubDate>Mon, 13 Jan 2020 14:31:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-2</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+      <item>
+        <title>The `newsletter` packages</title>
+        <dc:creator><![CDATA[Segun]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m currently working on the Chakra UI Theme (), which has support for a newletter subscription. I believe it’s a common pattern in most websites &amp; blog to include a newsletter form.</p>
+<p>I’d like to propose that we add support for newsletter package within frontity. Perhaps this can be a separate library that users can install and configure.</p>
+<p>Here’s what I have in mind:</p>
+<p><strong>Draft package name: <code>frontity-plugin-newsletter</code></strong></p>
+<p><strong>Draft API Spec</strong></p>
+<pre><code class="lang-javascript">import { init } from "frontity-plugin-newsletter"
+
+// initialize &amp; configure
+const mailchimp = init({ client: "mailchimp", apiKey: ""})
+
+// keep track of subscription status 
+state: {
+  theme: {
+   subscribeStatus: null, // "pending" | "complete" | "failed" | null 
+ }
+},
+
+// The `mailchimp` has access to methods specific to mailchimp's API 
+actions: {
+  theme: {
+     subscribe: ({state, actions}) =&gt; {
+       state.subscribeStatus = "pending"
+       mailchimp.addToList("subscribers").then(() =&gt; {
+         state.subscribeStatus = "complete"
+      })
+     }
+} 
+}
+</code></pre>
+<p>Let me know what you guys think about this. Feel free to suggestion possible solutions if you think it can be better.</p>
+          <p><a href="https://community.frontity.org/t/the-newsletter-packages/1061/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-newsletter-packages/1061/1</link>
+        <pubDate>Mon, 13 Jan 2020 10:47:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1061-1</guid>
+        <source url="https://community.frontity.org/t/the-newsletter-packages/1061.rss">The `newsletter` packages</source>
+      </item>
+  </channel>
+</rss>

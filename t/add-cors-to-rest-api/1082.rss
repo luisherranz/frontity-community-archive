@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Add CORS to REST API</title>
+    <link>https://community.frontity.org/t/add-cors-to-rest-api/1082</link>
+    <description>**--- [Feature Card](https://www.notion.so/frontity/Add-CORS-to-REST-API-a5323aee9b014e56b023c854306f7d26)**
+
+## Description
+For the &quot;Direct to Frontity&quot; installation Frontity uses an external domain. The REST API doesn&#39;t have CORS headers. We can create a PHP plugin for that.
+
+## User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **add easily CORS headers to the REST API**
+&gt; so that **I can use a different domain**
+
+## Possible solution
+
+```php
+add_action( &#39;rest_api_init&#39;, &#39;wp_rest_allow_all_cors&#39;, 15 );
+
+function wp_rest_allow_all_cors() {
+  remove_filter( &#39;rest_pre_serve_request&#39;, &#39;rest_send_cors_headers&#39; );
+
+  add_filter( &#39;rest_pre_serve_request&#39;, function( $value ) {
+    header( &#39;Access-Control-Allow-Origin: *&#39; );
+    header( &#39;Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE&#39; );
+    header( &#39;Access-Control-Allow-Credentials: true&#39; );
+    return $value;
+  });
+}
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 30 Jan 2021 20:00:22 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[hudson.atwell]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="7" data-topic="1082">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<pre><code class="lang-javascript">add_action( 'rest_api_init', 'wp_rest_allow_all_cors', 15 );
+
+function wp_rest_allow_all_cors() {
+  remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
+
+  add_filter( 'rest_pre_serve_request', function( $value ) {
+    header( 'Access-Control-Allow-Origin: *' );
+    header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
+    header( 'Access-Control-Allow-Credentials: true' );
+    return $value;
+  });
+}
+</code></pre>
+</blockquote>
+</aside>
+<p>I’m running into this issue too and so far haven’t been able to solve with the above. I’m using Frontity Chakra Theme.</p>
+<p>Also tried purging Varnish caches afterwards thinking it may help.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/e/e691d1f9fa746a6a39a6339b434dc9d0c7749973.png" data-download-href="https://community.frontity.org/uploads/default/e691d1f9fa746a6a39a6339b434dc9d0c7749973" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/e/e691d1f9fa746a6a39a6339b434dc9d0c7749973_2_690x202.png" alt="image" data-base62-sha1="wTIeFqQRtgnhgeTDJqAczddGOgH" width="690" height="202" srcset="https://community.frontity.org/uploads/default/optimized/2X/e/e691d1f9fa746a6a39a6339b434dc9d0c7749973_2_690x202.png, https://community.frontity.org/uploads/default/optimized/2X/e/e691d1f9fa746a6a39a6339b434dc9d0c7749973_2_1035x303.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/e/e691d1f9fa746a6a39a6339b434dc9d0c7749973_2_1380x404.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/e/e691d1f9fa746a6a39a6339b434dc9d0c7749973_2_10x10.png"></a></div><p></p>
+<p>Strangely though my other rest calls aren’t having the same issue. And my site seems to operate just fine (minus an issue where if I open the site on a permalink, the homepage spins out if I navigate there while all other pages work fine and the homepage works fine if I start from the homepage.</p>
+<p>**<strong>Edit. This seems to be fixed now.</strong> … I think I needed to clear by browser cache. But I’m not 100% positive. Cloudways is doing some odd things over here caching wise.</p>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/8</link>
+        <pubDate>Sat, 30 Jan 2021 19:51:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-8</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>In the meantime, if someone wants to solve this type of CORS problem, they can use this plugin</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/ahmadawais/WP-REST-Allow-All-CORS" target="_blank">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/2X/8/82a0e0cd3bd8f304d3ddd5d78649251f34d980ac.jpeg" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/ahmadawais/WP-REST-Allow-All-CORS" target="_blank">ahmadawais/WP-REST-Allow-All-CORS</a></h3>
+
+<p>Allow all cross origin requests to your WordPress site's REST API. - ahmadawais/WP-REST-Allow-All-CORS</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>or add this code in their WordPress:</p>
+<pre><code class="lang-php">add_action( 'rest_api_init', 'wp_rest_allow_all_cors', 15 );
+
+function wp_rest_allow_all_cors() {
+  remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
+
+  add_filter( 'rest_pre_serve_request', function( $value ) {
+    header( 'Access-Control-Allow-Origin: *' );
+    header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
+    header( 'Access-Control-Allow-Credentials: true' );
+    return $value;
+  });
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/7</link>
+        <pubDate>Fri, 08 May 2020 10:29:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-7</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="orballo" data-post="2" data-topic="1082">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>You might not see them when calling the REST API directly from the browser or from an app like Postman because the <code>Origin</code> header is not populated therefore the CORS headers are not set. But if you try setting the <code>Origin</code> header in Postman you’ll see that the CORS headers will be set on the response.</p>
+</blockquote>
+</aside>
+<p>I’ve just discovered that this is a really bad approach, because if your cache of the REST API response includes headers and doesn’t overwrite them with a general CORS header (<code>"*"</code>) then it will return the previous URL. This means that, if you are using that REST API for local development, it can cache <code>Access-Control-Allow-Origin: localhost:3000</code>, and your production site will stop working.</p>
+<p>The thing is that, the code that WordPress is using right now is as “safe” as using <code>"*"</code> because it will copy the domain you pass in the <code>Origin</code> header. So, I guess it’s better to set it directly to <code>"*"</code> and avoid caching issues.</p>
+<p>EDIT: Moving this back to <strong>Awaiting Development</strong>.</p>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/6</link>
+        <pubDate>Thu, 07 May 2020 16:26:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-6</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I think it’s the same case as the one discussed here:<br>
+</p><aside class="quote quote-modified" data-post="7" data-topic="1011">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/return-404-status-for-404-pages/1011/7">Return 404 status for 404 pages</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/framework-features"><span class="badge-category-bg" style="background-color: #652D90;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Suggest new features to keep improving Frontity, vote the ones you are interested in, follow the progress and join the discussion of their design.">⚛ Framework Features</span></a>
+  </div>
+  <blockquote>
+    Yes, maybe we can add a tag status: closed for the topics that doesn’t make sense anymore like this one and keep using the status:release for the features that are released. 
+I’m planning to show the status tag in a clearer way, and it should help to identify that the topic is closed. Something like this: 
+ <a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/e6196db76e8f42f3e9c37115189ebe63ded29100.png" data-download-href="https://community.frontity.org/uploads/default/e6196db76e8f42f3e9c37115189ebe63ded29100" title="Screenshot 2020-01-28 at 13.04.34">[Screenshot 2020-01-28 at 13.04.34]</a>
+Do you think that would be enough? 
+Regarding the votes, I agree we could allow them to vote as many topics as they want, there is no problem about that.
+  </blockquote>
+</aside>
+<p></p>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/5</link>
+        <pubDate>Tue, 28 Jan 2020 12:09:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-5</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> what do we do with this topic? I wouldn’t like to close it because I don’t want to limit the conversation. Do you have any idea?</p>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/4</link>
+        <pubDate>Sat, 25 Jan 2020 23:37:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-4</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>You are absolutely right, it does. Many thanks <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> <img src="https://community.frontity.org/images/emoji/apple/heart.png?v=9" title=":heart:" class="emoji" alt=":heart:"></p>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/3</link>
+        <pubDate>Sat, 25 Jan 2020 23:36:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-3</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m not sure this is necessary. It seems that WP does set headers for CORS (I tried one clean installation with Nginx in production and it worked just fine).</p>
+<p>Also, in the <code>rest_pre_serve_request</code> hook there is already a function registered called <a href="https://developer.wordpress.org/reference/functions/rest_send_cors_headers/"><code>rest_send_cors_headers</code></a> that sets the headers:</p>
+<pre><code>function rest_send_cors_headers( $value ) {
+    $origin = get_http_origin();
+ 
+    if ( $origin ) {
+        // Requests from file:// and data: URLs send "Origin: null"
+        if ( 'null' !== $origin ) {
+            $origin = esc_url_raw( $origin );
+        }
+        header( 'Access-Control-Allow-Origin: ' . $origin );
+        header( 'Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, PATCH, DELETE' );
+        header( 'Access-Control-Allow-Credentials: true' );
+        header( 'Vary: Origin', false );
+    } elseif ( ! headers_sent() &amp;&amp; 'GET' === $_SERVER['REQUEST_METHOD'] &amp;&amp; ! is_user_logged_in() ) {
+        header( 'Vary: Origin', false );
+    }
+ 
+    return $value;
+}
+</code></pre>
+<p>You might not see them when calling the REST API directly from the browser or from an app like Postman because the <code>Origin</code> header is not populated therefore the CORS headers are not set. But if you try setting the <code>Origin</code> header in Postman you’ll see that the CORS headers will be set on the response.</p>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/2</link>
+        <pubDate>Thu, 16 Jan 2020 16:34:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-2</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+      <item>
+        <title>Add CORS to REST API</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Add-CORS-to-REST-API-a5323aee9b014e56b023c854306f7d26">Feature Card</a></strong></p>
+<h2>Description</h2>
+<p>For the “Direct to Frontity” installation Frontity uses an external domain. The REST API doesn’t have CORS headers. We can create a PHP plugin for that.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>add easily CORS headers to the REST API</strong><br>
+so that <strong>I can use a different domain</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<pre><code class="lang-php">add_action( 'rest_api_init', 'wp_rest_allow_all_cors', 15 );
+
+function wp_rest_allow_all_cors() {
+  remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
+
+  add_filter( 'rest_pre_serve_request', function( $value ) {
+    header( 'Access-Control-Allow-Origin: *' );
+    header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
+    header( 'Access-Control-Allow-Credentials: true' );
+    return $value;
+  });
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/add-cors-to-rest-api/1082/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-cors-to-rest-api/1082/1</link>
+        <pubDate>Thu, 16 Jan 2020 15:17:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1082-1</guid>
+        <source url="https://community.frontity.org/t/add-cors-to-rest-api/1082.rss">Add CORS to REST API</source>
+      </item>
+  </channel>
+</rss>

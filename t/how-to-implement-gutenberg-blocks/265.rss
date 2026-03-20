@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to implement Gutenberg blocks</title>
+    <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265</link>
+    <description>I open this topic to answer [David Rhoderick](https://github.com/davidrhoderick) question started in GitHub.
+
+## Original question
+
+I apologize if this is a naive but I am experienced with WordPress but haven&#39;t worked much with Gutenberg blocks. How would one approach styling the Gutenberg blocks accordingly? For example, if I want to use reactstrap to add a carousel element for a gallery block created by Gutenberg, how would one do that? Feel free to close this if it is not in the scope of this project&#39;s documentation.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 15 Jul 2020 18:53:20 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to implement Gutenberg blocks</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>A post was split to a new topic: <a href="https://community.frontity.org/t/integrating-frontity-with-gutenberg/2403">Integrating frontity with gutenberg</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/9</link>
+        <pubDate>Wed, 15 Jul 2020 23:58:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-265-9</guid>
+        <source url="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss">How to implement Gutenberg blocks</source>
+      </item>
+      <item>
+        <title>How to implement Gutenberg blocks</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>We are taking a deeper look at how Gutenberg works and what is the best approach to integrate it with Frontity. This is the topic in case anyone is interested: <a href="https://community.frontity.org/t/gutenberg-support/480" class="inline-onebox">Gutenberg Support</a>.</p>
+          <p><a href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/8</link>
+        <pubDate>Thu, 08 Aug 2019 13:54:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-265-8</guid>
+        <source url="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss">How to implement Gutenberg blocks</source>
+      </item>
+      <item>
+        <title>How to implement Gutenberg blocks</title>
+        <dc:creator><![CDATA[jesus.designer]]></dc:creator>
+        <description><![CDATA[
+            <p>You can watch how implement it in this short video <a href="https://youtu.be/jauZCeLrGFA" rel="nofollow noopener">https://youtu.be/jauZCeLrGFA</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/5</link>
+        <pubDate>Tue, 11 Jun 2019 13:57:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-265-5</guid>
+        <source url="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss">How to implement Gutenberg blocks</source>
+      </item>
+      <item>
+        <title>How to implement Gutenberg blocks</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Yep, I think that’s right. If what you are trying to support only needs some custom CSS, you might do just well with the <code>css</code> function from <code>emotion</code> and assigning the return value to the <code>css</code> prop.</p>
+<p>But if you are passing a new component that doesn’t accept children, you might need to collect all the data in the <code>process</code> function and map into the props needed by your component. For example, in this case maybe you want to get all the <code>src</code> attributes from the images and push them into an array that you want to pass as a prop to <code>Carousel</code>.</p>
+          <p><a href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/4</link>
+        <pubDate>Tue, 11 Jun 2019 10:27:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-265-4</guid>
+        <source url="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss">How to implement Gutenberg blocks</source>
+      </item>
+      <item>
+        <title>How to implement Gutenberg blocks</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>If I’m not mistaken I think you can return <code>children</code> and then the children nodes will be processed by <code>html2react</code> as well. So you could use it to process the items in individual processes:</p>
+<pre><code class="lang-javascript">import { Carousel, CarouselItem } from 'reactstrap';
+
+const gutenbergGallery = {
+  test: ({ component, props }) =&gt;
+    component === "ul" &amp;&amp;
+    props.className === "wp-block-gallery"
+  process: ({ node }) =&gt; {
+    // node contains all the info of the &lt;ul&gt;, including node.children
+    // with info of the &lt;li&gt;.
+    return {
+      component: Carousel,
+      props: { ... },
+      // return children nodes so they are processed again by html2react.
+      children: node.children, 
+    }
+  },
+};
+
+const gutenbergGalleryItem = {
+  test: ({ component, props }) =&gt;
+    component === "li" &amp;&amp;
+    props.className === "blocks-gallery-item"
+  process: ({ node }) =&gt; {
+    // this is now the item
+    return {
+      component: CarouselItem,
+      props: { ... }
+    }
+  },
+};
+
+const myTheme = {
+  actions: {
+    init: ({ libraries }) =&gt; {
+      libraries.html2react.processors.push(gutenbergGallery);
+      libraries.html2react.processors.push(gutenbergGalleryItem);
+    }
+  }
+}
+</code></pre>
+<p>Is this right <a class="mention-group" href="https://community.frontity.org/groups/development-team">@development-team</a>?</p>
+          <p><a href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/3</link>
+        <pubDate>Tue, 11 Jun 2019 09:18:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-265-3</guid>
+        <source url="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss">How to implement Gutenberg blocks</source>
+      </item>
+      <item>
+        <title>How to implement Gutenberg blocks</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is how Gutenberg gallery blocks are exposed in the <code>content</code> field of the WordPress REST API post response:</p>
+<pre><code class="lang-auto">&lt;ul
+  class="wp-block-gallery columns-3 is-cropped"&gt;
+  &lt;li class="blocks-gallery-item"&gt;
+    &lt;figure&gt;&lt;img ... /&gt;&lt;/figure&gt;
+  &lt;/li&gt;
+  &lt;li class="blocks-gallery-item"&gt;
+    &lt;figure&gt;&lt;img ... /&gt;&lt;/figure&gt;
+  &lt;/li&gt;
+  &lt;li class="blocks-gallery-item"&gt;
+    &lt;figure&gt;&lt;img ... /&gt;&lt;/figure&gt;
+  &lt;/li&gt;
+  &lt;li class="blocks-gallery-item"&gt;
+    &lt;figure&gt;&lt;img ... /&gt;&lt;/figure&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<p>In order to modify this <code>content</code> field HTML we have created a new package called <code>html2react</code>.</p>
+<p>You need to create a “processor” that looks for <code>&lt;ul&gt;</code> with <code>class="wp-block-gallery"</code> and returns the proper React component.</p>
+<pre><code class="lang-javascript">import { Carousel } from 'reactstrap';
+
+const gutenbergGallery = {
+  test: ({ component, props }) =&gt;
+    component === "ul" &amp;&amp;
+    props.className === "wp-block-gallery"
+  process: ({ node }) =&gt; {
+    // node contains all the info of the &lt;ul&gt;, including node.children
+    // with info of the &lt;li&gt;.
+    return {
+      component: Carousel,
+      props: { ... },
+    }
+  },
+};
+
+const myTheme = {
+  actions: {
+    init: ({ libraries }) =&gt; {
+      libraries.html2react.processors.push(gutenbergGallery);
+    }
+  }
+}
+</code></pre>
+<p>We have a PR right now with <code>html2react</code> almost ready to be merged: <a href="https://github.com/frontity/frontity/pull/116" rel="nofollow noopener">https://github.com/frontity/frontity/pull/116</a></p>
+<p>This is probably the most difficult part of Frontity, but there’s no way around it. The info of the <code>content</code> is exposed as HTML by WordPress and if you want to use React, you need an <code>html2react</code> library no matter what framework you use <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> could you please take a look at my code and edit what’s wrong. I don’t have in mind the final API of <code>html2react</code> yet.</p>
+          <p><a href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/2</link>
+        <pubDate>Tue, 11 Jun 2019 09:14:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-265-2</guid>
+        <source url="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss">How to implement Gutenberg blocks</source>
+      </item>
+      <item>
+        <title>How to implement Gutenberg blocks</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I open this topic to answer <a href="https://github.com/davidrhoderick" rel="nofollow noopener">David Rhoderick</a> question started in GitHub.</p>
+<h2>Original question</h2>
+<p>I apologize if this is a naive but I am experienced with WordPress but haven’t worked much with Gutenberg blocks. How would one approach styling the Gutenberg blocks accordingly? For example, if I want to use reactstrap to add a carousel element for a gallery block created by Gutenberg, how would one do that? Feel free to close this if it is not in the scope of this project’s documentation.</p>
+          <p><a href="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265/1</link>
+        <pubDate>Tue, 11 Jun 2019 08:52:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-265-1</guid>
+        <source url="https://community.frontity.org/t/how-to-implement-gutenberg-blocks/265.rss">How to implement Gutenberg blocks</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to run code &#39;after&#39; state is populated?</title>
+    <link>https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870</link>
+    <description>I&#39;m using libraries.source.api.get() combined with libraries.source.populate() to get specific CPT into state
+
+However, running code &#39;after&#39; the populate response is resolved occurs before the data is actually in the state (i get errors trying to access state.source.downloads[id] because it happens while the data is not there)
+
+Is there a clean way to run code after state has been populated ?
+Im currently working around the issue with a setTimeout but this isnt ideal...
+
+```
+  const [files, setFiles] = useState();
+  const filesID = [...content.documents].map((item) =&gt; item.ID);
+  const filesIDstring = filesID.join();
+
+  useEffect(() =&gt; {
+    //   async inside useEffect
+    const fetchData = async () =&gt; {
+      // get the data from the api
+      const response = await libraries.source.api.get({
+        endpoint: &quot;downloads&quot;,
+        params: { _embed: true, include: filesIDstring },
+      });
+      await libraries.source.populate({ response, state }).then(
+        setTimeout(() =&gt; {
+          setFiles(filesID.map((id) =&gt; state.source.downloads[id]));
+        }, 100)
+      );
+    };
+    // call the function
+    fetchData();
+  }, []);
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 01 Apr 2022 08:08:54 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to run code &#39;after&#39; state is populated?</title>
+        <dc:creator><![CDATA[alexis.doroszkiewicz]]></dc:creator>
+        <description><![CDATA[
+            <p>Fixed by doing the following</p>
+<pre><code class="lang-javascript">useEffect(() =&gt; {
+    //   async inside useEffect
+    const fetchData = async () =&gt; {
+      // get the data from the api
+      const response = await libraries.source.api.get({
+        endpoint: "downloads",
+        params: { _embed: true, include: filesIDstring },
+      });
+      const pop = await libraries.source.populate({ response, state });
+      setFiles(pop.map(({ id }) =&gt; state.source.downloads[id]));
+    };
+    // call the function
+    fetchData();
+  }, []);
+</code></pre>
+<p>i believed populate returned a response but it doesnt, it returns an array<br>
+so using the array directly works without causing errors <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<p>my bad, need to pay more attention when reading the api reference haha</p>
+          <p><a href="https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870/2</link>
+        <pubDate>Thu, 31 Mar 2022 19:03:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5870-2</guid>
+        <source url="https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870.rss">How to run code &#39;after&#39; state is populated?</source>
+      </item>
+      <item>
+        <title>How to run code &#39;after&#39; state is populated?</title>
+        <dc:creator><![CDATA[alexis.doroszkiewicz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m using libraries.source.api.get() combined with libraries.source.populate() to get specific CPT into state</p>
+<p>However, running code ‘after’ the populate response is resolved occurs before the data is actually in the state (i get errors trying to access state.source.downloads[id] because it happens while the data is not there)</p>
+<p>Is there a clean way to run code after state has been populated ?<br>
+Im currently working around the issue with a setTimeout but this isnt ideal…</p>
+<pre><code class="lang-javascript">  const [files, setFiles] = useState();
+  const filesID = [...content.documents].map((item) =&gt; item.ID);
+  const filesIDstring = filesID.join();
+
+  useEffect(() =&gt; {
+    //   async inside useEffect
+    const fetchData = async () =&gt; {
+      // get the data from the api
+      const response = await libraries.source.api.get({
+        endpoint: "downloads",
+        params: { _embed: true, include: filesIDstring },
+      });
+      await libraries.source.populate({ response, state }).then(
+        setTimeout(() =&gt; {
+          setFiles(filesID.map((id) =&gt; state.source.downloads[id]));
+        }, 100)
+      );
+    };
+    // call the function
+    fetchData();
+  }, []);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870/1</link>
+        <pubDate>Wed, 30 Mar 2022 18:06:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5870-1</guid>
+        <source url="https://community.frontity.org/t/how-to-run-code-after-state-is-populated/5870.rss">How to run code &#39;after&#39; state is populated?</source>
+      </item>
+  </channel>
+</rss>

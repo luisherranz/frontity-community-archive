@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Handlers for non-URL data - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="I’m opening this topic to discuss how to work in wp-source with handlers with non-URL data like comments, menus, widgets, attachments, etc. I was thinking of working on the comments handler but we should take a decision &amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/handlers-for-non-url-data/714" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Handlers for non-URL data&#39;" href="/t/handlers-for-non-url-data/714.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/handlers-for-non-url-data/714" />
+<meta name="twitter:url" content="/t/handlers-for-non-url-data/714" />
+<meta property="og:title" content="Handlers for non-URL data" />
+<meta name="twitter:title" content="Handlers for non-URL data" />
+<meta property="og:description" content="I’m opening this topic to discuss how to work in wp-source with handlers with non-URL data like comments, menus, widgets, attachments, etc. I was thinking of working on the comments handler but we should take a decision before.  As far as I know, our initial idea was to keep the same APIs than the URL data, but in these cases, it doesn’t start with “/”. Is it right?  In the comments handler, and I guess it applies to other ones too, we should decide what is the best approach for fetching and pop..." />
+<meta name="twitter:description" content="I’m opening this topic to discuss how to work in wp-source with handlers with non-URL data like comments, menus, widgets, attachments, etc. I was thinking of working on the comments handler but we should take a decision before.  As far as I know, our initial idea was to keep the same APIs than the URL data, but in these cases, it doesn’t start with “/”. Is it right?  In the comments handler, and I guess it applies to other ones too, we should decide what is the best approach for fetching and pop..." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta property="og:article:tag" content="menu-support" />
+<meta property="og:article:tag" content="wp-comments" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="7 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="10 ❤" />
+<meta property="article:published_time" content="2019-10-14T07:52:46+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/handlers-for-non-url-data/714?page=2">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Handlers for non-URL data","mainEntity":{"@type":"Question","name":"Handlers for non-URL data","text":"I’m opening this topic to discuss how to work in wp-source with handlers with non-URL data like comments, menus, widgets, attachments, etc. I was thinking of working on the comments handler but we should take a decision before.\n\nAs far as I know, our initial idea was to keep the same APIs than the U&hellip;","upvoteCount":2,"answerCount":0,"dateCreated":"2019-10-14T07:52:46.109Z","author":{"@type":"Person","name":"Mario Santos Guillamot"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/handlers-for-non-url-data/714">Handlers for non-URL data</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/menu-support' class='discourse-tag' rel="tag">menu-support</a>, 
+            <a href='/tag/wp-comments' class='discourse-tag' rel="tag">wp-comments</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Handlers for non-URL data'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content='menu-support, wp-comments'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-14T07:52:46Z' class='post-time'>
+                    14 October 2019 07:52
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-15T10:25:29Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>I’m opening this topic to discuss how to work in <code>wp-source</code> with handlers with non-URL data like comments, menus, widgets, attachments, etc. I was thinking of working on the comments handler but we should take a decision before.</p>
+<p>As far as I know, our initial idea was to keep the same APIs than the URL data, but in these cases, it doesn’t start with “/”. Is it right?</p>
+<p>In the comments handler, and I guess it applies to other ones too, we should decide what is the best approach for fetching and populating the state.</p>
+<ul>
+<li>Should we fetch comments by post id? Something like:</li>
+</ul>
+<pre><code class="lang-javascript">    // Fetch comments for post 123:
+    actions.source.fetch("comments/123")
+</code></pre>
+<ul>
+<li>How should we populate the state? We could include all the comments under <code>state.source.comments[commentId]</code> just like posts, categories, tags… or we could include the <code>postId</code> directly under comments -&gt; <code>state.source.comments[postId][commentId]</code>.</li>
+</ul>
+<p>What do you think guys? I’m aware you’ve thought about this more than me, so I guess you’ll know more aspects I didn’t consider <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/how-to-fetch-menu-from-wordpress/415">How to fetch Menu from wordpress?</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/acf-options-page/767">ACF Options page</a>
+                        <meta itemprop='position' content='2'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/issue-while-deploying-to-now/694">Issue while deploying to Now</a>
+                        <meta itemprop='position' content='3'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/what-features-youd-like-to-see-in-frontity-2-0/745">What features you&#39;d like to see in Frontity 2.0?</a>
+                        <meta itemprop='position' content='4'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-14T11:42:06Z' class='post-time'>
+                    14 October 2019 11:42
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-14T11:42:06Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-community-team" data-post="1" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>As far as I know, our initial idea was to keep the same APIs than the URL data, but in these cases, it doesn’t start with “/”. Is it right?</p>
+</blockquote>
+</aside>
+<p>Yes. One idea is to simply not to use a slash, like you comment. Another idea is to add a specific character that makes it clearer that it’s not a URL, for example:</p>
+<pre><code class="lang-javascript">actions.source.fetch("!comments/123")
+</code></pre>
+<p>It’d be a standard, of course. Nothing constrained by the code.</p>
+<aside class="quote group-community-team" data-post="1" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Should we fetch comments by post id?</p>
+</blockquote>
+</aside>
+<p>Yes, I think fetching by post id is the best option.</p>
+<aside class="quote group-community-team" data-post="1" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>How should we populate the state? We could include all the comments under <code>state.source.comments[commentId]</code> just like posts, categories, tags… or we could include the <code>postId</code> directly under comments -&gt; <code>state.source.comments[postId][commentId]</code> .</p>
+</blockquote>
+</aside>
+<p>This has to be <code>state.source.comments[commentId]</code> because that’s the way everything is stored in Frontity.</p>
+<p>In order to know which comments belong to a post, uses will access <code>state.source.data["comments/123"]</code> and look at the <code>items</code> array with the ids.</p>
+<p>We have to make a decision if there are more than 100 posts because the REST API is limited to 100. So either something like <code>state.source.data["comments/123/page/2"]</code> or the handler of <code>comments/123</code> does multiple fetches until it has all the comments.</p>
+<hr>
+<p>Regarding attachments, I think we could use a similar syntax by id:</p>
+<pre><code class="lang-javascript">actions.source.fetch("attachment/123")
+</code></pre>
+<hr>
+<p><a class="mention" href="/u/santosguillamot">@SantosGuillamot</a> could you please investigate how the official REST API plugin of menus is going to work? <a href="https://github.com/WP-API/menus-endpoints" rel="nofollow noopener">https://github.com/WP-API/menus-endpoints</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-14T13:33:15Z' class='post-time'>
+                    14 October 2019 13:33
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-14T13:33:15Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="2" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><a class="mention" href="/u/santosguillamot">@SantosGuillamot</a> could you please investigate how the official REST API plugin of menus is going to work? <a href="https://github.com/WP-API/menus-endpoints" rel="nofollow noopener">https://github.com/WP-API/menus-endpoints</a></p>
+</blockquote>
+</aside>
+<p>Sure, I took a quick look some time ago but I’ll go deeper and share here the findings.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-14T15:47:50Z' class='post-time'>
+                    14 October 2019 15:47
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-14T15:47:50Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve installed the plugin in <a href="http://test.frontity.io" rel="nofollow noopener">test.frontity.io</a>. It looks like this is still in the very beginning.</p>
+<p>I’ve also installed this one: <a href="https://wordpress.org/plugins/wp-rest-api-v2-menus/" rel="nofollow noopener">https://wordpress.org/plugins/wp-rest-api-v2-menus/</a>.</p>
+<p>At a first glance, none of them offer a clear structure of the children elements of each element. Maybe we can generate the proper hierarchy in Frontity itself, instead of relying on what these plugins are exposing.</p>
+<p>Also, in the “official” one, there’s no way to fetch all the items using the menu <code>slug</code>, only the <code>id</code>. You either use the <code>id</code> or do an initial fetch of the menu to discover the id.</p>
+<p>A third option would be to release our own PHP plugin (like what we are doing for Yoast Meta).</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/chris'><span itemprop='name'>chris</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-15T01:43:46Z' class='post-time'>
+                    15 October 2019 01:43
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-15T01:43:46Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thought I’d chime in with my 2c about this from <a href="/t/issue-while-deploying-to-now/694">here</a>.</p>
+<p>While working on my own project I’ve noticed a few limitations in the official plugin:</p>
+<ul>
+<li>Unable to retrieve menus via slug</li>
+<li>Returns a flat array of all menu items</li>
+<li>Menu items return the absolute URL instead but not the slug</li>
+</ul>
+<p>I’ve recently started working with Frontity to build a client site and had the requirement to build a super simple menu with some dropdown items. As we’re using <a href="https://react-bootstrap.github.io/components/navbar/" rel="nofollow noopener">Bootstrap React</a> we needed the menu items formed in a way to replicate the dropdown structure:</p>
+<pre><code>&lt;Dropdown.Toggle variant="success" id="dropdown-basic"&gt;
+    Dropdown Button
+&lt;/Dropdown.Toggle&gt;
+
+&lt;Dropdown.Menu&gt;
+    &lt;Dropdown.Item href="#/action-1"&gt;Action&lt;/Dropdown.Item&gt;
+    &lt;Dropdown.Item href="#/action-2"&gt;Another action&lt;/Dropdown.Item&gt;
+    &lt;Dropdown.Item href="#/action-3"&gt;Something else&lt;/Dropdown.Item&gt;
+&lt;/Dropdown.Menu&gt;
+</code></pre>
+<p>Because the official plugin simply returned a single level array of every menu item, and the absolute URL we had to restructure the array before trying to build our Bootstrap menu. We had to move the child menu items into a children property in order to easily figure out where the menu item should belong and strip out the WP install path from the URL property in order to retrieve just the slug. We’ve settled for the below code snippet at the moment, it may go through some further refactoring but works currently:</p>
+<pre><code>var data = {...} // JSON response from WP
+var config = {...} // Some properties (domain as an example to replace in the menu)
+var menu = [];
+data.forEach( item =&gt; {
+  if( item.menu_item_parent === 0 ) {
+    let menuObj = {
+      "title": item.title.rendered,
+      "link": item.url.replace(config.base, ''), // drop the domain / wp install folder so we're left with just the slug
+      "id": item.id,
+      "parent": item.menu_item_parent,
+      "classes": item.classes
+    };
+
+    // Try and find children
+    let children = data.filter( (menuItem) =&gt; {
+      return menuItem.menu_item_parent === item.id;
+    }).map( (child) =&gt; {
+      return {
+        "title": child.title.rendered,
+        "link": child.url.replace(config.base, ''), // drop the domain / wp install folder so we're left with just the slug
+        "id": child.id,
+        "parent": child.menu_item_parent,
+        "classes": child.classes
+      };
+    });
+    menuObj["children"] = children;
+    menu.push(menuObj);
+  }
+});
+</code></pre>
+<p>While there could be some code improvements I’m sure, this seems like alot of code for a simple menu. It would be ideal if each menu item in the response from WP had:</p>
+<ul>
+<li>An array of children</li>
+<li>The slug so we don’t need to manually strip the URL property</li>
+</ul>
+<p>With these 2 simple changes it would cut out most (if not all) the code required to render the menu in our application.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-15T10:23:36Z' class='post-time'>
+                    15 October 2019 10:23
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-15T10:23:36Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Yeah, I see. Thanks for sharing.</p>
+<p>Regarding how to fetch a menu:</p>
+<ul>
+<li>The <code>name</code> is the more use friendly one and easy to find in the WP Dashboard. But if the name of the menu is changed, you have to change your <code>frontity.settings.js</code> file.</li>
+<li>The <code>slug</code> is more user friendly, but it’s also hard to obtain from the WP Dashboard. Actually, I don’t know how. Also, if you change the name, the slug changes as well. It is more URL friendly than the <code>name</code> because it doesn’t have special character, spaces and so on.</li>
+<li>The <code>id</code> doesn’t ever change, which is great. But it doesn’t give you information about which menu is when you copy and paste it in <code>frontity.settings.js</code>. You can get it in the WP Dashboard looking at the URL, but only after you click “Select”, which is probably not intuitive enough.</li>
+</ul>
+<p>If we want to use the official plugin and respect the structure we’ve been following for the rest of the WP content, my initial thought is that it should be something like this:</p>
+<pre><code class="lang-javascript">state.source.data["menus/1"] = {
+  isMenu: true,
+  type: "menu",
+  id: 1,
+  items: [
+    {  type: "menu-item", id: 2 },
+    {  type: "menu-item", id: 3 },
+    {  type: "menu-item", id: 4, children: [
+      { type: "menu-item", id: 5 },
+      { type: "menu-item", id: 6 },
+      { type: "menu-item", id: 7, children: [
+        { type: "menu-item", id: 8 },
+        { type: "menu-item", id: 9 },
+      ] },
+    ] },
+    {  type: "menu-item", id: 10 },
+    {  type: "menu-item", id: 11 },
+  ]
+};
+
+state.source.menu["1"] = {
+  id: 1,
+  description: "My menu description",
+  name: "My First menu",
+  slug: "my-fist-menu",
+  meta: []
+};
+
+state.source["menu-item"]["2"] = {
+  id: 2,
+  title: {
+    rendered: "Home"
+  },
+  status: "publish",
+  link: "/", // &lt;- remove the domain
+  attr_title: "",
+  description: "",
+  type: "custom",
+  type_label: "Custom Link",
+  object: "custom",
+  object_id: 2,
+  parent: 0,
+  menu_item_parent: 0,
+  menu_order: 1,
+  target: "",
+  classes: [""],
+  xfn: [""],
+  meta: []
+};
+</code></pre>
+<p><em>We can remove the domain from the URL as we do for the <code>link</code> field of posts and taxonomies.</em></p>
+<p>The React component for the menu could be something like this:</p>
+<pre><code class="lang-javascript">const Menu = ({ state }) =&gt; {
+  const data = state.source.get("menus/1");
+  return (
+    &lt;ul&gt;
+      {data.items.map(item =&gt;
+        &lt;MenuItem id={item.id} children={item.children} /&gt;
+      )}
+    &lt;/ul&gt;
+  );
+}
+
+const MenuItem = ({ state, id, children }) =&gt; {
+  const item = state.source["menu-item"][id];
+  return (
+    &lt;li&gt;
+      &lt;Link href={item.link}&gt;{item.title.rendered}&lt;/Link&gt;
+      {children &amp;&amp; (
+        &lt;ul&gt;
+          {children.map(child =&gt; {
+            &lt;MenuItem id={child.id} children={child.children} /&gt;
+          }
+        &lt;/ul&gt;
+      )}
+    &lt;/li&gt;
+  );
+);
+</code></pre>
+<p>Feedback is welcomed!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+                <link itemprop="image" href="/uploads/default/original/1X/8ee5731d9f9aa0c8dbc9df8a6b5fed1440be5cb9.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-15T10:30:48Z' class='post-time'>
+                    15 October 2019 10:30
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-15T10:30:48Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-post="5" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/letter_avatar_proxy/v4/letter/c/958977/40.png" class="avatar"> chris:</div>
+<blockquote>
+<p>The slug so we don’t need to manually strip the URL property</p>
+</blockquote>
+</aside>
+<p>By the way, we’ve included the <code>URL</code> helper in Frontity: <a href="https://docs.frontity.org/api-reference-1/frontity#url" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/frontity#url</a></p>
+<p>You have to import it from <code>"frontity"</code> to make sure it works for both the server and the client:</p>
+<pre><code class="lang-javascript">import { URL } from "frontity";
+
+const url = new URL(item.url);
+
+url.pathname // &lt;-- the relative path
+</code></pre>
+<p>More info about <code>URL</code> in the <a href="http://mozilla.org" rel="nofollow noopener">mozilla.org</a> docs:</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="/uploads/default/original/1X/8ee5731d9f9aa0c8dbc9df8a6b5fed1440be5cb9.png" class="site-icon" width="32" height="32">
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL" target="_blank" rel="nofollow noopener">MDN Web Docs</a>
+  </header>
+  <article class="onebox-body">
+    <img src="/uploads/default/original/1X/e5c522d667c53fbfb0ada5f535969c16f9748c84.png" class="thumbnail onebox-avatar" width="500" height="500">
+
+<h3><a href="https://developer.mozilla.org/en-US/docs/Web/API/URL" target="_blank" rel="nofollow noopener">URL</a></h3>
+
+<p>The URL interface is used to parse, construct, normalize, and encode URLs. It works by providing properties which allow you to easily read and modify the components of a URL.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/how-to-get-posts-url-address-for-simple-component/736">How to get post&#39;s url address for simple component</a>
+                        <meta itemprop='position' content='4'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/chris'><span itemprop='name'>chris</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-17T22:49:50Z' class='post-time'>
+                    17 October 2019 22:49
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-17T22:49:50Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="7" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>By the way, we’ve included the <code>URL</code> helper in Frontity: <a href="https://docs.frontity.org/api-reference-1/frontity#url" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/frontity#url </a></p>
+<p>You have to import it from <code>"frontity"</code> to make sure it works for both the server and the client:</p>
+<pre><code class="lang-auto">import { URL } from "frontity";
+
+const url = new URL(item.url);
+
+url.pathname // &lt;-- the relative path
+</code></pre>
+</blockquote>
+</aside>
+<p>Ah I see, must have missed that looks like I have some refactoring to do!</p>
+<p>Perhaps I’ve not thought about it enough, have missed something or perhaps it even has a valid use-case, but have you considered retrieving menu via location? Only 1 menu can be assigned to a location, they’re fairly static and dev’s should (I hope) know what menu locations have been set up in their theme.</p>
+<p>The response from WP would remain the same as your suggestion and if there is a valid use case for retrieving menus not assigned to a location an additional handler can be used to retrieve the menu via ID.</p>
+<p>I assume you’ve already thought about this, but would love to hear your thoughts or if I’ve missed any glaringly obvious issues with doing it like this.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+                <link itemprop="image" href="/uploads/default/original/1X/7fae2237b6f9f19bb07ef30b44200edd1654ed8f.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-20T13:24:24Z' class='post-time'>
+                    20 October 2019 13:24
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-20T13:24:24Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/santosguillamot">@SantosGuillamot</a> has started a PR for the first non-URL handler: <code>comments</code>!</p>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/225" target="_blank" rel="nofollow noopener">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Pull Request">
+    <svg width="60" height="60" class="github-icon" viewbox="0 0 12 16" aria-hidden="true"><path d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/frontity/pull/225" target="_blank" rel="nofollow noopener">Add comments handler</a>
+    </h4>
+
+    <div class="branches">
+      <code>frontity:dev</code> ← <code>SantosGuillamot:add-comments-handler</code>
+    </div>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2019-10-16" data-time="17:56:52" data-timezone="UTC">05:56PM - 16 Oct 19 UTC</span>
+      </div>
+
+      <div class="user">
+        <a href="https://github.com/SantosGuillamot" target="_blank" rel="nofollow noopener">
+          <img alt="SantosGuillamot" src="/uploads/default/original/1X/7fae2237b6f9f19bb07ef30b44200edd1654ed8f.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          SantosGuillamot
+        </a>
+      </div>
+
+      <div class="lines" title="3 commits changed 7 files with 101 additions and 2 deletions">
+        <a href="https://github.com/frontity/frontity/pull/225/files" target="_blank" rel="nofollow noopener">
+          <span class="added">+101</span>
+          <span class="removed">-2</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/nihad.obralic'><span itemprop='name'>nihad.obralic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-20T21:01:39Z' class='post-time'>
+                    20 October 2019 21:01
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-20T21:01:39Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi, this is my first comment. I’m in investigation frontity for my project, and from my perspective this is great thing. Currently, I’m trying to implement menu, but I can’t understand location for code above.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-22T14:35:50Z' class='post-time'>
+                    22 October 2019 14:35
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-22T14:35:50Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey <a class="mention" href="/u/nihad.obralic">@nihad.obralic</a>, welcome to the community <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>This is still a work in progress. I recommend you to stick to a simpler menu, probably stored in the <code>frontity.settings.js</code> file (like the one in <code>mars-theme</code>) for now.</p>
+<p>When we finish this work we’ll announce support for WP menus, edited in the dashboard.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/nihad.obralic'><span itemprop='name'>nihad.obralic</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-22T15:13:12Z' class='post-time'>
+                    22 October 2019 15:13
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-22T15:13:12Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thank you.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/LiamMcKoy'><span itemprop='name'>LiamMcKoy</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-25T14:40:37Z' class='post-time'>
+                    25 October 2019 14:40
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-25T14:40:37Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="4" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>A third option would be to release our own PHP plugin (like what we are doing for Yoast Meta).</p>
+</blockquote>
+</aside>
+<p>I’m using <a href="https://wordpress.org/plugins/wp-rest-api-v2-menus/" rel="nofollow noopener">wp-rest-api-v2-menus/</a> plugin for now. I’m able to get all necessary data, but there are also plenty of redundant data. Imho it would be great to us “Wordpress Frontity Menu Rest” plugin. Which could return tailor-made data for Frontity needs.</p>
+<p>I’ve also played a bit with <a href="https://github.com/WP-API/menus-endpoints" rel="nofollow noopener">WP-API/menus-endpoints</a> mostly with widget part. And so far widget part is totally useless.</p>
+<p>I was trying to get widgets for particular sidebar:<br>
+<code>http://example.com/wp-json/wp/v2/widgets?sidebar=default</code><br>
+and this is what I’ve got:</p>
+<pre><code>[
+  {
+    "id": "custom_html-2",
+    "type": "custom_html"
+  },
+  {
+    "id": "media_gallery-2",
+    "type": "media_gallery"
+  },
+  {
+    "id": "links-2",
+    "type": "links"
+  },
+  {
+    "id": "recent-posts-2",
+    "type": "recent-posts",
+    "title": "recent posts",
+    "number": 5,
+    "show_date": false
+  }
+]
+</code></pre>
+<p>I expected totally different data. I thougt this endpoint will return let’s say html for every single widget.<br>
+I finished with custom rest endpoint. I’m not a PHP developer, but friend of mine prepared this code for me:</p>
+<pre><code>&lt;?php
+function get_sidebar($data) {
+	$id = urldecode($data['id']);
+	ob_start();
+	dynamic_sidebar($id);
+	$sidebar = ob_get_contents();
+	ob_end_clean();
+	return array('id'=&gt;$id, 'content'=&gt;$sidebar);
+}
+
+function get_sidebars() {
+	$results = array();
+	foreach ( $GLOBALS['wp_registered_sidebars'] as $sidebar ) {
+		$results[] = sbc_get_sidebar(array('id'=&gt;$sidebar['id']));
+	}
+	return $results;
+}
+
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'wp/v2', '/sidebars', array(
+		'methods' =&gt; 'GET',
+		'callback' =&gt; 'get_sidebars',
+	));
+	register_rest_route( 'wp/v2', '/sidebars/(?P&lt;id&gt;[%a-zA-Z0-9_-]+)', array(
+		'methods' =&gt; 'GET',
+		'callback' =&gt; 'get_sidebar',
+		'args' =&gt; array(
+			'id' =&gt; array()	
+		)
+	));
+});
+?&gt;
+</code></pre>
+<p>I think the best solution for all those problems could be a set of wordpress plugins dedicated for Frontity:</p>
+<ul>
+<li>Yoast Meta Frontity,</li>
+<li>Menu Rest Frontity,</li>
+<li>Sidebars Rest Frontity.<br>
+and so on.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-10-28T08:36:49Z' class='post-time'>
+                    28 October 2019 08:36
+                  </time>
+                  <meta itemprop='dateModified' content='2019-10-28T08:36:49Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi <a class="mention" href="/u/liammckoy">@LiamMcKoy</a>, we are about to release the Yoast Plugin in the next days. It will be a more general plugin because it will expose all tags in <code>&lt;head&gt;</code> and will work with other SEO plugins, so we are considering to change its name to something like <strong>REST API Head Tags</strong>.</p>
+<p>About the others, we have already in mind to create a bunch of plugins to help WordPress integrate with Frontity, so thanks for your suggestions! <img src="/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-12-04T09:15:13Z' class='post-time'>
+                    4 December 2019 09:15
+                  </time>
+                  <meta itemprop='dateModified' content='2019-12-04T09:15:13Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>An update about the <code>menus</code> endpoint on WordPress. It looks like it will probably get merged in the WordPress core in the 5.4 version:</p>
+<aside class="quote quote-modified" data-post="22" data-topic="415">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar">
+    <a href="/t/how-to-fetch-menu-from-wordpress/415">How to fetch Menu from wordpress?</a> <a class="badge-wrapper  box" href="/c/dev-talk-questions"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Share with the community how are you going to use Frontity!
+Confused? Getting a weird error? Just want to share your progress? Also your place.">🤗 Dev Talk &amp; Questions</span></a>
+  </div>
+  <blockquote>
+    The new Nav block will include support to import existing menus. That means the Gutenberg team needs to add the /menus endpoint to the core, so things started to get in motion. 
+
+This is the Gutenberg issue: <a href="https://github.com/WordPress/gutenberg/issues/18373">https://github.com/WordPress/gutenberg/issues/18373</a>
+
+And this is the official menus-endpoint plugin: <a href="https://github.com/WP-API/menus-endpoints">https://github.com/WP-API/menus-endpoints</a>
+
+
+Jonny Harris (<a href="https://twitter.com/thespacedmonkey">spacedmonkey</a>) has taken over the task and he is actively working on the plugin to make it ready.  As soon as the final API is frozen …
+  </blockquote>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-17T07:44:21Z' class='post-time'>
+                    17 February 2020 07:44
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-17T07:44:21Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi there! <img src="/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>We’re planning to start working on the comments package in the coming weeks, but first we have to take a decision about handlers for non-URL data. Here we have a quick summary so we can continue the discussion:</p>
+<ul>
+<li>Our initial idea was to use the same API than the URL data, but doing minor changes like not using the initial slash or adding any character before:</li>
+</ul>
+<pre><code>actions.source.fetch("comments/123") //without slash
+actions.source.fetch("!comments/123")
+</code></pre>
+<p>It would be and standard, nothing constrained.</p>
+<ul>
+<li>We have to populate the state the same way everything is stored in Frontity. For example, the comments should be stored in <code>state.source.comments[commentId]</code>.</li>
+</ul>
+<hr>
+<p>Any thoughts? Anything to discuss about?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-18T20:20:12Z' class='post-time'>
+                    18 February 2020 20:20
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-18T20:20:12Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I think that it’s going to be more obvious that this is not a URL if we use a distinctive character.</p>
+<p>We can modify <code>actions.router.set</code> so it throws when the <code>link</code> passed doesn’t start with <code>"/"</code>.</p>
+<p>If we do that, we can use any character we want, <a href="https://www.ietf.org/rfc/rfc2396.txt">reserved or unreserved</a>:</p>
+<pre><code>// Throws because it's not a valid URL.
+actions.router.set("comments/123");
+// Throws because it's not a valid URL.
+actions.router.set("@comments/123");
+
+// Doesn't throw, this could be a valid URL:
+actions.router.set("/comments/123");
+// Doesn't throw, this could be a valid URL:
+actions.router.set("/@comments/123");
+</code></pre>
+<p>From the list of possible characters:</p>
+<pre><code>reserved = ";" | "/" | "?" | ":" | "@" | "&amp;" | "=" | "+" | "$" | ","
+unreserved = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
+</code></pre>
+<p>I like <code>actions.source.fetch("@comments/123")</code> the most.</p>
+<hr>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="2" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>We have to make a decision if there are more than 100 posts because the REST API is limited to 100. So either something like <code>state.source.data["comments/123/page/2"]</code> or the handler of <code>comments/123</code> does multiple fetches until it has all the comments.</p>
+</blockquote>
+</aside>
+<p>We also need to make a decision about this <img src="/images/emoji/apple/point_up_2.png?v=9" title=":point_up_2:" class="emoji" alt=":point_up_2:"></p>
+<p>But maybe it’s better to open a feature topic for the comments handler to start discussing about this <a class="mention" href="/u/santosguillamot">@SantosGuillamot</a>? <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-19T08:01:58Z' class='post-time'>
+                    19 February 2020 08:01
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-19T08:01:58Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I like the approach of using a special character, I agree is more obvious and we can throw errors if it doesn’t start with <code>"/"</code> as you said.</p>
+<p>Regarding which character, maybe we should try to use one that is not commonly used for other “code” purposes, so it isn’t confusing. For example, I’m aware that the <code>"$"</code> character could be used inside regex or template strings right? Or the <code>"!"</code> could be confused with the logical “not” operator. Not sure if these would be confusing or not, you’ll know better about this.</p>
+<p>Btw, I think <code>"@"</code> is not confusing at all, so we can go with it.</p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="17" data-topic="714">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>But maybe it’s better to open a feature topic for the comments handler to start discussing about this <a class="mention" href="/u/santosguillamot">@SantosGuillamot</a>? <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</blockquote>
+</aside>
+<p>Sure, I’m planning to add two new topics for both the menu and the comments. I wanted to keep this topic just for the handlers for non-URL data. I’ll reference them here once they are open.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-19T08:52:36Z' class='post-time'>
+                    19 February 2020 08:52
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-19T08:52:36Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Awesome! <img src="/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+<p>By the way, should we open a feature topic for the comment handler and a feature topic for the comment package or only one for the comment package that contains a user story for the comment handler? What do you think?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/handlers-for-non-url-data/714">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-20T08:06:02Z' class='post-time'>
+                    20 February 2020 08:06
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-20T08:06:02Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I thought about that some time ago, and I think it makes sense to split it, although I’m not 100% convinced <img src="/images/emoji/apple/grin.png?v=9" title=":grin:" class="emoji" alt=":grin:"> .</p>
+<p>Right now, Frontity is handling all the WordPress default content like posts, CPT, taxonomies, authors… and populating the `state, and the themes decide how to consume this data. I think WordPress works in a similar way: you can get all the comments with a PHP function, but the theme decides how to show them.</p>
+<p>So I feel it could be a good approach to create a handler that populates the state in an easy way to consume, and add an example of how to consume it in mars-theme.</p>
+<p>In the future, if we see this is not enough, we can work on the feature of building a comments component.</p>
+<p>Btw, I think is something that will happen again, for example with the menus.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/handlers-for-non-url-data/714?page=2">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

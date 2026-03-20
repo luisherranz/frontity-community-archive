@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Auth - how to configure basic auth on all my calls</title>
+    <link>https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320</link>
+    <description>**Hi everyone,**
+I&#39;m having a hard time **trying to send authorization headers** on every single fetch to my wordpress site (currently I only have to send basic auth). *I&#39;m aware that there&#39;s at least two entries on this board that ask almost the same thing (see my list at the end).*
+
+Mandatory info (after running npx frontity info)
+&gt; ### Binaries:
+&gt;  - Node: 10.15.3 - C:\Program Files\nodejs\node.EXE
+&gt;  - npm: 6.4.1 - C:\Program Files\nodejs\npm.CMD
+&gt; ### npmPackages:
+&gt;  - @frontity/core: 1.11.1 =&gt; 1.11.1
+&gt;  - @frontity/html2react: 1.6.2 =&gt; 1.6.2
+&gt;  - @frontity/mars-theme: ./packages/mars-theme =&gt; 1.5.0
+&gt;  - @frontity/tiny-router: 1.4.1 =&gt; 1.4.1
+&gt;  - @frontity/wp-source: 1.11.2 =&gt; 1.11.2
+&gt;  - frontity: 1.14.3 =&gt; 1.14.3
+
+# TL;DR version to reproduce my point:
+1.- clone my repo from [here](https://github.com/sebastianpennino/-wp-frontity-poc-2) (it&#39;s same thing you get from running `npx frontity create my-project` but with an altered frontity.settining.js)
+2.- go into the brand new folder and do a `npm install`
+3.- go to node_modules/@frontity/wp-source/src/libraries/api.ts, on *line 110*, after this code `const headers = auth ? { Authorization: auth } : {};` just add a console.log(&#39;==== HEADERS ====&#39;); console.log(headers); save the file. *Yes I&#39;m super aware this is a really bad practice but please indulge me.*
+4.- run the project with `npm run dev`, after the browser opens, just hit refresh and watch the console.
+5.- Skip the &quot;long explanation&quot; section and go directly to &quot;Almost finished&quot;
+
+# Long explanation version:
+After reading a bunch of entries here (list at the bottom of this post), navigating the code and still scratching my head, I decided to create a project from scratch and add a bunch of auth entries on the `frontity.settings.js` file like so:
+
+    // File: https://github.com/sebastianpennino/-wp-frontity-poc-2/blob/main/frontity.settings.js
+    const settings = {
+        &quot;name&quot;: &quot;wp-frontity-poc-2&quot;,
+        &quot;state&quot;: {
+            &quot;frontity&quot;: {
+                &quot;url&quot;: &quot;https://test.frontity.org&quot;,
+                &quot;title&quot;: &quot;Test Frontity Blog&quot;,
+                &quot;description&quot;: &quot;WordPress installation for Frontity development&quot;,
+                &quot;options&quot;: {
+                    &quot;auth&quot;: &quot;test-auth-00-A&quot;,
+                    &quot;headers&quot;: {
+                        &quot;auth&quot;: &quot;test-auth-00-B&quot;,
+                        &quot;Authorization&quot;: &quot;test-auth-00-C&quot;,
+                    },
+                },
+                &quot;headers&quot;: {
+                    &quot;auth&quot;: &quot;test-auth-00-D&quot;,
+                    &quot;Authorization&quot;: &quot;test-auth-00-E&quot;,
+                },
+            },
+            &quot;options&quot;: {
+                &quot;auth&quot;: &quot;test-auth-04&quot;,
+            },
+            &quot;headers&quot;: {
+                &quot;Authorization&quot;: &quot;test-auth-06&quot;,
+            },
+        },
+        &quot;packages&quot;: [
+            {
+                &quot;name&quot;: &quot;@frontity/mars-theme&quot;,
+                &quot;state&quot;: {
+                     // ... this part is irrelevant leaving out the code here
+                }
+            },
+            {
+                &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+                &quot;state&quot;: {
+                    &quot;source&quot;: {
+                        &quot;url&quot;: &quot;https://test.frontity.org&quot;,
+                        &quot;auth&quot;: &quot;test-auth-01-A&quot;,
+                        &quot;headers&quot;: {
+                            &quot;auth&quot;: &quot;test-auth-01-B&quot;,
+                            &quot;Authorization&quot;: &quot;test-auth-01-C&quot;,
+                        },
+                    },
+                    &quot;wpSource&quot;: {
+                        &quot;auth&quot;: &quot;test-auth-01-D&quot;,
+                        &quot;headers&quot;: {
+                            &quot;auth&quot;: &quot;test-auth-01-E&quot;,
+                            &quot;Authorization&quot;: &quot;test-auth-01-F&quot;,
+                        },
+                    },
+                    &quot;headers&quot;: {
+                        &quot;auth&quot;: &quot;test-auth-01-G&quot;,
+                        &quot;Authorization&quot;: &quot;test-auth-01-H&quot;,
+                    },
+                }
+            },
+            &quot;@frontity/tiny-router&quot;,
+            &quot;@frontity/html2react&quot;
+        ]
+    };
+
+    export default settings;
+
+After not getting any authorization header on the receiving end I decided to actually check what was going on at code level, so I went to my node_modules/@frontity/wp-source/src/libraries/api.ts,  line 110, after this code `const headers = auth ? { Authorization: auth } : {};` just added two console logs
+ console.log(&#39;==== HEADERS ====&#39;); 
+console.log(headers); 
+
+## Almost finished
+
+After running the project with npm run dev, this is what I get
+![image|568x109](upload://68rwPu5v3xemjBAXtw9ugtCF25u.png) 
+
+So in a nutshell, **can someone explain to me what&#39;s the correct way to add authorization headers?** I&#39;m missing something or barking the wrong tree trying to see headers on that specific line? (I just need to add the same headers on every single fetch).
+
+I tried to make this as short as possible. I realize that maybe I missed the solution somewhere but I really need a person to tell me what I&#39;m doing wrong. **Thanks in advance**
+
+As promised the list of things that I read prior to creating this post:
+* https://api.frontity.org/frontity-packages/features-packages/wp-source
+* https://community.frontity.org/t/send-authorization-header/1941
+* https://community.frontity.org/t/auth-header-in-source-packages-and-frontity-query-options/2678
+* https://community.frontity.org/t/how-to-implement-basic-authentication/1215
+* https://community.frontity.org/t/how-can-i-add-a-bearer-token-to-the-auth-headers/3580/2
+* https://community.frontity.org/t/frontity-wp-source-returns-internal-server-error/3710
+* https://gitlab.com/hugosilva123/git_tan_project
+* https://github.com/frontity/frontity/pull/568
+
+Edit: formatting and grammar.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 31 Mar 2021 15:31:58 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Auth - how to configure basic auth on all my calls</title>
+        <dc:creator><![CDATA[sebastian]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, well In my case I needed the <code>auth</code> on the first call and on all subsequent calls and this is definitely “fixing” the issue for me (in a hacky way), but I don’t know for sure if this is an issue that any other developer experimented, there’s a bunch of threads in this community regarding <code>auth</code>, and no one seems to be complaining about this issue (that’s why I wanted confirmation).</p>
+<p>As I said in my previous comment I still don’t know how the data doesn’t get from <code>actions.ts</code> —&gt; to <code>api.ts</code>, I will investigate further if I have the time and if I can find the problem (and understand it so I can defend my idea) I will definitely create a PR / issue on the repo itself.</p>
+<p>Thanks again<br>
+(Edits: grammar, grammar, typo)</p>
+          <p><a href="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/9</link>
+        <pubDate>Wed, 31 Mar 2021 15:05:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4320-9</guid>
+        <source url="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320.rss">Auth - how to configure basic auth on all my calls</source>
+      </item>
+      <item>
+        <title>Auth - how to configure basic auth on all my calls</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sebastian">@sebastian</a></p>
+<p>Thanks for this solution. If you thing that this fixes a bug or is a generic solution that other users will find useful then please raise an issue or PR in <a href="https://github.com/frontity/frontity">the <code>frontity/frontity</code> repo</a>. Ideally package developers shouldn’t be hacking the core files.</p>
+          <p><a href="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/7</link>
+        <pubDate>Wed, 31 Mar 2021 14:29:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4320-7</guid>
+        <source url="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320.rss">Auth - how to configure basic auth on all my calls</source>
+      </item>
+      <item>
+        <title>Auth - how to configure basic auth on all my calls</title>
+        <dc:creator><![CDATA[sebastian]]></dc:creator>
+        <description><![CDATA[
+            <p>I can’t find where the info gets dropped (from <code>actions.ts</code> —&gt; to <code>api.ts</code>) and I don’t have much time to keep investigating, so <a href="https://github.com/sebastianpennino/frontity-wp-source/commits/" rel="noopener nofollow ugc">here’s my proposed solution to the issue</a> (I’m aware I’m not actually fixing the issue just using a workaround)</p>
+<p><strong>Basically I save the value on init:</strong></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/cf8fc09c4752354a07386bb10e21f3ec560b1c88.png" data-download-href="https://community.frontity.org/uploads/default/cf8fc09c4752354a07386bb10e21f3ec560b1c88" title="image"><img src="https://community.frontity.org/uploads/default/original/2X/c/cf8fc09c4752354a07386bb10e21f3ec560b1c88.png" alt="image" data-base62-sha1="tCaP7aHHhSJhqkaSdxKdEStVypG" width="690" height="412" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/cf8fc09c4752354a07386bb10e21f3ec560b1c88_2_10x10.png"></a></div><p></p>
+<p><strong>And retrieve it as a default like so:</strong></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/f/fc9d5725495bb4bb5cfe24ef7d76dc77a40bfc75.png" data-download-href="https://community.frontity.org/uploads/default/fc9d5725495bb4bb5cfe24ef7d76dc77a40bfc75" title="image"><img src="https://community.frontity.org/uploads/default/original/2X/f/fc9d5725495bb4bb5cfe24ef7d76dc77a40bfc75.png" alt="image" data-base62-sha1="A2JqdmRHcYsmAWW3nB8k5IWpyOV" width="619" height="500" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/f/fc9d5725495bb4bb5cfe24ef7d76dc77a40bfc75_2_10x10.png"></a></div><p></p>
+<p>If someone wants to use this code on his/her project I used it locally by replacing <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source with my patched version, like so (picture: my <code>package.json</code>):</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/7/7a71ded0ae34e7a19b04f4401b3fa5385fd55271.png" data-download-href="https://community.frontity.org/uploads/default/7a71ded0ae34e7a19b04f4401b3fa5385fd55271" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/7/7a71ded0ae34e7a19b04f4401b3fa5385fd55271_2_690x106.png" alt="image" data-base62-sha1="htcdue79RobxvRp1gYxXOvRkf9T" width="690" height="106" srcset="https://community.frontity.org/uploads/default/optimized/2X/7/7a71ded0ae34e7a19b04f4401b3fa5385fd55271_2_690x106.png, https://community.frontity.org/uploads/default/optimized/2X/7/7a71ded0ae34e7a19b04f4401b3fa5385fd55271_2_1035x159.png 1.5x, https://community.frontity.org/uploads/default/original/2X/7/7a71ded0ae34e7a19b04f4401b3fa5385fd55271.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/7/7a71ded0ae34e7a19b04f4401b3fa5385fd55271_2_10x10.png"></a></div><p></p>
+<p>Hope this helps people stuck with the <code>auth</code> property.</p>
+          <p><a href="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/6</link>
+        <pubDate>Wed, 31 Mar 2021 08:03:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4320-6</guid>
+        <source url="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320.rss">Auth - how to configure basic auth on all my calls</source>
+      </item>
+      <item>
+        <title>Auth - how to configure basic auth on all my calls</title>
+        <dc:creator><![CDATA[sebastian]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, <strong>thanks for the quick response.</strong></p>
+<p>Sadly for me, even after removing all the others entries and just adding the <code>auth</code> property to the <code>state.source</code> of <code>@frontity/wp-source</code> package on my <code>frontity.settings.js</code> (see pic below)</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/b/b8b0b18195e2109f5ec519c1818e90c7cc3b0a4d.png" alt="image" data-base62-sha1="qlQpWii14PD8feqp9OCo0llbeIl" width="553" height="181"></p>
+<p><strong>it didn’t work</strong> (if you check my previous message, it was already there, look for “test-auth-01-A”).<br>
+Also after checking your PR, tried using an .env file with <em><code>FRONTITY_SOURCE_AUTH="Basic 12345"</code></em> and <em>didn’t work either.</em></p>
+<p>If I have time this week I will check the source code to see what is going on inside, after an initial quick investigation I see the ‘auth’ with the proper value, on the <code>fetch</code>, <code>init</code> and <code>afterSSR</code> methods of <code>actions.ts</code> (<code>node_modules\@frontity\wp-source\src\actions.ts</code>) but when It gets to the <code>get</code> method of the <code>api.ts</code> (<code>node_modules\@frontity\wp-source\src\libraries\api.ts</code>) is already missing (undefined), maybe it needs to be defined on the init first?. Anyways as I said before, <strong>If I have time this week I will investigate further.</strong></p>
+<p><strong>TL;DR version:</strong><br>
+It didn’t work, but thanks anyway. Later this week will keep investigating.</p>
+          <p><a href="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/3</link>
+        <pubDate>Mon, 29 Mar 2021 13:21:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4320-3</guid>
+        <source url="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320.rss">Auth - how to configure basic auth on all my calls</source>
+      </item>
+      <item>
+        <title>Auth - how to configure basic auth on all my calls</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sebastian">@sebastian</a></p>
+<p>Welcome to the Frontity community. Great to see that you’re using Frontity for a project.</p>
+<p>Sorry you’ve experienced problems with this. We’re still working on our documentation for <em>auth</em> headers, but it should be ready soon.</p>
+<p>Try adding the <em>auth</em> headers to the settings for the <code>wp-source</code> package like this:</p>
+<pre><code class="lang-javascript">const state = {
+  source: {
+    auth: "Basic YWFhOmJiYg",
+  },
+};
+</code></pre>
+<p>If you need more info then check out our <a href="https://github.com/frontity/api-reference/pull/24">draft docs in this PR</a>.</p>
+          <p><a href="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/2</link>
+        <pubDate>Mon, 29 Mar 2021 09:36:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4320-2</guid>
+        <source url="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320.rss">Auth - how to configure basic auth on all my calls</source>
+      </item>
+      <item>
+        <title>Auth - how to configure basic auth on all my calls</title>
+        <dc:creator><![CDATA[sebastian]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>Hi everyone,</strong><br>
+I’m having a hard time <strong>trying to send authorization headers</strong> on every single fetch to my wordpress site (currently I only have to send basic auth). <em>I’m aware that there’s at least two entries on this board that ask almost the same thing (see my list at the end).</em></p>
+<p>Mandatory info (after running npx frontity info)</p>
+<blockquote>
+<h3>Binaries:</h3>
+<ul>
+<li>Node: 10.15.3 - C:\Program Files\nodejs\node.EXE</li>
+<li>npm: 6.4.1 - C:\Program Files\nodejs\npm.CMD</li>
+</ul>
+<h3>npmPackages:</h3>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/core: 1.11.1 =&gt; 1.11.1</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/html2react: 1.6.2 =&gt; 1.6.2</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/mars-theme: ./packages/mars-theme =&gt; 1.5.0</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/tiny-router: 1.4.1 =&gt; 1.4.1</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source: 1.11.2 =&gt; 1.11.2</li>
+<li>frontity: 1.14.3 =&gt; 1.14.3</li>
+</ul>
+</blockquote>
+<h1>TL;DR version to reproduce my point:</h1>
+<p>1.- clone my repo from <a href="https://github.com/sebastianpennino/-wp-frontity-poc-2" rel="noopener nofollow ugc">here</a> (it’s same thing you get from running <code>npx frontity create my-project</code> but with an altered frontity.settining.js)<br>
+2.- go into the brand new folder and do a <code>npm install</code><br>
+3.- go to node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source/src/libraries/api.ts, on <em>line 110</em>, after this code <code>const headers = auth ? { Authorization: auth } : {};</code> just add a console.log(’==== HEADERS ====’); console.log(headers); save the file. <em>Yes I’m super aware this is a really bad practice but please indulge me.</em><br>
+4.- run the project with <code>npm run dev</code>, after the browser opens, just hit refresh and watch the console.<br>
+5.- Skip the “long explanation” section and go directly to “Almost finished”</p>
+<h1>Long explanation version:</h1>
+<p>After reading a bunch of entries here (list at the bottom of this post), navigating the code and still scratching my head, I decided to create a project from scratch and add a bunch of auth entries on the <code>frontity.settings.js</code> file like so:</p>
+<pre><code>// File: https://github.com/sebastianpennino/-wp-frontity-poc-2/blob/main/frontity.settings.js
+const settings = {
+    "name": "wp-frontity-poc-2",
+    "state": {
+        "frontity": {
+            "url": "https://test.frontity.org",
+            "title": "Test Frontity Blog",
+            "description": "WordPress installation for Frontity development",
+            "options": {
+                "auth": "test-auth-00-A",
+                "headers": {
+                    "auth": "test-auth-00-B",
+                    "Authorization": "test-auth-00-C",
+                },
+            },
+            "headers": {
+                "auth": "test-auth-00-D",
+                "Authorization": "test-auth-00-E",
+            },
+        },
+        "options": {
+            "auth": "test-auth-04",
+        },
+        "headers": {
+            "Authorization": "test-auth-06",
+        },
+    },
+    "packages": [
+        {
+            "name": "@frontity/mars-theme",
+            "state": {
+                 // ... this part is irrelevant leaving out the code here
+            }
+        },
+        {
+            "name": "@frontity/wp-source",
+            "state": {
+                "source": {
+                    "url": "https://test.frontity.org",
+                    "auth": "test-auth-01-A",
+                    "headers": {
+                        "auth": "test-auth-01-B",
+                        "Authorization": "test-auth-01-C",
+                    },
+                },
+                "wpSource": {
+                    "auth": "test-auth-01-D",
+                    "headers": {
+                        "auth": "test-auth-01-E",
+                        "Authorization": "test-auth-01-F",
+                    },
+                },
+                "headers": {
+                    "auth": "test-auth-01-G",
+                    "Authorization": "test-auth-01-H",
+                },
+            }
+        },
+        "@frontity/tiny-router",
+        "@frontity/html2react"
+    ]
+};
+
+export default settings;
+</code></pre>
+<p>After not getting any authorization header on the receiving end I decided to actually check what was going on at code level, so I went to my node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source/src/libraries/api.ts,  line 110, after this code <code>const headers = auth ? { Authorization: auth } : {};</code> just added two console logs<br>
+console.log(’==== HEADERS ====’);<br>
+console.log(headers);</p>
+<h2>Almost finished</h2>
+<p>After running the project with npm run dev, this is what I get<br>
+<img src="https://community.frontity.org/uploads/default/original/2X/2/2b016641ea3550b7afe0f4841b6a7965ac1d25d4.png" alt="image" data-base62-sha1="68rwPu5v3xemjBAXtw9ugtCF25u" width="568" height="109"></p>
+<p>So in a nutshell, <strong>can someone explain to me what’s the correct way to add authorization headers?</strong> I’m missing something or barking the wrong tree trying to see headers on that specific line? (I just need to add the same headers on every single fetch).</p>
+<p>I tried to make this as short as possible. I realize that maybe I missed the solution somewhere but I really need a person to tell me what I’m doing wrong. <strong>Thanks in advance</strong></p>
+<p>As promised the list of things that I read prior to creating this post:</p>
+<ul>
+<li><a href="https://api.frontity.org/frontity-packages/features-packages/wp-source" class="inline-onebox" rel="noopener nofollow ugc">@frontity/wp-source - API Reference</a></li>
+<li><a href="https://community.frontity.org/t/send-authorization-header/1941" class="inline-onebox">Send authorization header</a></li>
+<li><a href="https://community.frontity.org/t/auth-header-in-source-packages-and-frontity-query-options/2678" class="inline-onebox">Auth header in Source packages and Frontity Query Options</a></li>
+<li><a href="https://community.frontity.org/t/how-to-implement-basic-authentication/1215" class="inline-onebox">How to implement basic authentication?</a></li>
+<li><a href="https://community.frontity.org/t/how-can-i-add-a-bearer-token-to-the-auth-headers/3580/2" class="inline-onebox">How can I add a Bearer token to the Auth headers? - #2 by juanma</a></li>
+<li><a href="https://community.frontity.org/t/frontity-wp-source-returns-internal-server-error/3710" class="inline-onebox">@frontity/wp-source returns internal server error</a></li>
+<li><a href="https://gitlab.com/hugosilva123/git_tan_project" class="inline-onebox" rel="noopener nofollow ugc">Hugo Daniel Martins Silva / Git_Tan_Project · GitLab</a></li>
+<li><a href="https://github.com/frontity/frontity/pull/568" class="inline-onebox" rel="noopener nofollow ugc">Support for auth header in Source packages by michalczaplinski · Pull Request #568 · frontity/frontity · GitHub</a></li>
+</ul>
+<p>Edit: formatting and grammar.</p>
+          <p><a href="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320/1</link>
+        <pubDate>Sat, 27 Mar 2021 21:23:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4320-1</guid>
+        <source url="https://community.frontity.org/t/auth-how-to-configure-basic-auth-on-all-my-calls/4320.rss">Auth - how to configure basic auth on all my calls</source>
+      </item>
+  </channel>
+</rss>

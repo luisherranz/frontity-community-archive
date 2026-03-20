@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Pass props into &lt;App /&gt;?</title>
+    <link>https://community.frontity.org/t/pass-props-into-app/3057</link>
+    <description>Is there any way you can do something in your server.js file and then pass the result through to the equivalent of &lt;App /&gt; as props? (I assume the equivalent of &lt;App /&gt; is your theme, so index.js inside /components)
+
+I want to be able to access the result in my other components. I&#39;ve tried saving it to the initial state within server.js but it&#39;s not really what I want.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 06 Oct 2020 08:33:55 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/pass-props-into-app/3057.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Pass props into &lt;App /&gt;?</title>
+        <dc:creator><![CDATA[nat.clamp]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> - thank you so much! This is exactly the explanation I needed. Very clear <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/pass-props-into-app/3057/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/pass-props-into-app/3057/5</link>
+        <pubDate>Tue, 06 Oct 2020 08:33:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3057-5</guid>
+        <source url="https://community.frontity.org/t/pass-props-into-app/3057.rss">Pass props into &lt;App /&gt;?</source>
+      </item>
+      <item>
+        <title>Pass props into &lt;App /&gt;?</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/nat.clamp">@nat.clamp</a>! <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>I think your problem is the following:</p>
+<p>When you put:</p>
+<pre><code class="lang-js">const client = await Client.buildClient({
+  domain: '&lt;myshop&gt;.myshopify.com/',
+  storefrontAccessToken: '&lt;access-token&gt;',
+}, fetch);
+state.theme.client = { client };
+</code></pre>
+<p>inside of <code>beforeSSR</code>, this code is run on the server only. This code is adding the <code>fetchAll()</code> method to <code>state.theme.client.product</code>.</p>
+<p>Then, Frontity serializes the state from the server and sends it to the client. The problem is that functions are not serializable in JS! So your <code>fetchAll()</code> will not be sent to the client from the server.</p>
+<p>Depending on what you need I think that you will have to define the same logic on the server and on the client or just on the client or just create a <a href="https://docs.frontity.org/api-reference-1/wordpress-source#libraries-source-handlers">custom handler</a></p>
+<p>And of course any other state that you create on the server will then be present on the client (as long as it’s serializable) <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Hope this helps!</p>
+          <p><a href="https://community.frontity.org/t/pass-props-into-app/3057/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/pass-props-into-app/3057/4</link>
+        <pubDate>Tue, 06 Oct 2020 00:45:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3057-4</guid>
+        <source url="https://community.frontity.org/t/pass-props-into-app/3057.rss">Pass props into &lt;App /&gt;?</source>
+      </item>
+      <item>
+        <title>Pass props into &lt;App /&gt;?</title>
+        <dc:creator><![CDATA[nat.clamp]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a></p>
+<p>Thanks for your reply!<br>
+I did try putting the code into the beforeSSR action and adding the result to the state but something went wrong between there and my index.js as I get and error saying it isn’t defined.</p>
+<pre><code>//server.js
+import { fetch } from "frontity";
+import Client from 'shopify-buy';
+import packageClient from "./client";
+
+export default {
+  ...packageClient,
+  actions: {
+    theme: {
+      ...packageClient.actions.theme,
+      beforeSSR: async ({ state, libraries }) =&gt; {
+    const client = await Client.buildClient({
+      domain: '&lt;myshop&gt;.myshopify.com/',
+      storefrontAccessToken: '&lt;access-token&gt;',
+    }, fetch);
+    state.theme.client = { client };
+  },
+  }
+  }
+};
+
+//index.js
+    const Theme = ({ state, actions, libraries }) =&gt; {`
+      useEffect(() =&gt; {
+       state.theme.client.product.fetchAll().then(products =&gt; actions.theme.addShopifyProducts(products))
+      }, [])
+</code></pre>
+<p>…</p>
+<p>I get the error <code>Uncaught TypeError: Cannot read property 'fetchAll' of undefined</code><br>
+Whereas if I did the exact same code but all in the index.js, it works fine. So something must be happening whilst the data is being passed over in state.</p>
+          <p><a href="https://community.frontity.org/t/pass-props-into-app/3057/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/pass-props-into-app/3057/3</link>
+        <pubDate>Mon, 05 Oct 2020 16:46:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3057-3</guid>
+        <source url="https://community.frontity.org/t/pass-props-into-app/3057.rss">Pass props into &lt;App /&gt;?</source>
+      </item>
+      <item>
+        <title>Pass props into &lt;App /&gt;?</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/nat.clamp">@nat.clamp</a></p>
+<p>The recommended way to “pass” data to React components in Frontity is through the state.</p>
+<p><a href="https://docs.frontity.org/learning-frontity/state" class="onebox" target="_blank">https://docs.frontity.org/learning-frontity/state</a></p>
+<p>In this way:</p>
+<ul>
+<li>It will work in both the server &amp; client side</li>
+<li>I will add reactivity to your components (if the data in the state changes the react component is re-rendered)</li>
+</ul>
+<p>In Frontity there are some <strong>Lifecycle Actions</strong> that can be used to execute some logic at specific moments of Frontity <em>bootstrap</em></p>
+<p>Among these <strong>Lifecycle Actions</strong> there is one called <a href="https://docs.frontity.org/learning-frontity/actions#beforessr-server-only-__"><code>beforeSSR</code></a> that you can use to execute some logic (requests included) before Frontity starts the process of rendering the HTML from the server.</p>
+<p>This action has access to the state so you can add things there so the data it’s avaliable to any React component you connect to the state</p>
+<p><a href="https://docs.frontity.org/api-reference-1/frontity#connect" class="onebox" target="_blank">https://docs.frontity.org/api-reference-1/frontity#connect</a></p>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/pass-props-into-app/3057/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/pass-props-into-app/3057/2</link>
+        <pubDate>Mon, 05 Oct 2020 15:36:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3057-2</guid>
+        <source url="https://community.frontity.org/t/pass-props-into-app/3057.rss">Pass props into &lt;App /&gt;?</source>
+      </item>
+      <item>
+        <title>Pass props into &lt;App /&gt;?</title>
+        <dc:creator><![CDATA[nat.clamp]]></dc:creator>
+        <description><![CDATA[
+            <p>Is there any way you can do something in your server.js file and then pass the result through to the equivalent of  as props? (I assume the equivalent of  is your theme, so index.js inside /components)</p>
+<p>I want to be able to access the result in my other components. I’ve tried saving it to the initial state within server.js but it’s not really what I want.</p>
+          <p><a href="https://community.frontity.org/t/pass-props-into-app/3057/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/pass-props-into-app/3057/1</link>
+        <pubDate>Mon, 05 Oct 2020 15:08:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3057-1</guid>
+        <source url="https://community.frontity.org/t/pass-props-into-app/3057.rss">Pass props into &lt;App /&gt;?</source>
+      </item>
+  </channel>
+</rss>

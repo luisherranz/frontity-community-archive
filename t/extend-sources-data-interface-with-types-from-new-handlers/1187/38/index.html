@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Extend source&#39;s Data interface with types from new handlers - #38 by David - Released - Frontity Community Forum</title>
+    <meta name="description" content="OPENING POST
+
+Description
+People using TypeScript needs to extend Data when they add a new handler. Right now, there’s no easy way to do so, because they need to extend both the BaseData and add new interfaces to Data. 
+T&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Extend source&#39;s Data interface with types from new handlers&#39;" href="../1187.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/extend-sources-data-interface-with-types-from-new-handlers/1187/38" />
+<meta name="twitter:url" content="/t/extend-sources-data-interface-with-types-from-new-handlers/1187/38" />
+<meta property="og:title" content="Extend source&#39;s Data interface with types from new handlers" />
+<meta name="twitter:title" content="Extend source&#39;s Data interface with types from new handlers" />
+<meta property="og:description" content="Final implementation I’m going to do a recap with the changes that were made in Update to TypeScript 4.0 #449.  TypeScript interfaces  All types are exported from @frontity/source/types. Every data interface inherits from Data with all the common properties, and have Data appended to its name.import { PostData, PageData } from &quot;@frontity/source/types&quot;;   Every entity interface inherits from Entity, which is basically a map of unknown properties, and have Entity appended to its name. Also, they w..." />
+<meta name="twitter:description" content="Final implementation I’m going to do a recap with the changes that were made in Update to TypeScript 4.0 #449.  TypeScript interfaces  All types are exported from @frontity/source/types. Every data interface inherits from Data with all the common properties, and have Data appended to its name.import { PostData, PageData } from &quot;@frontity/source/types&quot;;   Every entity interface inherits from Entity, which is basically a map of unknown properties, and have Entity appended to its name. Also, they w..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Released" />
+<meta property="og:article:section:color" content="D3ABFF" />
+<meta property="og:article:tag" content="types" />
+<meta property="og:article:tag" content="packages" />
+<meta property="article:published_time" content="2020-10-29T17:08:59+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="prev" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+    
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">Extend source&#39;s Data interface with types from new handlers</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/released/40" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #D3ABFF'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Released</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/types' class='discourse-tag' rel="tag">types</a>, 
+            <a href='/tag/packages' class='discourse-tag' rel="tag">packages</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Extend source&#39;s Data interface with types from new handlers'>
+        <meta itemprop='articleSection' content='Released'>
+      <meta itemprop='keywords' content='types, packages'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_21' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T15:49:17Z' class='post-time'>
+                    25 February 2020 15:49
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T15:49:17Z'>
+              <span itemprop='position'>21</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This is <a href="https://www.typescriptlang.org/play/?strictPropertyInitialization=false#code/JYOwLgpgTgZghgYwgAgEJwM4QCJzHZAbwChllgMAlCOAEwE8AuZAIwHs2AbGkAblPIYAYhDAIAFqADmzdlx78AvsWKhIsRCgAqcAB5sQbALb1kEXZBC0MaTDjwESZCjv2GTzMFACuEfmXw3YyZkDC9pf3JaZhBvIxZoJRU1aHgkZABlGigJMwsIKxt0LFx8IgEKLLgc8U8fPwEsaokARV8oELCoCOJlVXBUzWQAYTwIKTYOvMtrZFcDYPKAvQWPZAAiBDGJjvXIilHIHZCvXyT+9TTtFfd6VHoASVppgtmAeSNgMAAeeduAGg2gVW9HWAD4loI-sF7k86mcBMDbjE4gkoOcwPQAA4oUoEAC8cxuiwAPiNtpNTGSqjVkGToSZYbR+MQEAYwshaA5mNQ2VBaN8utJAXiIYTCIoWVz8ABtdYYYwQAC0YEkICk6wAushxQIAHQG6VwOVsVXQFVqjWa-4VDAMk71G3OO3ExmPaLIU4QJ2e10hACMACYAMw+4AeoPB3osgD0MbmkhstDYEAwIAA5GBkAB3SYAa0YqhgyAAFEa5QqjMqheqtXqXH6AJREZB9GDeEAIMDAAxQv1l7nIPGN5hGwREoImSFQUTeKAgUtjzATkGN+suyemfHbz31c7tzvd3sNzdMgf4ZjD0cOcf2pnT2fzxc35d391rk8g+-bwle-cdrsewXA4KQ6c84EvBwR05G8KHJI5KQfMA5wXcDkGXQ5xkpD8MEw44dR3P9ehUA9AOPDAaQkcDIPwaCxzgyjxCQlDnzKZdGJwxiCN-PdiOIUij2AjcQUY6ihyg68yjg+1kAAMkybJcicZA2RADlnkJJcbBk+TGMiGdkKfWh1xkn9d18OT5OMypFKYsyiL6VSOUrewyk0hwK0VJU8wgUFNRZFy8XXag6C3ZB4E4LAWWAYsS0-W4S0CqDm2UpL8D1JFFkJdY9j4mLS3imF3USxVhxSxpSocDK-R1ZBI3OfK4tw0D6BKqsyshNK4Gqzdas2Frcr6RqbOacQ2tcuBG3Ksgur1JoajaaAwpyhrYsKkxxuHSzBFErqps6yr0syqdstymbDu6+bWnaZbBuSNbhNuXaLubWT5JAhCwL26bQgunqQT6rZPtBSJZqu8RFqmU7zmIIA">my last playground</a> in case you want to check something.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_22' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T06:30:28Z' class='post-time'>
+                    26 February 2020 06:30
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T06:30:28Z'>
+              <span itemprop='position'>22</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Why would you pass <code>Data</code> as a parameter to <code>Handler</code>? Shouldn’t you pass a <code>Package</code>?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_23' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T07:59:49Z' class='post-time'>
+                    26 February 2020 07:59
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T07:59:49Z'>
+              <span itemprop='position'>23</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Yeah, well… <code>Source</code> needs <code>Data</code> for both <code>state.source.get</code> and <code>state.source.data</code> so maybe it’s easier for people extending <code>Data</code> to have a generic than to redefine those things themselves:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/master/packages/source/types.ts#L33-L34" target="_blank">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/master/packages/source/types.ts#L33-L34" target="_blank">frontity/frontity/blob/master/packages/source/types.ts#L33-L34</a></h4>
+<pre class="onebox"><code class="lang-ts"><ol class="start lines" start="33" style="counter-reset: li-counter 32 ;">
+<li>get: Derived&lt;T extends null ? Source : T, (link: string) =&gt; Data&gt;;</li>
+<li>data: Record&lt;string, Data&gt;;</li>
+</ol></code></pre>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>How are you doing that right now?</p>
+<p>Modifying <code>Package</code> is only needed for <code>source</code> packages, like <code>wp-source</code> so it’s going to be less common.</p>
+<p>So maybe we could do this: <code>Source&lt;MyData, MyPackage&gt;</code>. Both optional of course.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_24' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T08:15:09Z' class='post-time'>
+                    26 February 2020 08:15
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T08:23:44Z'>
+              <span itemprop='position'>24</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I see. Yeah, I guess that the most common need is to extend <code>data</code> so it makes sense to create a shortcut for that. But in the case of the handler, when you need to pass the <code>Package</code> as well, you’ll have <code>Data</code> defined in both generics. Not sure if that makes sense. I’d stick to only passing <code>Package</code> as generic, so you only worry to wire your custom data to one place, and after that, anything else will just use your package.</p>
+<p>I mean, this way you’ll be reducing all the scenarios to just one, which seems more simple to me. If you implemented <code>Handler</code> with two generics, people will need to understand that there is one scenario where you are only extending <code>Data</code> in <code>Source</code>, and that’s the only custom thing you’ll use in the <code>Handler</code>, and the second scenario where you might have extended <code>Post</code> too, and you need both in the handler so you need to pass <code>ExtendedData</code> and <code>CustomPackage</code>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_25' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T11:34:58Z' class='post-time'>
+                    26 February 2020 11:34
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T19:36:39Z'>
+              <span itemprop='position'>25</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This is what I’d recommend to do in every <code>types.ts</code> file of a package as a good practice:</p>
+<pre><code>// Types
+
+import WpSource, { Handler as WpSourceHandler } from "@frontity/wp-source/types";
+
+export default interface Theme extends Package {
+  name: "my-theme";
+  state: {
+    theme: {};
+    source?: WpSource&lt;ThemeData&gt;["state"]["source"];
+  };
+}
+
+export type FC&lt;Props extends object = {}&gt; = React.FC&lt;
+  Connect&lt;Theme, Props&gt;
+&gt;;
+
+export type Handler = WpSourceHandler&lt;Theme&gt;;
+</code></pre>
+<pre><code>// Component
+
+import * as Theme from '../types';
+
+const Component: Theme.FC = () =&gt; &lt;div&gt;&lt;/div&gt;;
+
+// or
+
+import { FC } from '../types';
+
+const Component: FC = () =&gt; &lt;div&gt;&lt;/div&gt;;
+</code></pre>
+<pre><code>// Handler
+
+import * as Theme from '../types';
+
+const handler: Theme.Handler = {
+  name: "my-handle",
+  pattern: "/custom-path",
+  func: async () =&gt; {}
+};
+
+// or
+
+import { Handler } from '../types';
+
+const handler: Handler = { ... };
+</code></pre>
+<p>And that’s all they need to use while developing in my experience.</p>
+<p><strong>EDIT:</strong><br>
+I also think that recommending to create aliases of types in the <code>types.ts</code> file is a good idea, because it can become a bit difficult to keep in mind all the packages that are used and need to be imported, and this way they only need to think about the typing once when creating the basic <code>types.ts</code> file and then just importing from there whatever they need.</p>
+<p>Also this basic aliases can be generated automatically with the <code>frontity</code> CLI so developers can start working from there.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_26' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T19:15:24Z' class='post-time'>
+                    26 February 2020 19:15
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T19:15:24Z'>
+              <span itemprop='position'>26</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Just to make sure I understand you correctly. You think that:</p>
+<ul>
+<li>Using a generic for <code>Source</code> is fine, like this <code>Source&lt;ExtendedData&gt;</code>.</li>
+<li>You won’t use a generic for <code>Data</code> in the <code>Handler</code> type, you’d pass only the package, like this: <code>Handler&lt;MyPackage&gt;</code>.</li>
+</ul>
+<p>Is that true?</p>
+<p>By the way, are you using the types of <code>WpSource</code> instead of <code>Source</code> to populate <code>state.source</code>? If so, is there any reason?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_27' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-26T19:35:00Z' class='post-time'>
+                    26 February 2020 19:35
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-26T19:35:00Z'>
+              <span itemprop='position'>27</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="luisherranz" data-post="26" data-topic="1187">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Just to make sure I understand you correctly. You think that:</p>
+<ul>
+<li>Using a generic for <code>Source</code> is fine, like this <code>Source&lt;ExtendedData&gt;</code> .</li>
+<li>You won’t use a generic for <code>Data</code> in the <code>Handler</code> type, you’d pass only the package, like this: <code>Handler&lt;MyPackage&gt;</code> .</li>
+</ul>
+</blockquote>
+</aside>
+<p>That’s correct.</p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="26" data-topic="1187">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>By the way, are you using the types of <code>WpSource</code> instead of <code>Source</code> to populate <code>state.source</code> ? If so, is there any reason?</p>
+</blockquote>
+</aside>
+<p>Well, because the API of <code>WpSource</code> extends <code>Source</code> and includes <code>Handler</code>. I assumed that I should use the types of the package I have installed, and not those of the base.</p>
+<p><strong>EDIT:</strong><br>
+I didn’t update yet, so I don’t know if this has changed.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_28' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-27T10:22:50Z' class='post-time'>
+                    27 February 2020 10:22
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-27T10:22:50Z'>
+              <span itemprop='position'>28</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-username="orballo" data-post="27" data-topic="1187">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../../user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I didn’t update yet, so I don’t know if this has changed.</p>
+</blockquote>
+</aside>
+<p>No it hasn’t, but that’s useful information for Source v2. Thanks!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/frontity-release-new-link-processor-to-manage-the-internal-content-links/3419">Frontity release: New link processor to manage the internal content links</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_29' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-15T20:03:42Z' class='post-time'>
+                    15 September 2020 20:03
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-15T20:03:42Z'>
+              <span itemprop='position'>29</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It seems like we may need to use the same approach for <code>Entities</code> as well as for <code>Data</code> in the case of <code>state.source.entity(link)</code>.</p>
+<p>More information in the FD that introduced this API: <a href="/t/support-for-yoast-plugin-rest-api-fields/2626" class="inline-onebox">Support for Yoast plugin REST API fields</a>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_30' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-30T10:57:20Z' class='post-time'>
+                    30 September 2020 10:57
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-30T11:03:10Z'>
+              <span itemprop='position'>30</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey, I have an idea that would not require devs to extend <code>Data</code> and it seems to work nicely.</p>
+<p>Actually, extending <code>Data</code> has a big problem. Imagine that we extend <code>Data</code> to <code>MyData</code>:</p>
+<pre><code class="lang-ts">type Data = Taxonomy | Post; // The ones you are used to.
+
+type MyData = Data | NewThing; // New data with property `isNewThing`.
+
+export interface SomePackage extends Package {
+  state: {
+    source?: {
+      get: Derived&lt;SomePackage, (link: string) =&gt; MyData&gt;;
+    }
+  }
+  //...
+}
+</code></pre>
+<p>If you wanted to use the default guard functions that we will have already defined in <code>@frontity/source</code> they wouldn’t work, because the would expect an argument of type <code>Data</code> instead of <code>MyData</code>.</p>
+<pre><code class="lang-ts">// This is how `isTaxonomy` is supposed to be defined.
+// Note that it is using an argument of type `Data`, not `MyData`.
+function isTaxonomy(data: Data): data is Taxonomy {
+  return (data as Taxonomy).isTaxonomy === true;
+}
+
+/**
+ * The next check would return this TypeScript error:
+ *
+ * Argument of type 'MyData' is not assignable to parameter of type 'Data'.
+ *  Type 'NewThing' is not assignable to type 'Data'.
+ *    Type 'NewThing' is missing the following properties from type 'Post':
+ *    isPostType, isPost, type, id
+ */
+const data = state.source.get("/some/link");
+if (isTaxonomy(data) { ... } // TypeScript error!
+</code></pre>
+<hr>
+<p>Okay, but what about not using <code>Data</code> anymore?</p>
+<p>Let’s say we define these data types: <code>Taxonomy</code> and <code>Post</code>, both extending <code>Base</code>.</p>
+<pre><code class="lang-ts">interface Base {
+  isFetching: boolean;
+  isReady: boolean;
+}
+
+interface Taxonomy extends Base {
+  isTaxonomy: true;
+  taxonomy: string;
+}
+
+interface Post extends Base {
+  isPostType: true;
+  isPost: true;
+  type: "post";
+  id: number;
+}
+</code></pre>
+<p>Instead of using <code>Data</code> in the guard functions, we could use <code>Base</code>.</p>
+<pre><code class="lang-ts">function isTaxonomy(data: Base): data is Taxonomy {
+  return (data as Taxonomy).isTaxonomy === true;
+}
+
+function isPost(data: Base): data is Post {
+  return (data as Post).isPost === true;
+}
+</code></pre>
+<p>And, for <code>state.source.get()</code>, we could set the return type as <code>Base</code>. That type has the common properties of every data object and you could check <code>isReady</code> or <code>isFetching</code>. If you want to use another property you will need to use a type guard function to cast the data object in the same way as if it had returned an object of type <code>Data</code>, so we are not gaining anything using <code>Data</code> here.</p>
+<p>Same with <code>state.source.data</code>. As long as any object you are adding there extends from <code>Base</code>, you could add whatever you want.</p>
+<pre><code class="lang-javascript">export interface Source {
+  state: {
+    source: {
+      // Return an object of type `Base`.
+      get: Derived&lt;Source, (link: string) =&gt; Base&gt;;
+      // You can store here any object that extends `Base`.
+      data: Record&lt;string, Base&gt;;
+    }
+  }
+  //...
+}
+</code></pre>
+<p>Then, if you want to add your own data types, it would be as simple as creating your own interface and its guard function.</p>
+<pre><code class="lang-ts">// `NewThing` should extend `Base` (or any other type extending `Base`).
+interface NewThing extends Base {
+  isNewThing: true;
+}
+
+// The argument is of type `Base`.
+function isNewThing(data: Base): data is NewThing {
+  return (data as NewThing).isNewThing === true;
+}
+</code></pre>
+<p>That’s the only thing you would have to do, and this would work out of the box:</p>
+<pre><code class="lang-ts">// `data` here is of type `Base`.
+const data = state.source.get(link);
+
+// You can check things as `isReady` or `isFetching`.
+if (!data.isReady) return null;
+
+// The following type guards will work as expected.
+if (isTaxonomy(data)) {
+  data.isTaxonomy;
+  data.taxonomy;
+} else if (isPost(data)) {
+  data.id;
+  data.isPost;
+  data.isPostType;
+} else if (isNewThing(data)) {
+  data.isNewThing;
+}
+</code></pre>
+<p><a class="mention-group notify" href="/groups/dev-team">@dev-team</a>, I would like to hear your feedback <img src="../../../../images/emoji/apple/blush.png%3Fv=9" title=":blush:" class="emoji" alt=":blush:"></p>
+<p>EDIT: I can’t think of any drawback for this. Let me know if you see any problem.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_31' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-30T11:01:31Z' class='post-time'>
+                    30 September 2020 11:01
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-30T11:01:31Z'>
+              <span itemprop='position'>31</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Of course, we could use the same solution for entities here.</p>
+<p>Regarding what <a class="mention" href="/u/luisherranz">@luisherranz</a> mentioned in <a href="/t/support-for-yoast-plugin-rest-api-fields/2626" class="inline-onebox">Support for Yoast plugin REST API fields</a>, I would prefer same names and different entry points for entities and data objects than different names.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_32' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-30T11:42:25Z' class='post-time'>
+                    30 September 2020 11:42
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-30T11:42:25Z'>
+              <span itemprop='position'>32</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="David" data-post="30" data-topic="1187">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../../user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Okay, but what about not using <code>Data</code> anymore?</p>
+</blockquote>
+</aside>
+<p>Plot twist.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_33' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-30T12:56:20Z' class='post-time'>
+                    30 September 2020 12:56
+                  </time>
+                  <meta itemprop='dateModified' content='2020-09-30T12:56:20Z'>
+              <span itemprop='position'>33</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Uhm, maybe the type <code>Base</code> I mentioned before could be renamed to <code>Data</code> in case some packages depend on it.</p>
+<pre><code class="lang-ts">// This would be the `Base` data object.
+import { Data } from "@frontity/source"`
+</code></pre>
+<p>I did a quick search and it looks like none of our packages use it, though.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_34' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-09-30T13:37:01Z' class='post-time'>
+                    30 September 2020 13:37
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-01T09:39:07Z'>
+              <span itemprop='position'>34</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The only drawback I found with this approach is that you lose type safety when you add a new data object into <code>state.source.data</code> directly unless you specify it explicitly.</p>
+<p>Given the following interfaces and data object map:</p>
+<pre><code class="lang-ts">interface Base {
+  isFetching: boolean;
+  isReady: boolean;
+}
+
+interface PostType extends Base {
+  isPostType: true;
+}
+
+const data: Record&lt;string, Base&gt; = {};
+</code></pre>
+<p>This won’t work:</p>
+<pre><code class="lang-ts">data["/some/link"] = {
+  isFetching: true,
+  isReady: false,
+  // TypeScript Error: Object literal may only specify known properties
+  isPostType: true
+};
+</code></pre>
+<p>This works as expected and you have type safety:</p>
+<pre><code class="lang-ts">// Explicitly specify the type.
+const post: PostType = {
+  isFetching: true,
+  isReady: false,
+  isPostType: true
+};
+
+// `PostType` extends from `Base` so this works.
+data["/some/link"] = post;
+</code></pre>
+<p>This surprisingly works as well, but you lose type safety.</p>
+<pre><code class="lang-ts">// Not needed to specify a type here.
+const post = {
+  isFetching: true,
+  isReady: false,
+  isPostType: true
+};
+
+// TypeScript doesn't complain.
+data["/some/link"] = post;
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_35' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-01T07:33:47Z' class='post-time'>
+                    1 October 2020 07:33
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-01T07:33:47Z'>
+              <span itemprop='position'>35</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>That’s perfect David! Actually, I feel a bit embarrassed as this is basic OOP. I don’t know how it took us so long to figure this out! So thanks for showing the way <img src="../../../../images/emoji/apple/smile.png%3Fv=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<hr>
+<p>Regarding <code>Data</code> and <code>Entity</code> types:</p>
+<ul>
+<li>
+<p>I agree to name the basic types <code>Data</code> and <code>Entity</code> and not <code>Base</code>, to differentiate between both.</p>
+</li>
+<li>
+<p>I agree that two separate entry points can be the best approach. The only drawback is that they will conflict with each other when used together, but I guess that’s a minor issue:</p>
+<pre><code class="lang-ts">import { isPostType } from "@frontity/source/data";
+import { isPostType } from "@frontity/source/entity";
+</code></pre>
+<p>Also, if we create the <code>data</code> entry point, we will have to stick to the <code>state.source.data</code> naming.</p>
+<p>I started a conversation to rename data in this thread <a href="/t/rename-source-get-and-source-data-to-source-info/1531" class="inline-onebox">Rename `source.get` and `source.data` to `source.info`</a> but no proposal was actually better than <code>data</code>, so I’m ok sticking to it. I’ll try to get rid of <code>state.source.get("/")</code> though, by allowing people to use <code>state.source.data["/"]</code> directly once we have filters.</p>
+</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_36' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-20T20:20:41Z' class='post-time'>
+                    20 October 2020 20:20
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-22T09:22:16Z'>
+              <span itemprop='position'>36</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>TL;DR</h1>
+<p>We decided to deprecate <code>state.source.entity()</code> as it is not a reliable way to get typed entities. Instead, the recommended way would be to get a typed <code>data</code> object – using data type guards – and access <code>state.source</code> for the specifically related entity.</p>
+<p>Type guards for entities are going to be implemented as well – just in case they are useful – but their usage will not be promoted.</p>
+<p>It isn’t a widely-used function (it’s not even documented yet) so, it is not such a loss after all. <img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<h1>Typed entities</h1>
+<p>Currently, there are two ways to get entities from the state:</p>
+<h2>1. Directly from <code>state.source[entityType]</code>
+</h2>
+<p>This is just getting entities to the map of entities when you know entity type and entity ID:</p>
+<pre><code class="lang-ts">const post = state.source.post[60];
+const category = state.source.category[7];
+const myCPT = state.source.myCPT[123];
+</code></pre>
+<p>In the cases specified above you already have typed entities, because types are enforced for those properties in the <code>@frontity/source</code> package (note that these types can easily be extended by other packages).</p>
+<p>But what about getting the entity using the information stored in a link <code>data</code> object?</p>
+<pre><code class="lang-ts">const unknown = state.source[data.type][data.id]; // ??
+</code></pre>
+<p>There is no way to know the type of that entity unless you constrain the possible values of <code>data.type</code>.</p>
+<pre><code class="lang-ts">if (data.type === "post" || data.type === "page") {
+  const postOrPage = state.source[data.type][data.id];
+}
+
+// This would be similar to the previous code
+// as the `data.type` prop would be typed as well.
+import { isPost, isPage } from "@frontity/source/data";
+
+if (isPost(data) || isPage(data)) {
+  const postOrPage = state.source[data.type][data.id];
+}
+</code></pre>
+<p>What happens if you only know the general type of that <code>data</code> object?</p>
+<pre><code class="lang-ts">import { isPostType } from "@frontity/source/data";
+
+if (isPostType(data)) {
+  const unknown = state.source[data.type][data.id]; // ??
+}
+</code></pre>
+<p>Then, you can’t get a typed entity. Of course, you can cast that entity to <code>PostTypeEntity</code> because you know it <em>is</em> a post type entity, but it’s not the ideal API.</p>
+<pre><code class="lang-ts">import { isPostType } from "@frontity/source/data";
+import { PostTypeEntity } from "@frontity/source/types/entities";
+
+if (isPostType(data)) {
+  // Not great, not terrible.
+  const unknown: PostTypeEntity = state.source[data.type][data.id];
+}
+</code></pre>
+<p>This case will be solved in a future version of <code>@frontity/source</code>. The idea is to make entities of the same type to be under their general type in the state.</p>
+<pre><code class="lang-ts">interface Source {
+  state: {
+    source: {
+      postType: {
+        post: Record&lt;number, PostEntity&gt;;
+        page: Record&lt;number, PageEntity&gt;;
+        [s: string]: Record&lt;number, PostTypeEntity&gt;;
+      };
+      // ... api, etc.
+    };
+  };
+}
+
+const source: Source = {
+  state: {
+    source: {
+      postType: {
+        post: { ... },
+        page: { ... },
+      },
+      //... api, etc.
+    },
+  },
+};
+</code></pre>
+<p>That change could be backward-compatible making derived views for <code>post</code>, <code>page</code>, etc. maps so they could be accessed as they currently are.</p>
+<p>Another option would be to use type guards as we did for data objects.</p>
+<h2>2. Using <code>state.source.entity()</code>
+</h2>
+<p>The API of <code>state.source.entity()</code> is similar to <code>state.source.get()</code>, it receives a <code>link</code> and return an <code>entity</code> in this case.</p>
+<pre><code class="lang-ts">const entity = state.source.entity("/some/link/");
+</code></pre>
+<p>That entity is the main one represented by that link, i.e. if the link points to a post is <em>that</em> post, if it points to a page of some category is <em>that</em> category, etc. There are, however, some links that do not point to a specific entity, like a date archive (<code>"/2020/03/15"</code>) or some custom links (<code>"@comments/60"</code>).</p>
+<p>In this case, it is not easy to know the type of the returned entity.</p>
+<pre><code class="lang-ts">const unknown = state.source.entity("/some/link/"); // ??
+</code></pre>
+<p>We currently have two approximations on this:</p>
+<h3>2.1. Entity type guards</h3>
+<p>Use type guards for entities, the same way we did for <code>data</code> objects returned by <code>state.source.get()</code>.</p>
+<p>This would be to create a group of type-guard functions that would receive an entity as an argument and would return <code>true</code> or <code>false</code> if that’s the type of the entity.</p>
+<p>The following code is a hypothetical component that renders which entity is currently being read.</p>
+<pre><code class="lang-tsx">import React from "react";
+import { connect, decode } from "frontity";
+
+// These are `entity` type guards, not `data` type guards.
+import { isPostType, isTaxonomy } from "@frontity/source/entities";
+
+const YouAreReading = connect(({ state }) =&gt; {
+  // Use the current link to get the entity.
+  const entity = state.source.entity(state.router.link);
+
+  if (!entity) return null;
+
+  // Get different props depending on the type.
+  let name: string;
+  let description: string;
+
+  if (isPostType(entity)) {
+    name = decode(entity.title.rendered);
+    description = decode(entity.excerpt.rendered);
+  } else if (isTaxonomy(entity)) {
+    name = entity.name;
+    description = entity.description;
+  } else { 
+    // Handle other cases...
+  }
+
+  // Render the react component.
+  return (
+    &lt;Card&gt;
+      &lt;Name&gt;{name}&lt;/Name&gt;
+      &lt;Description&gt;{description}&lt;/Description&gt;
+    &lt;/Card&gt;
+  )
+});
+</code></pre>
+<p>The thing is that we are not gaining much here using <code>state.source.entity()</code> as we would have to <em>ask</em> in order to distinguish between different entity types, so you would end up having a similar code if you would have used <code>state.source.get()</code> instead.</p>
+<p>Also, those type guards wouldn’t be straightforward to implement, as there is neither a common property with a different value for each of them nor a specific property for each entity type that would allow us to easily get the type of an entity.</p>
+<h3>2.2. Pass <code>data</code> to <code>state.source.entity()</code>
+</h3>
+<p>The main idea here is: as we already have a way to get the type of a specific data object using our own type guards (e.g. <code>isPostType(data)</code>), maybe it could be possible to pass a typed data object to <code>state.source.entity()</code> so it returns a typed entity object.</p>
+<p>For example:</p>
+<pre><code class="lang-ts">// Get the data object associated to a link.
+const data = state.source.get(link);
+
+if (isPost(data)) {
+  // As we know the type of `data` is `PostData`, it could be
+  // inferred that the type of `post` is `Post`.
+  const post = state.source.entity(data);
+}
+</code></pre>
+<p>I thought that maybe using an overloaded function interface would do the trick:</p>
+<pre><code class="lang-ts">interface DataToEntity {
+  (data: PostData): PostEntity;
+  (data: PageData): PageEntity;
+  (data: PostTypeData): PostTypeEntity;
+  // ... etc.
+}
+</code></pre>
+<p>The <code>state.source.entity()</code> derived prop would have to be defined this way:</p>
+<pre><code class="lang-ts">interface Source {
+  state: {
+    source: {
+      entity: Derived&lt;Source, DataToEntity&gt;
+    }
+  }
+}
+</code></pre>
+<p>This wouldn’t be easily extended – you would have to redefine <code>state.source.entity</code> each time a new <code>Data</code> and <code>Entity</code> types are added.</p>
+<p>Also, in this case, it wouldn’t work as expected because overloaded functions don’t allow a type union as an argument unless you specify it (there is an <a href="https://github.com/microsoft/TypeScript/issues/14107">open issue</a> for a long time in TypeScript about that.). For example, you may expect <code>state.source.entity(data)</code> to return an entity of type <code>PostEntity | PageEntity</code> in the following case, but it doesn’t:</p>
+<pre><code class="lang-ts">const data = state.source.get(link);
+
+if (isPage(data) || isPost(data)) {
+  const unknown = state.source.entity(data); // ??
+}
+</code></pre>
+<hr>
+<p>I already discussed this with <a class="mention" href="/u/luisherranz">@luisherranz</a> and we took the decision of deprecating <code>state.source.entity()</code> as it turned out not to be a good API, at least for TypeScript developers using the <code>@frontity/source</code> package.</p>
+<h1>Next steps</h1>
+<ul>
+<li>Deprecate the API and update packages using it.</li>
+<li>Finish writing the entity type guards.</li>
+<li>Decide how to expose type guards from <code>@frontity/source</code>.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_37' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-26T17:11:19Z' class='post-time'>
+                    26 October 2020 17:11
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-26T17:11:19Z'>
+              <span itemprop='position'>37</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>During the meeting where we discussed how to expose type guards from <code>@frontity/source</code>, we agreed on doing the following changes:</p>
+<ul>
+<li>
+<p>All type-guards are going to be imported from the root of <code>@frontity/source</code>.</p>
+<pre><code class="lang-ts">import { isPostType, isArchive } from "@frontity/source";
+</code></pre>
+</li>
+<li>
+<p>Names for entity type guards will end with <code>Entity</code> and will match the entity type name.</p>
+<pre><code class="lang-ts">import { isPostEntity, isPageEntity } from "@frontity/source";
+</code></pre>
+</li>
+<li>
+<p>The name <code>TaxonomyEntity</code> is going to be used for those entities that come from <code>/wp/v2/taxonomies</code>. What we called <code>TaxonomyEntity</code> is going to be renamed to <code>TermEntity</code> in order to match <a href="https://developer.wordpress.org/reference/classes/wp_term/">WordPress naming</a>. <code>TermEntity</code> will be the type of categories, tags, etc.</p>
+<pre><code class="lang-ts">/**
+ * Entities from /wp/v2/taxonomies.
+ */
+export interface TaxonomyEntity extends Entity {
+  description?: string;
+  hierarchical?: boolean;
+  name?: string;
+  slug?: string;
+  rest_base: string;
+  types: string[];
+}
+
+/**
+ * Entities from /wp/v2/categories, /wp/v2/tags, etc.
+ */
+export interface TermEntity extends Entity {
+  id: number;
+  count?: number;
+  description?: string;
+  link: string;
+  name?: string;
+  slug?: string;
+  taxonomy: string;
+  parent?: number;
+  meta?: Record&lt;string, unknown&gt;;
+}
+</code></pre>
+</li>
+<li>
+<p><code>data.isTaxonomy</code> and <code>isTaxonomy(data)</code> are going to be deprecated and aliased to <code>data.isTerm</code> and <code>isTerm(data)</code> – it’s funny that <code>isTaxonomy(data)</code> is going to be released and deprecated at the same time. <img src="../../../../images/emoji/apple/joy.png%3Fv=9" title=":joy:" class="emoji" alt=":joy:"></p>
+</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_38' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-29T17:08:59Z' class='post-time'>
+                    29 October 2020 17:08
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-31T10:10:29Z'>
+              <span itemprop='position'>38</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>Final implementation</h1>
+<p>I’m going to do a recap with the changes that were made in <a href="https://github.com/frontity/frontity/pull/449">Update to TypeScript 4.0 #449</a>.</p>
+<h3>TypeScript interfaces</h3>
+<ul>
+<li>All types are exported from <code>@frontity/source/types</code>.</li>
+<li>Every <a href="https://github.com/frontity/frontity/blob/966609523f/packages/source/types/data.ts">data interface</a> inherits from <code>Data</code> with all the common properties, and have <code>Data</code> appended to its name.<pre><code class="lang-ts">import { PostData, PageData } from "@frontity/source/types";
+</code></pre>
+</li>
+<li>Every <a href="https://github.com/frontity/frontity/blob/966609523f/packages/source/types/entities.ts">entity interface</a> inherits from <code>Entity</code>, which is basically a map of unknown properties, and have <code>Entity</code> appended to its name. Also, they were refactored to match the schemas that WordPress exposes in the REST API.<pre><code class="lang-ts">import { PostEntity, PageEntity } from "@frontity/source/types";
+</code></pre>
+</li>
+<li>Some entities were renamed:<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>Before</th>
+<th>Now</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TaxonomyData</code></td>
+<td><code>TermData</code></td>
+</tr>
+<tr>
+<td><code>TaxonomyEntity</code></td>
+<td><code>TermEntity</code></td>
+</tr>
+<tr>
+<td><code>PostType</code></td>
+<td><code>TypeEntity</code></td>
+</tr>
+<tr>
+<td><code>TaxonomyType</code></td>
+<td><code>TaxonomyEntity</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+<li>The <code>isTaxonomy</code> conditional tag in the <code>TermData</code> type is now <code>isTerm</code>. The previous name is maintained also for backward compatibility so both properties are true in objects of that type.</li>
+</ul>
+<h3>Type guards</h3>
+<ul>
+<li>The proper way of typing data objects in Frontity now is using <a href="https://www.typescriptlang.org/docs/handbook/advanced-types.html#user-defined-type-guards">type guards</a>, which are functions that type the given argument. There are several of them for <a href="https://github.com/frontity/frontity/blob/966609523f/packages/source/src/data.ts">data</a> and <a href="https://github.com/frontity/frontity/blob/966609523f/packages/source/src/entities.ts">entity</a> types, and are accessible from the root of the package:<pre><code class="lang-ts">import { isPost, isPage } from "@frontity/source";
+
+// Inside a connected component...
+const data = state.source.get(link);
+if (isPost(data)) {
+  data.isPost; // true, data is typed.
+} else if (isPage(data)) {
+  data.isPage; // true, data is typed.
+}
+</code></pre>
+</li>
+</ul>
+<h3>Custom types</h3>
+<p>You can create your own data or entity types simply by extending the base interface (or any other type that inherits from it). For example, to create a custom <code>Data</code> type, you would have to define:</p>
+<ul>
+<li>An interface extending <code>Data</code>:<pre><code class="lang-ts">import { Data } from "@frontity/source/types";
+
+interface CustomData extends Data {
+  isCustomData: true;
+  customProp: string;
+}
+</code></pre>
+</li>
+<li>A type guard for that interface:<pre><code class="lang-ts">const isCustomData(data: Data): data is CustomData {
+  return (data as CustomData).isCustomData;
+};
+</code></pre>
+</li>
+<li>Then, you can use it in the code:<pre><code class="lang-ts">import { isPost, ... } from "@frontity/source";
+import { isCustomData } from "./custom-data";
+
+// Inside a connected component...
+const data = state.source.get(link);
+if (isPost(data)) {
+  data.isPost; // true, data is typed.
+} else if (isCustomData(data)) {
+  data.isCustomData; // true, data is typed.
+} else if (...) { ... }
+</code></pre>
+</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_39' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-10-31T10:11:22Z' class='post-time'>
+                    31 October 2020 10:11
+                  </time>
+                  <meta itemprop='dateModified' content='2020-10-31T10:11:22Z'>
+              <span itemprop='position'>39</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Awesome work <a class="mention" href="/u/david">@david</a>!! <img src="../../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"><img src="../../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"><img src="../../../../images/emoji/apple/clap.png%3Fv=9" title=":clap:" class="emoji" alt=":clap:"><img src="../../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_40' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-11-16T10:02:59Z' class='post-time'>
+                    16 November 2020 10:02
+                  </time>
+                  <meta itemprop='dateModified' content='2020-11-16T10:02:59Z'>
+              <span itemprop='position'>40</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This feature has been included in the latest release <img src="../../../../images/emoji/apple/tada.png%3Fv=9" title=":tada:" class="emoji" alt=":tada:"> : <a href="/t/frontity-release-new-link-processor-to-manage-the-internal-content-links/3419">Read the full Release Announcement </a>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><a rel="prev" itemprop="url" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">← previous page</a></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

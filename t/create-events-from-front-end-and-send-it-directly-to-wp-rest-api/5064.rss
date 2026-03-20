@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Create events from front end and send it directly to WP REST API</title>
+    <link>https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064</link>
+    <description>Hello, dear community. Currently, I&#39;m building a website that on one page shows events, and one of the features I should implement is to **allow users to create events.** . I&#39;ve been reading some threads in the forum, and I understand that I need authentication to post on the REST API. 
+
+1.- First of all, I understand that I need to install this[JWT Auth plugin](https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/) and make some configurations in some php files.
+
+2.- Then, according to this [thread](https://community.frontity.org/t/jwt-with-frontity/618/41) and the useful snippet provided by @vscopise at the end of the thread, I should make the login/ authentication process. 
+
+3.- After that, I guess I have to do a new request through a form sending the data of the event I want to POST. If I understand correctly I should do something similar to the snippet of authentication. Or ... Should I do the authentication and POST the event at the same time?
+
+4.- The events posts are organized inside a Custom Post Type with the &#39;allevents&#39; endpoint, and also it has many advanced custom fields made it, with the help of [ACF plugin](https://es.wordpress.org/plugins/advanced-custom-fields/). Do you think is gonna be a problem to make a POST request of events that includes advanced custom fields (acf)? If so, How should I face this case?
+
+I hope I explained the case properly. Thank you so much in advance for all the help.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 30 Jul 2021 18:24:41 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Create events from front end and send it directly to WP REST API</title>
+        <dc:creator><![CDATA[alex.fernando.801]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> for your reply, so , Do you recommend to build a custom endpoint to handle this acf fields? otherwise I won’t be able to post an event?. If so where should I put this function?, in functions.php files of the default theme? Sorry I’m not well versed in wordpress backend or php.</p>
+<p>I will try this solution as soon as possible.</p>
+<p>Thanks again.</p>
+          <p><a href="https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064/3</link>
+        <pubDate>Fri, 30 Jul 2021 18:24:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5064-3</guid>
+        <source url="https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064.rss">Create events from front end and send it directly to WP REST API</source>
+      </item>
+      <item>
+        <title>Create events from front end and send it directly to WP REST API</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="alex.fernando.801" data-post="1" data-topic="5064">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/a/a4c791/40.png" class="avatar"> alex.fernando.801:</div>
+<blockquote>
+<p>3.- After that, I guess I have to do a new request through a form sending the data of the event I want to POST. If I understand correctly I should do something similar to the snippet of authentication. Or … Should I do the authentication and POST the event at the same time?</p>
+</blockquote>
+</aside>
+<p>Assuming someone needs to be logged in before he/she can post an event, the authentication is already done and you only have to send the the auth key with the POST. And in the endpoint handler at the WP side you need to check if the request has the auth key and its valid, before handling the POST data.</p>
+<p>Alternatively, when you don’t have regular users and handle it like comments without an account, you can simply POST it without authentication. However in that case I wouldn’t automate the process and manually check each posted event before publishing.</p>
+<aside class="quote no-group" data-username="alex.fernando.801" data-post="1" data-topic="5064">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/a/a4c791/40.png" class="avatar"> alex.fernando.801:</div>
+<blockquote>
+<p>4.- The events posts are organized inside a Custom Post Type with the ‘allevents’ endpoint, and also it has many advanced custom fields made it, with the help of <a href="https://es.wordpress.org/plugins/advanced-custom-fields/" rel="noopener nofollow ugc">ACF plugin</a>. Do you think is gonna be a problem to make a POST request of events that includes advanced custom fields (acf)? If so, How should I face this case?</p>
+</blockquote>
+</aside>
+<p>If you create a custom endpoint it doesn’t matter which data gets sent and handled. It will only require a bit of PHP to make this work:</p>
+<pre><code class="lang-php">add_action('rest_api_init', function () {
+   register_rest_route('myplugin/v1', '/events', array(
+      'methods' =&gt; 'POST',
+      'callback' =&gt; function(\WP_REST_Request $request) {
+         $params = $request-&gt;get_json_params();
+
+         // go through whatever you've sent
+         // - validate and sanitize data
+         // - create new event
+         // - add ACF content
+         // - return 20x status when success, 40x when error(s)
+      },
+   ));
+});
+</code></pre>
+          <p><a href="https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064/2</link>
+        <pubDate>Fri, 30 Jul 2021 10:09:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5064-2</guid>
+        <source url="https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064.rss">Create events from front end and send it directly to WP REST API</source>
+      </item>
+      <item>
+        <title>Create events from front end and send it directly to WP REST API</title>
+        <dc:creator><![CDATA[alex.fernando.801]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello, dear community. Currently, I’m building a website that on one page shows events, and one of the features I should implement is to <strong>allow users to create events.</strong> . I’ve been reading some threads in the forum, and I understand that I need authentication to post on the REST API.</p>
+<p>1.- First of all, I understand that I need to install this<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/" rel="noopener nofollow ugc">JWT Auth plugin</a> and make some configurations in some php files.</p>
+<p>2.- Then, according to this <a href="https://community.frontity.org/t/jwt-with-frontity/618/41">thread</a> and the useful snippet provided by <a class="mention" href="https://community.frontity.org/u/vscopise">@vscopise</a> at the end of the thread, I should make the login/ authentication process.</p>
+<p>3.- After that, I guess I have to do a new request through a form sending the data of the event I want to POST. If I understand correctly I should do something similar to the snippet of authentication. Or … Should I do the authentication and POST the event at the same time?</p>
+<p>4.- The events posts are organized inside a Custom Post Type with the ‘allevents’ endpoint, and also it has many advanced custom fields made it, with the help of <a href="https://es.wordpress.org/plugins/advanced-custom-fields/" rel="noopener nofollow ugc">ACF plugin</a>. Do you think is gonna be a problem to make a POST request of events that includes advanced custom fields (acf)? If so, How should I face this case?</p>
+<p>I hope I explained the case properly. Thank you so much in advance for all the help.</p>
+          <p><a href="https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064/1</link>
+        <pubDate>Fri, 30 Jul 2021 07:42:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5064-1</guid>
+        <source url="https://community.frontity.org/t/create-events-from-front-end-and-send-it-directly-to-wp-rest-api/5064.rss">Create events from front end and send it directly to WP REST API</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Add status code and error messages to data</title>
+    <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125</link>
+    <description>**--- [Roadmap Card](https://www.notion.so/frontity/Add-status-code-and-error-messages-to-data-ec584942eda84f328cc0ddeba367a537)**
+**--- [Sprint Card](https://github.com/orgs/frontity/projects/2#card-32117718)**
+
+&lt;!-- Please, follow this template in order to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+## Description
+Right now Frontity doesn&#39;t return proper status codes for 4xx and 5xx REST API errors. All REST API errors become a `404`, which is wrong.
+
+The first step to solve this is to populate `data` with the correct information from the REST API, so the Frontity app can make decisions based on that info.
+
+## User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want to **know about status codes and errors from the REST API**
+&gt; so that **I can make decisions of what to show in the front-end**
+
+## Possible solution
+
+If there is an error in `actions.source.fetch` we have to populate the `data` object with info about that error.
+
+- **REST API errors:** When we catch the error, we use that info to populate `data`.
+
+In order to catch the `fetch` errors, you need to see if the response was ok and if not, throw the response as the error object:
+
+```js
+const response = await fetch(&quot;https://httpstat.us/404&quot;)
+if (!response.ok) { throw response }
+```
+
+Then we add this to data:
+
+```js
+      source.data[route] = {
+        is404: true, // The status code converted to is.
+        errorStatus: 404, // status
+        errorStatusText: &quot;Not found&quot; // statusText
+        isError: true // always true for errors
+        isFetching: false,
+        isReady: true
+      };
+```
+
+Also, `isReady` must be true because we already have information about that URL which is the true meaning of `isReady`.
+
+- **JavaScript errors**:  we throw the error again and let the developer deal with it.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 18 Mar 2020 16:19:17 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I was working on adding the status after the title, precisely to make it more visible as you say. I implemented it but after an update it was breaking the private messages. I have to take a look at it but I didn’t have time yet. This was the initial idea:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/e6196db76e8f42f3e9c37115189ebe63ded29100.png" data-download-href="https://community.frontity.org/uploads/default/e6196db76e8f42f3e9c37115189ebe63ded29100" title="Screenshot 2020-01-28 at 13.04.34"><img src="https://community.frontity.org/uploads/default/optimized/1X/e6196db76e8f42f3e9c37115189ebe63ded29100_2_675x500.png" alt="Screenshot 2020-01-28 at 13.04.34" data-base62-sha1="wPyiw91kyDkXLxmC4FopD8QYE36" width="675" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/e6196db76e8f42f3e9c37115189ebe63ded29100_2_675x500.png, https://community.frontity.org/uploads/default/original/1X/e6196db76e8f42f3e9c37115189ebe63ded29100.png 1.5x, https://community.frontity.org/uploads/default/original/1X/e6196db76e8f42f3e9c37115189ebe63ded29100.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/e6196db76e8f42f3e9c37115189ebe63ded29100_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/14</link>
+        <pubDate>Wed, 18 Mar 2020 16:19:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-14</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[Reyes]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/pablo">@Pablo</a> you can see the status of a feature here:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/0bbcb74824e09a581b2b347b4e03465debb9e5e6.png" data-download-href="https://community.frontity.org/uploads/default/0bbcb74824e09a581b2b347b4e03465debb9e5e6" title="status"><img src="https://community.frontity.org/uploads/default/optimized/1X/0bbcb74824e09a581b2b347b4e03465debb9e5e6_2_690x118.png" alt="status" data-base62-sha1="1FPzBj3GAXeu6tVWb4g0yuNXHlI" width="690" height="118" srcset="https://community.frontity.org/uploads/default/optimized/1X/0bbcb74824e09a581b2b347b4e03465debb9e5e6_2_690x118.png, https://community.frontity.org/uploads/default/original/1X/0bbcb74824e09a581b2b347b4e03465debb9e5e6.png 1.5x, https://community.frontity.org/uploads/default/original/1X/0bbcb74824e09a581b2b347b4e03465debb9e5e6.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/0bbcb74824e09a581b2b347b4e03465debb9e5e6_2_10x10.png"></a></div><p></p>
+<p>But I agree that we should find a way to make it more visible.</p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/13</link>
+        <pubDate>Wed, 18 Mar 2020 15:40:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-13</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the update <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a></p>
+<p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> We should find a way to mark feature discussions as “done” once they are implemented. I don’t know if it makes sense to close the topic or just edit the title and add a <strong>[Released]</strong> at the beginning.  What do you think?</p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/12</link>
+        <pubDate>Wed, 18 Mar 2020 14:02:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-12</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>This was implemented in <a href="https://github.com/frontity/frontity/pull/291">https://github.com/frontity/frontity/pull/291</a> and <a href="https://github.com/frontity/frontity/pull/309">https://github.com/frontity/frontity/pull/309</a></p>
+<p>Documentation can be found in <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-get">https://docs.frontity.org/api-reference-1/wordpress-source#source-get</a></p>
+<p>With the new implementation, if calling <code>get()</code> has returned a status code higher than <code>400</code>, we add information about the error to the state. For example, if an error code was <code>500</code> , the state will include the following properties:</p>
+<pre><code>{
+  isError: true,
+  is500: true,
+  errorStatus: 500,
+  errorStatusText: "Some string describing the error",
+
+  // booleans that describe the fetch status
+  isReady: true,
+  isFetching: false
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/11</link>
+        <pubDate>Tue, 17 Mar 2020 00:18:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-11</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Right, I did not take that into account <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/8</link>
+        <pubDate>Wed, 05 Feb 2020 15:36:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-8</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, I see. It could be a good addition but we must provide <strong>a)</strong> for server-side rendering. I mean, we cannot assume that we are going to always load a page without errors in the first place.</p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/7</link>
+        <pubDate>Wed, 05 Feb 2020 11:51:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-7</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I think that in the context of a client-side web application it’s a better user experience if we allow the user to stay on the current page if there is a problem with fetching data for the next page, rather than redirect to an “Error Page”.</p>
+<p>So, for example:</p>
+<ol>
+<li>User is on the <code>archive</code> page.</li>
+<li>Clicks on the link to a post <code>The Beauties of Gullfoss</code>
+</li>
+<li>The data fails to load</li>
+<li>
+<strong>a)</strong> we redirect the user to an <code>error page</code><br>
+<strong>b)</strong> we show a toast notification saying <code>something went wrong</code> and the user stays on the <code>archive</code> page.</li>
+</ol>
+<p>I think <strong>b)</strong> is better <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I’m not sure if this is somehow more difficult to implement but just looking at the code it should not be.</p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/6</link>
+        <pubDate>Tue, 04 Feb 2020 22:43:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-6</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-username="mmczaplinski" data-post="3" data-topic="1125">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I think that we are <strong>not</strong> supposed to show a separate error page .e.g. if there is a 500 error.</p>
+</blockquote>
+</aside>
+<p>Why do you think that?</p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/5</link>
+        <pubDate>Tue, 04 Feb 2020 22:22:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-5</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>My idea was to show a general “Something went wrong” screen. With this type of routing:</p>
+<pre><code>      &lt;Main&gt;
+        {(data.isFetching &amp;&amp; &lt;Loading /&gt;) ||
+          (data.isArchive &amp;&amp; &lt;List /&gt;) ||
+          (data.isPostType &amp;&amp; &lt;Post /&gt;) ||
+          (data.is404 &amp;&amp; &lt;Page404 /&gt;) ||
+          (data.isError &amp;&amp; &lt;ErrorPage /&gt;}
+      &lt;/Main&gt;
+</code></pre>
+<p>Maybe we can reuse <code>ErrorPage</code> for both errors:</p>
+<pre><code>      &lt;Main&gt;
+        {(data.isFetching &amp;&amp; &lt;Loading /&gt;) ||
+          (data.isArchive &amp;&amp; &lt;List /&gt;) ||
+          (data.isPostType &amp;&amp; &lt;Post /&gt;) ||
+          (data.isError &amp;&amp; &lt;ErrorPage /&gt;)
+      &lt;/Main&gt;
+</code></pre>
+<p>and change the message if it is a 404:</p>
+<pre><code>const ErrorPage = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+  if (data.is404) return &lt;div&gt;Ops, that page can't be found.&lt;/div&gt;;
+  return &lt;div&gt;Ops! Something went wrong.&lt;/div&gt;;
+}
+</code></pre>
+<p>The theme needs to inform the user if either the page doesn’t exist or something else happened.</p>
+<hr>
+<p>Of course this is only to show people how it works, they can implement it however they want.</p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/4</link>
+        <pubDate>Tue, 04 Feb 2020 20:44:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-4</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+<p>For the react component handling the error logic in the twentytwenty and mars themes, do you have some particular idea in mind?</p>
+<p>I think that we are <strong>not</strong> supposed to show a separate error page .e.g. if there is a 500 error.</p>
+<p>I think that we could catch the error and show a “toast notification” or a dismissible dialog. Is that what you had in mind?</p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/3</link>
+        <pubDate>Tue, 04 Feb 2020 17:18:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-3</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I guess you’re going to find out that sometimes you have to throw the response error message (with status and statusText) yourself, like in this case: <a href="https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/handlers/postType.ts#L39">https://github.com/frontity/frontity/blob/dev/packages/wp-source/src/libraries/handlers/postType.ts#L39</a></p>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/2</link>
+        <pubDate>Mon, 27 Jan 2020 12:03:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-2</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+      <item>
+        <title>Add status code and error messages to data</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Add-status-code-and-error-messages-to-data-ec584942eda84f328cc0ddeba367a537">Roadmap Card</a></strong><br>
+<strong>— <a href="https://github.com/orgs/frontity/projects/2#card-32117718">Sprint Card</a></strong></p>
+
+<h2>Description</h2>
+<p>Right now Frontity doesn’t return proper status codes for 4xx and 5xx REST API errors. All REST API errors become a <code>404</code>, which is wrong.</p>
+<p>The first step to solve this is to populate <code>data</code> with the correct information from the REST API, so the Frontity app can make decisions based on that info.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>know about status codes and errors from the REST API</strong><br>
+so that <strong>I can make decisions of what to show in the front-end</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<p>If there is an error in <code>actions.source.fetch</code> we have to populate the <code>data</code> object with info about that error.</p>
+<ul>
+<li>
+<strong>REST API errors:</strong> When we catch the error, we use that info to populate <code>data</code>.</li>
+</ul>
+<p>In order to catch the <code>fetch</code> errors, you need to see if the response was ok and if not, throw the response as the error object:</p>
+<pre><code class="lang-js">const response = await fetch("https://httpstat.us/404")
+if (!response.ok) { throw response }
+</code></pre>
+<p>Then we add this to data:</p>
+<pre><code class="lang-js">      source.data[route] = {
+        is404: true, // The status code converted to is.
+        errorStatus: 404, // status
+        errorStatusText: "Not found" // statusText
+        isError: true // always true for errors
+        isFetching: false,
+        isReady: true
+      };
+</code></pre>
+<p>Also, <code>isReady</code> must be true because we already have information about that URL which is the true meaning of <code>isReady</code>.</p>
+<ul>
+<li>
+<strong>JavaScript errors</strong>:  we throw the error again and let the developer deal with it.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125/1</link>
+        <pubDate>Fri, 24 Jan 2020 15:44:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1125-1</guid>
+        <source url="https://community.frontity.org/t/add-status-code-and-error-messages-to-data/1125.rss">Add status code and error messages to data</source>
+      </item>
+  </channel>
+</rss>

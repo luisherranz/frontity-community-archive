@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Redirect to external site not working</title>
+    <link>https://community.frontity.org/t/redirect-to-external-site-not-working/6157</link>
+    <description>I&#39;ve followed the redirections doc from https://docs.frontity.org/guides/redirections-with-frontity and decided to use the alternative usage method. To do this, i have a post handler that checks whether a route is required to be redirected. If it is, then we set the `state.source.data[route]` to the redirect data object. The code snippets are shown below:
+
+```
+// redirect post
+if (state.source.redirectionsData) {
+  const redirect = getRedirect(route, state.source.redirectionsData);
+  if (redirect) {
+    state.source.data[route] = state.source.redirectionsData[redirect];
+    return;
+  }
+}
+```
+
+This is how the redirect data object is
+```
+const getRedirectionData = (route: string) =&gt; {
+  const destination = redirectionsMap[route];
+  return {
+    isReady: true,
+    isRedirection: true,
+    is301: true,
+    redirectionStatus: 301,
+    isExternal: true,
+    location: destination,
+  };
+};
+```
+
+The issue i have with this is that is does not work when the destination website is an external site i.e. when isExternal = true, there will be an illegal invocation error when redirecting on the client side as shown below.
+
+![image|689x454, 75%](upload://xuO66mCPX3iy6HiqzeMtlodcOzR.png)
+
+The error is specifically on the line `window.replaceLocation(data.location)` in `tiny-router/src/actions.ts` snippet below.
+```
+// If the data is a redirection, then we set the link to the location.
+// The redirections are stored in source.data just like any other data.
+  const data = state.source?.get(link);
+  if (data &amp;&amp; data.isReady &amp;&amp; isRedirection(data)) {
+    if (data.isExternal) {
+      window.replaceLocation(data.location);        &lt;--- This line errors
+    } else {
+      // If the link is internal, we have to discard the domain.
+```
+
+I have also checked that the data object for the route to redirect is correctly set when checking on browser console on `frontity.state.source.data`: 
+```
+/safety/.../:
+  is301: true
+  isExternal: true
+  isFetching: false
+  isReady: true
+  isRedirection: true
+  link: &quot;/safety/.../&quot;
+  location: &quot;https://www.externalSite.com&quot;
+  page: 1
+  query: {}
+  redirectionStatus: 301
+  route: &quot;/safety/.../&quot;
+```
+
+
+Some clarifications:
+When isExternal = false, both server and client redirect works.
+When isExternal = true, only server redirect works, client redirect does not work.
+
+Is this a bug on tiny-router or did i do something wrong here?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 30 Jun 2022 11:26:50 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/redirect-to-external-site-not-working/6157.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Redirect to external site not working</title>
+        <dc:creator><![CDATA[choonwah.ng]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve followed the redirections doc from <a href="https://docs.frontity.org/guides/redirections-with-frontity" class="inline-onebox" rel="noopener nofollow ugc">Redirections with Frontity - Frontity Docs</a> and decided to use the alternative usage method. To do this, i have a post handler that checks whether a route is required to be redirected. If it is, then we set the <code>state.source.data[route]</code> to the redirect data object. The code snippets are shown below:</p>
+<pre><code class="lang-javascript">// redirect post
+if (state.source.redirectionsData) {
+  const redirect = getRedirect(route, state.source.redirectionsData);
+  if (redirect) {
+    state.source.data[route] = state.source.redirectionsData[redirect];
+    return;
+  }
+}
+</code></pre>
+<p>This is how the redirect data object is</p>
+<pre><code class="lang-javascript">const getRedirectionData = (route: string) =&gt; {
+  const destination = redirectionsMap[route];
+  return {
+    isReady: true,
+    isRedirection: true,
+    is301: true,
+    redirectionStatus: 301,
+    isExternal: true,
+    location: destination,
+  };
+};
+</code></pre>
+<p>The issue i have with this is that is does not work when the destination website is an external site i.e. when isExternal = true, there will be an illegal invocation error when redirecting on the client side as shown below.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/e/eac345df69197bbf647b57bdf93d43a435b3d7a7.png" data-download-href="https://community.frontity.org/uploads/default/eac345df69197bbf647b57bdf93d43a435b3d7a7" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/e/eac345df69197bbf647b57bdf93d43a435b3d7a7_2_516x340.png" alt="image" data-base62-sha1="xuO66mCPX3iy6HiqzeMtlodcOzR" width="516" height="340" srcset="https://community.frontity.org/uploads/default/optimized/2X/e/eac345df69197bbf647b57bdf93d43a435b3d7a7_2_516x340.png, https://community.frontity.org/uploads/default/optimized/2X/e/eac345df69197bbf647b57bdf93d43a435b3d7a7_2_774x510.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/e/eac345df69197bbf647b57bdf93d43a435b3d7a7_2_1032x680.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/e/eac345df69197bbf647b57bdf93d43a435b3d7a7_2_10x10.png"></a></div><p></p>
+<p>The error is specifically on the line <code>window.replaceLocation(data.location)</code> in <code>tiny-router/src/actions.ts</code> snippet below.</p>
+<pre><code class="lang-javascript">// If the data is a redirection, then we set the link to the location.
+// The redirections are stored in source.data just like any other data.
+  const data = state.source?.get(link);
+  if (data &amp;&amp; data.isReady &amp;&amp; isRedirection(data)) {
+    if (data.isExternal) {
+      window.replaceLocation(data.location);        &lt;--- This line errors
+    } else {
+      // If the link is internal, we have to discard the domain.
+</code></pre>
+<p>I have also checked that the data object for the route to redirect is correctly set when checking on browser console on <code>frontity.state.source.data</code>:</p>
+<pre><code class="lang-javascript">/safety/.../:
+  is301: true
+  isExternal: true
+  isFetching: false
+  isReady: true
+  isRedirection: true
+  link: "/safety/.../"
+  location: "https://www.externalSite.com"
+  page: 1
+  query: {}
+  redirectionStatus: 301
+  route: "/safety/.../"
+</code></pre>
+<p>Some clarifications:<br>
+When isExternal = false, both server and client redirect works.<br>
+When isExternal = true, only server redirect works, client redirect does not work.</p>
+<p>Is this a bug on tiny-router or did i do something wrong here?</p>
+          <p><a href="https://community.frontity.org/t/redirect-to-external-site-not-working/6157/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/redirect-to-external-site-not-working/6157/1</link>
+        <pubDate>Thu, 30 Jun 2022 10:16:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6157-1</guid>
+        <source url="https://community.frontity.org/t/redirect-to-external-site-not-working/6157.rss">Redirect to external site not working</source>
+      </item>
+  </channel>
+</rss>

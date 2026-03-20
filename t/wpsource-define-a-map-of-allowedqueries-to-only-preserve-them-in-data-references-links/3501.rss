@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</title>
+    <link>https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501</link>
+    <description>&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# Description
+&lt;!-- Try to give a detailed explanation of what do you expect of this feature --&gt;
+
+When using `@frontity/wp-source`, you may want some different links to point to the same data object if they only differ by the search query (like links with a `utm_campaign` parameter). For example, these calls should return the same data object:
+
+```ts
+state.source.get(&quot;/2016/the-beauties-of-gullfoss/&quot;);
+state.source.get(&quot;/2016/the-beauties-of-gullfoss/?utm_campaign=twitter&quot;);
+```
+
+As some links with query parameters can actually point to different data objects (e.g. the search parameter, `?s=some+search`), in this case, you would want `state.source.get(link)` to return a different data object for each one. For instance, these calls should return different data objects:
+
+```ts
+state.source.get(&quot;/category/nature/&quot;);
+state.source.get(&quot;/category/nature/?s=some+param&quot;);
+```
+
+The main idea is to implement an option called `allowedQueries` in `@frontity/wp-source` to specify which query params should be preserved in the data links. Those that were not specified would be internally removed.
+
+# Examples
+
+- **UTM query params (`/my-post?utm_campaign=frontity`)**
+  Users wouldn&#39;t want them to generate a new data object. In this case, it would be enough not to include any of the `utm_campaign`, `utm_source`, etc. params inside `state.wpSource.allowedQueries` (or set them to `false`).
+
+- **Searches (`/my-tag/?s=some+search`)**
+  To make this param to return a new data object, it should be included in `state.wpSource.allowedQueries`:
+  ```ts
+  state: {
+    wpSource: {
+      allowedQueries: { s: true }
+    }
+  }
+- **Previews (`/my-post?preview=true`)**
+  Again, to make this param to return a new data object, it should be included in `state.wpSource.allowedQueries`:
+  ```ts
+  state: {
+    wpSource: {
+      allowedQueries: { s: true, preview: true }
+    }
+  }
+  ```
+
+
+# Requirements
+&lt;!-- Initial list of requirements and constraints that need to be met. --&gt;
+
+- This functionality should be specific to `@frontity/wp-source`.
+- The value of `state.router.link` should not be modified - that means the query filtering should only happen internally in `@frontity/wp-source`.
+- `libraries.source.normalize()` implementation should remain the same as other packages rely on it. Right now, it works like a kind of link prettifier.
+
+
+# Possible solution
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+
+I think the best way to go here is to modify the `wp-source` implementation of the API that generates and returns data objects, i.e. `actions.source.fetch(link)` and `state.source.get(link)`.
+
+They should behave just like passing the `link` argument without those params. So, prior to run any logic, they should remove any param that is not specified in `state.wpSource.allowedQueries`, and then continue the normal execution.
+
+# Some insights
+
+
+1. This feature could be deprecated in the near future because the same could be easily implemented using [Frontity hooks](https://community.frontity.org/t/frontity-hooks/2811/3).
+
+2. This also would partially fix [state.router.link mismatch when the URL is not the same in the server as in the client #623](https://github.com/frontity/frontity/issues/623). But, to completely solve it, we would have to change  `@frontity/tiny-router` as well so it replaces `state.router.link` with the link in the browser during the `init()` action. That way, any query param modified in server-side would be preserved in the client. Also, other packages relying on `state.router.link` would get the correct value, not the altered one, so I think we should do this anyway.
+
+3. I&#39;m not sure what should be the default value for `state.wpSource.allowedQueries`. There is a problem if we just leave `@frontity/wp-source` to do the same thing it&#39;s doing right now (i.e. to create a data object for every different link) by default. Doing the changes described above, the app would crash during hydration in the case the server link and the client link contain different queries. That, of course, could be fixed by setting `state.wpSource.allowedQueries` appropriately. But yeah, that makes me think it&#39;s not the best default behavior. Any ideas on here are welcome. :blush:</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 08 Mar 2021 11:34:19 +0000</lastBuildDate>
+    <category>🗣 Feature Discussions</category>
+    <atom:link href="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for your feedback <a class="mention" href="https://community.frontity.org/u/bjoluc">@bjoluc</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"><img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/5</link>
+        <pubDate>Mon, 08 Mar 2021 11:34:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3501-5</guid>
+        <source url="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501.rss">WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</source>
+      </item>
+      <item>
+        <title>WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</title>
+        <dc:creator><![CDATA[bjoluc]]></dc:creator>
+        <description><![CDATA[
+            <p>I just stumbled upon this after building a Frontity Provider for the amazing <a href="https://github.com/pbeshai/use-query-params" rel="noopener nofollow ugc">use-query-params hook</a>. Everytime <code>useQueryParams</code> changes the query parameters, wp-source goes ahead and re-fetches the data for the current route.<br>
+In this regard, I would love a whitelist approach! That would make working with <code>useQueryParams</code> a lot easier than having to modify a blacklist every time a new parameter is introduced. There is a gazillion of potential query parameters but only some well-known few of them are usually relevant for WordPress (please correct me if I’m wrong!), so I think a whitelist would make much sense.</p>
+          <p><a href="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/4</link>
+        <pubDate>Sun, 07 Mar 2021 20:43:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3501-4</guid>
+        <source url="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501.rss">WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</source>
+      </item>
+      <item>
+        <title>WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>A post was split to a new topic: <a href="https://community.frontity.org/t/problem-with-links-with-utm-campaings/3903">Problem with links with <code>utm</code> campaings</a></p>
+          <p><a href="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/3</link>
+        <pubDate>Thu, 28 Jan 2021 15:50:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3501-3</guid>
+        <source url="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501.rss">WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</source>
+      </item>
+      <item>
+        <title>WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the FD <a class="mention" href="https://community.frontity.org/u/david">@david</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>I guess the main question here is:</p>
+<ul>
+<li>Do we wait until we have Frontity hooks to do this?</li>
+<li>Or do we create something for Source v1?</li>
+</ul>
+<p>And if we create something for Source v1, we do so:</p>
+<ul>
+<li>Only for queries, like David is proposing here?</li>
+<li>Maybe for queries and for post/pages pagination? (<a href="https://community.frontity.org/t/posts-pages-pagination/1203/7" class="inline-onebox">Posts/pages pagination</a>)</li>
+<li>Fully featured and extensible, like what I explained in the <a href="https://community.frontity.org/t/router-converters/1514" class="inline-onebox">Router Converters</a> FD (which is basically the same concept, but for <code>actions.router.set()</code>)?</li>
+</ul>
+<hr>
+<aside class="quote group-dev-team" data-username="David" data-post="1" data-topic="3501">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>I’m not sure what should be the default value for <code>state.wpSource.allowedQueries</code>. There is a problem if we just leave <code>@frontity/wp-source</code> to do the same thing it’s doing right now (i.e. to create a data object for every different link) by default. Doing the changes described above, the app would crash during hydration in the case the server link and the client link contain different queries. That, of course, could be fixed by setting <code>state.wpSource.allowedQueries</code> appropriately. But yeah, that makes me think it’s not the best default behavior. Any ideas on here are welcome. <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+</blockquote>
+</aside>
+<p>Why not make it a blacklist instead of a whitelist? I don’t think we can make a whitelist backward compatible anyway.</p>
+          <p><a href="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/2</link>
+        <pubDate>Fri, 04 Dec 2020 11:08:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3501-2</guid>
+        <source url="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501.rss">WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</source>
+      </item>
+      <item>
+        <title>WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+
+<p>When using <code>@frontity/wp-source</code>, you may want some different links to point to the same data object if they only differ by the search query (like links with a <code>utm_campaign</code> parameter). For example, these calls should return the same data object:</p>
+<pre><code class="lang-ts">state.source.get("/2016/the-beauties-of-gullfoss/");
+state.source.get("/2016/the-beauties-of-gullfoss/?utm_campaign=twitter");
+</code></pre>
+<p>As some links with query parameters can actually point to different data objects (e.g. the search parameter, <code>?s=some+search</code>), in this case, you would want <code>state.source.get(link)</code> to return a different data object for each one. For instance, these calls should return different data objects:</p>
+<pre><code class="lang-ts">state.source.get("/category/nature/");
+state.source.get("/category/nature/?s=some+param");
+</code></pre>
+<p>The main idea is to implement an option called <code>allowedQueries</code> in <code>@frontity/wp-source</code> to specify which query params should be preserved in the data links. Those that were not specified would be internally removed.</p>
+<h1>Examples</h1>
+<ul>
+<li>
+<p><strong>UTM query params (<code>/my-post?utm_campaign=frontity</code>)</strong><br>
+Users wouldn’t want them to generate a new data object. In this case, it would be enough not to include any of the <code>utm_campaign</code>, <code>utm_source</code>, etc. params inside <code>state.wpSource.allowedQueries</code> (or set them to <code>false</code>).</p>
+</li>
+<li>
+<p><strong>Searches (<code>/my-tag/?s=some+search</code>)</strong><br>
+To make this param to return a new data object, it should be included in <code>state.wpSource.allowedQueries</code>:</p>
+<pre><code class="lang-ts">state: {
+  wpSource: {
+    allowedQueries: { s: true }
+  }
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Previews (<code>/my-post?preview=true</code>)</strong><br>
+Again, to make this param to return a new data object, it should be included in <code>state.wpSource.allowedQueries</code>:</p>
+<pre><code class="lang-ts">state: {
+  wpSource: {
+    allowedQueries: { s: true, preview: true }
+  }
+}
+</code></pre>
+</li>
+</ul>
+<h1>Requirements</h1>
+
+<ul>
+<li>This functionality should be specific to <code>@frontity/wp-source</code>.</li>
+<li>The value of <code>state.router.link</code> should not be modified - that means the query filtering should only happen internally in <code>@frontity/wp-source</code>.</li>
+<li>
+<code>libraries.source.normalize()</code> implementation should remain the same as other packages rely on it. Right now, it works like a kind of link prettifier.</li>
+</ul>
+<h1>Possible solution</h1>
+
+<p>I think the best way to go here is to modify the <code>wp-source</code> implementation of the API that generates and returns data objects, i.e. <code>actions.source.fetch(link)</code> and <code>state.source.get(link)</code>.</p>
+<p>They should behave just like passing the <code>link</code> argument without those params. So, prior to run any logic, they should remove any param that is not specified in <code>state.wpSource.allowedQueries</code>, and then continue the normal execution.</p>
+<h1>Some insights</h1>
+<ol>
+<li>
+<p>This feature could be deprecated in the near future because the same could be easily implemented using <a href="https://community.frontity.org/t/frontity-hooks/2811/3">Frontity hooks</a>.</p>
+</li>
+<li>
+<p>This also would partially fix <a href="https://github.com/frontity/frontity/issues/623">state.router.link mismatch when the URL is not the same in the server as in the client #623</a>. But, to completely solve it, we would have to change  <code>@frontity/tiny-router</code> as well so it replaces <code>state.router.link</code> with the link in the browser during the <code>init()</code> action. That way, any query param modified in server-side would be preserved in the client. Also, other packages relying on <code>state.router.link</code> would get the correct value, not the altered one, so I think we should do this anyway.</p>
+</li>
+<li>
+<p>I’m not sure what should be the default value for <code>state.wpSource.allowedQueries</code>. There is a problem if we just leave <code>@frontity/wp-source</code> to do the same thing it’s doing right now (i.e. to create a data object for every different link) by default. Doing the changes described above, the app would crash during hydration in the case the server link and the client link contain different queries. That, of course, could be fixed by setting <code>state.wpSource.allowedQueries</code> appropriately. But yeah, that makes me think it’s not the best default behavior. Any ideas on here are welcome. <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+</li>
+</ol>
+          <p><a href="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501/1</link>
+        <pubDate>Thu, 26 Nov 2020 18:41:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3501-1</guid>
+        <source url="https://community.frontity.org/t/wpsource-define-a-map-of-allowedqueries-to-only-preserve-them-in-data-references-links/3501.rss">WpSource: Define a map of `allowedQueries` to only preserve them in data references (links)</source>
+      </item>
+  </channel>
+</rss>

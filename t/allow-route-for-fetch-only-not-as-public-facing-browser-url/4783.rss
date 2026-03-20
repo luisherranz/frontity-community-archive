@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Allow route for fetch only, not as public-facing browser url?</title>
+    <link>https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783</link>
+    <description>Hi,
+
+trying to separate my overall problem (https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762) into separate issues
+
+I want to fetch content via eg `fetch(&quot;/events-page&quot;)` so I can insert that page&#39;s content into another page (specifically my events archive), but I don&#39;t want the user to be able to access `mysite.com/events-page/` directly
+
+if I add a handler to 404 the pattern `/events-page/`, then it also stops the fetch from working
+
+thanks for any advice
+J.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 16 Jun 2021 18:17:39 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Allow route for fetch only, not as public-facing browser url?</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>I solved like this</p>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions, libraries }) =&gt; {
+  if(state.router.link === '/events-page/') {
+
+    // manually 404 this route, ie when visiting mysite.com/events-page
+    Object.assign(state.source.data[state.router.link], {
+      isError: true,
+      is404: true,
+      isPostType: false,
+      errorStatus: 404
+    });
+  }
+  
+  // fetch route still works
+  if(state.router.link.startsWith('/events/')) {
+    // grab the content from our dummy page
+    await actions.source.fetch("/events-page/")
+  }
+</code></pre>
+          <p><a href="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/3</link>
+        <pubDate>Wed, 16 Jun 2021 18:17:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4783-3</guid>
+        <source url="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783.rss">Allow route for fetch only, not as public-facing browser url?</source>
+      </item>
+      <item>
+        <title>Allow route for fetch only, not as public-facing browser url?</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>example here using <a href="http://test.frontity.org" rel="noopener nofollow ugc">test.frontity.org</a></p>
+<aside class="onebox allowlistedgeneric" data-onebox-src="https://codesandbox.io/s/github/codemonkeynorth/test-frontity">
+  <header class="source">
+      <img src="https://codesandbox.io/favicon.ico" class="site-icon" width="48" height="48">
+
+      <a href="https://codesandbox.io/s/github/codemonkeynorth/test-frontity" target="_blank" rel="noopener nofollow ugc" title="07:54PM - 14 June 2021">CodeSandbox – 14 Jun 21</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://community.frontity.org/uploads/default/optimized/2X/e/e0f480c7e9bb3c475c11d422e188c5e1c56d7e1e_2_690x362.png" class="thumbnail" width="690" height="362" srcset="https://community.frontity.org/uploads/default/optimized/2X/e/e0f480c7e9bb3c475c11d422e188c5e1c56d7e1e_2_690x362.png, https://community.frontity.org/uploads/default/optimized/2X/e/e0f480c7e9bb3c475c11d422e188c5e1c56d7e1e_2_1035x543.png 1.5x, https://community.frontity.org/uploads/default/original/2X/e/e0f480c7e9bb3c475c11d422e188c5e1c56d7e1e.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/e/e0f480c7e9bb3c475c11d422e188c5e1c56d7e1e_2_10x10.png"></div>
+
+<h3><a href="https://codesandbox.io/s/github/codemonkeynorth/test-frontity" target="_blank" rel="noopener nofollow ugc">test-frontity - CodeSandbox</a></h3>
+
+  <p>Frontity project</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>in this case I want to disable the <code>/about-us</code> url  but still be able to fetch data from that page in the backend (which you can see on the Destinations and Movies archive pages, I pull in the excerpt from about-us)</p>
+<p>If you enable the <code>aboutUsHandler</code> at the bottom of the theme <a href="https://codesandbox.io/s/github/codemonkeynorth/test-frontity?file=/packages/mars-theme/src/index.js" rel="noopener nofollow ugc">index.js</a>, then it breaks these because 404’ing the main page also disables the fetch routes</p>
+          <p><a href="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/2</link>
+        <pubDate>Mon, 14 Jun 2021 19:56:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4783-2</guid>
+        <source url="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783.rss">Allow route for fetch only, not as public-facing browser url?</source>
+      </item>
+      <item>
+        <title>Allow route for fetch only, not as public-facing browser url?</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>trying to separate my overall problem (<a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762" class="inline-onebox">Holding page for CPT including posts of that CPT (eg /events)</a>) into separate issues</p>
+<p>I want to fetch content via eg <code>fetch("/events-page")</code> so I can insert that page’s content into another page (specifically my events archive), but I don’t want the user to be able to access <code>mysite.com/events-page/</code> directly</p>
+<p>if I add a handler to 404 the pattern <code>/events-page/</code>, then it also stops the fetch from working</p>
+<p>thanks for any advice<br>
+J.</p>
+          <p><a href="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783/1</link>
+        <pubDate>Mon, 14 Jun 2021 17:29:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4783-1</guid>
+        <source url="https://community.frontity.org/t/allow-route-for-fetch-only-not-as-public-facing-browser-url/4783.rss">Allow route for fetch only, not as public-facing browser url?</source>
+      </item>
+  </channel>
+</rss>

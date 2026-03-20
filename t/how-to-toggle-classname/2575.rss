@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to toggle className</title>
+    <link>https://community.frontity.org/t/how-to-toggle-classname/2575</link>
+    <description>My objective seems quite simple, but I can&#39;t manage to wrap my head around how Frontity and React work in this respect. I&#39;ve looked around in the Frontity Community, in Mars-theme and on React documentation. 
+
+In the React documentation I&#39;ve found various examples, but there seem to be differences between Frontity components and React (do I need to rewrite a component to `class xxx extends React.Component` for this?). At least, it looks that way, with my pretty limited React and Frontity skills.
+
+What I&#39;ve done so far:
+I have added my own nav menu&#39;s, coming from the WordPress REST API (I used this topic: https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415). I also added child-items for the menu-items, because only the top-level is not enough. On desktop it&#39;s fine if these child-items appear when hovering on their parents. But on touchscreens hovering doesn&#39;t work, so I&#39;d like to add toggles to show and hide the child-items, at least for smartphone sized devices.
+
+The easiest way seems (to me) to toggle a class-name on the toggle-element and add some CSS to show the child-items only when the `active` class on the toggle is added. I&#39;ve added a component which should work as a toggle and tried several ways, but I&#39;m unable to add the class after an `onClick` event.
+
+I have also tried to do this through `state.theme`, but because there could be multiple toggles in the menu, this doesn&#39;t seem to be the right approach to me.
+
+This is my component, cleared from all my trial &amp; error code:
+
+```
+import React from &quot;react&quot;;
+import { css, connect } from &quot;frontity&quot;;
+
+const NavDropdownToggle = ({
+  state,
+  actions,
+}) =&gt; {
+  return (
+    &lt;span css={css`margin-left: 10px;`}&gt;
+      toggle
+    &lt;/span&gt;
+  )
+};
+
+export default connect(NavDropdownToggle);
+
+```
+
+What&#39;s the right method to create a function to toggle a class on this element?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 04 Aug 2020 17:15:34 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-toggle-classname/2575.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to toggle className</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>Great that you eventually got to a solution. Regarding your query about class-based React components, there used to be an advantage to using them in order to use <code>setState</code>, but since React 16.8 you can use React hooks in functional components. I don’t think you need to use the class syntax for declaring components in a Frontity theme. See this brief article: <a href="https://medium.com/@Zwenza/functional-vs-class-components-in-react-231e3fbd7108">https://medium.com/@Zwenza/functional-vs-class-components-in-react-231e3fbd7108</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-toggle-classname/2575/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-toggle-classname/2575/5</link>
+        <pubDate>Tue, 04 Aug 2020 17:15:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2575-5</guid>
+        <source url="https://community.frontity.org/t/how-to-toggle-classname/2575.rss">How to toggle className</source>
+      </item>
+      <item>
+        <title>How to toggle className</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Solved it, trialling and erroring my way through…</p>
+<p>I removed the <code>state.action</code> and modified the component to this:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { css, connect } from "frontity";
+
+const NavDropdownToggle = ({
+  state,
+  actions,
+  theme,
+  targetid,
+}) =&gt; {
+  state.theme.isSubmenuOpen[targetid] = (state.theme.isSubmenuOpen[targetid] == null) ? 'closed' : state.theme.isSubmenuOpen[targetid];
+  console.log(targetid);
+
+  const toggleSubmenu = ( targetid ) =&gt; {
+    state.theme.isSubmenuOpen[targetid] = (state.theme.isSubmenuOpen[targetid] == 'closed') ? 'open' : 'closed';
+  }
+
+  return (
+    &lt;span css={css`margin-left: 10px;`} submenu-open={state.theme.isSubmenuOpen[targetid]} onClick={() =&gt; toggleSubmenu(targetid)}&gt;
+      toggle
+    &lt;/span&gt;
+  )
+};
+
+export default connect(NavDropdownToggle);
+</code></pre>
+<p>The only thing I need in my <code>index.js</code> is the following:</p>
+<pre><code class="lang-javascript">const marsTheme = {
+  ...
+  state: {
+    theme: {
+      ...
+      isSubmenuOpen: {},
+      ...
+    },
+  },
+  ...
+};
+
+export default marsTheme;
+</code></pre>
+<p>I’m not confident that this is the best approach, but at least it’s working.</p>
+          <p><a href="https://community.frontity.org/t/how-to-toggle-classname/2575/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-toggle-classname/2575/4</link>
+        <pubDate>Tue, 04 Aug 2020 12:28:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2575-4</guid>
+        <source url="https://community.frontity.org/t/how-to-toggle-classname/2575.rss">How to toggle className</source>
+      </item>
+      <item>
+        <title>How to toggle className</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>It feels like I’m almost there with the approach I chose, but it’s not completely working for me.</p>
+<p>I created this component:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { css, connect } from "frontity";
+
+const NavDropdownToggle = ({
+  state,
+  actions,
+  theme,
+  target,
+}) =&gt; {
+  let isSubmenuOpen = state.theme.isSubmenuOpen[target];
+
+  isSubmenuOpen == null &amp;&amp; actions.theme.toggleSubmenu[target];
+
+  return (
+    &lt;span css={css`margin-left: 10px;`} submenu-open={isSubmenuOpen} onClick={actions.theme.toggleSubmenu[target]}&gt;
+      toggle
+    &lt;/span&gt;
+  )
+};
+
+export default connect(NavDropdownToggle);
+</code></pre>
+<p>And this is the actions part of <code>index.js</code>:</p>
+<pre><code class="lang-javascript">actions: {
+  theme: {
+    ...
+    toggleSubmenu: ({ target, state }) =&gt; {
+        state.theme.isSubmenuOpen[target] = (state.theme.isSubmenuOpen[target] == 'open') ? 'closed' : 'open';
+    }
+  },
+},
+</code></pre>
+<p>I don’t know how to pass an argument to <code>actions.theme.toggleSubmenu</code>. The <code>target</code> does have a value, but when using <code>actions.theme.toggleSubmenu(target)</code> I get an error <code>Too many re-renders. React limits the number of renders to prevent an infinite loop.</code> and when using <code>actions.theme.toggleSubmenu[target]</code> the action doesn’t run.</p>
+          <p><a href="https://community.frontity.org/t/how-to-toggle-classname/2575/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-toggle-classname/2575/3</link>
+        <pubDate>Tue, 04 Aug 2020 10:25:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2575-3</guid>
+        <source url="https://community.frontity.org/t/how-to-toggle-classname/2575.rss">How to toggle className</source>
+      </item>
+      <item>
+        <title>How to toggle className</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>My objective seems quite simple, but I can’t manage to wrap my head around how Frontity and React work in this respect. I’ve looked around in the Frontity Community, in Mars-theme and on React documentation.</p>
+<p>In the React documentation I’ve found various examples, but there seem to be differences between Frontity components and React (do I need to rewrite a component to <code>class xxx extends React.Component</code> for this?). At least, it looks that way, with my pretty limited React and Frontity skills.</p>
+<p>What I’ve done so far:<br>
+I have added my own nav menu’s, coming from the WordPress REST API (I used this topic: <a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415" class="inline-onebox">How to fetch Menu from wordpress?</a>). I also added child-items for the menu-items, because only the top-level is not enough. On desktop it’s fine if these child-items appear when hovering on their parents. But on touchscreens hovering doesn’t work, so I’d like to add toggles to show and hide the child-items, at least for smartphone sized devices.</p>
+<p>The easiest way seems (to me) to toggle a class-name on the toggle-element and add some CSS to show the child-items only when the <code>active</code> class on the toggle is added. I’ve added a component which should work as a toggle and tried several ways, but I’m unable to add the class after an <code>onClick</code> event.</p>
+<p>I have also tried to do this through <code>state.theme</code>, but because there could be multiple toggles in the menu, this doesn’t seem to be the right approach to me.</p>
+<p>This is my component, cleared from all my trial &amp; error code:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { css, connect } from "frontity";
+
+const NavDropdownToggle = ({
+  state,
+  actions,
+}) =&gt; {
+  return (
+    &lt;span css={css`margin-left: 10px;`}&gt;
+      toggle
+    &lt;/span&gt;
+  )
+};
+
+export default connect(NavDropdownToggle);
+
+</code></pre>
+<p>What’s the right method to create a function to toggle a class on this element?</p>
+          <p><a href="https://community.frontity.org/t/how-to-toggle-classname/2575/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-toggle-classname/2575/1</link>
+        <pubDate>Mon, 03 Aug 2020 16:36:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2575-1</guid>
+        <source url="https://community.frontity.org/t/how-to-toggle-classname/2575.rss">How to toggle className</source>
+      </item>
+  </channel>
+</rss>

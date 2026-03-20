@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to Style Blog Page?</title>
+    <link>https://community.frontity.org/t/how-to-style-blog-page/587</link>
+    <description>Hi,
+
+How can we style the blog page or any other pages thats coming from wordpress?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 12 Sep 2019 09:19:37 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-style-blog-page/587.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="5" data-topic="587">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/aeyzazkhan/40/299_2.png" class="avatar"> aeyzazkhan:</div>
+<blockquote>
+<p>See Post Component, how can this be styled differently for different pages.</p>
+</blockquote>
+</aside>
+<p>Regarding this, I made it work but now sure if it is a good practice.</p>
+<p>Could we create variables for styling each page and pass it to the <code>&lt;Post /&gt;</code> component through <code>&lt;Global /&gt;</code> depending on <code>state.router.link</code> <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>?</p>
+<p>An example of what I mean. Imagine I want the “About-us” page to have a pink background, my “Contact-us” page to have a green background, but the posts remain with white background.</p>
+<pre><code class="lang-auto">import { connect, styled, Global, css } from "frontity";
+
+const aboutUsStyles = css`
+  body {
+    background-color: pink;
+  }
+`;
+const contactUsStyles = css`
+  body {
+    background-color: green;
+  }
+`;
+
+const Post = ({ state, actions, libraries }) =&gt; {
+  ...
+  return(
+    &lt;Container&gt;
+      {state.router.link === "/about-us/" &amp;&amp; &lt;Global styles={aboutUsStyles} /&gt;}
+      {state.router.link === "/contact-us/" &amp;&amp; &lt;Global styles={contactUsStyles} /&gt;}
+       ...
+    &lt;/Container&gt;
+  )
+}</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/10</link>
+        <pubDate>Thu, 12 Sep 2019 09:19:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-10</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, <a class="mention" href="https://community.frontity.org/u/shagui">@ShaGui</a> is right, all the styling of a Frontity app can be done with <code>styled</code> because everything is a React component. Except one case: <code>post.content.rendered</code>, <code>post.excerpt.rendered</code> and <code>post.title.rendered</code>.</p>
+<p>Those are different because they are HTML strings coming from the REST API, they are not React components. If that’s what you meant, <a class="mention" href="https://community.frontity.org/u/aeyzazkhan">@aeyzazkhan</a>, you are totally right. We need to add specific documentation for those cases.</p>
+<p>If you take a look at mars-theme’s Post component, you can see something like this (simplified):</p>
+<pre><code class="lang-javascript">const Post = ({ state, actions, libraries }) =&gt; {
+  const data = state.source.get(state.router.link);
+  const post = state.source[data.type][data.id];
+  const Html2React = libraries.html2react.Component;
+
+  return data.isReady ? (
+    &lt;&gt;
+      &lt;Title dangerouslySetInnerHTML={{ __html: post.title.rendered }} /&gt;
+      &lt;Content&gt;
+        &lt;Html2React html={post.content.rendered} /&gt;
+      &lt;/Content&gt;
+    &lt;/&gt;
+  ) : null;
+};
+
+const Title = styled.h1`
+  margin-bottom: 8px;
+  color: rgba(12, 17, 43);
+`;
+
+const Content = styled.div`
+  color: rgba(12, 17, 43, 0.8);
+  word-break: break-word;
+`;
+
+export default connect(Post);
+</code></pre>
+<p>There are two ways to insert HTML in React.</p>
+<ol>
+<li>The first one is <code>dangerouslySetInnerHTML</code>, used here for the title: <code>post.title.rendered</code>.</li>
+<li>The second one is to use Frontity’s <code>html2react</code> package.</li>
+</ol>
+<p>And there are two ways to style the HTML those fields:</p>
+<ol>
+<li>Use the parent React component (<code>&lt;Title&gt;</code> or <code>&lt;Content&gt;</code> in this example) to target children HTML tags with <a href="https://emotion.sh/docs/nested" rel="nofollow noopener">nested selectors</a>:</li>
+</ol>
+<pre><code class="lang-javascript">const Title = styled.div`
+  span {
+    font-weight: 400;
+  }
+`
+
+const Content = styled.div`
+  color: rgba(12, 17, 43, 0.8);
+  word-break: break-word;
+
+  * {
+    max-width: 100%;
+  }
+
+  p {
+    line-height: 1.6em;
+  }
+
+  a {
+    color: rgb(31, 56, 197);
+    text-decoration: underline;
+  }
+
+  /* WordPress Core Align Classes */
+
+  @media (min-width: 420px) {
+    img.aligncenter,
+    img.alignleft,
+    img.alignright {
+      width: auto;
+    }
+
+    .aligncenter {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .alignright {
+      float: right;
+      margin-left: 24px;
+    }
+
+    .alignleft {
+      float: left;
+      margin-right: 24px;
+    }
+  }
+`;
+</code></pre>
+<ol start="2">
+<li>Use <code>html2react</code> to <a href="https://docs.frontity.org/api-reference-1/frontity-html2react#create-your-own-processors" rel="nofollow noopener">process certain HTML tags as React components</a>, and style those:</li>
+</ol>
+<pre><code class="lang-javascript">const Paragraph = styled.p`
+  line-height: 1.6em;
+`
+
+const Anchor = styled.a`
+   color: rgb(31, 56, 197);
+   text-decoration: underline;
+`
+
+// Create one processor for each HTML tag you want to modify.
+const paragraph = {
+  test: node =&gt; node.component === "p" ,
+  process: node =&gt; {
+    node.component = Paragraph;
+    return node;
+  }
+};
+const anchor = {
+  test: node =&gt; node.component === "a" ,
+  process: node =&gt; {
+    node.component = Anchor;
+    return node;
+  }
+};
+
+// Add the processors to your `actions.theme.init` function:
+const marsTheme = {
+  ...
+  actions: {
+    theme: {
+      init: ({ libraries }) =&gt; {
+        libraries.html2react.processors.push(paragraph);
+        libraries.html2react.processors.push(anchor);
+      }
+    }
+  }
+};
+</code></pre>
+<p>The second way is more complex, but it is also much more powerful because with <code>html2react</code> you can do much more than styling: you can also modify attributes and turn any HTML in a full-fledged React component.</p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/9</link>
+        <pubDate>Thu, 12 Sep 2019 08:13:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-9</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/aeyzazkhan">@aeyzazkhan</a>  So all website data is taken from the Wordpress REST API as stated here: <a href="https://docs.frontity.org/getting-started/installation-requirements#the-wordpress-rest-api" rel="nofollow noopener">https://docs.frontity.org/getting-started/installation-requirements#the-wordpress-rest-api</a>.</p>
+<p>That being said, the REST API handbook can be found here: <a href="https://developer.wordpress.org/rest-api/" rel="nofollow noopener">https://developer.wordpress.org/rest-api/</a><br>
+It is a great resource if you want to understand more of what the REST API is capable of.</p>
+<p>Another resource is this: <a href="https://docs.frontity.org/api-reference-1/wordpress-source#api-reference" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/wordpress-source#api-reference</a>.<br>
+It highlights some of the API references and how they are made in wp-source.</p>
+<p>Hopefully that may help you, as honestly, I am still learning the framework and I am only starting to understand some of the mechanics. You may get a more thorough answer from someone like <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/8</link>
+        <pubDate>Wed, 11 Sep 2019 20:40:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-8</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[aeyzazkhan]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/shagui">@ShaGui</a>  May be we are not understanding each other. Lets make it simple.</p>
+<p>How is every page handled from wordpress, How the data is shown on frontend?</p>
+<p>P.S i am not talking about Custom Pages. I am talking about the pages that i create in wordpress backend.</p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/7</link>
+        <pubDate>Wed, 11 Sep 2019 19:30:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-7</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/aeyzazkhan">@aeyzazkhan</a> I am not sure I understand. Are you trying to have different styles for every blog post or simply for different pages?</p>
+<p>If you want to have different styles for every page like the Sign up page and the Sign In page then that can be done as shown above.</p>
+<p>If you are trying to have different styles for every blog post. I would have to say that I am unsure of why you would want to do so? I am also unsure of how it might be done. One of the developers may be more useful in answering that question.</p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/6</link>
+        <pubDate>Wed, 11 Sep 2019 18:19:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-6</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[aeyzazkhan]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/shagui">@ShaGui</a></p>
+<pre><code>const Theme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+  return (
+    &lt;&gt;
+      &lt;Head&gt;
+        &lt;title&gt;{state.frontity.title}&lt;/title&gt;
+        &lt;meta name="description" content={state.frontity.description} /&gt;
+          &lt;meta
+              name="viewport"
+              content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
+          /&gt;
+        &lt;html lang="en" /&gt;
+      &lt;/Head&gt;
+      &lt;Global styles={globalStyles} /&gt;
+      &lt;HeadContainer&gt;
+        &lt;Header /&gt;
+      &lt;/HeadContainer&gt;
+      &lt;Body&gt;
+        {data.isFetching &amp;&amp; &lt;Loading /&gt;}
+        {data.isHome &amp;&amp; &lt;Home/&gt;}
+        {data.isSignUp &amp;&amp; &lt;SignUp/&gt;}
+        {data.isSignIn &amp;&amp; &lt;SignIn/&gt;}
+        {data.isPricing &amp;&amp; &lt;Pricing/&gt;}
+        {data.isAboutUs &amp;&amp; &lt;AboutUs/&gt;}
+        {data.isDashboard &amp;&amp; &lt;Dashboard/&gt;}
+        {data.isCheckout &amp;&amp; &lt;Checkout/&gt;}
+        {data.isArchive &amp;&amp; &lt;List /&gt;}
+        {data.isPostType &amp;&amp; &lt;Post /&gt;}
+        {data.is404 &amp;&amp; &lt;Page404 /&gt;}
+      &lt;/Body&gt;
+    &lt;/&gt;
+  );
+}; 
+</code></pre>
+<p>In the above code, See Post Component, how can this be styled differently for different pages.</p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/5</link>
+        <pubDate>Wed, 11 Sep 2019 18:06:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-5</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>If I understand correctly, you want styles that will only affect that page? If that is the case, once the page is created as outlined here in another of your posts: <a href="https://community.frontity.org/t/how-to-create-custom-pages/435" class="inline-onebox">How to create Custom Pages?</a>. You can simply add the styles to that <code>page.js</code> or whatever file you created for that custom page. To add styles to that custom page, you simply need to follow the <a href="https://docs.frontity.org/learning-frontity/styles" rel="nofollow noopener">link</a> I provided in my previous post which explains CSS-in-JS. That being said, it typically would look something like this:</p>
+<pre><code>   const CustomTag = styled.div`
+background-color: black;
+
+`;
+</code></pre>
+<p>That being said, obviously this is a very simple example, but hopefully it will help <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>Also as I had forgotten, you will need to import like this:</p>
+<pre><code>import { connect, styled } from "frontity";
+</code></pre>
+<ul>
+<li>edited to add the import.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/4</link>
+        <pubDate>Wed, 11 Sep 2019 17:38:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-4</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[aeyzazkhan]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for answer <a class="mention" href="https://community.frontity.org/u/shagui">@ShaGui</a> but where to apply those styles for pages coming from Wordpress, For Example there is this Blog page coming from wordpress and handled by post.js and if i apply styles it will possibly apply to all the pages that post.js handle.</p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/3</link>
+        <pubDate>Wed, 11 Sep 2019 17:13:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-3</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/aeyzazkhan">@aeyzazkhan</a>, once you have a Frontity site up and running. I have found the best way to style the website is the run</p>
+<p><code>npx frontity dev</code></p>
+<p>This will spin up a server where you can see any changes you make. From there, Frontity recommends using CSS-in-JS for styling your website. You can find more information on best practices at this link: <a href="https://docs.frontity.org/learning-frontity/styles" rel="nofollow noopener">https://docs.frontity.org/learning-frontity/styles</a></p>
+<p>I hope that helps. Someone from the project may have additional information that may help you. Best of luck building with Frontity <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/2</link>
+        <pubDate>Wed, 11 Sep 2019 12:29:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-2</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+      <item>
+        <title>How to Style Blog Page?</title>
+        <dc:creator><![CDATA[aeyzazkhan]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>How can we style the blog page or any other pages thats coming from wordpress?</p>
+          <p><a href="https://community.frontity.org/t/how-to-style-blog-page/587/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-style-blog-page/587/1</link>
+        <pubDate>Wed, 11 Sep 2019 00:12:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-587-1</guid>
+        <source url="https://community.frontity.org/t/how-to-style-blog-page/587.rss">How to Style Blog Page?</source>
+      </item>
+  </channel>
+</rss>

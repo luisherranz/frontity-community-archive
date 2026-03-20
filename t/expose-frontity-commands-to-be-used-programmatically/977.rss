@@ -1,0 +1,972 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Expose Frontity commands to be used programmatically</title>
+    <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977</link>
+    <description>**--- [Roadmap Card](https://www.notion.so/frontity/Expose-Frontity-commands-to-be-used-programmatically-4aecd15f2dd24a298c5f6e00ffdeb080)**
+**--- [Sprint Card](https://github.com/orgs/frontity/projects/2#card-31788297)**
+
+
+# Description
+We need to refactor the way our commands work so the steps are more easily reused and developers can access the commands programmatically.
+
+# User Stories
+
+&gt; As an **Integration Engineer**
+&gt; I want to **use the Frontity commands programmatically**
+&gt; so that **I can integrate Frontity in my CI/hosting/deploy tools.**
+
+**--- [Pull Request](https://github.com/frontity/frontity/pull/262)**
+
+&gt; As an **Integration Engineer**
+&gt; I want to **use env variables to configure Frontity commands**
+&gt; so that **I can integrate Frontity in my CI/hosting/deploy tools**
+
+&gt; As a **core developer**
+&gt; I want to **resuse steps in different commands**
+&gt; so that **we don&#39;t have to maintain duplicate code**
+
+&gt; As a **core developer**
+&gt; I want to **use commands in different interfaces**
+&gt; so that **we can release more than one interface**
+
+# Proposed implementation
+
+- Logic is isolated in steps, which are the smaller unit of code.
+- Multiple steps form a command.
+- Commands can be called directly or by interfaces.
+
+Steps -&gt; Commands -&gt; Interfaces
+
+## Steps
+
+Steps are small functions that isolate logic that can be used by one or more commands. They should do only one task. They can return either the result of that task or a promise that resolves to the result in case the task is asynchronous. They throw an error if something goes wrong.
+
+
+
+Some examples:
+
+- `isDirEmpty`
+- `ensureDirExists`
+- `createPackageJson`
+- `createFrontitySettings`
+- `cloneNpmPackage`
+- `installDependencies`
+- `downloadFavicon`
+- `createIndexJs`
+- `subscribeToNewsletter`
+
+Each step should receive the arguments it needs to execute the task. It should not receive the whole options of the command, because can be used by more than one command.
+
+```
+export const downloadFavicon = async (path: string) =&gt; {
+  const response = await fetch(faviconUrl);
+  const fileStream = createWriteStream(resolvePath(path, &quot;favicon.ico&quot;));
+  response.body.pipe(fileStream);
+  await new Promise(resolve =&gt; fileStream.on(&quot;finish&quot;, resolve));
+};
+```
+
+## Commands
+
+Commands wrap more steps together and can be used directly or by interfaces. 
+
+This is the list of the current commands:
+
+- `dev`
+- `build`
+- `serve`
+- `create`
+- `create-package`
+- `subscribe`
+- `info`
+
+These are the commands we want to add in the short term:
+
+- `deploy`
+- `install-package`
+- `rename-package`
+- `update-package`
+
+They will be exported in `frontity/commands` *(that means we have to rename the current `commands.ts` file to `cli.ts`)*.
+
+Commands are async functions that resolve when all the steps are finished. They receive an `options` object as first parameter. 
+
+```
+import { create, build } from &quot;frontity/commands&quot;;
+
+await create({
+  name: &quot;my-frontity-project&quot;,
+  starter: &quot;@frontity/mars-theme&quot;,
+  typescript: false
+});
+
+await build({
+  buildFolder: &quot;/public&quot;,
+  target: &quot;module&quot;,
+  mode: &quot;production&quot;
+});
+```
+
+Parameters can be optional and need a default value.
+
+When some parameter is not included, the command will check for an environment variable with the same name and the `FRONTITY` prefix. If it is not present, it will use the default.
+
+```
+// This build will use &quot;/build&quot; because it&#39;s the internal default
+await build();
+
+// This build will use &quot;/public&quot; because options take precedence.
+process.env.FRONTITY_BUILD_FOLDER = &quot;/dist&quot;;
+await build({
+  buildFolder: &quot;/public&quot;,
+});
+
+// This build will use &quot;/dist&quot; because options is empty.
+process.env.FRONTITY_BUILD_FOLDER = &quot;/dist&quot;;
+await build();
+```
+
+All commands reside in the `frontity` package except `dev`, `build` and `serve` which are in the `@frontity/core` package.
+
+To reduce the size of `frontity` and avoid download unrelated packages when people use `npx frontity create`, the dependencies of all the steps used by the `create` command will be `&quot;dependencies&quot;` in the `frontity` package, and the rest will be `&quot;devDependencies&quot;` in `frontity` and `&quot;dependencies&quot;` in `@frontity/core`. That&#39;s because once the Frontity project is created, `@frontity/core` is mandatory.
+
+Commands need to be able to communicate their internal progress to the interfaces. 
+
+This is the part I&#39;m not 100% sure about, but maybe we could include some type of callback that it is called when steps finish.
+
+```
+const buildFinished = await build(options, ({ awaiting, started, finished }) =&gt; {
+   // Update React state.
+  setAwaiting(remaining);
+  setStarted(started);
+  setFinished(finished);
+  const total = awaiting.length + started.length + finished.length;
+  setProgress(finished.length/total);
+});
+```
+
+It&#39;s important to note that a command can execute several steps in parallel.
+
+If a step fails, they should bubble up the error. They may also have a mechanism to revert the changes they&#39;ve done so far. For example: delete the folder they have created or revert the changes to a file.
+
+## Interfaces
+
+Interfaces provide a way for users to gather the options needed for each command and then execute those commands.
+
+Right now we have two in mind.
+
+- Frontity CLI (current)
+- Frontity Admin UI (coming)
+
+The `frontity` package will include the CLI for now, but it&#39;s good if we start thinking that the same commands will be used by the Admin UI as well.
+
+### Frontity CLI
+
+The cli will prompt for the options of that command:
+
+```bash
+&gt; npx frontity create
+- Name of your project? &quot;my-frontity-project&quot;
+- Which starter theme to use? &quot;@frontity/mars-theme&quot;
+- Do you want to use TypeScript? Y/n
+```
+
+If an option is passed using arguments, it will be used to populate the placeholder:
+
+```bash
+&gt; npx frontity create --starter @frontity/mars-theme
+- Name of your project? &quot;my-frontity-project&quot;
+- Which starter theme to use? # (@frontity/mars-theme)
+```
+
+Only in the case of the presence of the arg `--no-prompt`, the cli won&#39;t prompt for any option and it will execute the command directly.
+
+In that case, it will use the options provided by the arguments and it will leave the rest not defined so the command can use env variables if they are present.
+
+```
+&gt; npx frontity create &quot;my-project&quot; --typescript --no-prompt
+[/] Creating your project...
+
+// This will run:
+await create({
+  name: &quot;my-project&quot;,
+  typescript: true
+})
+```
+
+Command options object properties, cli params and env variable names must be easily inferrable from each other. 
+```
+&gt; npx frontity create --typescript
+
+await create({
+  typescript: true
+});
+
+process.env.FRONTITY_TYPESCRIPT = true;
+```
+
+```
+&gt; npx frontity build --build-folder public
+
+await create({
+  buildFolder: &quot;public&quot;
+});
+
+process.env.FRONTITY_BUILD_FOLDER = &quot;public&quot;;
+```
+
+# Next steps
+
+This is a mixed list of issues and next features for reference. I&#39;ll create new features for some of the items. 
+
+- Migrate all the steps to individual files and refactor commands and interface folders.
+- Fix the `create` steps to be able to include more starter themes.
+- Refactor commands to work with the new callback function.
+- Add support for env variables.
+- Migrate current commands to Ink.
+- Add e2e testing (in mac, win and linux with both npm and yarn).
+- Fix typescript in `create`.
+- Improve `create` with additional questions about: git, eslint, prettier, gutenberg...</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 17 Mar 2020 16:48:16 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>This has been implemented in <a href="https://github.com/frontity/frontity/pull/262">https://github.com/frontity/frontity/pull/262</a></p>
+<p>What has happened:</p>
+<ul>
+<li>Clean up and make the API more consistent. Now every command can be used programmatically like:</li>
+</ul>
+<pre><code>import { create, build } from "frontity/cli";
+
+await create({
+  name: "my-frontity-project",
+  starter: "@frontity/mars-theme",
+  typescript: false
+});
+</code></pre>
+<ul>
+<li>Use environmental variables in the  <code>commands</code> if present according to:<br>
+<div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/7dfb177b371583a52a8454a8557c17903ca4d475.png" data-download-href="https://community.frontity.org/uploads/default/7dfb177b371583a52a8454a8557c17903ca4d475" title="Slice"><img src="https://community.frontity.org/uploads/default/optimized/1X/7dfb177b371583a52a8454a8557c17903ca4d475_2_517x359.png" alt="Slice" data-base62-sha1="hYtE0HpMDGdT1lE0n4VE64Luflz" width="517" height="359" srcset="https://community.frontity.org/uploads/default/optimized/1X/7dfb177b371583a52a8454a8557c17903ca4d475_2_517x359.png, https://community.frontity.org/uploads/default/optimized/1X/7dfb177b371583a52a8454a8557c17903ca4d475_2_775x538.png 1.5x, https://community.frontity.org/uploads/default/original/1X/7dfb177b371583a52a8454a8557c17903ca4d475.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/7dfb177b371583a52a8454a8557c17903ca4d475_2_10x10.png"></a></div>
+</li>
+<li>Lots of small improvements and refactoring <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:">
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/19</link>
+        <pubDate>Tue, 17 Mar 2020 16:48:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-19</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="16" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Nice graphic by the way <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</blockquote>
+</aside>
+<p>haha, using <a href="https://excalidraw.com/">https://excalidraw.com/</a> for this.</p>
+<aside class="quote group-development-team" data-post="16" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>if there is no “ENV supplied” , I would only throw an error for required arguments</p>
+</blockquote>
+</aside>
+<p>Yes, that’s what I had in mind exactly. Thanks for clarifying.</p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/17</link>
+        <pubDate>Tue, 21 Jan 2020 14:53:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-17</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, I think so too <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<p>The only thing I would add is, if there is no “ENV supplied” , I would only throw an error for required arguments (like <code>name</code> in <code>frontity create</code>) but I would use the default for the optional ones (like <code>false</code> for <code>typescript</code> in <code>frontity create</code>). That way people don’t need to provide all the args when they use <code>--no-prompt</code>.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/7dfb177b371583a52a8454a8557c17903ca4d475.png" data-download-href="https://community.frontity.org/uploads/default/7dfb177b371583a52a8454a8557c17903ca4d475" title="Slice"><img src="https://community.frontity.org/uploads/default/optimized/1X/7dfb177b371583a52a8454a8557c17903ca4d475_2_690x479.png" alt="Slice" data-base62-sha1="hYtE0HpMDGdT1lE0n4VE64Luflz" width="690" height="479" srcset="https://community.frontity.org/uploads/default/optimized/1X/7dfb177b371583a52a8454a8557c17903ca4d475_2_690x479.png, https://community.frontity.org/uploads/default/original/1X/7dfb177b371583a52a8454a8557c17903ca4d475.png 1.5x, https://community.frontity.org/uploads/default/original/1X/7dfb177b371583a52a8454a8557c17903ca4d475.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/7dfb177b371583a52a8454a8557c17903ca4d475_2_10x10.png"></a></div><p></p>
+<p>Nice graphic by the way <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/16</link>
+        <pubDate>Tue, 21 Jan 2020 09:12:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-16</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I think this should be the correct priority of sources of the values that we use in the CLI.<br>
+Could you check this <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> ?</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/6e03b8d0018165400d935de61b530e07c95409b9.png" data-download-href="https://community.frontity.org/uploads/default/6e03b8d0018165400d935de61b530e07c95409b9" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/6e03b8d0018165400d935de61b530e07c95409b9_2_690x379.png" alt="image" data-base62-sha1="fHeuKn6tKiTwxGcJAYQvclPTYTv" width="690" height="379" srcset="https://community.frontity.org/uploads/default/optimized/1X/6e03b8d0018165400d935de61b530e07c95409b9_2_690x379.png, https://community.frontity.org/uploads/default/original/1X/6e03b8d0018165400d935de61b530e07c95409b9.png 1.5x, https://community.frontity.org/uploads/default/original/1X/6e03b8d0018165400d935de61b530e07c95409b9.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/6e03b8d0018165400d935de61b530e07c95409b9_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/15</link>
+        <pubDate>Mon, 20 Jan 2020 22:06:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-15</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="13" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Can you show me how it would be consumed by an external script or interface? Imagine for example I am a hosting and I want to control the build programmatically after a git push, and I want to show the progress of the build in my dashboard.</p>
+<pre><code>
+</code></pre>
+</blockquote>
+</aside>
+<p>I think you cannot easily <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>If that’s the requirement, I will just use the eventPromised instead <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/14</link>
+        <pubDate>Mon, 13 Jan 2020 18:47:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-14</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="11" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>But to be honest, I feel like the current architecture with the eventEmitter as a singleton in a separate module is not bad.</p>
+</blockquote>
+</aside>
+<p>Can you show me how it would be consumed by an external script or interface? Imagine for example I am a hosting and I want to control the build programmatically after a git push, and I want to show the progress of the build in my dashboard.</p>
+<pre><code>import { build } from "frontity/commands";
+
+export const push = () =&gt; {
+  try {
+    await build();
+    // =&gt; Show the build progress in the dashboard.
+  } catch (error) {
+    // =&gt; Show error in the dashboard.
+  } 
+};
+</code></pre>
+<aside class="quote group-development-team" data-post="12" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Yeah, I mostly agree basically <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"> I think we can keep most of the unit tests that we already have. I made them work with the updated structure.</p>
+</blockquote>
+</aside>
+<p>Awesome. Go ahead then <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/13</link>
+        <pubDate>Mon, 13 Jan 2020 13:04:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-13</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Yeah, I mostly agree basically <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"> I think we can keep most of the unit tests that we already have. I made them work with the updated structure.</p>
+<p>Also, we already have some tests for the <strong>commands</strong>, actually, that work in the way that you’ve described. I think they were done be Eduardo. They assert that the particular steps of the command have been called. For example:</p>
+<pre><code>   test("calls removeProgress on error with dirExisted=true", async () =&gt; {
+   const options = {
+      name: "random-name",
+      path: "/path/to/project"
+    };
+    mockedSteps.ensureProjectDir.mockResolvedValueOnce(true);
+
+    const error = new Error("Mocked Error");
+    mockedSteps.createPackageJson.mockImplementation(() =&gt; {
+      throw error;
+    });
+
+    await create(options);
+    expect(emitter.emit).toHaveBeenLastCalledWith("cli:create:error", error);
+    expect(mockedSteps.revertProgress).toHaveBeenCalledWith(true, options.path);
+  });
+
+</code></pre>
+<p>About the tests for <strong>steps</strong>, I totally agree about also testing the tests for system differences, etc. This is probably gonna be one of main sources of pain. What I would also like to test for are things like:</p>
+<ul>
+<li>spaces in filenames, usernames, etc.</li>
+<li>network access disappearing, e.g. when downloading packages (so that we retry and timeout gracefully instead of waiting for a promise to resolve forever</li>
+<li>ctrl + c quitting the shell should clean up the directory</li>
+<li>correctly handling both case sensitive vs case insensitive filesystems.</li>
+</ul>
+<p>About testing <strong>interfaces</strong>:<br>
+Not much to add, just <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/12</link>
+        <pubDate>Thu, 09 Jan 2020 17:09:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-12</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>That works, you’re right, but it’s because we made the <code>build</code> command to not be an async function anymore.<br>
+I guess we can just wrap the body of the <code>build</code> command with the event emitter and make the callback async in that case. So, like:</p>
+<pre><code>function build() {
+  return new EventPromised(async (resolve, error, emit) =&gt; {
+    
+
+    await createPackageJson(1000);
+    emit('created package.json');
+
+    await createFrontitySettings();
+   ....
+  });
+}
+</code></pre>
+<p>But to be honest, I feel like the current architecture with the eventEmitter as a singleton in a separate module is not bad. We can namespace the events for each command. This is simply what I did:</p>
+<pre><code>import { EventEmitter } from "events";
+import TypedEmitter from "typed-emitter";
+
+interface MessageEvents {
+  "cli:create:error": (error: Error) =&gt; void;
+  "cli:create:subscribe": (msg: string, action: Promise&lt;any&gt;) =&gt; void;
+  "cli:create:message": (msg: string, step: Promise&lt;any&gt;) =&gt; void;
+
+  "cli:subscribe:message": (msg: string, action: Promise&lt;any&gt;) =&gt; void;
+  "cli:subscribe:error": (error: Error) =&gt; void;
+}
+
+const emitter = new EventEmitter() as TypedEmitter&lt;MessageEvents&gt;;
+
+export { emitter };
+</code></pre>
+<p>And then I can import the <code>emitter</code> in the <code>create</code> command.</p>
+<p>For testing, I can mock the module with jest. Easy.</p>
+<p>Let me know if there is some problem with this approach that I perhaps fail to see <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/11</link>
+        <pubDate>Thu, 09 Jan 2020 16:52:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-11</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’d also like to talk about the testing strategy we are going to take from now with steps, commands, and interfaces. Right now we only have unit tests for steps.</p>
+<h2>Steps</h2>
+<p>I think we should either:</p>
+<ul>
+<li>Add end to end tests and keep the unit tests.</li>
+<li>Delete the unit tests and only maintain e2e tests.</li>
+</ul>
+<p>The problem with unit tests is that a lot of the steps are going to deal with stuff which is different in each operative system, like the file system for example. We need to have that covered, so I’d like to run the e2e tests in ubuntu, mac, and windows using GitHub actions.</p>
+<p>We can create these tests with jest, but instead of mocking the libraries we check that the things that need to happen are actually happening. For example, something like this:</p>
+<pre><code>beforeEach(() =&gt; {
+  rimfar("./tmp");
+});
+
+test("createPackageJson with some specific options", () =&gt; {
+  const options = { path: "./tmp", /* more options... */ };
+  await createPackageJson(options);
+  const packageJson = await readFile("./tmp/package.json", "utf8");
+  expect(packageJson).toMatchSnapshot();
+});
+</code></pre>
+<h2>Commands</h2>
+<p>For commands maybe it’ll be enough to do unit tests and assert that the correct steps have been called:</p>
+<pre><code>// Mocked steps
+steps.createDir.mockReturnValue(Promise.resolve(true));
+steps.createPackageJson.mockReturnValue(Promise.resolve(/* some value... */));
+
+test("create with some specific options", () =&gt; {
+  const options = { name: "my-app", typescript: false };
+  await build(options);
+
+  expect(steps.createDir).toHaveBeenCalledWith("my-app");
+  expect(steps.createPackageJson).toHaveBeenCalledWith({ name: "my-app", /* ... */ });
+  // More asserts...
+});
+</code></pre>
+<h2>Interfaces</h2>
+<p>I think we should not test the current interface because it’s going to be deprecated soon when we move everything to <a href="https://github.com/vadimdemedes/ink">ink</a>.</p>
+<p>Once we move to ink, we can use the <a href="https://github.com/vadimdemedes/ink-testing-library#write"><code>stdin.write</code></a> method to simulate the keyboard. Then, check with mocked <code>commands</code> if it is calling them with the correct parameters.</p>
+<p>For example, start the <code>create</code> interface with some args, simulate the keyboard entry and assert the commands:</p>
+<pre><code>commands.create.mockReturnValue(Promise.resolve(true));
+commands.subscribe.mockReturnValue(Promise.resolve(true));
+
+test("create cli with some options", () =&gt; {
+  const args = [ "my-app",  "--git" ];
+  const { stdin } = render(cli.create(args));
+  stdin.write("\r"); // Accept name (prepopulated via args).
+  stdin.write("N\r");  // Don't opt-in to TypeScript.
+  stdin.write("\r"); // Accept git (prepopulated via args).
+  stdin.write("@frontity/twentytwenty-theme\r"); // Starter theme.
+  
+
+  expect(commands.create).toHaveBeenCalledWith({
+    name: "my-app",
+    typescript: false,
+    git: true,
+    packages: [
+      "@frontity/twentytwenty-theme"
+    ]
+  });
+
+  stdin.write("Y\r"); // Subscribe to the newsletter.
+  stdin.write("myself@mydomain.com\r"); // Enter email
+
+  expect(commands.subscribe).toHaveBeenCalledWith({
+    email: "myself@mydomain.com"
+  });
+</code></pre>
+<hr>
+<p>Thoughts? <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/10</link>
+        <pubDate>Thu, 09 Jan 2020 10:35:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-10</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, but <code>EventPromised</code> is already a promise, you don’t need to wrap it on a promise again <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>This is the corrected example:<br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://codesandbox.io/favicon.ico" class="site-icon" width="48" height="48">
+      <a href="https://codesandbox.io/s/problems-with-promises-n0y2q" target="_blank" title="03:33PM - 03 January 2020">CodeSandbox – 3 Jan 20</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_690x362.png" class="thumbnail" width="690" height="362" srcset="https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_690x362.png, https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_1035x543.png 1.5x, https://community.frontity.org/uploads/default/original/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_10x10.png"></div>
+
+<h3><a href="https://codesandbox.io/s/problems-with-promises-n0y2q" target="_blank">problems with promises - CodeSandbox</a></h3>
+
+<p>problems with promises by michalczaplinski using event-promised, sleep-promise</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/9</link>
+        <pubDate>Thu, 09 Jan 2020 08:30:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-9</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="7" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>If you want to use both the event emitter and the promise you can delay the awaiting of a promise:</p>
+<pre><code class="lang-javascript">const buildPromise = build(options);
+buildPromise.on('build:finished', msg =&gt; console.log(msg))
+const buildResult = await buildPromise;
+</code></pre>
+</blockquote>
+</aside>
+<p>Hmm, I don’t think this is going to work because whatever I return from <code>build</code> in your example is going to be automatically wrapped in a Promise. So, I can’t return the <code>EventPromised</code> object and call it’s <code>.on</code> method, because the <code>EventPromised</code> will be wrapped in a native promise.</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://codesandbox.io/favicon.ico" class="site-icon" width="48" height="48">
+      <a href="https://codesandbox.io/s/problems-with-promises-ypfrs" target="_blank" title="03:33PM - 03 January 2020">CodeSandbox – 3 Jan 20</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_690x362.png" class="thumbnail" width="690" height="362" srcset="https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_690x362.png, https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_1035x543.png 1.5x, https://community.frontity.org/uploads/default/original/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/ed393a401e9c6a3c4b0567367c0970f5737a6a02_2_10x10.png"></div>
+
+<h3><a href="https://codesandbox.io/s/problems-with-promises-ypfrs" target="_blank">problems with promises - CodeSandbox</a></h3>
+
+<p>problems with promises by michalczaplinski using event-promised, sleep-promise</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/8</link>
+        <pubDate>Tue, 07 Jan 2020 17:41:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-8</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>If you want to use both the event emitter and the promise you can delay the awaiting of a promise:</p>
+<pre><code>const buildPromise = build(options);
+buildPromise.on('build:finished', msg =&gt; console.log(msg))
+const buildResult = await buildPromise;
+</code></pre>
+<p>If you don’t want to use the event emitter, you just await the promise:</p>
+<pre><code>const buildResult = await build(options);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/7</link>
+        <pubDate>Tue, 07 Jan 2020 17:18:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-7</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>It won’t work because you cannot do anything with the Promise that is being awaited other than simply awaiting it <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>So, this API is not going to work:</p>
+<pre><code>async function build(options) {
+  return new EventPromised((resolve, error, emit) =&gt; {
+    ...
+    ... build command...
+    ...
+    emit("build:finished", "some message");
+    resolve("Promise solved");
+  })
+}
+
+const eventPromised = await build(options);
+eventPromised.on('build:finished', msg =&gt; console.log(msg))
+</code></pre>
+<p>But, I think it’s okay if we solve it in a “stupid” way <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>We can just create a single <code>eventEmitter</code> in a separate module and then namespace the events for each command and interface.</p>
+<pre><code>import { EventEmitter } from "events";
+
+type eventTypes = "cli:create" | "cli:create:error" | "cli:create:subscribe";
+let emitter: EventEmitter;
+
+export { emitter }; 
+</code></pre>
+<p>And then just use it wherever.<br>
+The package <a href="https://github.com/andywer/typed-emitter">https://github.com/andywer/typed-emitter</a> will also give us type safety / autocompletion for the event types that we define ourselves.</p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/6</link>
+        <pubDate>Fri, 03 Jan 2020 20:05:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-6</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe we can use a combination of EventEmitter and Promise, like this library: <a href="https://www.npmjs.com/package/event-promised">https://www.npmjs.com/package/event-promised</a></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/5</link>
+        <pubDate>Thu, 02 Jan 2020 11:28:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-5</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, because the CLI is still pretty small but it will get much more complex in the future and the same logic will be reused in more places. So we need to do this now.</p>
+<p>Don’t mind about the ink port yet, let’s reorganize the logic in reusable steps and commands first.</p>
+<p>And don’t worry about the callback/emiter either. We can omit that part if that’s difficult. It’s not important for the user experience.</p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/4</link>
+        <pubDate>Mon, 30 Dec 2019 22:05:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-4</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+<p>I have started the effort to refactor the CLI to use the structure that you outlined but I am not confident that in my ability to design the steps &amp; commands in a way that is 100% independent of the interface without <strong>significant</strong> effort.</p>
+<p>One way that I would imagine it is to focus exclusively on the “state” and “actions” necessary to run all the commands, without any UI. This could be modeled as a MobX store, redux tree, or I guess even using <code>frontity/connect</code> <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:">. Then, we could migrate the UI of the CLI to Ink and create the UI of the web version.</p>
+<p>My concerns are:</p>
+<ol>
+<li>All of this is not a small task and is almost a complete rewrite of the CLI. The tests would have to largely be rewritten too.</li>
+<li>It doesn’t make sense to migrate to Ink in isolation. So, basically, we are BOTH refactoring, introducing new features (Ink renderer) and rewriting the tests which is many changes at once that are hard to separate and hard to keep regressions from creeping in.</li>
+</ol>
+<p>Is it worth the time and effort now is the key question <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/3</link>
+        <pubDate>Mon, 30 Dec 2019 20:28:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-3</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="1" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>If a step fails, they should bubble up the error. They may also have a mechanism to revert the changes they’ve done so far. For example: delete the folder they have created or revert the changes to a file.</p>
+</blockquote>
+</aside>
+<p>Agreed, this is probably quite important so that people don’t get weird surprising errors if something fails to proceed.</p>
+<aside class="quote group-development-team" data-post="1" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Commands need to be able to communicate their internal progress to the interfaces.</p>
+</blockquote>
+</aside>
+<p>I think this is not necessary. For most commands it will be difficult or impossible to estimate the “true” progress e.g. because of network latencies. I think that it’s sufficient to provide the information on whether the particular action has started / finished.</p>
+<aside class="quote group-development-team" data-post="1" data-topic="977">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>This is the part I’m not 100% sure about, but maybe we could include some type of callback that it is called when steps finish.</p>
+<pre><code>const buildFinished = await build(options, ({ awaiting, started, finished }) =&gt; {
+   // Update React state.
+  setAwaiting(remaining);
+  setStarted(started);
+  setFinished(finished);
+  const total = awaiting.length + started.length + finished.length;
+  setProgress(finished.length/total);
+});
+</code></pre>
+</blockquote>
+</aside>
+<p>This part is not very clear to me. I think we can accomplish the same goals using the “<code>eventEmitter</code>” pattern. What would be the benefit of doing passing the callback to <code>build()</code>?</p>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/2</link>
+        <pubDate>Fri, 27 Dec 2019 23:04:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-2</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+      <item>
+        <title>Expose Frontity commands to be used programmatically</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Expose-Frontity-commands-to-be-used-programmatically-4aecd15f2dd24a298c5f6e00ffdeb080">Roadmap Card</a></strong><br>
+<strong>— <a href="https://github.com/orgs/frontity/projects/2#card-31788297">Sprint Card</a></strong></p>
+<h1>Description</h1>
+<p>We need to refactor the way our commands work so the steps are more easily reused and developers can access the commands programmatically.</p>
+<h1>User Stories</h1>
+<blockquote>
+<p>As an <strong>Integration Engineer</strong><br>
+I want to <strong>use the Frontity commands programmatically</strong><br>
+so that <strong>I can integrate Frontity in my CI/hosting/deploy tools.</strong></p>
+</blockquote>
+<p><strong>— <a href="https://github.com/frontity/frontity/pull/262">Pull Request</a></strong></p>
+<blockquote>
+<p>As an <strong>Integration Engineer</strong><br>
+I want to <strong>use env variables to configure Frontity commands</strong><br>
+so that <strong>I can integrate Frontity in my CI/hosting/deploy tools</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>core developer</strong><br>
+I want to <strong>resuse steps in different commands</strong><br>
+so that <strong>we don’t have to maintain duplicate code</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>core developer</strong><br>
+I want to <strong>use commands in different interfaces</strong><br>
+so that <strong>we can release more than one interface</strong></p>
+</blockquote>
+<h1>Proposed implementation</h1>
+<ul>
+<li>Logic is isolated in steps, which are the smaller unit of code.</li>
+<li>Multiple steps form a command.</li>
+<li>Commands can be called directly or by interfaces.</li>
+</ul>
+<p>Steps -&gt; Commands -&gt; Interfaces</p>
+<h2>Steps</h2>
+<p>Steps are small functions that isolate logic that can be used by one or more commands. They should do only one task. They can return either the result of that task or a promise that resolves to the result in case the task is asynchronous. They throw an error if something goes wrong.</p>
+<p>Some examples:</p>
+<ul>
+<li><code>isDirEmpty</code></li>
+<li><code>ensureDirExists</code></li>
+<li><code>createPackageJson</code></li>
+<li><code>createFrontitySettings</code></li>
+<li><code>cloneNpmPackage</code></li>
+<li><code>installDependencies</code></li>
+<li><code>downloadFavicon</code></li>
+<li><code>createIndexJs</code></li>
+<li><code>subscribeToNewsletter</code></li>
+</ul>
+<p>Each step should receive the arguments it needs to execute the task. It should not receive the whole options of the command, because can be used by more than one command.</p>
+<pre><code class="lang-javascript">export const downloadFavicon = async (path: string) =&gt; {
+  const response = await fetch(faviconUrl);
+  const fileStream = createWriteStream(resolvePath(path, "favicon.ico"));
+  response.body.pipe(fileStream);
+  await new Promise(resolve =&gt; fileStream.on("finish", resolve));
+};
+</code></pre>
+<h2>Commands</h2>
+<p>Commands wrap more steps together and can be used directly or by interfaces.</p>
+<p>This is the list of the current commands:</p>
+<ul>
+<li><code>dev</code></li>
+<li><code>build</code></li>
+<li><code>serve</code></li>
+<li><code>create</code></li>
+<li><code>create-package</code></li>
+<li><code>subscribe</code></li>
+<li><code>info</code></li>
+</ul>
+<p>These are the commands we want to add in the short term:</p>
+<ul>
+<li><code>deploy</code></li>
+<li><code>install-package</code></li>
+<li><code>rename-package</code></li>
+<li><code>update-package</code></li>
+</ul>
+<p>They will be exported in <code>frontity/commands</code> <em>(that means we have to rename the current <code>commands.ts</code> file to <code>cli.ts</code>)</em>.</p>
+<p>Commands are async functions that resolve when all the steps are finished. They receive an <code>options</code> object as first parameter.</p>
+<pre><code class="lang-javascript">import { create, build } from "frontity/commands";
+
+await create({
+  name: "my-frontity-project",
+  starter: "@frontity/mars-theme",
+  typescript: false
+});
+
+await build({
+  buildFolder: "/public",
+  target: "module",
+  mode: "production"
+});
+</code></pre>
+<p>Parameters can be optional and need a default value.</p>
+<p>When some parameter is not included, the command will check for an environment variable with the same name and the <code>FRONTITY</code> prefix. If it is not present, it will use the default.</p>
+<pre><code class="lang-javascript">// This build will use "/build" because it's the internal default
+await build();
+
+// This build will use "/public" because options take precedence.
+process.env.FRONTITY_BUILD_FOLDER = "/dist";
+await build({
+  buildFolder: "/public",
+});
+
+// This build will use "/dist" because options is empty.
+process.env.FRONTITY_BUILD_FOLDER = "/dist";
+await build();
+</code></pre>
+<p>All commands reside in the <code>frontity</code> package except <code>dev</code>, <code>build</code> and <code>serve</code> which are in the <code>@frontity/core</code> package.</p>
+<p>To reduce the size of <code>frontity</code> and avoid download unrelated packages when people use <code>npx frontity create</code>, the dependencies of all the steps used by the <code>create</code> command will be <code>"dependencies"</code> in the <code>frontity</code> package, and the rest will be <code>"devDependencies"</code> in <code>frontity</code> and <code>"dependencies"</code> in <code>@frontity/core</code>. That’s because once the Frontity project is created, <code>@frontity/core</code> is mandatory.</p>
+<p>Commands need to be able to communicate their internal progress to the interfaces.</p>
+<p>This is the part I’m not 100% sure about, but maybe we could include some type of callback that it is called when steps finish.</p>
+<pre><code class="lang-javascript">const buildFinished = await build(options, ({ awaiting, started, finished }) =&gt; {
+   // Update React state.
+  setAwaiting(remaining);
+  setStarted(started);
+  setFinished(finished);
+  const total = awaiting.length + started.length + finished.length;
+  setProgress(finished.length/total);
+});
+</code></pre>
+<p>It’s important to note that a command can execute several steps in parallel.</p>
+<p>If a step fails, they should bubble up the error. They may also have a mechanism to revert the changes they’ve done so far. For example: delete the folder they have created or revert the changes to a file.</p>
+<h2>Interfaces</h2>
+<p>Interfaces provide a way for users to gather the options needed for each command and then execute those commands.</p>
+<p>Right now we have two in mind.</p>
+<ul>
+<li>Frontity CLI (current)</li>
+<li>Frontity Admin UI (coming)</li>
+</ul>
+<p>The <code>frontity</code> package will include the CLI for now, but it’s good if we start thinking that the same commands will be used by the Admin UI as well.</p>
+<h3>Frontity CLI</h3>
+<p>The cli will prompt for the options of that command:</p>
+<pre><code class="lang-bash">&gt; npx frontity create
+- Name of your project? "my-frontity-project"
+- Which starter theme to use? "@frontity/mars-theme"
+- Do you want to use TypeScript? Y/n
+</code></pre>
+<p>If an option is passed using arguments, it will be used to populate the placeholder:</p>
+<pre><code class="lang-bash">&gt; npx frontity create --starter @frontity/mars-theme
+- Name of your project? "my-frontity-project"
+- Which starter theme to use? # (@frontity/mars-theme)
+</code></pre>
+<p>Only in the case of the presence of the arg <code>--no-prompt</code>, the cli won’t prompt for any option and it will execute the command directly.</p>
+<p>In that case, it will use the options provided by the arguments and it will leave the rest not defined so the command can use env variables if they are present.</p>
+<pre><code class="lang-javascript">&gt; npx frontity create "my-project" --typescript --no-prompt
+[/] Creating your project...
+
+// This will run:
+await create({
+  name: "my-project",
+  typescript: true
+})
+</code></pre>
+<p>Command options object properties, cli params and env variable names must be easily inferrable from each other.</p>
+<pre><code class="lang-javascript">&gt; npx frontity create --typescript
+
+await create({
+  typescript: true
+});
+
+process.env.FRONTITY_TYPESCRIPT = true;
+</code></pre>
+<pre><code class="lang-javascript">&gt; npx frontity build --build-folder public
+
+await create({
+  buildFolder: "public"
+});
+
+process.env.FRONTITY_BUILD_FOLDER = "public";
+</code></pre>
+<h1>Next steps</h1>
+<p>This is a mixed list of issues and next features for reference. I’ll create new features for some of the items.</p>
+<ul>
+<li>Migrate all the steps to individual files and refactor commands and interface folders.</li>
+<li>Fix the <code>create</code> steps to be able to include more starter themes.</li>
+<li>Refactor commands to work with the new callback function.</li>
+<li>Add support for env variables.</li>
+<li>Migrate current commands to Ink.</li>
+<li>Add e2e testing (in mac, win and linux with both npm and yarn).</li>
+<li>Fix typescript in <code>create</code>.</li>
+<li>Improve <code>create</code> with additional questions about: git, eslint, prettier, gutenberg…</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977/1</link>
+        <pubDate>Sun, 22 Dec 2019 16:34:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-977-1</guid>
+        <source url="https://community.frontity.org/t/expose-frontity-commands-to-be-used-programmatically/977.rss">Expose Frontity commands to be used programmatically</source>
+      </item>
+  </channel>
+</rss>

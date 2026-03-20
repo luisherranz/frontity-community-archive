@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Filter posts by meta query</title>
+    <link>https://community.frontity.org/t/filter-posts-by-meta-query/6300</link>
+    <description>Hi,
+
+I have a relation acf field to link a user to a post, it works great on wp, I can link a user on post edit,i&#39;ve added those fields in the rest api, 
+Now i want to fetch those posts and filter them by this acf field, so when i do https://mywebsitet/wp-json/wp/v2/posts/?meta_key=nom_entreprise&amp;meta_value=14 in Postman it returns my filtered posts. Meta key is the name of the acf field and meta value is the user ID
+
+The weird part is that when i do 
+```
+  useEffect(() =&gt; {
+    actions.source.fetch(&quot;/?meta_key=nom_enteprise&quot;);
+  }, []);
+
+  const postMeta = state.source.get(&quot;/?meta_key=nom_enteprise&quot;);
+
+```
+frontity return the 20 posts from homepage, not my filtred posts
+
+what am i missing ? thanks</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 06 Sep 2022 01:03:56 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/filter-posts-by-meta-query/6300.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Filter posts by meta query</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Also I forgot but i used <a href="https://gist.github.com/maheshwaghmare/0bbe5eabceed24aa76ef1eabe684a748" rel="noopener nofollow ugc">this</a> on the wordpress side</p>
+          <p><a href="https://community.frontity.org/t/filter-posts-by-meta-query/6300/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/filter-posts-by-meta-query/6300/3</link>
+        <pubDate>Tue, 06 Sep 2022 01:03:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6300-3</guid>
+        <source url="https://community.frontity.org/t/filter-posts-by-meta-query/6300.rss">Filter posts by meta query</source>
+      </item>
+      <item>
+        <title>Filter posts by meta query</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve managed to get it working, here is my handler</p>
+<pre><code class="lang-javascript">const EntrepriseHandler = {
+  name: "EntrepriseMeta",
+  priority: 5,
+  pattern: "posts",
+
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const { api } = libraries.source;
+    console.log("entreprise", route);
+    // 1. fetch the data you want from the endpoint page
+    const response = await api.get({
+      endpoint: "posts",
+      params: {
+        meta_key: "nom_enteprise"
+      },
+    });
+
+    // 2. get an array with each item in json format
+    const items = await response.json();
+
+    // 3. add data to source
+    const currentPageData = state.source.data[route];
+
+    Object.assign(currentPageData, {
+      items,
+    });
+  },
+};
+
+export default EntrepriseHandler;
+
+</code></pre>
+<p>and then call the handler wherever you want to get data</p>
+<pre><code class="lang-javascript"> useEffect(() =&gt; {
+    actions.source.fetch("posts");
+  }, []);
+
+  const postMeta = state.source.get("posts");
+</code></pre>
+          <p><a href="https://community.frontity.org/t/filter-posts-by-meta-query/6300/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/filter-posts-by-meta-query/6300/2</link>
+        <pubDate>Mon, 05 Sep 2022 00:01:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6300-2</guid>
+        <source url="https://community.frontity.org/t/filter-posts-by-meta-query/6300.rss">Filter posts by meta query</source>
+      </item>
+      <item>
+        <title>Filter posts by meta query</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>I have a relation acf field to link a user to a post, it works great on wp, I can link a user on post edit,i’ve added those fields in the rest api,<br>
+Now i want to fetch those posts and filter them by this acf field, so when i do <a href="https://mywebsitet/wp-json/wp/v2/posts/?meta_key=nom_entreprise&amp;meta_value=14" rel="noopener nofollow ugc">https://mywebsitet/wp-json/wp/v2/posts/?meta_key=nom_entreprise&amp;meta_value=14</a> in Postman it returns my filtered posts. Meta key is the name of the acf field and meta value is the user ID</p>
+<p>The weird part is that when i do</p>
+<pre><code class="lang-javascript">  useEffect(() =&gt; {
+    actions.source.fetch("/?meta_key=nom_enteprise");
+  }, []);
+
+  const postMeta = state.source.get("/?meta_key=nom_enteprise");
+
+</code></pre>
+<p>frontity return the 20 posts from homepage, not my filtred posts</p>
+<p>what am i missing ? thanks</p>
+          <p><a href="https://community.frontity.org/t/filter-posts-by-meta-query/6300/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/filter-posts-by-meta-query/6300/1</link>
+        <pubDate>Fri, 02 Sep 2022 21:50:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6300-1</guid>
+        <source url="https://community.frontity.org/t/filter-posts-by-meta-query/6300.rss">Filter posts by meta query</source>
+      </item>
+  </channel>
+</rss>

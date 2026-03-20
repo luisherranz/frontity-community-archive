@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Problem fetching WordPress menu</title>
+    <link>https://community.frontity.org/t/problem-fetching-wordpress-menu/4368</link>
+    <description>**UPDATE** - I have confirmed that the formatting of my source url in frontity.settings.js is creating an issue with how the Wordpress menu is fetched. localhost:8888/folder/ creates an issue where https://somesite.com doesn&#39;t. It seems the when I use an location with a subfolder, the urls get /folder as the start of their paths...but short of altering the urls that get generated in the map function of nav.js, I can&#39;t figure out how to address this. Below is my initial post...
+
+I am excited to use Frontity and have really appreciated the videos and documentation! I hope someone in this community can help me figure out how the &#39;link&#39; and &#39;route&#39; get built/defined, because I think that&#39;s where things are going wrong. Sorry I keep editing, but I&#39;m trying to add info and things I&#39;m trying...The problem I&#39;m having after fetching my wordpress menu is that the route and link each resolve to &#39;/**newsg**/page&#39; instead of **&#39;/page&#39;** so only the index page at locahost:3000/ loads properly - any other link clicked on in the navigation results in a &quot;404 - Not Found&quot; error because they each resolve to localhost:3000/**newsg**/somepage instead of localhost:3000/somepage -- if I delete the /newsg/ part of the url in the address bar, the page loads perfectly.
+
+I don&#39;t really understand enough of how things are working to know if the problem is the actually the route. The **source url** in my frontity.settings.js file is &#39;http://localhost:8888/newsg&#39; which is the directory of my wordpress site. So that is where I am guessing the /newsg is coming from. But I don&#39;t know if somewhere along the line frontity internally does string replacement to have the source url map to localhost:3000/ and I&#39;ve made a mistake somewhere that is interfering with that? (I got thinking along those lines after reading this post https://github.com/frontity/frontity/pull/625) I also noticed that in the video, Michael is using a subdomain for his project (wp-menu.test/) instead of (wp-menu/test/) and I wonder if making my wp site a subdomain would help this complication?  As a shortgap solution, I&#39;ve added the following to my **nav.js**, which works but imho is a pretty janky solution:
+
+    {items.map((item) =&gt; {
+         **item.url = item.url.replace(&#39;/newsg&#39;, &#39;&#39;);**
+         if (!item.child_items) {
+
+ Here is a repo of the files: [https://github.com/chrisvwlc/frontity.git](https://github.com/chrisvwlc/frontity.git)
+
+And, if I understand correctly, the &#39;WP REST API url&#39; is http://localhost:8888/newsg/wp-json/menus/v1/menus/primary. 
+**Thank you for your time and thoughts.**
+
+Here is a screenshot showing the error as well as the link and route......![Screen Shot 2021-04-08 at 12.41.31 PM|588x499](upload://jBipioTfrenI0ggoLjp12P5LYTl.png) as well as a page loading if I remove the **/newsg**![Screen Shot 2021-04-08 at 3.50.02 PM|690x431](upload://lUo6B5zkGcbafVeLLcHyIAo3Bhi.jpeg)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 10 Apr 2021 21:17:04 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/problem-fetching-wordpress-menu/4368.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Problem fetching WordPress menu</title>
+        <dc:creator><![CDATA[chrys3136]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi Juanma and thanks for the response.</p>
+<p>Yes, I watched the video and used code from the repo. And I am using the recommended WP REST API V2 Menus plugin.</p>
+<p>I’m getting a 404 for every page except the index because all of the urls contain a directory in their paths that they shouldn’t.</p>
+<p>Can you tell me how/where the urls are constructed/generated?</p>
+<p>As I said, I’m using the code in the repo. Within menu-handler.js, there is this block of code:</p>
+<pre><code>func: async ({ link, params, state, libraries }) =&gt; {
+    const { slug } = params;
+
+    // Fetch the menu data from the endpoint
+    const response = await api.get({
+      endpoint: `/menus/v1/menus/${slug}`,
+    });
+
+    // Parse the JSON to get the object
+    const menuData = await response.json();
+
+    // Add the menu items to source.data
+    const menu = state.source.data[link];
+
+    Object.assign(menu, {
+      items: menuData.items,
+      isMenu: true,
+    });
+    console.log("items are: ", menuData.items);
+  },
+</code></pre>
+<p>Inside the console.log("items are: ", menuData.items) results, there is a <strong>url</strong> and a <strong>slug</strong> for each menu item…</p>
+<pre><code>  [
+  {
+    ID: 3113,
+   ...
+    post_title: 'About Us',
+   ...
+    post_name: 'about-us',
+   ...
+    guid: 'http://localhost:8888/newsg/?p=3113',
+    ...
+    object: 'page',
+    type: 'post_type',
+    type_label: 'Page',
+    url: 'http://localhost:8888/newsg/about-the-memorial-2/',
+    title: 'About Us',
+    ...
+    slug: 'about-the-memorial-2',
+    child_items: [ [Object], [Object], [Object], [Object] ]
+  },
+</code></pre>
+<p>So what is frontity doing with this? I would have assumed that it would replace the source url (<a href="http://localhost:8888/newsg" rel="noopener nofollow ugc">http://localhost:8888/newsg</a>) with localhost:3000 and then add on the slug…so for the above item, you’d get ‘<a href="http://localhost:3000/about-the-memorial-2" rel="noopener nofollow ugc">http://localhost:3000/about-the-memorial-2</a>’ But that’s not what’s happening. Somehow the url is <a href="http://localhost:3000/" rel="noopener nofollow ugc">http://localhost:3000/</a><strong>sgnew</strong>/about-the-memorial-2’ … So the question is how is the <strong>/sgnew</strong> getting in the url strings?</p>
+<p>Further, in link.js, there is this line:<br>
+<code>&lt;Link link={item.url}&gt;{item.title}&lt;/Link&gt;</code><br>
+“item.url” here is ‘<a href="http://localhost:8888/newsg/promoting-the-arts/programs/" rel="noopener nofollow ugc">http://localhost:8888/newsg/promoting-the-arts/programs/</a>’<br>
+So the question again, is how does this become “localhost:3000/newsg/promoting-the-arts/programs/” ? Why, if the source url in frontity settings is configured to be “localhost:8888/newsg” doesn’t frontity subtract the source url from the item url and just grab what remains of the url string after? How would I properly change this? Again, the url should just drop the /newsg part to render properly in frontity… obviously there is someplace where external data gets mapped to frontity data and I feel that must be where I’d be able to fix this… I hope this is making sense?</p>
+<p>Just doing a string replace in the nav.js (see my intitial post) will work for the navigation but it won’t work for all of the other fetches links and references… I’ll have to deal with this through the site… I’ve seen other references to wp subdirectory installs so I’d love to understand why I’m struggling with mine.</p>
+<p>Thanks for any insight you can offer!</p>
+          <p><a href="https://community.frontity.org/t/problem-fetching-wordpress-menu/4368/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/problem-fetching-wordpress-menu/4368/5</link>
+        <pubDate>Sat, 10 Apr 2021 00:06:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4368-5</guid>
+        <source url="https://community.frontity.org/t/problem-fetching-wordpress-menu/4368.rss">Problem fetching WordPress menu</source>
+      </item>
+      <item>
+        <title>Problem fetching WordPress menu</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/chrys3136">@chrys3136</a>,</p>
+<p>Welcome to our Community!!</p>
+<p>Have you checked this video?</p>
+<p><a href="https://www.youtube.com/watch?v=BMJn0RZ2I9s" class="onebox" target="_blank" rel="noopener">https://www.youtube.com/watch?v=BMJn0RZ2I9s</a></p>
+<p>It explains how to read the menus defined in your WP installation so they can be used from Frontity</p>
+<p>This is the repo with the project explained in the video: <a href="https://github.com/frontity-demos/frontity-examples/tree/master/fetch-menu-from-wp" class="inline-onebox">frontity-examples/fetch-menu-from-wp at master · frontity-demos/frontity-examples · GitHub</a></p>
+<p>The plugin recommended to share the menus in the REST API: <a href="https://wordpress.org/plugins/wp-rest-api-v2-menus/" class="inline-onebox">WP-REST-API V2 Menus – WordPress plugin | WordPress.org</a></p>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/problem-fetching-wordpress-menu/4368/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/problem-fetching-wordpress-menu/4368/3</link>
+        <pubDate>Fri, 09 Apr 2021 08:32:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4368-3</guid>
+        <source url="https://community.frontity.org/t/problem-fetching-wordpress-menu/4368.rss">Problem fetching WordPress menu</source>
+      </item>
+      <item>
+        <title>Problem fetching WordPress menu</title>
+        <dc:creator><![CDATA[chrys3136]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>UPDATE</strong> - I have confirmed that the formatting of my source url in frontity.settings.js is creating an issue with how the Wordpress menu is fetched. localhost:8888/folder/ creates an issue where <a href="https://somesite.com" rel="noopener nofollow ugc">https://somesite.com</a> doesn’t. It seems the when I use an location with a subfolder, the urls get /folder as the start of their paths…but short of altering the urls that get generated in the map function of nav.js, I can’t figure out how to address this. Below is my initial post…</p>
+<p>I am excited to use Frontity and have really appreciated the videos and documentation! I hope someone in this community can help me figure out how the ‘link’ and ‘route’ get built/defined, because I think that’s where things are going wrong. Sorry I keep editing, but I’m trying to add info and things I’m trying…The problem I’m having after fetching my wordpress menu is that the route and link each resolve to ‘/<strong>newsg</strong>/page’ instead of <strong>‘/page’</strong> so only the index page at locahost:3000/ loads properly - any other link clicked on in the navigation results in a “404 - Not Found” error because they each resolve to localhost:3000/<strong>newsg</strong>/somepage instead of localhost:3000/somepage – if I delete the /newsg/ part of the url in the address bar, the page loads perfectly.</p>
+<p>I don’t really understand enough of how things are working to know if the problem is the actually the route. The <strong>source url</strong> in my frontity.settings.js file is ‘<a href="http://localhost:8888/newsg" rel="noopener nofollow ugc">http://localhost:8888/newsg</a>’ which is the directory of my wordpress site. So that is where I am guessing the /newsg is coming from. But I don’t know if somewhere along the line frontity internally does string replacement to have the source url map to localhost:3000/ and I’ve made a mistake somewhere that is interfering with that? (I got thinking along those lines after reading this post <a href="https://github.com/frontity/frontity/pull/625" class="inline-onebox" rel="noopener nofollow ugc">Fix/internal links multiple sites by nicholasio · Pull Request #625 · frontity/frontity · GitHub</a>) I also noticed that in the video, Michael is using a subdomain for his project (wp-menu.test/) instead of (wp-menu/test/) and I wonder if making my wp site a subdomain would help this complication?  As a shortgap solution, I’ve added the following to my <strong>nav.js</strong>, which works but imho is a pretty janky solution:</p>
+<pre><code>{items.map((item) =&gt; {
+     **item.url = item.url.replace('/newsg', '');**
+     if (!item.child_items) {
+</code></pre>
+<p>Here is a repo of the files: <a href="https://github.com/chrisvwlc/frontity.git" rel="noopener nofollow ugc">https://github.com/chrisvwlc/frontity.git</a></p>
+<p>And, if I understand correctly, the ‘WP REST API url’ is <a href="http://localhost:8888/newsg/wp-json/menus/v1/menus/primary" rel="noopener nofollow ugc">http://localhost:8888/newsg/wp-json/menus/v1/menus/primary</a>.<br>
+<strong>Thank you for your time and thoughts.</strong></p>
+<p>Here is a screenshot showing the error as well as the link and route…</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/8/89609d2fbf0ce0d7cdd14b2b9e349f02c5658acf.png" data-download-href="https://community.frontity.org/uploads/default/89609d2fbf0ce0d7cdd14b2b9e349f02c5658acf" title="Screen Shot 2021-04-08 at 12.41.31 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/8/89609d2fbf0ce0d7cdd14b2b9e349f02c5658acf_2_588x499.png" alt="Screen Shot 2021-04-08 at 12.41.31 PM" data-base62-sha1="jBipioTfrenI0ggoLjp12P5LYTl" width="588" height="499" srcset="https://community.frontity.org/uploads/default/optimized/2X/8/89609d2fbf0ce0d7cdd14b2b9e349f02c5658acf_2_588x499.png, https://community.frontity.org/uploads/default/original/2X/8/89609d2fbf0ce0d7cdd14b2b9e349f02c5658acf.png 1.5x, https://community.frontity.org/uploads/default/original/2X/8/89609d2fbf0ce0d7cdd14b2b9e349f02c5658acf.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/8/89609d2fbf0ce0d7cdd14b2b9e349f02c5658acf_2_10x10.png"></a></div> as well as a page loading if I remove the <strong>/newsg</strong><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/9/998d72fca875bd04165bf8a76fad751e9fc696ac.jpeg" data-download-href="https://community.frontity.org/uploads/default/998d72fca875bd04165bf8a76fad751e9fc696ac" title="Screen Shot 2021-04-08 at 3.50.02 PM"><img src="https://community.frontity.org/uploads/default/optimized/2X/9/998d72fca875bd04165bf8a76fad751e9fc696ac_2_690x431.jpeg" alt="Screen Shot 2021-04-08 at 3.50.02 PM" data-base62-sha1="lUo6B5zkGcbafVeLLcHyIAo3Bhi" width="690" height="431" srcset="https://community.frontity.org/uploads/default/optimized/2X/9/998d72fca875bd04165bf8a76fad751e9fc696ac_2_690x431.jpeg, https://community.frontity.org/uploads/default/optimized/2X/9/998d72fca875bd04165bf8a76fad751e9fc696ac_2_1035x646.jpeg 1.5x, https://community.frontity.org/uploads/default/original/2X/9/998d72fca875bd04165bf8a76fad751e9fc696ac.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/9/998d72fca875bd04165bf8a76fad751e9fc696ac_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/problem-fetching-wordpress-menu/4368/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/problem-fetching-wordpress-menu/4368/1</link>
+        <pubDate>Thu, 08 Apr 2021 05:47:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4368-1</guid>
+        <source url="https://community.frontity.org/t/problem-fetching-wordpress-menu/4368.rss">Problem fetching WordPress menu</source>
+      </item>
+  </channel>
+</rss>

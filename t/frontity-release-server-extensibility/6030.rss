@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity release: Server Extensibility</title>
+    <link>https://community.frontity.org/t/frontity-release-server-extensibility/6030</link>
+    <description>Starting from `@frontity/core` 1.6.0, you can now include server middleware in your packages! 🎉
+
+It&#39;s super simple: just add your middleware functions inside your package definition under the new `server` property.
+
+```js
+export default {
+  server: {
+    myPackage: {
+      myServerLogic: async ({ ctx, state, libraries, actions }) =&gt; {
+        const someCustomHeader = await fetchSomething();
+        ctx.set(&quot;X-Frontity-Some-Data&quot;, someCustomHeader);
+        next();
+      },
+    },
+  },
+};
+```
+
+These functions receive the usual `state/actions/libraries`, but also the Koa&#39;s `ctx` and `next`. _Please refer to the [Koa documentation](https://koajs.com/) to learn how to use `ctx` and `next`_.
+
+You can also import other Koa utilities and use them like in any other Koa app:
+
+```js
+import { get } from &quot;koa-route&quot;;
+
+export default {
+  server: {
+    myPackage: {
+      myRobotsTxt: get(&quot;/robots-one.txt&quot;, ({ ctx }) =&gt; {
+        ctx.type = &quot;text/plain&quot;;
+        ctx.body = &quot;User-agent: *\nAllow: /\n&quot;;
+      }),
+    },
+  },
+};
+```
+
+If you need to import server-only code, you need to [divide the entry point of your package in `client.js` and `server.js`](https://docs.frontity.org/learning-frontity/packages#entry-points) (instead of `index.js`).
+
+You can type your server functions using the new `Server` type exported from `frontity/types`:
+
+```ts
+import { Server, Package } from &quot;frontity/types&quot;;
+
+interface MyPackage extends Package {
+  // other state, actions...
+  server: {
+    myPackage: {
+      myServerLogic: Server&lt;MyPackage&gt;;
+    };
+  };
+}
+
+export default MyPackage;
+```
+
+If you need to type your server functions in a call of a Koa middleware, you can manually cast the `Server&lt;MyPackage&gt;` type:
+
+```ts
+import { Server } from &quot;frontity/types&quot;;
+import { get } from &quot;koa-route&quot;;
+import MyPackage from &quot;../types&quot;;
+
+export default {
+  server: {
+    myPackage: {
+      myRobotsTxt: get(&quot;/robots-one.txt&quot;, (({ ctx }) =&gt; {
+        ctx.type = &quot;text/plain&quot;;
+        ctx.body = &quot;User-agent: *\nAllow: /\n&quot;;
+      }) as Server&lt;MyPackage&gt;),
+    },
+  },
+};
+```
+
+If you want more details, you can read the [Final Implementation Proposal](https://community.frontity.org/t/server-extensibility/2810/23) and the [Pull Request](https://github.com/frontity/frontity/pull/916).
+
+Huge kudos to @orballo for implementing this long-awaited feature!! 🎉🎉
+
+---
+
+## @frontity/core@1.16.0
+
+### Minor Changes
+
+- [`0981b14b`](https://github.com/frontity/frontity/commit/0981b14b4a86380122ba717896f33b23fde55b88) [#916](https://github.com/frontity/frontity/pull/916) Thanks [@orballo](https://github.com/orballo)! - Adds server extensibility to Frontity packages.
+
+## @frontity/types@1.10.0
+
+### Minor Changes
+
+- [`0981b14b`](https://github.com/frontity/frontity/commit/0981b14b4a86380122ba717896f33b23fde55b88) [#916](https://github.com/frontity/frontity/pull/916) Thanks [@orballo](https://github.com/orballo)! - Adds server extensibility to Frontity packages.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 24 Aug 2022 13:18:45 +0000</lastBuildDate>
+    <category>Releases</category>
+    <atom:link href="https://community.frontity.org/t/frontity-release-server-extensibility/6030.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity release: Server Extensibility</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Nice <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=12" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:" loading="lazy" width="20" height="20"></p>
+          <p><a href="https://community.frontity.org/t/frontity-release-server-extensibility/6030/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-release-server-extensibility/6030/5</link>
+        <pubDate>Wed, 24 Aug 2022 13:18:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6030-5</guid>
+        <source url="https://community.frontity.org/t/frontity-release-server-extensibility/6030.rss">Frontity release: Server Extensibility</source>
+      </item>
+      <item>
+        <title>Frontity release: Server Extensibility</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> it is because <code>next()</code>needs to be invoked with <code>await</code>. Then it works properly.</p>
+<p>Should be something like this</p>
+<pre><code class="lang-javascript">  export default {
+  server: {
+    myPackage: {
+      myServerLogic: async ({ ctx, state, libraries, actions }) =&gt; {
+        const someCustomHeader = await fetchSomething();
+        ctx.set("X-Frontity-Some-Data", someCustomHeader);
+        await next();
+      },
+    },
+  },
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-release-server-extensibility/6030/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-release-server-extensibility/6030/4</link>
+        <pubDate>Wed, 24 Aug 2022 11:02:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6030-4</guid>
+        <source url="https://community.frontity.org/t/frontity-release-server-extensibility/6030.rss">Frontity release: Server Extensibility</source>
+      </item>
+      <item>
+        <title>Frontity release: Server Extensibility</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s weird, it’s exactly like one of the e2e tests and the test works fine: <a href="https://github.com/frontity/frontity/blob/dev/e2e/packages/server-extensibility/src/server.ts#L25-L28" class="inline-onebox">frontity/server.ts at dev · frontity/frontity · GitHub</a></p>
+<p>Do you have any other middleware running?</p>
+<p>EDIT: Maybe you need to return <code>next()</code>?</p>
+          <p><a href="https://community.frontity.org/t/frontity-release-server-extensibility/6030/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-release-server-extensibility/6030/3</link>
+        <pubDate>Tue, 23 Aug 2022 14:15:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6030-3</guid>
+        <source url="https://community.frontity.org/t/frontity-release-server-extensibility/6030.rss">Frontity release: Server Extensibility</source>
+      </item>
+      <item>
+        <title>Frontity release: Server Extensibility</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> and <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> ,</p>
+<p>I know you guys are not supporting the project anymore but it would be great if we can get a little bit more input about this as its a great feature and unfortunately the information above is not enough for me to get it going. Are there maybe some demo projects with this? The reason I currently need it is because we want to implement custom 5xx error pages for Vercel. (<a href="https://community.frontity.org/t/how-to-handle-internal-server-500-errors-display-custom-internal-server-error-page/4407/8" class="inline-onebox">How to handle internal server 500 errors - display custom internal server error page - #8 by leogardner12</a>)</p>
+<p>In this example that you gave, where does <code>next()</code> come from?</p>
+<pre><code class="lang-javascript">export default {
+  server: {
+    myPackage: {
+      myServerLogic: async ({ ctx, state, libraries, actions }) =&gt; {
+        const someCustomHeader = await fetchSomething();
+        ctx.set("X-Frontity-Some-Data", someCustomHeader);
+        next();
+      },
+    },
+  },
+};
+</code></pre>
+<p>I tried this:</p>
+<pre><code class="lang-javascript">server: {
+    theme: {
+      myServerLogic: async ({ ctx, next }) =&gt; {
+        ctx.set("X-Frontity-Some-Data", "some header");
+        next();
+      },
+    },
+  },
+</code></pre>
+<p>But then I just get a not found page. I also tried logging and it works, but it seems like <code>next()</code> is not working<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/c21f9ff74bb15cbbf69b32d244d9869a19d2432e.png" data-download-href="https://community.frontity.org/uploads/default/c21f9ff74bb15cbbf69b32d244d9869a19d2432e" title="Screenshot 2022-08-16 at 17.22.17"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/c21f9ff74bb15cbbf69b32d244d9869a19d2432e_2_690x225.png" alt="Screenshot 2022-08-16 at 17.22.17" data-base62-sha1="rHinSPHRdyggTjf1J0xtD5LqdOu" width="690" height="225" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/c21f9ff74bb15cbbf69b32d244d9869a19d2432e_2_690x225.png, https://community.frontity.org/uploads/default/optimized/2X/c/c21f9ff74bb15cbbf69b32d244d9869a19d2432e_2_1035x337.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/c/c21f9ff74bb15cbbf69b32d244d9869a19d2432e_2_1380x450.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/c21f9ff74bb15cbbf69b32d244d9869a19d2432e_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/frontity-release-server-extensibility/6030/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-release-server-extensibility/6030/2</link>
+        <pubDate>Tue, 16 Aug 2022 16:18:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6030-2</guid>
+        <source url="https://community.frontity.org/t/frontity-release-server-extensibility/6030.rss">Frontity release: Server Extensibility</source>
+      </item>
+      <item>
+        <title>Frontity release: Server Extensibility</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Starting from <code>@frontity/core</code> 1.6.0, you can now include server middleware in your packages! <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"></p>
+<p>It’s super simple: just add your middleware functions inside your package definition under the new <code>server</code> property.</p>
+<pre><code class="lang-js">export default {
+  server: {
+    myPackage: {
+      myServerLogic: async ({ ctx, state, libraries, actions }) =&gt; {
+        const someCustomHeader = await fetchSomething();
+        ctx.set("X-Frontity-Some-Data", someCustomHeader);
+        next();
+      },
+    },
+  },
+};
+</code></pre>
+<p>These functions receive the usual <code>state/actions/libraries</code>, but also the Koa’s <code>ctx</code> and <code>next</code>. <em>Please refer to the <a href="https://koajs.com/">Koa documentation</a> to learn how to use <code>ctx</code> and <code>next</code></em>.</p>
+<p>You can also import other Koa utilities and use them like in any other Koa app:</p>
+<pre><code class="lang-js">import { get } from "koa-route";
+
+export default {
+  server: {
+    myPackage: {
+      myRobotsTxt: get("/robots-one.txt", ({ ctx }) =&gt; {
+        ctx.type = "text/plain";
+        ctx.body = "User-agent: *\nAllow: /\n";
+      }),
+    },
+  },
+};
+</code></pre>
+<p>If you need to import server-only code, you need to <a href="https://docs.frontity.org/learning-frontity/packages#entry-points">divide the entry point of your package in <code>client.js</code> and <code>server.js</code></a> (instead of <code>index.js</code>).</p>
+<p>You can type your server functions using the new <code>Server</code> type exported from <code>frontity/types</code>:</p>
+<pre><code class="lang-ts">import { Server, Package } from "frontity/types";
+
+interface MyPackage extends Package {
+  // other state, actions...
+  server: {
+    myPackage: {
+      myServerLogic: Server&lt;MyPackage&gt;;
+    };
+  };
+}
+
+export default MyPackage;
+</code></pre>
+<p>If you need to type your server functions in a call of a Koa middleware, you can manually cast the <code>Server&lt;MyPackage&gt;</code> type:</p>
+<pre><code class="lang-ts">import { Server } from "frontity/types";
+import { get } from "koa-route";
+import MyPackage from "../types";
+
+export default {
+  server: {
+    myPackage: {
+      myRobotsTxt: get("/robots-one.txt", (({ ctx }) =&gt; {
+        ctx.type = "text/plain";
+        ctx.body = "User-agent: *\nAllow: /\n";
+      }) as Server&lt;MyPackage&gt;),
+    },
+  },
+};
+</code></pre>
+<p>If you want more details, you can read the <a href="https://community.frontity.org/t/server-extensibility/2810/23">Final Implementation Proposal</a> and the <a href="https://github.com/frontity/frontity/pull/916">Pull Request</a>.</p>
+<p>Huge kudos to <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> for implementing this long-awaited feature!! <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"><img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"></p>
+<hr>
+<h2>
+<a name="frontitycore1160-1" class="anchor" href="https://community.frontity.org#frontitycore1160-1"></a><a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/core@1.16.0</h2>
+<h3>
+<a name="minor-changes-2" class="anchor" href="https://community.frontity.org#minor-changes-2"></a>Minor Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/0981b14b4a86380122ba717896f33b23fde55b88"><code>0981b14b</code></a> <a href="https://github.com/frontity/frontity/pull/916">#916</a> Thanks <a href="https://github.com/orballo">@orballo</a>! - Adds server extensibility to Frontity packages.</li>
+</ul>
+<h2>
+<a name="frontitytypes1100-3" class="anchor" href="https://community.frontity.org#frontitytypes1100-3"></a><a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/types@1.10.0</h2>
+<h3>
+<a name="minor-changes-4" class="anchor" href="https://community.frontity.org#minor-changes-4"></a>Minor Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/0981b14b4a86380122ba717896f33b23fde55b88"><code>0981b14b</code></a> <a href="https://github.com/frontity/frontity/pull/916">#916</a> Thanks <a href="https://github.com/orballo">@orballo</a>! - Adds server extensibility to Frontity packages.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/frontity-release-server-extensibility/6030/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-release-server-extensibility/6030/1</link>
+        <pubDate>Fri, 20 May 2022 14:51:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6030-1</guid>
+        <source url="https://community.frontity.org/t/frontity-release-server-extensibility/6030.rss">Frontity release: Server Extensibility</source>
+      </item>
+  </channel>
+</rss>

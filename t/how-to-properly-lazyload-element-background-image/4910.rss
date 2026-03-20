@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to properly lazyload element background image?</title>
+    <link>https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910</link>
+    <description>How to properly lazyload element background image?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 24 Jul 2021 10:10:04 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to properly lazyload element background image?</title>
+        <dc:creator><![CDATA[borysenko.alexander]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve created better approach using Frontity hook) Hope it will be usefull)</p><aside class="quote quote-modified" data-post="1" data-topic="5037">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/letter_avatar_proxy/v4/letter/b/838e76/40.png" class="avatar">
+    <a href="https://community.frontity.org/t/simple-component-with-background-image-lazyload/5037">Simple Component with background image LazyLoad</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/community/resources/15"><span class="badge-category-parent-bg" style="background-color: #ff9900;"></span><span class="badge-category-bg" style="background-color: #BF1E2E;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Have you written a post about Frontity? Would you like to write for our blog instead or talk about the framework in your local meetup? Whatever your idea is, feel free to share it here!">📚 Resources</span></a>
+  </div>
+  <blockquote>
+    Hi! Here simple component which uses <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/hooks/use-in-view to lazyload component background-image 
+In “src” prop - the src of image to lazy load in background 
+In “Tag” - the html tag prop to use in component 
+import useInView from "@frontity/hooks/use-in-view";
+
+export const LazyBackground = ({ children, src, Tag = "div", ...rest }) =&gt; {
+
+  const { ref, inView } = useInView({ triggerOnce: true });
+
+  return (
+    &lt;Tag
+      ref={ref}
+      style={inView ? { backgroundImage: `url(${src})` …
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/4</link>
+        <pubDate>Sat, 24 Jul 2021 10:10:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4910-4</guid>
+        <source url="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910.rss">How to properly lazyload element background image?</source>
+      </item>
+      <item>
+        <title>How to properly lazyload element background image?</title>
+        <dc:creator><![CDATA[borysenko.alexander]]></dc:creator>
+        <description><![CDATA[
+            <p>Yea! Thank you) But there is a little mistakes in code:</p>
+<pre><code class="lang-javascript">entry.target.style.backgroundImage = entry.target.src;
+</code></pre>
+<p>should be raplaced with</p>
+<pre><code class="lang-javascript">entry.target.style.backgroundImage = `url(${entry.target.dataset.src})`
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/3</link>
+        <pubDate>Wed, 30 Jun 2021 08:32:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4910-3</guid>
+        <source url="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910.rss">How to properly lazyload element background image?</source>
+      </item>
+      <item>
+        <title>How to properly lazyload element background image?</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>I don’t think you can do that within React, but it is possible with some client side javascript.</p>
+<p>Not tested, but should do the job:</p>
+<pre><code class="lang-js">document.addEventListener("DOMContentLoaded", function() {
+    // handle regular images
+    var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+    if ("IntersectionObserver" in window) {
+        let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    let lazyImage = entry.target;
+                    lazyImage.src = lazyImage.dataset.src;
+                    lazyImage.srcset = lazyImage.dataset.srcset;
+                    lazyImage.classList.remove("lazy");
+                    lazyImageObserver.unobserve(lazyImage);
+                }
+            });
+        });
+        lazyImages.forEach(function(lazyImage) {
+            lazyImageObserver.observe(lazyImage);
+        });
+    }
+
+    // handle background images
+    var lazyBackgrounds = [].slice.call(document.querySelectorAll(".lazy-background"));
+    if ("IntersectionObserver" in window) {
+        let lazyBackgroundObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.style.backgroundImage = entry.target.src;
+                    entry.target.classList.remove("lazy-background");
+                    lazyBackgroundObserver.unobserve(entry.target);
+                }
+            });
+        });
+        lazyBackgrounds.forEach(function(lazyBackground) {
+            lazyBackgroundObserver.observe(lazyBackground);
+        });
+    }
+});
+</code></pre>
+<p>All you need is to modify the HTML for your images and div’s with background images:</p>
+<pre><code class="lang-html">&lt;img data-src="/path/to/image.ext" class="lazy" /&gt;
+&lt;div data-src="/path/to/image.ext" class="lazy-background" /&gt;
+</code></pre>
+<p>BTW the above script is based on default behavior of (modern) browsers to identify if something should be loaded. More information about <code>IntersectionOberver</code> and where the script comes from can be found at <a href="https://web.dev/lazy-loading-images/" rel="noopener nofollow ugc">https://web.dev/lazy-loading-images/</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/2</link>
+        <pubDate>Tue, 29 Jun 2021 21:27:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4910-2</guid>
+        <source url="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910.rss">How to properly lazyload element background image?</source>
+      </item>
+      <item>
+        <title>How to properly lazyload element background image?</title>
+        <dc:creator><![CDATA[borysenko.alexander]]></dc:creator>
+        <description><![CDATA[
+            <p>How to properly lazyload element background image?</p>
+          <p><a href="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910/1</link>
+        <pubDate>Tue, 29 Jun 2021 20:33:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4910-1</guid>
+        <source url="https://community.frontity.org/t/how-to-properly-lazyload-element-background-image/4910.rss">How to properly lazyload element background image?</source>
+      </item>
+  </channel>
+</rss>

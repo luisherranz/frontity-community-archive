@@ -1,0 +1,1006 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to create a Frontity package for Contact Form 7</title>
+    <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623</link>
+    <description>I&#39;m opening this topic on behalf of @imranhsayed and @smit.soni22 because they want to work on a Frontity package that will add support for Contact Form 7 in Frontity.
+
+It&#39;s probably worth noting here that Frontity is different to other React frameworks like Gatsby or NextJS. In those frameworks, the steps involved to integrate a WP plugin like CF7 will usually be something like:
+- Add a contact page in your theme/app.
+- In that page, create new React components for the form.
+- When the form is submitted, fetch manually the CF7 endpoint.
+- In the settings of your app, add the ID of the form you want to point to.
+
+**That&#39;s not the way things work on Frontity** and the purpose of this topic is to teach how to create a package. It&#39;s totally our fault that this information is not available yet in our docs but I hope people can check this topic for reference. 
+
+*If you want to work on another Frontity package, **please open a new topic** and we can discuss the best possible implementation.*
+
+----
+
+Frontity&#39;s design goal is to make things work out of the box with WordPress. Ideally, this package will allow any contact form you create on any WordPress post or page to work without any problem, just like it does in any PHP theme.
+
+## How to structure your project
+
+You can develop a **package inside a Frontity project**. This is not only possible, but recommended. You can easily publish the package to npm once it&#39;s ready from its own folder:
+```bash
+cd packages/my-awesome-package
+npm publish
+```
+
+That way, anyone that wants to contribute to the package can do so by just cloning the Frontity project, doing `npx frontity dev` and making the necessary changes.
+
+If you&#39;re package is not a theme, you should not have your theme installed as a local package. Move it instead to `node_modules`. The only local package should be the one you&#39;re developing. That will avoid confusion and will help with future updates.
+
+The `package.json` dependencies of your Frontity project should look like something like this:
+
+```json
+  &quot;dependencies&quot;: {
+    &quot;@frontity/core&quot;: &quot;^1.2.1&quot;,
+    &quot;@frontity/html2react&quot;: &quot;^1.1.11&quot;,
+    &quot;@frontity/mars-theme&quot;: &quot;^1.2.0&quot;, // &lt;- your theme is on node_modules
+    &quot;@frontity/tiny-router&quot;: &quot;^1.0.14&quot;,
+    &quot;@frontity/wp-source&quot;: &quot;^1.3.1&quot;,
+    &quot;frontity&quot;: &quot;^1.3.1&quot;,
+    &quot;my-awesome-package&quot;: &quot;./packages/my-awesome-package&quot;
+  }
+```
+
+The `package.json` of your package is the one inside your package&#39;s folder (`/packages/my-awesome-package`). It should have the name and information you want to be used when publishing the package to npm.
+
+## How does Contact Form 7 work
+
+- After you install the CF7 WP plugin, there&#39;s a new custom post type in your WP dashboard called &quot;Contact Form&quot;. 
+- You can create any number of contact forms in your dashboard and you receive a shortcode for each one.
+- When you include the shortcode in a post or page, a `&lt;form&gt;` appears in the content of that post/page.
+- Besides that, a new JS file and a new CSS file is added to your theme.
+- When a user sends a form, the JS code captures the submission and sends the info to a new REST API endpoint exposed by CF7: https://domain.com/wp-json/contact-form-7/v1/contact-forms/:id/feedback
+- The id of the URL is the form (custom post type) and the info sent is what the `&lt;form&gt;` has. For example:
+
+```
+_wpcf7: 1922
+_wpcf7_version: 5.1.4
+_wpcf7_locale: en_US
+_wpcf7_unit_tag: wpcf7-f1922-p1925-o1
+_wpcf7_container_post: 1925
+name: Name
+email: some@email.com
+subject: The subject...
+message: The message...
+```
+
+- I believe this is just `form-data`, taken directly from the form. Content-type is `multipart/form-data`. Maybe it works with `application/json` as well.
+- The fields starting with `_wpcf7` are hidden fields already present on the `&lt;form&gt;` of the content.
+
+![23|481x205](upload://1KwXrEZvveQr8hD9dTbcbKPyU0e.png) 
+
+- As far as I know, there&#39;s no need for authentication when sending the form.
+- The response of the REST API endpoint contains both errors or the thank-you message, for example:
+
+Validation error:
+```json
+into: &quot;#wpcf7-f1922-p1925-o1&quot;
+invalidFields:
+  0:
+    idref: null
+    into: &quot;span.wpcf7-form-control-wrap.email&quot;
+    message: &quot;The e-mail address entered is invalid.&quot;
+message: &quot;One or more fields have an error. Please check and try again.&quot;
+status: &quot;validation_failed&quot;
+```
+
+Successfully submitted:
+```json
+into: &quot;#wpcf7-f1922-p1925-o1&quot;
+message: &quot;Thank you for your message. It has been sent.&quot;
+status: &quot;mail_sent&quot;
+```
+- All these validation/success messages can be edited in the WP Dashboard.
+
+## Implenentation proposal
+
+This is my initial proposal  for a &quot;zero-configuration&quot; package:
+
+### Use [`html2react`](https://docs.frontity.org/api-reference-1/frontity-html2react) to process any CF7 `&lt;form&gt;`
+
+```javascript
+// packages/contact-form-7/src/index.js
+export default {
+  libraries: {
+    html2react: { 
+      processors: [contactForm7]
+    }
+  }
+}
+```
+
+*By the way, our recommendation was to add processors in `init`, but we have realized you can do it directly in libraries, so we think it&#39;s cleaner. This was the equivalent:*
+
+```javascript
+// packages/contact-form-7/src/index.js
+export default {
+  actions: {
+    cf7: { 
+      init: ({ libraries }) =&gt; {
+        libraries.html2react.processors.push(cf7Form);
+      }
+    }
+  }
+}
+```
+
+The processor can look something like this:
+```javascript
+const cf7Form = {
+  name: &quot;cf7Form&quot;,
+  test: node =&gt; node.component === &quot;form&quot; &amp;&amp; node.props.className === &quot;wpcf7-form&quot;,
+  process: node =&gt; {
+    node.component = Form;
+    return node;
+  }
+};
+```
+
+Now, we have the whole form in React, with our `&lt;Form&gt;` component.
+
+### Use [`html2react`](https://docs.frontity.org/api-reference-1/frontity-html2react) to capture `&lt;inputs&gt;`
+
+The same way we captured `&lt;form&gt;`, we can capture all the inputs:
+
+```javascript
+const cf7Inputs = {
+  name: &quot;cf7Inputs&quot;,
+  test: node =&gt; node.component === &quot;input&quot; &amp;&amp; /wpcf7-form-control/.test(node.props.className),
+  process: node =&gt; {
+    node.component = Input;
+    return node;
+  }
+};
+```
+
+Inputs can use internal state (`useState`) to retain and modify their value although it may be a better idea to store them in the state, using an object in `state.cf7.forms[id].values`.
+
+Add that processor to the array:
+```javascript
+// packages/contact-form-7/src/index.js
+export default {
+  ...
+  libraries: {
+    html2react: { 
+      processors: [cf7Form, cf7Inputs]
+    }
+  }
+}
+```
+
+### Use the `&lt;Form&gt;` component to submit the form
+- Capture the `onSubmit` and trigger an action with the `event.target` data.
+- That action (for example, `actions.cf7.sendForm`) will fetch the endpoint https://domain.com/wp-json/contact-form-7/v1/contact-forms/:id/feedback with the relevant data.
+- After receiving the data, it can use `state.cf7.forms[id]` to add relevant information to the state, for example, a flag to control if there&#39;s any error or if it succeed, and the messages received from the REST API. For example:
+```javascript
+export default {
+   ...
+   actions: {  
+     cf7: { 
+       sendForm: ({ state }) =&gt; async data =&gt; {
+         const res = await fetch(`https://domain.com/wp-json/contact-form-7/v1/contact-forms/${data}/feedback`);
+         const body = await res.json();
+         // Populate state with the errors, or thank-you message...
+         state.cf7.forms[data.id].message = body.message;
+         if (body.mail_sent) {
+            state.cf7.forms[data.id].status = &quot;sent&quot;;
+            state.cf7.forms[data.id].message = body.message;
+         } else if (body.validation_failed) {
+            state.cf7.forms[data.id].status = &quot;failed&quot;;
+            // Populate errors from the response so React components
+            // can see them and re-render appropriately...
+            state.cf7.forms[data.id].validationErrors = {
+               email: &quot;The e-mail address entered is invalid.&quot;
+            };
+       }
+     }
+   }
+} 
+```
+- If the form was successfully submitted, it can show the thank-you message.
+
+### How to get the ID of the form in the `&lt;Form&gt;` component
+
+The `id` is inside a hidden field with this structure. It&#39;s the first children of the first children:
+
+```
+&lt;form action=&quot;...&quot; method=&quot;post&quot; class=&quot;wpcf7-form&quot;&gt;
+  &lt;div style=&quot;display: none;&quot;&gt;
+    &lt;input type=&quot;hidden&quot; name=&quot;_wpcf7&quot; value=&quot;1922&quot;&gt;
+```
+
+In the `html2react` processor you can easily iterate over the children, than extract the `id` and pass it as a prop the the `&lt;Form&gt;` component:
+
+```javascript
+const contactForm7 = {
+  name: &quot;contactForm7&quot;,
+  test: node =&gt; node.component === &quot;form&quot; &amp;&amp; node.props.class === &quot;wpcf7-form&quot;,
+  process: node =&gt; {
+    // Get the id from the hidden field.
+    // It&#39;s the first children of the first children:
+    const id = node.children[0].children[0].props.value;
+    // Pass the id as a new prop to &lt;Form&gt;.
+    node.props.id = id; 
+
+    // Change from &lt;form&gt; to our React component &lt;Form&gt;.
+    node.component = Form;
+
+    return node;
+  }
+};
+```
+
+Then, you can use that id to access state and show either the success message, the form (`children`)  or the form with the `failure` message:
+
+```javascript
+const Form = ({ state, id, children }) =&gt; {
+  const form = state.cf7.forms[id];
+  
+  return form.status === &quot;sent&quot; ? (
+     &lt;div&gt;Success: {state.cf7.forms[data.id].message}&lt;/div&gt;
+    ) : (
+     &lt;&gt;
+       {children}
+       {form.status === &quot;failed&quot; &amp;&amp; &lt;div&gt;Something wrong: {state.cf7.forms[data.id].message}&lt;/div&gt;}
+     &lt;/&gt;
+}
+```
+
+### How to pass down the ID of the form to the children `&lt;Input&gt;` components
+
+You can use [React context](https://reactjs.org/docs/context.html) for that.
+
+```javascript
+export const FormIdContext = React.createContext(null);
+
+const Form = ({ state, id, children }) =&gt; {
+  const form = state.cf7.forms[id];
+  return (
+    &lt;FormIdContext.Provider value={id}&gt;
+      ...
+    &lt;FormIdContext.Provider /&gt;
+  );
+}
+```
+
+Then use the context in the `&lt;Input&gt;` components:
+
+```javascript
+import { FormIdContext } from &quot;./Form&quot;;
+
+const Input = ({ state, actions, name }) =&gt; {
+  const id = React.useContext(FormIdContext);
+  const onChange = event =&gt; {
+    actions.cf7.changeInputValue(id, name, event.target.value);
+  };
+  
+  return (
+    &lt;input onChange={onChange} ... /&gt;
+  );
+}
+```
+
+### Show invalidation errors
+
+You can create styled components with the CSS styles of CF7 and use the more `html2react` processors to insert them.
+
+After receiving in the `&lt;Form&gt;`:
+```
+invalidFields:
+  0:
+    idref: null
+    into: &quot;span.wpcf7-form-control-wrap.email&quot;
+    message: &quot;The e-mail address entered is invalid.&quot;
+```
+
+You can add that message to the state, using the id of the form:
+
+```javascript
+state.cf7.forms[id].validationErrors = {
+  email: &quot;The e-mail address entered is invalid.&quot;
+}
+```
+
+Then add yet another processor for `wpcf7-form-control-wrap` with access to the id (via context) and name (it&#39;s in its class) and turn it red if it finds an error.
+
+```javascript
+const cf7Spans = {
+  name: &quot;cf7Spans&quot;,
+  test: node =&gt; node.component === &quot;span&quot; &amp;&amp; /wpcf7-form-control-wrap/.test(node.props.className),
+  process: node =&gt; {
+    node.component = Span;
+    return node;
+  }
+};
+```
+
+
+```javascript
+const Span = ({ className, state, children }) =&gt; {
+  // Get the name from the class
+  const name = className.split(&quot; &quot;)[1]; 
+  // Get id from context
+  const id = useContext(FormIdContext); 
+  // Get error from the state.
+  const error = state.cf7.forms[id].validationErrors[name];
+
+  return (
+    &lt;span css={css`background-color: ${error ? red : white};`}&gt;
+     {children}
+    &lt;/span&gt;
+  );
+};
+```
+
+------
+
+Please bear in mind that **this is just an implementation proposal**, not the final one. I haven&#39;t tested any code. If you find problems or something is not clear enough, please reply to this topic and we can discuss it further and find the best solution together.
+
+## Installation
+
+**Any form created with CF7 and included with a shortcode in any post/page should work out of the box** by simply installing the package. The only steps involved would be:
+
+1. Install the package from npm:
+```bash
+npm install contact-form-7
+```
+2. Add it to your `frontity.settings.js` file:
+```javascript
+export default {
+  ...
+  packages: [
+    &quot;contact-form-7&quot;, // &lt;-- add it to your packages
+    &quot;your-theme&quot;,
+    &quot;@frontity/tiny-router&quot;,
+    &quot;@frontity/html2react&quot;,
+    ...
+  ]
+};
+```
+
+That&#39;s it.
+
+As long as the theme is using `html2react`, it should work.
+
+
+
+
+## Additional features: reCaptcha
+
+CF7 has support for reCapatcha v3. That&#39;s something worth exploring in the Frontity package as well, although maybe it will be better managed by a separate Frontity package that can add reCaptcha to any page of the site (not only to CF7).
+
+
+## Additional features: expose actions to send forms programatically
+
+The methods used by this package can be exposed in `actions` so people who want to send a form programatically from other parts of their theme can do so by simply doing:
+
+```javascript
+actions.cf7.sendForm({
+  id: X,
+  fields: { ... } // name, surname... whatever form with id X needs.
+});
+```
+
+
+## Additional note: `fetch` vs `axios`
+
+It&#39;s worth noting here that for this type of package that **you should not use an external fetch library**, like `axios` or `superagent`. Axios is 12.6kB and SuperAgent is 20.4kB. If each Frontity package adds its own favourite fetch library people will end up with many fetch libraries and many extra Kbs in their apps.
+
+You should stick to `fetch`, which is included in Frontity by default and it weights 0Kbs, because it&#39;s a native library. Do not use `window.fetch` because that&#39;s won&#39;t work on Node. Import it from the `frontity` package: 
+
+```javascript
+import { fetch } from &quot;frontity&quot;;
+
+const getFromSomeAPI = async (resource) =&gt; {
+  const response = await fetch(&quot;https://site.com/api/v1&quot; + resource);
+  const body = await response.json();
+  return body;
+};
+```
+
+It&#39;s explained in more detail here:
+- https://docs.frontity.org/api-reference-1/frontity#fetch
+- https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 25 Jul 2022 21:03:54 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[davejmoz]]></dc:creator>
+        <description><![CDATA[
+            <p>No longer works, and doesn’t seem to be maintained anymore <img src="https://community.frontity.org/images/emoji/apple/confused.png?v=12" title=":confused:" class="emoji" alt=":confused:" loading="lazy" width="20" height="20"><br>
+There’s an forked, fixed, and [somewhat] maintained version here: <a href="https://github.com/aamodtgroup/frontity-contact-form-7" class="inline-onebox" rel="noopener nofollow ugc">GitHub - aamodtgroup/frontity-contact-form-7: Contact Form 7 extension for Frontity.</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/20</link>
+        <pubDate>Mon, 25 Jul 2022 21:03:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-20</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[nicobava96]]></dc:creator>
+        <description><![CDATA[
+            <p>Does anybody knows if this works?</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/19</link>
+        <pubDate>Wed, 22 Jun 2022 19:37:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-19</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/jeanettepranin">@jeanettepranin</a> it would be great if once you integrate it, you open a topic here explaining how did you implemented it, it might be useful for many users <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/18</link>
+        <pubDate>Wed, 27 May 2020 21:45:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-18</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[jeanettepranin]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, Thank you for that information! I appreciate your response. We have decided to utilize StaticKit <a href="https://statickit.com/docs" rel="nofollow noopener">https://statickit.com/docs</a> instead of Contact Form 7 as it allows us to be more flexible and implement the feature I described above.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/17</link>
+        <pubDate>Wed, 27 May 2020 18:41:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-17</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/jeanettepranin">@jeanettepranin</a><br>
+Incidentally, and this may be obvious to you, but for the above solution using a component that returns an iframe you won’t need the frontity-contact-form-7 package at all.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/16</link>
+        <pubDate>Wed, 27 May 2020 17:01:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-16</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jeanettepranin">@jeanettepranin</a></p>
+<p>Although the frontity-contact-form-7 package won’t do what you need, here’s another idea.</p>
+<p>In your theme, i.e. the WordPress PHP theme, create a minimal template file - with no header or footer and which just renders the content.</p>
+<p>Create a page that uses that template and which just has the Contact Form 7 shortcode as it’s content.</p>
+<p>In your Frontity theme create a new component which returns an iframe which has as it’s <code>src</code> attribute the URL of the above page.</p>
+<p>Yes, it’s a bit clunky to embed the WordPress page in an iframe on your Frontity site but it should give you the functionality you need on your form, whilst still giving you all the advantages of a Frontity-based theme for the rest of your site.</p>
+<p>Let me know if this idea works for you.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/14</link>
+        <pubDate>Wed, 27 May 2020 16:55:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-14</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/jeanettepranin">@jeanettepranin</a></p>
+<p>Unfortunately that’s not likely to work with the current version of frontity-contact-form-7 as it only supports the basic fields, i.e. just those necessary for a basic contact form such as text inputs and textareas. Select dropdowns don’t work at the moment so regrettably your project is not currently feasible.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/13</link>
+        <pubDate>Tue, 26 May 2020 17:21:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-13</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[jeanettepranin]]></dc:creator>
+        <description><![CDATA[
+            <p>If we have the Conditional Fields Wordpress plugin installed for Contact Form 7, will it work with the above solution? <a href="https://conditional-fields-cf7.bdwm.be/conditional-fields-for-contact-form-7-tutorial/" rel="nofollow noopener">https://conditional-fields-cf7.bdwm.be/conditional-fields-for-contact-form-7-tutorial/</a></p>
+<p>I want to add input field groups that depend on a previous input. For example, if a user selects “Option A” from a dropdown, then input fields appear. If a user selects “Option B” from that same dropdown, then the input fields disappear.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/10</link>
+        <pubDate>Fri, 15 May 2020 19:18:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-10</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[inamkbmail]]></dc:creator>
+        <description><![CDATA[
+            <p>Do it work with <a href="http://wordpress.com" rel="nofollow noopener">wordpress.com</a> Jetpack form too? I think it’s different than CF7</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/9</link>
+        <pubDate>Sat, 21 Mar 2020 17:34:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-9</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[Reyes]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the quick update and the information Imran! Then I guess we can announce the pre-release for the moment <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<blockquote>
+<p>I am busy with meetups and speaking at WordCamps, so I should only be free in the next one and a half month. That is one I would work on the final release.</p>
+</blockquote>
+<p>There’s no rush for the final release, we know you’re super busy! Thanks in advance for your efforts (and thanks to Smit as well)!</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/8</link>
+        <pubDate>Wed, 13 Nov 2019 14:22:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-8</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[imranhsayed]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/reyes">@Reyes</a></p>
+<p>The prerelease already has support for most of the CF7 fields including the one’s with default CF7 shortcode .<br>
+It should be good to use for anyone who wants to use CF7 in React with Frontity.<br>
+We have tested it already . I think ,if you can test it as well and then we can announce the prerelease with the post, with the mention of support for a few fields to be added later.</p>
+<p>I am busy with meetups and speaking at WordCamps, so I should only be free in the next one and a half month. That is one I would work on the final release.</p>
+<p>Thank you.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/7</link>
+        <pubDate>Wed, 13 Nov 2019 13:12:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-7</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[Reyes]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/imranhsayed">@imranhsayed</a>!</p>
+<p>I’d like to make an announcement post about the Contact Form 7 extension but since this is a pre-release, I was thinking to wait until the final release. Do you have an estimated date for it? What do you think? Feel free to let me know your thoughts. <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/6</link>
+        <pubDate>Wed, 13 Nov 2019 12:18:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-6</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[imranhsayed]]></dc:creator>
+        <description><![CDATA[
+            <p>Thrilled to <img src="https://community.frontity.org/images/emoji/apple/speaking_head.png?v=9" title=":speaking_head:" class="emoji" alt=":speaking_head:">Announce the <a class="mention" href="https://community.frontity.org/u/frontity">@Frontity</a> Contact Form 7 package​:package: ( pre-release ) <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"></p>
+<p>Thank you <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>, <a class="mention" href="https://community.frontity.org/u/pablo">@Pablo</a> for the guidance.<img src="https://community.frontity.org/images/emoji/apple/heart.png?v=9" title=":heart:" class="emoji" alt=":heart:"></p>
+<aside class="onebox twitterstatus">
+  <header class="source">
+      <a href="https://twitter.com/imranhsayed/status/1189972831339073536?s=20" target="_blank" rel="nofollow noopener">twitter.com</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/60bcdda0c9f1ebeceeef07f61b55c54b810f6fde.jpeg" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h4><a href="https://twitter.com/imranhsayed/status/1189972831339073536?s=20" target="_blank" rel="nofollow noopener">Imran Sayed (imranhsayed)</a></h4>
+
+<div class="tweet"> 🗣️Announcing @Frontity Contact Form 7 package 📦 ( pre-release ) #reactjs 🎉
+
+📹 Intro: https://t.co/0hZ5gk4vHF
+📦 npm : https://t.co/o57h703LXx
+    
+#100DaysOfCode #womenwhocode #womeninTech #CodeNewbie
+#301DaysOfCode #contactform7 @frontendtweets
+ https://t.co/PypnhXK14C</div>
+
+<div class="date">
+  <a href="https://twitter.com/imranhsayed/status/1189972831339073536?s=20" target="_blank" rel="nofollow noopener">11:30 - 31 okt. 2019</a>
+    <span class="like">
+      <svg viewBox="0 0 512 512" width="14px" height="16px" aria-hidden="true">
+        <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"></path>
+      </svg> 4
+    </span>
+    <span class="retweet">
+      <svg viewBox="0 0 640 512" width="14px" height="16px" aria-hidden="true">
+        <path d="M629.657 343.598L528.971 444.284c-9.373 9.372-24.568 9.372-33.941 0L394.343 343.598c-9.373-9.373-9.373-24.569 0-33.941l10.823-10.823c9.562-9.562 25.133-9.34 34.419.492L480 342.118V160H292.451a24.005 24.005 0 0 1-16.971-7.029l-16-16C244.361 121.851 255.069 96 276.451 96H520c13.255 0 24 10.745 24 24v222.118l40.416-42.792c9.285-9.831 24.856-10.054 34.419-.492l10.823 10.823c9.372 9.372 9.372 24.569-.001 33.941zm-265.138 15.431A23.999 23.999 0 0 0 347.548 352H160V169.881l40.416 42.792c9.286 9.831 24.856 10.054 34.419.491l10.822-10.822c9.373-9.373 9.373-24.569 0-33.941L144.971 67.716c-9.373-9.373-24.569-9.373-33.941 0L10.343 168.402c-9.373 9.373-9.373 24.569 0 33.941l10.822 10.822c9.562 9.562 25.133 9.34 34.419-.491L96 169.881V392c0 13.255 10.745 24 24 24h243.549c21.382 0 32.09-25.851 16.971-40.971l-16.001-16z"></path>
+      </svg> 5
+    </span>
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/5</link>
+        <pubDate>Thu, 31 Oct 2019 18:49:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-5</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[memon.salman]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> Thank you so much. This is it i think, can’t wait to implement it in my theme.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/4</link>
+        <pubDate>Wed, 25 Sep 2019 13:24:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-4</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>No problem <a class="mention" href="https://community.frontity.org/u/imranhsayed">@imranhsayed</a>, thanks to you for devoting time to this project.</p>
+<p>Feel free to ask any question you have about the implementation and please remind that this is only a proposal.</p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/3</link>
+        <pubDate>Mon, 23 Sep 2019 15:36:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-3</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[imranhsayed]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you so much <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> for taking the time write the entire documentation. <img src="https://community.frontity.org/images/emoji/apple/page_facing_up.png?v=9" title=":page_facing_up:" class="emoji" alt=":page_facing_up:"> Its remarkable. <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"><br>
+I super excited to hop on quicky to implement it. However because of work during the week ,time would only permit me start over the weekend.</p>
+<p>This is going to be a super useful resource for everyone who want to build form the right way.</p>
+<p>Can’t wait to get started. Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>  <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/2</link>
+        <pubDate>Mon, 23 Sep 2019 15:29:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-2</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+      <item>
+        <title>How to create a Frontity package for Contact Form 7</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m opening this topic on behalf of <a class="mention" href="https://community.frontity.org/u/imranhsayed">@imranhsayed</a> and <a class="mention" href="https://community.frontity.org/u/smit.soni22">@smit.soni22</a> because they want to work on a Frontity package that will add support for Contact Form 7 in Frontity.</p>
+<p>It’s probably worth noting here that Frontity is different to other React frameworks like Gatsby or NextJS. In those frameworks, the steps involved to integrate a WP plugin like CF7 will usually be something like:</p>
+<ul>
+<li>Add a contact page in your theme/app.</li>
+<li>In that page, create new React components for the form.</li>
+<li>When the form is submitted, fetch manually the CF7 endpoint.</li>
+<li>In the settings of your app, add the ID of the form you want to point to.</li>
+</ul>
+<p><strong>That’s not the way things work on Frontity</strong> and the purpose of this topic is to teach how to create a package. It’s totally our fault that this information is not available yet in our docs but I hope people can check this topic for reference.</p>
+<p><em>If you want to work on another Frontity package, <strong>please open a new topic</strong> and we can discuss the best possible implementation.</em></p>
+<hr>
+<p>Frontity’s design goal is to make things work out of the box with WordPress. Ideally, this package will allow any contact form you create on any WordPress post or page to work without any problem, just like it does in any PHP theme.</p>
+<h2>How to structure your project</h2>
+<p>You can develop a <strong>package inside a Frontity project</strong>. This is not only possible, but recommended. You can easily publish the package to npm once it’s ready from its own folder:</p>
+<pre><code class="lang-bash">cd packages/my-awesome-package
+npm publish
+</code></pre>
+<p>That way, anyone that wants to contribute to the package can do so by just cloning the Frontity project, doing <code>npx frontity dev</code> and making the necessary changes.</p>
+<p>If you’re package is not a theme, you should not have your theme installed as a local package. Move it instead to <code>node_modules</code>. The only local package should be the one you’re developing. That will avoid confusion and will help with future updates.</p>
+<p>The <code>package.json</code> dependencies of your Frontity project should look like something like this:</p>
+<pre><code class="lang-json">  "dependencies": {
+    "@frontity/core": "^1.2.1",
+    "@frontity/html2react": "^1.1.11",
+    "@frontity/mars-theme": "^1.2.0", // &lt;- your theme is on node_modules
+    "@frontity/tiny-router": "^1.0.14",
+    "@frontity/wp-source": "^1.3.1",
+    "frontity": "^1.3.1",
+    "my-awesome-package": "./packages/my-awesome-package"
+  }
+</code></pre>
+<p>The <code>package.json</code> of your package is the one inside your package’s folder (<code>/packages/my-awesome-package</code>). It should have the name and information you want to be used when publishing the package to npm.</p>
+<h2>How does Contact Form 7 work</h2>
+<ul>
+<li>After you install the CF7 WP plugin, there’s a new custom post type in your WP dashboard called “Contact Form”.</li>
+<li>You can create any number of contact forms in your dashboard and you receive a shortcode for each one.</li>
+<li>When you include the shortcode in a post or page, a <code>&lt;form&gt;</code> appears in the content of that post/page.</li>
+<li>Besides that, a new JS file and a new CSS file is added to your theme.</li>
+<li>When a user sends a form, the JS code captures the submission and sends the info to a new REST API endpoint exposed by CF7: <a href="https://domain.com/wp-json/contact-form-7/v1/contact-forms/:id/feedback" rel="nofollow noopener">https://domain.com/wp-json/contact-form-7/v1/contact-forms/:id/feedback</a>
+</li>
+<li>The id of the URL is the form (custom post type) and the info sent is what the <code>&lt;form&gt;</code> has. For example:</li>
+</ul>
+<pre><code class="lang-auto">_wpcf7: 1922
+_wpcf7_version: 5.1.4
+_wpcf7_locale: en_US
+_wpcf7_unit_tag: wpcf7-f1922-p1925-o1
+_wpcf7_container_post: 1925
+name: Name
+email: some@email.com
+subject: The subject...
+message: The message...
+</code></pre>
+<ul>
+<li>I believe this is just <code>form-data</code>, taken directly from the form. Content-type is <code>multipart/form-data</code>. Maybe it works with <code>application/json</code> as well.</li>
+<li>The fields starting with <code>_wpcf7</code> are hidden fields already present on the <code>&lt;form&gt;</code> of the content.</li>
+</ul>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/0c44b7fd9220d55518f1ed590843c71dbce6b10e.png" alt="23" data-base62-sha1="1KwXrEZvveQr8hD9dTbcbKPyU0e" width="481" height="205"></p>
+<ul>
+<li>As far as I know, there’s no need for authentication when sending the form.</li>
+<li>The response of the REST API endpoint contains both errors or the thank-you message, for example:</li>
+</ul>
+<p>Validation error:</p>
+<pre><code class="lang-json">into: "#wpcf7-f1922-p1925-o1"
+invalidFields:
+  0:
+    idref: null
+    into: "span.wpcf7-form-control-wrap.email"
+    message: "The e-mail address entered is invalid."
+message: "One or more fields have an error. Please check and try again."
+status: "validation_failed"
+</code></pre>
+<p>Successfully submitted:</p>
+<pre><code class="lang-json">into: "#wpcf7-f1922-p1925-o1"
+message: "Thank you for your message. It has been sent."
+status: "mail_sent"
+</code></pre>
+<ul>
+<li>All these validation/success messages can be edited in the WP Dashboard.</li>
+</ul>
+<h2>Implenentation proposal</h2>
+<p>This is my initial proposal  for a “zero-configuration” package:</p>
+<h3>Use <a href="https://docs.frontity.org/api-reference-1/frontity-html2react" rel="nofollow noopener"><code>html2react</code></a> to process any CF7 <code>&lt;form&gt;</code>
+</h3>
+<pre><code class="lang-javascript">// packages/contact-form-7/src/index.js
+export default {
+  libraries: {
+    html2react: { 
+      processors: [contactForm7]
+    }
+  }
+}
+</code></pre>
+<p><em>By the way, our recommendation was to add processors in <code>init</code>, but we have realized you can do it directly in libraries, so we think it’s cleaner. This was the equivalent:</em></p>
+<pre><code class="lang-javascript">// packages/contact-form-7/src/index.js
+export default {
+  actions: {
+    cf7: { 
+      init: ({ libraries }) =&gt; {
+        libraries.html2react.processors.push(cf7Form);
+      }
+    }
+  }
+}
+</code></pre>
+<p>The processor can look something like this:</p>
+<pre><code class="lang-javascript">const cf7Form = {
+  name: "cf7Form",
+  test: node =&gt; node.component === "form" &amp;&amp; node.props.className === "wpcf7-form",
+  process: node =&gt; {
+    node.component = Form;
+    return node;
+  }
+};
+</code></pre>
+<p>Now, we have the whole form in React, with our <code>&lt;Form&gt;</code> component.</p>
+<h3>Use <a href="https://docs.frontity.org/api-reference-1/frontity-html2react" rel="nofollow noopener"><code>html2react</code></a> to capture <code>&lt;inputs&gt;</code>
+</h3>
+<p>The same way we captured <code>&lt;form&gt;</code>, we can capture all the inputs:</p>
+<pre><code class="lang-javascript">const cf7Inputs = {
+  name: "cf7Inputs",
+  test: node =&gt; node.component === "input" &amp;&amp; /wpcf7-form-control/.test(node.props.className),
+  process: node =&gt; {
+    node.component = Input;
+    return node;
+  }
+};
+</code></pre>
+<p>Inputs can use internal state (<code>useState</code>) to retain and modify their value although it may be a better idea to store them in the state, using an object in <code>state.cf7.forms[id].values</code>.</p>
+<p>Add that processor to the array:</p>
+<pre><code class="lang-javascript">// packages/contact-form-7/src/index.js
+export default {
+  ...
+  libraries: {
+    html2react: { 
+      processors: [cf7Form, cf7Inputs]
+    }
+  }
+}
+</code></pre>
+<h3>Use the <code>&lt;Form&gt;</code> component to submit the form</h3>
+<ul>
+<li>Capture the <code>onSubmit</code> and trigger an action with the <code>event.target</code> data.</li>
+<li>That action (for example, <code>actions.cf7.sendForm</code>) will fetch the endpoint <a href="https://domain.com/wp-json/contact-form-7/v1/contact-forms/:id/feedback" rel="nofollow noopener">https://domain.com/wp-json/contact-form-7/v1/contact-forms/:id/feedback</a> with the relevant data.</li>
+<li>After receiving the data, it can use <code>state.cf7.forms[id]</code> to add relevant information to the state, for example, a flag to control if there’s any error or if it succeed, and the messages received from the REST API. For example:</li>
+</ul>
+<pre><code class="lang-javascript">export default {
+   ...
+   actions: {  
+     cf7: { 
+       sendForm: ({ state }) =&gt; async data =&gt; {
+         const res = await fetch(`https://domain.com/wp-json/contact-form-7/v1/contact-forms/${data}/feedback`);
+         const body = await res.json();
+         // Populate state with the errors, or thank-you message...
+         state.cf7.forms[data.id].message = body.message;
+         if (body.mail_sent) {
+            state.cf7.forms[data.id].status = "sent";
+            state.cf7.forms[data.id].message = body.message;
+         } else if (body.validation_failed) {
+            state.cf7.forms[data.id].status = "failed";
+            // Populate errors from the response so React components
+            // can see them and re-render appropriately...
+            state.cf7.forms[data.id].validationErrors = {
+               email: "The e-mail address entered is invalid."
+            };
+       }
+     }
+   }
+} 
+</code></pre>
+<ul>
+<li>If the form was successfully submitted, it can show the thank-you message.</li>
+</ul>
+<h3>How to get the ID of the form in the <code>&lt;Form&gt;</code> component</h3>
+<p>The <code>id</code> is inside a hidden field with this structure. It’s the first children of the first children:</p>
+<pre><code class="lang-auto">&lt;form action="..." method="post" class="wpcf7-form"&gt;
+  &lt;div style="display: none;"&gt;
+    &lt;input type="hidden" name="_wpcf7" value="1922"&gt;
+</code></pre>
+<p>In the <code>html2react</code> processor you can easily iterate over the children, than extract the <code>id</code> and pass it as a prop the the <code>&lt;Form&gt;</code> component:</p>
+<pre><code class="lang-javascript">const contactForm7 = {
+  name: "contactForm7",
+  test: node =&gt; node.component === "form" &amp;&amp; node.props.class === "wpcf7-form",
+  process: node =&gt; {
+    // Get the id from the hidden field.
+    // It's the first children of the first children:
+    const id = node.children[0].children[0].props.value;
+    // Pass the id as a new prop to &lt;Form&gt;.
+    node.props.id = id; 
+
+    // Change from &lt;form&gt; to our React component &lt;Form&gt;.
+    node.component = Form;
+
+    return node;
+  }
+};
+</code></pre>
+<p>Then, you can use that id to access state and show either the success message, the form (<code>children</code>)  or the form with the <code>failure</code> message:</p>
+<pre><code class="lang-javascript">const Form = ({ state, id, children }) =&gt; {
+  const form = state.cf7.forms[id];
+  
+  return form.status === "sent" ? (
+     &lt;div&gt;Success: {state.cf7.forms[data.id].message}&lt;/div&gt;
+    ) : (
+     &lt;&gt;
+       {children}
+       {form.status === "failed" &amp;&amp; &lt;div&gt;Something wrong: {state.cf7.forms[data.id].message}&lt;/div&gt;}
+     &lt;/&gt;
+}
+</code></pre>
+<h3>How to pass down the ID of the form to the children <code>&lt;Input&gt;</code> components</h3>
+<p>You can use <a href="https://reactjs.org/docs/context.html" rel="nofollow noopener">React context</a> for that.</p>
+<pre><code class="lang-javascript">export const FormIdContext = React.createContext(null);
+
+const Form = ({ state, id, children }) =&gt; {
+  const form = state.cf7.forms[id];
+  return (
+    &lt;FormIdContext.Provider value={id}&gt;
+      ...
+    &lt;FormIdContext.Provider /&gt;
+  );
+}
+</code></pre>
+<p>Then use the context in the <code>&lt;Input&gt;</code> components:</p>
+<pre><code class="lang-javascript">import { FormIdContext } from "./Form";
+
+const Input = ({ state, actions, name }) =&gt; {
+  const id = React.useContext(FormIdContext);
+  const onChange = event =&gt; {
+    actions.cf7.changeInputValue(id, name, event.target.value);
+  };
+  
+  return (
+    &lt;input onChange={onChange} ... /&gt;
+  );
+}
+</code></pre>
+<h3>Show invalidation errors</h3>
+<p>You can create styled components with the CSS styles of CF7 and use the more <code>html2react</code> processors to insert them.</p>
+<p>After receiving in the <code>&lt;Form&gt;</code>:</p>
+<pre><code class="lang-auto">invalidFields:
+  0:
+    idref: null
+    into: "span.wpcf7-form-control-wrap.email"
+    message: "The e-mail address entered is invalid."
+</code></pre>
+<p>You can add that message to the state, using the id of the form:</p>
+<pre><code class="lang-javascript">state.cf7.forms[id].validationErrors = {
+  email: "The e-mail address entered is invalid."
+}
+</code></pre>
+<p>Then add yet another processor for <code>wpcf7-form-control-wrap</code> with access to the id (via context) and name (it’s in its class) and turn it red if it finds an error.</p>
+<pre><code class="lang-javascript">const cf7Spans = {
+  name: "cf7Spans",
+  test: node =&gt; node.component === "span" &amp;&amp; /wpcf7-form-control-wrap/.test(node.props.className),
+  process: node =&gt; {
+    node.component = Span;
+    return node;
+  }
+};
+</code></pre>
+<pre><code class="lang-javascript">const Span = ({ className, state, children }) =&gt; {
+  // Get the name from the class
+  const name = className.split(" ")[1]; 
+  // Get id from context
+  const id = useContext(FormIdContext); 
+  // Get error from the state.
+  const error = state.cf7.forms[id].validationErrors[name];
+
+  return (
+    &lt;span css={css`background-color: ${error ? red : white};`}&gt;
+     {children}
+    &lt;/span&gt;
+  );
+};
+</code></pre>
+<hr>
+<p>Please bear in mind that <strong>this is just an implementation proposal</strong>, not the final one. I haven’t tested any code. If you find problems or something is not clear enough, please reply to this topic and we can discuss it further and find the best solution together.</p>
+<h2>Installation</h2>
+<p><strong>Any form created with CF7 and included with a shortcode in any post/page should work out of the box</strong> by simply installing the package. The only steps involved would be:</p>
+<ol>
+<li>Install the package from npm:</li>
+</ol>
+<pre><code class="lang-bash">npm install contact-form-7
+</code></pre>
+<ol start="2">
+<li>Add it to your <code>frontity.settings.js</code> file:</li>
+</ol>
+<pre><code class="lang-javascript">export default {
+  ...
+  packages: [
+    "contact-form-7", // &lt;-- add it to your packages
+    "your-theme",
+    "@frontity/tiny-router",
+    "@frontity/html2react",
+    ...
+  ]
+};
+</code></pre>
+<p>That’s it.</p>
+<p>As long as the theme is using <code>html2react</code>, it should work.</p>
+<h2>Additional features: reCaptcha</h2>
+<p>CF7 has support for reCapatcha v3. That’s something worth exploring in the Frontity package as well, although maybe it will be better managed by a separate Frontity package that can add reCaptcha to any page of the site (not only to CF7).</p>
+<h2>Additional features: expose actions to send forms programatically</h2>
+<p>The methods used by this package can be exposed in <code>actions</code> so people who want to send a form programatically from other parts of their theme can do so by simply doing:</p>
+<pre><code class="lang-javascript">actions.cf7.sendForm({
+  id: X,
+  fields: { ... } // name, surname... whatever form with id X needs.
+});
+</code></pre>
+<h2>Additional note: <code>fetch</code> vs <code>axios</code>
+</h2>
+<p>It’s worth noting here that for this type of package that <strong>you should not use an external fetch library</strong>, like <code>axios</code> or <code>superagent</code>. Axios is 12.6kB and SuperAgent is 20.4kB. If each Frontity package adds its own favourite fetch library people will end up with many fetch libraries and many extra Kbs in their apps.</p>
+<p>You should stick to <code>fetch</code>, which is included in Frontity by default and it weights 0Kbs, because it’s a native library. Do not use <code>window.fetch</code> because that’s won’t work on Node. Import it from the <code>frontity</code> package:</p>
+<pre><code class="lang-javascript">import { fetch } from "frontity";
+
+const getFromSomeAPI = async (resource) =&gt; {
+  const response = await fetch("https://site.com/api/v1" + resource);
+  const body = await response.json();
+  return body;
+};
+</code></pre>
+<p>It’s explained in more detail here:</p>
+<ul>
+<li><a href="https://docs.frontity.org/api-reference-1/frontity#fetch" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/frontity#fetch</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" rel="nofollow noopener">https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch</a></li>
+</ul>
+          <p><a href="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623/1</link>
+        <pubDate>Mon, 23 Sep 2019 13:49:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-623-1</guid>
+        <source url="https://community.frontity.org/t/how-to-create-a-frontity-package-for-contact-form-7/623.rss">How to create a Frontity package for Contact Form 7</source>
+      </item>
+  </channel>
+</rss>

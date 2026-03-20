@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Router set options: method, title and state</title>
+    <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508</link>
+    <description># Description
+
+The browser history can be used with two different methods: `push` and `replace`. It can also store a `title` and an `state` object. More info at https://developer.mozilla.org/en-US/docs/Web/API/History
+
+The param `title` seems to be [ignored by most browsers](https://github.com/whatwg/html/issues/2174), so I think we should not pass it down to the browser as it may lead to confusion. But we can store it.
+
+# User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want to **use the replace method (instead of push)**
+&gt; so that **update the most recent entry on the history stack**
+
+&gt; As a **Frontity developer**
+&gt; I want to **populate the state and title of each history entry**
+&gt; so that **I can recover that state in Frontity when the user moves around**
+
+# Possible solution
+
+
+[details=&quot;Initial proposed solution (click to open)&quot;]
+Add a second parameter to `actions.router.set` for these options.
+
+```js
+actions.router.set(&quot;/a-url&quot;);
+
+actions.router.set(&quot;/new-url&quot;, {
+  method: &quot;push&quot;,
+  title: &quot;Some title&quot;,
+  state: {
+    someState: &quot;that I want to save&quot;,
+  },
+});
+
+actions.router.set(&quot;/other-url&quot;, {
+  method: &quot;replace&quot;,
+  title: &quot;Some other title&quot;,
+  state: {
+    otherState: &quot;that I want to save&quot;,
+  },
+});
+```
+
+Save the `title` and `state` in `state.router`:
+
+```js
+state.router.link === &quot;/url&quot;;
+state.router.title === &quot;Some title&quot;;
+state.router.state === {
+  someState: &quot;some state&quot;
+};
+```
+
+`state.router.state` feels a bit repetitive, but I guess there&#39;s nothing we can do.
+
+The method `&quot;push&quot;` or `&quot;replace&quot;` is passed down to `window.history`.
+[/details]
+
+# Final implementation
+https://community.frontity.org/t/router-set-options-method-title-and-state/1508/14</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 23 Apr 2020 08:02:16 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Pull Request</h1>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/380" target="_blank">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Pull Request">
+    <svg width="60" height="60" class="github-icon" viewBox="0 0 12 16" aria-hidden="true"><path d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/frontity/pull/380" target="_blank">Add `options` argument to `actions.router.set()`</a>
+    </h4>
+
+    <div class="branches">
+      <code>frontity:dev</code> ← <code>frontity:router-history</code>
+    </div>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2020-04-22" data-time="09:51:03" data-timezone="UTC">09:51AM - 22 Apr 20 UTC</span>
+      </div>
+
+      <div class="user">
+        <a href="https://github.com/orballo" target="_blank">
+          <img alt="orballo" src="https://community.frontity.org/uploads/default/original/1X/89146a9b7ef9ee6193379e3f432b51d2a4837a32.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          orballo
+        </a>
+      </div>
+
+      <div class="lines" title="6 commits changed 5 files with 143 additions and 29 deletions">
+        <a href="https://github.com/frontity/frontity/pull/380/files" target="_blank">
+          <span class="added">+143</span>
+          <span class="removed">-29</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<h1>Final implementation</h1>
+<p>Now the action <code>actions.router.set</code> accepts an optional options object as the second argument:</p>
+<pre><code>actions.router.set("/some-link");
+actions.router.set("/some-link", {
+  method: "push",
+  state: {
+    someState: "some state"
+  }
+});
+</code></pre>
+<p>The options currently available are:</p>
+<ul>
+<li>
+<strong>method</strong>: Can be either <code>"push"</code> or <code>"replace"</code>. They correspond to the <code>pushState</code> and <code>replaceState</code> methods of <code>History</code>. <code>"push"</code> is the default.
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/History/pushState">https://developer.mozilla.org/en-US/docs/Web/API/History/pushState</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState">https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState</a></li>
+</ul>
+</li>
+<li>
+<strong>state</strong>: An object that is saved in <code>window.history</code>. It will be recovered when the user navigates between different URLs with the Back and Forward button of the browser. The default is an empty object <code>{}</code>.</li>
+</ul>
+<p>The <code>state</code> object passed in the options is saved in <code>state.router.state</code>.</p>
+<pre><code>state.router = {
+  link: "/some-link",
+  state: {
+    someState: "some state"
+  }
+};
+</code></pre>
+<p>The new <code>method: "replace"</code> option is useful to replace the current URL of the app, without creating a new entry in the history. It is particularly useful when you want to update the URL (or state object) of the current history entry in response to some user action that has changed the current URL but it’s not perceived that way, like an infinite scroll or a swipe.</p>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> feel free to add more things if I missed something.</p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/14</link>
+        <pubDate>Thu, 23 Apr 2020 07:53:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-14</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>No, sorry. I guess I was still thinking about <code>state.router.history</code> where it does make sense <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/13</link>
+        <pubDate>Thu, 23 Apr 2020 07:24:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-13</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I couldn’t either, I left it there because I thought you had something in mind <img src="https://community.frontity.org/images/emoji/apple/joy.png?v=9" title=":joy:" class="emoji" alt=":joy:"></p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/12</link>
+        <pubDate>Thu, 23 Apr 2020 07:23:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-12</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe storing <code>state.router.method</code> makes no sense and we have to leave that for <code>state.router.history</code>.</p>
+<p>What do you think? I can’t imagine a use case now for it.</p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/11</link>
+        <pubDate>Thu, 23 Apr 2020 07:15:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-11</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I had doubts on what the <code>state</code> object stored in <code>window.history</code> should look like, because it was used to store the initial <code>state.router.link</code> and that <code>link</code> was used to update the state when <code>popstate</code> event was fired, i.e. when the user navigated back or forward though the history.</p>
+<p>I decided to implement it in a way that what you get from <code>window.history.state</code> is exactly the same object you get from <code>state.router.state</code>, therefore removing the <code>link</code> field, and using <code>window.location</code> instead to update the app state when a <code>popstate</code> event fires.</p>
+<p>You can see the current implementation here: <a href="https://github.com/frontity/frontity/pull/380">https://github.com/frontity/frontity/pull/380</a></p>
+<p>So, to summarize, the options were to implement a state object in <code>window.history</code> like the following:</p>
+<pre><code>{
+  link: "/path",
+  method: "push",
+  state: {
+    some: "state"
+  }
+}
+</code></pre>
+<p>or like:</p>
+<pre><code>{
+  some: "state"
+}
+</code></pre>
+<p>In addition to this, I wasn’t sure to what value <code>state.router.method</code> should store after a <code>popstate</code> event. The options where to store the original method in <code>window.store.state</code> and restore that value, or actually store <code>pop</code> and making it clear this way that we arrived to the current state because the user moved through history.</p>
+<p>I decided that the most useful info would be to store <code>pop</code>, because knowing the original method used to create that state didn’t seem to provide any useful information. So the values that can be found in <code>state.router.method</code> would be <code>'push' | 'replace' | 'pop'</code>.</p>
+<p>I might be wrong, so please go through the PR and let me know what you think and if I should make any changes.</p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/10</link>
+        <pubDate>Thu, 23 Apr 2020 05:00:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-10</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Only <code>state</code> and <code>method</code>.</p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/9</link>
+        <pubDate>Tue, 21 Apr 2020 08:07:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-9</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m fine with this. Should the <code>history</code> be implemented on this issue or just the state?</p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/8</link>
+        <pubDate>Tue, 21 Apr 2020 08:05:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-8</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="orballo" data-post="5" data-topic="1508">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>It is more confusing to me that the <code>browserHistory</code> doesn’t exactly map to <code>window.history</code> .</p>
+</blockquote>
+</aside>
+<p>Yes because that would match <code>state.router.history</code>, but I agree that it is confusing.</p>
+<hr>
+<p>If we get rid of <code>title</code>, then using an object doesn’t make sense.</p>
+<p>We will certainly end up introducing <code>state.router.history</code> sooner or later, so what about:</p>
+<pre><code>actions.router.set("/some-url", {
+  method: "push",
+  state: {
+    someState: "useful data to save"
+  }
+});
+
+state.router.link; // &lt;- last link
+state.router.method; // &lt;- last method
+state.router.state; // &lt;- last state
+state.router.history = [
+  {
+    link: "/some-url",
+    method: "push",
+    state: { someState: "useful data to save" }
+  }
+];
+</code></pre>
+<p>And we live with <code>state.router.state</code> <img src="https://community.frontity.org/images/emoji/apple/man_shrugging.png?v=9" title=":man_shrugging:" class="emoji" alt=":man_shrugging:"></p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/7</link>
+        <pubDate>Tue, 21 Apr 2020 07:49:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-7</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>One more thing: I’d avoid exposing the <code>title</code> field in the <code>frontity</code> api. As it’s not used, I’d just internally set <code>title</code> to empty string in order to prevent any future bugs, but that’s it.</p>
+<p>So my final API would look something like:</p>
+<pre><code>actions.router.set("/some-url", {
+  method: "push",
+  state: {
+    someState: "useful data to save",
+  },
+});
+
+state.router.link = "/current-url";
+state.router.browserHistoryState = {
+  someState: "useful data to save",
+};
+// or
+state.router.windowHistoryState = {
+  someState: "useful data to save",
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/6</link>
+        <pubDate>Tue, 21 Apr 2020 02:51:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-6</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m a bit confused now, so I guess other users might be as well if they come to use this api. Is <code>browserHistory</code> editable or a read-only object? I mean, that as a user I might think that updating that part of the state is going to update the <code>window.history</code>.</p>
+<p>EDIT:<br>
+It is more confusing to me that the <code>browserHistory</code> doesn’t exactly map to <code>window.history</code>.<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/f5969871e6ee59c2213fc8180ca6901ac91bbe10.png" data-download-href="https://community.frontity.org/uploads/default/f5969871e6ee59c2213fc8180ca6901ac91bbe10" title="Screen Shot 2020-04-21 at 11.25.02"><img src="https://community.frontity.org/uploads/default/optimized/1X/f5969871e6ee59c2213fc8180ca6901ac91bbe10_2_690x123.png" alt="Screen Shot 2020-04-21 at 11.25.02" data-base62-sha1="z2zD2cvuJhI6QFGuxscuB7NzeLu" width="690" height="123" srcset="https://community.frontity.org/uploads/default/optimized/1X/f5969871e6ee59c2213fc8180ca6901ac91bbe10_2_690x123.png, https://community.frontity.org/uploads/default/optimized/1X/f5969871e6ee59c2213fc8180ca6901ac91bbe10_2_1035x184.png 1.5x, https://community.frontity.org/uploads/default/original/1X/f5969871e6ee59c2213fc8180ca6901ac91bbe10.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/f5969871e6ee59c2213fc8180ca6901ac91bbe10_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/5</link>
+        <pubDate>Tue, 21 Apr 2020 02:20:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-5</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p><code>state.router.browserHistory</code> sounds good to me.</p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/4</link>
+        <pubDate>Tue, 21 Apr 2020 02:10:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-4</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hmm… that’s a good point.</p>
+<p>What if we end up adding a <code>state.router.history</code> array in the future? Would having:</p>
+<ul>
+<li><code>state.router.historyState</code></li>
+<li><code>state.router.history[0].state</code></li>
+</ul>
+<p>be confusing?</p>
+<p>Shit, naming is hard <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>We also have the same problem with <code>title</code>, which also belongs to the browser history. For consistency both should be named in the same manner.</p>
+<p>What about:</p>
+<pre><code>state.router.browserHistory = {
+  state: { ... },
+  title: "...",
+  url: "..."
+};
+</code></pre>
+<p>I’m adding <code>url</code> for consistency and I’m calling it <code>browserHistory</code> to:</p>
+<ul>
+<li>Make it more clear that this is related to the <code>window.history</code>.</li>
+<li>Leave <code>state.router.history</code> for a possible array of URL changes controled by us.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/3</link>
+        <pubDate>Fri, 17 Apr 2020 10:11:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-3</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe we can use <code>state.router.historyState</code> instead of <code>state.router.state</code>? Does it make sense? It would provide more info than just calling it <code>state</code>, which besides being repetitive might also be confusing.</p>
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/2</link>
+        <pubDate>Thu, 16 Apr 2020 04:15:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-2</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+      <item>
+        <title>Router set options: method, title and state</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>The browser history can be used with two different methods: <code>push</code> and <code>replace</code>. It can also store a <code>title</code> and an <code>state</code> object. More info at <a href="https://developer.mozilla.org/en-US/docs/Web/API/History">https://developer.mozilla.org/en-US/docs/Web/API/History</a></p>
+<p>The param <code>title</code> seems to be <a href="https://github.com/whatwg/html/issues/2174">ignored by most browsers</a>, so I think we should not pass it down to the browser as it may lead to confusion. But we can store it.</p>
+<h1>User Stories</h1>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>use the replace method (instead of push)</strong><br>
+so that <strong>update the most recent entry on the history stack</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>populate the state and title of each history entry</strong><br>
+so that <strong>I can recover that state in Frontity when the user moves around</strong></p>
+</blockquote>
+<h1>Possible solution</h1>
+
+Initial proposed solution (click to open) <a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/1">(click for more details)</a>
+<h1>Final implementation</h1>
+<aside class="quote quote-modified" data-post="14" data-topic="1508">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/14">Router set options: method, title and state</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/feature-discussions/released"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Features that are ready!">Released</span></a>
+  </div>
+  <blockquote>
+    Pull Request
+
+
+Final implementation
+Now the action actions.router.set accepts an optional options object as the second argument: 
+actions.router.set("/some-link");
+actions.router.set("/some-link", {
+  method: "push",
+  state: {
+    someState: "some state"
+  }
+});
+
+The options currently available are: 
+
+
+method: Can be either "push" or "replace". They correspond to the pushState and replaceState methods of History. "push" is the default.
+
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/History/pushState">https://developer.mozilla.org/en-US/docs/Web/API/History/p…</a>
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-set-options-method-title-and-state/1508/1</link>
+        <pubDate>Thu, 09 Apr 2020 15:20:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1508-1</guid>
+        <source url="https://community.frontity.org/t/router-set-options-method-title-and-state/1508.rss">Router set options: method, title and state</source>
+      </item>
+  </channel>
+</rss>

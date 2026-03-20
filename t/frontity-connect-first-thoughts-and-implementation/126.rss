@@ -1,0 +1,1039 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity Connect - First thoughts and implementation</title>
+    <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126</link>
+    <description>I think it&#39;d be amazing if we could be the creators of our own state manager solution because that would mean we would have absolute control over its implementation and we could craft its API to match our extensibility pattern perfectly.
+
+
+These are the things we need:
+
+- **Full Typescript support** *- Overmind &amp; MobxStateTree*
+
+- **Zero boilerplate** *- Overmind &amp; MobxStateTree*
+
+- **Easy to learn** *- Overmind*
+
+- **State as a plain javascript object** *- Redux &amp; Overmind*
+
+- **State mutations (devs don&#39;t have to deal with immutability)** *- Overmind &amp; MobxStateTree*
+
+- **Async actions using async/await** *- Overmind*
+
+- **Serializable snapshots** *- MobxStateTree &amp; Redux*
+
+- **Serializable actions** *- MobxStateTree &amp; Redux*
+
+- **Serializable mutations (patches)** *- MobxStateTree*
+
+- **Minimum rerender guarantee** *- MobxStateTree*
+
+- **Avoid breaking object/array references on mutations** *- MobxStateTree*
+
+- **Deterministic mutation (patches)** *- MobxStateTree*
+
+- **Middleware support for actions** *- Redux &amp; MobxStateTree*
+
+- **Middleware support for mutations** *- none*
+
+- **Filter support** *- none*
+
+- **Devtools for actions and state** *- Redux &amp; Overmind*
+
+- **Devtools for components** *- Overmind*
+
+- **Listen to state mutations** *- MobxStateTree &amp; Overmind*
+
+- **Listen to actions from different namespaces** *- Redux &amp; MobxStateTree*
+
+- **Nested derived state** *- MobxStateTree*
+
+- **Small bundle size** *- Redux &amp; Overmind*</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 13 Sep 2019 08:00:07 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="33" data-topic="126">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>does <code>connect()</code> support a mapper function or won’t be necessary?</p>
+</blockquote>
+</aside>
+<p>At the moment it does not.</p>
+<aside class="quote no-group" data-post="33" data-topic="126">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>how do I define the state types in that function, so I can enjoy autocomplete from VSCode?</p>
+</blockquote>
+</aside>
+<p>Sorry, I forgot to put it here. <code>Connect</code> works like <code>Action</code> or <code>Derived</code>, you pass the entire package type as the first argument and the other props as the second argument.</p>
+<pre><code class="lang-javascript">import MyTheme from "../../types"; // &lt;- import your package type.
+import { Connect } from "frontity/types";
+
+type Props = Connect&lt;MyTheme, { props... }&gt;
+
+const MyComp: React.FC&lt;Props&gt; = ({ state, actions, props... }) =&gt; (
+...
+);
+
+export default connect(MyComp);
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/34">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/34</link>
+        <pubDate>Thu, 09 May 2019 13:58:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-34</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> I ran into some doubts while writing the theme. When I am building a component, how do I define the state types in that function, so I can enjoy autocomplete from VSCode?</p>
+<p>Also, does <code>connect()</code> support a mapper function or won’t be necessary?</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/33">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/33</link>
+        <pubDate>Thu, 09 May 2019 13:44:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-33</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We’ve decided to name it <strong>Frontity Connect</strong> to honor it’s only API: <code>connect</code>.</p>
+<pre><code class="lang-javascript">import connect from "@frontity/connect";
+// or...
+import { connect } from "frontity";
+
+const MyComp = ({ state, actions }) =&gt; (
+  &lt;&gt;
+    &lt;button onClick={actions.addSomething}&gt;Add Something&lt;/button&gt;
+    &lt;div&gt;{state.someState}&lt;/div&gt;
+  &lt;/&gt;
+);
+
+export default connect(MyComp);
+</code></pre>
+<p>The <code>connect</code> API makes the component “reactive” to state changes and pass <code>state</code> and <code>actions</code> as props.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/32">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/32</link>
+        <pubDate>Wed, 08 May 2019 07:31:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-32</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is what we are going to implement for the first version:</p>
+<h2>Actions (without params)</h2>
+<pre><code class="lang-javascript">const actions = {
+  toggleFilter: ({ state }) =&gt; { state.filter = !state.filter },
+  fetchTodos: async ({ state }) =&gt; { state.todos = await api.getTodos() }
+}
+
+actions.toggleFilter()
+actions.fetchTodos()
+
+interface Actions {
+  toggleFilter: Action&lt;MyPkg&gt;
+  fetchTodos: Action&lt;MyPkg&gt;
+}
+</code></pre>
+<h2>Actions (with params)</h2>
+<pre><code class="lang-javascript">const actions = {
+  addTodo: ({ state }) =&gt; name =&gt; { state.todos.push({ name }) }
+  fetchTodo: ({ state }) =&gt; async id =&gt; { state.todos[id] = await api.getTodo(id) }
+}
+
+actions.addTodo("finish the state manager")
+actions.fetchTodo(374)
+
+interface Actions {
+  addTodo: Action&lt;MyPkg, string&gt;
+  fetchTodo: Action&lt;MyPkg, number&gt;
+}
+</code></pre>
+<h2>Derived State</h2>
+<pre><code class="lang-javascript">const state = {
+  todos: [],
+  completedTodos: ({ state }) =&gt; state.todos.filter(todo =&gt; todo.completed)
+}
+
+state.todos
+state.completedTodos
+
+interface State {
+  todos: Todos,
+  completedTodos: Derived&lt;MyPkg, Todos&gt;
+}
+</code></pre>
+<h2>Derived State Functions</h2>
+<pre><code class="lang-javascript">const state = {
+  todos: [],
+  filteredTodos: ({ state }) =&gt; completed =&gt;
+    state.todos.filter(todo =&gt; todo.completed === completed)
+}
+
+state.todos
+state.filteredTodos(false)
+
+interface State {
+  todos: Todos,
+  filteredTodos: Derived&lt;MyPkg, boolean, Todos&gt;
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/31">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/31</link>
+        <pubDate>Tue, 30 Apr 2019 09:05:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-31</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think we are going to need different strategies to accomplish all this:</p>
+<ul>
+<li>Minimize unnecessary rerenders.</li>
+<li>Preserve object/array references on mutations.</li>
+<li>A deterministic way to describe mutations for the middleware.</li>
+<li>Patches for devtools, generating immutable snapshots or synchronize clients.</li>
+</ul>
+<p>This is what I thought yesterday:</p>
+<h3>Minimize unnecessary rerenders and preserve object/array references</h3>
+<p>We can achieve this by never replacing an existing object or array. In order to get that, we need to iterate over the added objects/array and take a look at the current state to see if objects/arrays exist in the same positions. If there’s no such object or array, the iteration finishes and the rest of the data is added. This is to ensure we don’t iterate more than we need because iterating objects is pretty slow. This technique may be slow if the dev is constantly adding the same big object over and over again, but that’s not usually the case.</p>
+<p>EDIT: This can be done preserving proxies references. It won’t be slow, at least, it won’t be slower than proxies themselves.</p>
+<h3>A deterministic way to describe mutations for the middleware</h3>
+<p>The problem with patches is that they are not deterministic. If the dev does:</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Snow" }
+// The patch is:
+{ op: "replace", path: "state.user", value: { name: "Jon", surname: "Snow" } }
+</code></pre>
+<p>There’s no way to use that for proper filter of the name value, so I think we need something like “atomic mutation patches” which are deterministic at a scalar level.</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Snow" }
+// The mutations are:
+{ op: "replace", path: "state.user.name", value: "Jon" }
+{ op: "replace", path: "state.user.surname", value: "Snow" }
+</code></pre>
+<p>The problem with this is that in order to emit those atomic mutation patches we would need to iterate over the added object. In case of big objects that can be slow.</p>
+<p>In order to avoid unnecessary iterations, we can use a subscription model:</p>
+<pre><code class="lang-javascript">// Dev subscribes to atomic mutation patch
+subscribe("state.user.name", myCallback);
+
+// Internally, that is saved like this:
+const subscriptions[0] = ["state", "user", "name"];
+</code></pre>
+<p>We can use those arrays to avoid iterating over parts of the object where nobody is subscribed.</p>
+<p>Actually, instead of strings, those should be regexps for more complex filtering:</p>
+<pre><code class="lang-javascript">// Dev subscribes to atomic mutation patch
+subscribe("state.users.\d+.name", myCallback); // i.e. user[0].name
+</code></pre>
+<p>That syntax will allow subscribing to any mutation in a path, something difficult with mobx-like subscriptions:</p>
+<pre><code class="lang-javascript">// Dev subscribes to atomic mutation patch
+subscribe("state.users", myCallback); // any state.user.X.Y.Z mutation
+// This doesn't work because it is listening to the users reference
+reaction(state =&gt; state.users) 
+</code></pre>
+<p>We use strings so we lose typescript in that part, but we can use regexps.</p>
+<h3>Patches for devtools, generating immutable snapshots or synchronize clients</h3>
+<p>We should still generate regular patches when mutations happen. They serve a different purpose and they are very useful as well. If we don’t need them for either minimizing the rerenders or filtering, they can be just regular, non-deterministic patches like those of <code>immer</code>.</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Snow" }
+// Triggers this patch:
+{ op: "replace", path: "state.user", value: { name: "Jon", surname: "Snow" } }
+// And executes callback for these subscriptions:
+["state", "user", "name"]
+["state", "user", "surname"]
+// If the object "user" doesn't exist, this mutation occur:
+state.user = { name: "Jon", surname: "Snow" };
+// If the object "user" exists, these mutations occur:
+state.user.name = "Jon";
+state.user.surname = "Jon";
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/30">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/30</link>
+        <pubDate>Wed, 17 Apr 2019 08:08:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-30</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been giving more thought to this after Michel’s comment in the issue and he is right, patches are a non-deterministic way to describe mutations. And what we need is:</p>
+<ul>
+<li>Minimize unnecessary rerenders.</li>
+<li>Preserve object/array references on mutations.</li>
+<li>A deterministic way to describe mutations for the middleware.</li>
+</ul>
+<p>Patches are great for tasks like synchronizing two machines or undoing mutations. We don’t really need those features although they are great additions. I’m going to give it a go to see if I can figure out a way to have those 3 features and a patching system out of them.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/29">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/29</link>
+        <pubDate>Tue, 16 Apr 2019 06:30:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-29</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been studying the code of <code>observer-util</code> and it is extremely simple and well thought. I think we can make a fork and add:</p>
+<ul>
+<li>The minimal mutation logic.</li>
+<li>The mutations middleware.</li>
+<li>The flushes middleware. We can reuse their scheduler logic.</li>
+<li>The derived state and derived functions.</li>
+</ul>
+<p>It’s pretty much that.</p>
+<p>I love the idea that they don’t proxify everything, just what is being accessed on the fly. We can use that for the proxy actions. Much cheaper.</p>
+<p>I’m also thinking about the filter/reactions API. If it should be more like Mobx or more like normal middleware (redux, express, koa).</p>
+<p>For example, this is another idea:</p>
+<pre><code class="lang-javascript">const state = {
+  name: "Jon",
+  users: []
+}
+const reactions = {
+  // Use reactions for nested derived values.
+  userFullname: {
+    // Mutation is called on each mutation.
+    mutation: ({ paths, op }) =&gt; paths[1] === "users" &amp;&amp; op === "add",
+    // If mutation returns true, the reactions is called.
+    reaction: async ({ path, state, next }) =&gt; {
+      // await until the mutation has finished (Koa style)
+      await next();
+      state.users[path[1]].fullname = ({ self }) =&gt; `${self.name} ${self.surname}`;
+    }
+  },
+  // User reactions for filters.
+  dollarToName: {
+    mutation: ({ paths }) =&gt; paths[1] === "name",
+    reaction: (ctx) =&gt; {
+      // Replace value, Koa style.
+      ctx.value = "$" + ctx.value;
+    }
+  },
+  // Abort mutations.
+  noNameJohn: {
+    mutation: ({ paths }) =&gt; paths[1] === "name",
+    reaction: ({ value, abort }) =&gt; {
+      if (value === "John") abort()
+    }
+  },
+  // React to actions instead of mutations.
+  sendPageview: {
+    action: ({ path }) =&gt; path === "analytics.sendPageview",
+    reaction: ({ actions, args }) =&gt; {
+      // Call my own action.
+      actions.myAnalytics.sendPageview(...args)
+    }
+  },
+  // Abort actions.
+  dontRepeatFetch: {
+    action: ({ path }) =&gt; path === "source.fetch",
+    reaction: ({ state, args, abort }) =&gt; {
+      // Do not trigger fetch again if data is already fetched
+      if (state.source.data[args.name].isFetched) abort();
+    }
+  }, 
+}
+</code></pre>
+<p>It may be more complex than other APIs but with only one concept you have the ultimate hackable tool.</p>
+<p>It can also be used to listen to flushes although I don’t know any good reason yet, except for our devtools.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/28">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/28</link>
+        <pubDate>Mon, 15 Apr 2019 06:21:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-28</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Even simpler is the addition of reactions:</p>
+<pre><code class="lang-javascript">const reaction = (
+  trigger: ({ state }: { state: State }) =&gt; void,
+  sideEffect: ({ state }: { state: State }) =&gt; void
+) =&gt; {
+  const reaction = observe(() =&gt; trigger({ state }), {
+    scheduler: () =&gt; {
+      sideEffect({ state });
+    }
+  });
+  return () =&gt; unobserve(reaction);
+};
+
+const abortReaction = reaction(
+  ({ state }) =&gt; state.user.name,
+  ({ state }) =&gt; {
+    state.count += 1;
+    console.log(state.count);
+  }
+);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/27">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/27</link>
+        <pubDate>Sun, 14 Apr 2019 16:42:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-27</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We can use its system of queues and priorities to trigger the rest of the mutations after the filters have been run. This works well:</p>
+<pre><code class="lang-javascript">const scheduler = new Queue(priorities.HIGH);
+observe(() =&gt; console.log(state.user.surname), { scheduler });
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/26">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/26</link>
+        <pubDate>Sun, 14 Apr 2019 16:00:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-26</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>To abort a mutation just set it back to it’s original value:</p>
+<pre><code class="lang-javascript">filter(
+  ({ state }) =&gt; state.user.surname,
+  ({ state, oldValue }) =&gt; (state.user.surname = oldValue)
+);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/25">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/25</link>
+        <pubDate>Sun, 14 Apr 2019 15:56:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-25</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve found a filter API that I kind of like and it’s possible with <code>observer-util</code>.</p>
+<p>This is the implementation:</p>
+<pre><code class="lang-javascript">const filter = (
+  trigger: ({ state }: { state: State }) =&gt; void,
+  mutation: ({ state, initial }: { state: State; initial: any }) =&gt; void
+) =&gt; {
+  let initial = trigger({ state });
+  const reaction = observe(() =&gt; trigger({ state }), {
+    scheduler: () =&gt; {
+      const current = trigger({ state });
+      unobserve(reaction);
+      mutation({ state: raw(state), initial });
+      const final = trigger({ state });
+      console.log({
+        final,
+        initial,
+        current
+      });
+      initial = final;
+      filter(trigger, mutation);
+    }
+  });
+  return () =&gt; unobserve(reaction);
+};
+</code></pre>
+<p>And this is the actual API:</p>
+<pre><code class="lang-javascript">filter(
+  ({ state }) =&gt; state.user.surname,
+  ({ state }) =&gt; (state.user.surname = "$" + state.user.surname)
+);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/24">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/24</link>
+        <pubDate>Sun, 14 Apr 2019 15:50:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-24</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m also looking at <a href="https://github.com/nx-js/observer-util" rel="nofollow noopener">@nx-js/observer-util</a> and a <a href="https://github.com/solkimicreb/react-easy-state/blob/master/src/view.js" rel="nofollow noopener">view</a> made for React to substitute <code>memoize-state</code>.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/23">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/23</link>
+        <pubDate>Sun, 14 Apr 2019 14:49:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-23</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Another idea: what if, instead of comparing the values to get the patches, it iterates over the received object and adds the leaves one by one:</p>
+<pre><code class="lang-javascript">state.user = { name: "Jon", surname: "Targaryen" };
+// This triggers a "set" with:
+target = state
+prop = "user"
+value = { name: "Jon", surname: "Targaryen" };
+
+// And runs something like:
+for (let key in value) {
+  target[prop][key] = value[key]
+}
+</code></pre>
+<p>This can happen only if there is an existing object in <code>state.user</code>. If it’s not, it just adds it.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/22</link>
+        <pubDate>Sun, 14 Apr 2019 14:43:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-22</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve found a library that does minimize the patches: <a href="https://github.com/Starcounter-Jack/JSON-Patch" rel="nofollow noopener">https://github.com/Starcounter-Jack/JSON-Patch</a> and I have <a href="https://github.com/mweststrate/immer/issues/324#issuecomment-482840134" rel="nofollow noopener">proposed it to improve immer</a>. Let’s see what they say, although I’m not convinced they want to go that route.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/21</link>
+        <pubDate>Sat, 13 Apr 2019 17:02:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-21</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="7" data-topic="126">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>We use <code>immer</code> for that because it minimizes the number of patches. This is great because <code>immer</code> does the heavy lifting and it’s a battle tested library.</p>
+</blockquote>
+</aside>
+<p>For some reason I was mistaken and this is not true. I really wonder why I was so sure about it in the first place: <a href="https://github.com/mweststrate/immer/issues/324" rel="nofollow noopener">https://github.com/mweststrate/immer/issues/324</a></p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/20</link>
+        <pubDate>Sat, 13 Apr 2019 14:16:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-20</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It looks like neither <code>memoize-state</code> or <code>proxyequal</code> are good ideas because they are designed with immutability in mind and we need the observer part (React) to contain derived state in the same object. I’m checking other more “pure proxy” approaches.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/19</link>
+        <pubDate>Sat, 13 Apr 2019 12:31:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-19</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve discovered that <code>memoize-state</code> expects an immutable, so we need to pass it the each new immutable mixed with the derived state. I’m not sure if that’s a good idea, maybe we should use <code>proxyequal</code> instead.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/18</link>
+        <pubDate>Fri, 12 Apr 2019 15:37:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-18</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Things I still need to work on:</p>
+<ul>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> – How to get typings from the state and actions of other packages.</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> – How to use <code>connect</code> and <code>memoize-state</code> together for React rendering.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/17</link>
+        <pubDate>Fri, 12 Apr 2019 08:02:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-17</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve tested this code and it works great:</p>
+<pre><code class="lang-javascript">const state = {
+  number: 1,
+  numberPlusOne: state =&gt; state.number + 1,
+  addNumber: state =&gt; number =&gt; state.number + number
+};
+
+const proxy = new Proxy(state, {
+  get: (target, prop) =&gt;
+    typeof target[prop] === "function" ? target[prop](state) : target[prop]
+});
+
+proxy.number; // === 1
+proxy.numberPlusOne; // === 2
+proxy.addNumber(2); // === 3
+</code></pre>
+<p>Codesandbox: <a href="https://codesandbox.io/s/qv5jnq3q0q" rel="nofollow noopener">https://codesandbox.io/s/qv5jnq3q0q</a></p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/16</link>
+        <pubDate>Fri, 12 Apr 2019 06:52:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-16</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I have an interesting proposal for the derived state that is flexible and simple for the user both in JS and TS and supports nested derived state.</p>
+<h2>Derived State</h2>
+<p>First, the derived state is like this, inspired by Overmind:</p>
+<pre><code class="lang-javascript">const state = {
+    users: [],
+    numberOfUsers: ({ state }) =&gt; state.users.length
+}
+
+// later on...
+state.users.push({ name: "Jon", surname: "Snow" });
+state.numberOfUsers; // === 1
+</code></pre>
+<p>They get the state and return the value.</p>
+<p>Types are like this:</p>
+<pre><code class="lang-javascript">type State = {
+  users: User[],
+  numberOfUsers: DerivedState&lt;State, number&gt;
+}
+</code></pre>
+<ol>
+<li>First argument: the state.</li>
+<li>Third argument: the returned type.</li>
+</ol>
+<p>I agree with the Overmind designer (Christian Alfoni) that MobxStateTree references are not really needed because you can store references in the state and derive the real value in other property like this:</p>
+<pre><code class="lang-javascript">const state = {
+    users: {},
+    selectedUserId: 1,
+    selectedUser: ({ state }) =&gt; state.users[state.selectedUserId]
+}
+
+// later on...
+state.users[1] = { name: "Jon", surname: "Snow" };
+state.selectedUserId = 1;
+state.selectedUser.name // === "Jon"
+</code></pre>
+<h2>Derived Functions</h2>
+<p>But Overmind doesn’t support derived functions, and those are quite useful. My proposal is that if your derived state returns a function, then it is a derived function:</p>
+<pre><code class="lang-javascript">const state = {
+    users: [],
+    userById: ({ state }) =&gt; id =&gt; state.users.find(user =&gt; user.id === id)
+}
+
+// later on...
+state.users.push({ id: 1, name: "Jon", surname: "Snow" });
+state.userById(1).name // === "Jon"
+</code></pre>
+<p>The types are:</p>
+<pre><code class="lang-javascript">type State = {
+  users: User[],
+  userById: DerivedFunction&lt;State, number, User&gt;
+}
+</code></pre>
+<ol>
+<li>First argument: the state.</li>
+<li>Second argument: the input of the function.</li>
+<li>Third argument: the returned type.</li>
+</ol>
+<h2>Nested Derived State</h2>
+<p>Now the tricky part, derived state nested in arrays or objects that are populated dynamically.</p>
+<p>My idea is, instead of <code>users: []</code>, use a function like <code>users: array(...)</code>. Inside the <code>array()</code> or <code>object()</code> goes a <code>generator</code> function that receives the <em>non-derived</em> state and return the combination of <em>non-derived</em> and <em>derived</em> state. Like this:</p>
+<pre><code class="lang-javascript">const user = ({ name, surname }) =&gt; ({
+    name,
+    surname,
+    fullname: ({ self }) =&gt; `${self.name} ${self.surname}`
+})
+
+const state: State = {
+    users: array(user)
+}
+
+// later on...
+state.users.push({ name: "Jon", surname: "Snow" });
+state.users[0].fullname // === "Jon Snow"
+</code></pre>
+<p>We need <code>self</code> along with <code>state</code> to access the item itself. Maybe the index as well. For example:</p>
+<pre><code class="lang-javascript">const user = ({ name, surname }, index }) =&gt; ({
+    name,
+    surname,
+    message: ({ state, self }) =&gt;
+      `${self.name} is the number ${index} of ${state.app}`
+})
+</code></pre>
+<p>The types are:</p>
+<pre><code class="lang-javascript">type User = {
+    name: string;
+    surname: string;
+    fullname: DerivedState&lt;State, User, string&gt;
+}
+
+type State = {
+    users: User[]
+}
+</code></pre>
+<p>So it’s not complex. Same for objects:</p>
+<pre><code class="lang-javascript">const user = ({ name, surname }) =&gt; ({
+    name,
+    surname,
+    fullname: ({ self }) =&gt; `${self.name} ${self.surname}`
+})
+
+const state: State = {
+    users: object(user)
+}
+
+// later on...
+state.users.jonSnow = { name: "Jon", surname: "Snow" };
+state.users.jonSnow.fullname // === "Jon Snow"
+</code></pre>
+<p>The types are:</p>
+<pre><code class="lang-javascript">type User = {
+    name: string;
+    surname: string;
+    fullname: DerivedState&lt;State, User, string&gt;
+}
+
+type State = {
+    users: { [key: string]: User }
+}
+</code></pre>
+<p>And it can receive the key instead of the index:</p>
+<pre><code class="lang-javascript">const user = ({ name, surname }, key) =&gt; ({
+    name,
+    surname,
+    message: ({ state, self }) =&gt;
+      `${self.name} with key ${key} of ${state.app}`
+})
+</code></pre>
+<hr>
+<p>I’ve tested part of the code and I think it’s doable with proxies and Typescript with something like this, that joins the input of the generator with an optional version of the output:</p>
+<pre><code class="lang-javascript">const array = &lt;U, R&gt;(generator: (item: U) =&gt; R): (U &amp; Partial&lt;R&gt;)[] =&gt; {
+  // ...
+}
+
+// later on...
+state.push({ name: "Jon", surname: "Snow" }) // fullname is optional
+</code></pre>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/15</link>
+        <pubDate>Fri, 05 Apr 2019 19:14:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-15</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By the way, I forgot to update here that this statement is wrong:</p>
+<blockquote>
+<p>Immutable  <code>snapshots</code>  can be used to update React. It’s what Redux does with  <code>connect</code> .  <code>immer</code> minimizes the patches and therefore avoids unnecessary re-renders.</p>
+</blockquote>
+<p>Immutables are an efficient way to update React but they still make unnecessary re-renders. Take for example:</p>
+<pre><code class="lang-javascript">const Users = ({ users }) =&gt; (
+   users.map(user =&gt; &lt;User user={user} /&gt;)
+);
+
+const mapStateToProps = state =&gt; ({
+  users: state.users // &lt;- this is an array
+});
+
+export default connect(mapStateToProps)(Users);
+</code></pre>
+<p>Here, each time some <code>user</code> changes inside <code>users</code>, the whole array gets replaced and therefore this parent component is re-rendered unnecessary.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/14</link>
+        <pubDate>Wed, 03 Apr 2019 10:35:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-14</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been also thinking that <code>memoize-state</code> can’t be used as it is because proxifing a big object hundreds of times (once per React component and once per derived state) is going to be expensive for sure.</p>
+<p>Instead of that, we could use <code>proxyEqual</code> to reuse the proxified state, store the tracked data and reset the proxy to be reused for the next component or derived state. Then, update the object on each block finish.</p>
+<p>The requirement for that is that it must be synchronous but I don’t think components, even in concurrent mode are going to await, right? Obviously, they can trigger async functions but those won’t be tracked.</p>
+<p>By the way, we could even have an <code>onTracked</code> or <code>onObserved</code> middleware! <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/13</link>
+        <pubDate>Wed, 03 Apr 2019 06:53:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-13</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>More things that need some thought: we need derived state functions and access to root state for getters.</p>
+<p>MobxStateTree solves it with generating functions that receive <code>self</code>:</p>
+<pre><code class="lang-javascript">const Model = types.model({
+  title: 'My awesome title'
+}.views(self =&gt; ({
+  get upperTitle() { return self.title.toUpperCase(); }
+}));
+</code></pre>
+<p>And Overmind with</p>
+<pre><code class="lang-auto">type State = {
+  title: string
+  upperTitle: Derive&lt;State, string&gt;
+}
+
+const state: State = {
+  title: 'My awesome title',
+  upperTitle: state =&gt; state.title.toUpperCase()
+}
+</code></pre>
+<p>The thing is… Overmind inherits the <code>string</code> type for the <code>upperTitle</code> when the state is passed to the user, so I should probably take a look at that.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/12</link>
+        <pubDate>Wed, 03 Apr 2019 06:46:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-12</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We also have to find an API for the derived object that has the exact same typing than the final typing that would be merged with <code>state</code>.</p>
+<p>For this derived typing:</p>
+<pre><code class="lang-javascript">// State
+type User = {
+  id: number;
+  name: string;
+  surname: string;
+};
+type State = {
+  users: User[];
+};
+
+// Derived
+type DerivedUser = {
+  fullname: string;
+};
+type Derived = {
+  users: DerivedUser[];
+  numberOfUsers: number;
+};
+</code></pre>
+<p>a possible API could be something like:</p>
+<pre><code class="lang-javascript">const state: State = {
+  users: []
+};
+
+const derived: Derived = {
+  users: [{
+    get fullname() { return `${this.name} ${this.surname}`; } // &lt;- TS error
+  }],
+  get numberOfUsers() { return this.users.length; } // &lt;- This is fine
+}
+</code></pre>
+<p>This API is simple and elegant and almost works with TS.</p>
+<p>We can then analyze the <code>derived</code> object and when we find an array, extract the props of that first element and merge them whenever there is a push to that array.</p>
+<p>Another problem is that we need to find a way to make it work with objects:</p>
+<pre><code class="lang-javascript">type User = {
+  id: number;
+  name: string;
+  surname: string;
+};
+type State = {
+  users: {
+    [key: string]: User
+  };
+};
+
+// Derived
+type DerivedUser = {
+  fullname: string;
+};
+type Derived = {
+  users: {
+    [key: string]: DerivedUser
+  };
+  numberOfUsers: number;
+};
+
+const state: State = {
+  users: {}
+};
+
+const derived: Derived = {
+  users: {
+    get fullname() { return `${this.name} ${this.surname}`; } // &lt;- TS error
+  },
+  get numberOfUsers() { return this.users.length; } // &lt;- This is fine
+}
+</code></pre>
+<p>Because you don’t know how to analyze them vs other objects.</p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/11</link>
+        <pubDate>Wed, 03 Apr 2019 06:35:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-11</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+      <item>
+        <title>Frontity Connect - First thoughts and implementation</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, let’s talk about the derived state. There’s no problem with the code, it can be done. The challenge is to find an API that works with Typescript.</p>
+<p>With the Overmind API:</p>
+<pre><code class="lang-javascript">type State = {
+  user: {
+    name: string;
+    surname: string;
+    fullname: string;
+  }
+}
+
+const state = {
+  user: {
+    name: "Jon",
+    surname: "Snow",
+    get fullname() {
+     return `${this.name} ${this.surname}`;
+    }
+}
+</code></pre>
+<p>we don’t have access to the snapshot type, which is only:</p>
+<pre><code class="lang-javascript">type State = {
+  user: {
+    name: string;
+    surname: string;
+  }
+}
+</code></pre>
+<p>There no way to know that <code>fullname</code> is derived state from the whole typing.</p>
+<p>So we need a separate object, something we can merge later, like:</p>
+<pre><code class="lang-javascript">type State = {
+  user: {
+    name: string;
+    surname: string;
+  }
+}
+
+type Derived = {
+  user: {
+    fullname: string;
+  }
+}
+
+const state = {
+  user: {
+    name: "Jon",
+    surname: "Snow",
+  }
+}
+
+const state = {
+  user: {
+    get fullname() {
+      return `${this.name} ${this.surname}`;
+    }
+  }
+}
+</code></pre>
+<p>With separate types we can create the type of the final <code>state</code> we pass in actions with <code>State &amp; Derived</code> and use only <code>State</code> for the snapshots we return in the middleware.</p>
+<p>When we apply a snapshot with <code>applySnapshot</code>, we can simply apply it to the current snapshot, get the patches, mutate the state and merge the derived object again. So the not-nested derived state would be fine this way.</p>
+<p>The challenge comes with the nested derived state, like objects in arrays:</p>
+<pre><code class="lang-javascript">const state = {
+  users: [
+    {
+      id: 1,
+      name: "Jon",
+      surname: "Snow",
+      get fullname() {
+        return `${this.name} ${this.surname}`;
+      }
+    }
+  ] 
+}
+</code></pre>
+<p>If you add a new user, it won’t have <code>fullname</code>:</p>
+<pre><code class="lang-javascript">const addUser = ({ state }) =&gt; {
+  state.users.push({ id: 2, name: "Tyrion", surname: "Lanniester" });
+}
+</code></pre>
+<p>Instead of using the <code>derived</code> object we could use the patch middleware:</p>
+<pre><code class="lang-javascript">onPatch(({ state, patch }) =&gt; {
+  if (patch.path[1] === "users") { // &lt;- for example state.users[1]
+    Object.defineProperty(state.users[path[2]], 'fullname', {
+      get: function() { return `${this.name} ${this.surname}`; }
+    });
+  }
+})
+</code></pre>
+<p>It’s pretty ugly but the important thing is that it can be done. We can create a nicer API on top.</p>
+<p>The problem is Typescript.</p>
+<p>If the type is defined like this:</p>
+<pre><code class="lang-javascript">type User = {
+  id: number;
+  name: string;
+  surname: string;
+  fullname: string;
+};
+
+type State = {
+  users: User[];
+};
+</code></pre>
+<p>then this fails:</p>
+<pre><code class="lang-javascript">state.users.push({ id: 2, name: "Tyrion", surname: "Lanniester" });
+</code></pre>
+<p>because it doesn’t contain a fullname. So we need the derived types to be optional:</p>
+<pre><code class="lang-javascript">type User = {
+  id: number;
+  name: string;
+  surname: string;
+  fullname?: string;
+};
+
+type State = {
+  users: User[];
+};
+</code></pre>
+<p>which are not.</p>
+<p>So, that is the point where I am stuck right now <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126/10</link>
+        <pubDate>Tue, 02 Apr 2019 20:19:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-126-10</guid>
+        <source url="https://community.frontity.org/t/frontity-connect-first-thoughts-and-implementation/126.rss">Frontity Connect - First thoughts and implementation</source>
+      </item>
+  </channel>
+</rss>

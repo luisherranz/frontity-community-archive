@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to resolve dynamic imports in Webpack</title>
+    <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59</link>
+    <description>This is something we need to solve before we can go on.
+
+## The problems
+
+We have packages (Settings and Frontity packages) defined dynamically, not statically:
+- **Dynamically**: defined in variables
+`settingsPackage = &quot;my-pkg&quot;`
+- **Statically**: written in code
+`require(&quot;my-pkg&quot;)`
+
+For example, the Settings Package is defined in `frontity.config.js` like this:
+```js
+// frontity.config.js
+module.exports = {
+  settingsPackage: &#39;@frontity/file-settings&#39; 
+}
+```
+
+That means that Frontity has to do something like this to import them:
+
+```js
+// sever.js
+const config = require(&quot;./frontity.config.js&quot;)
+
+ // ⬇️ this works in Node but not in Webpack
+const getSettings = require(config.settingsPackage)
+
+const { settings, packages } = await getSettings()
+```
+
+- **Node** runs the code and requires on runtime, so that works.
+- **Webpack** analyzes the static code to generate the bundle. When it gets to that dynamic import, it doesn&#39;t know what to import and throws an error.
+
+Webpack has a way to overcome this problem, which is what we used in the past. It accepts a regexp or a string that it later converts to a regexp:
+```js
+const config = require(&quot;./frontity.config.js&quot;)
+const getSettings = require(`./settings/${config.settingsPackage}/index.js`)
+
+const { settings, packages } = await getSettings()
+package.forEach(pkg =&gt; {
+  require(`./packages/${pkg.name}/index.js`)
+})
+```
+
+If you do that, Webpack is able to analyze `./settings/${config.settingsPackage}/index.js` and import **all the possibilities** of that regexp, **no matter if they are used or not**. For example:
+- `./settings/file-settings/index.js`
+- `./settings/wp-org-settings/index.js`
+
+There&#39;s a couple of problems with the way we want to do things now:
+
+### 1. Webpack imports all the packages it finds in the regexp
+
+If users forget to npm uninstall a package they are not using anymore, it will be included anyway. This is really bad and counterintuitive. In my opinion, unacceptable.
+
+=&gt; _In the past we solved this because each package created its own chunk in the client and we didn&#39;t care about the bundle size in the server._
+
+
+### 2.  It doesn&#39;t work with `node_modules`
+
+There&#39;s no way to create a regexp to distinguish between Settings and Frontity packages from the rest in `node_modules`.
+
+=&gt; _In the past we solved this because all packages were created in the `./packages/` folder._
+
+----
+
+## Some possible solutions
+
+### 1. Force a custom name for Settings or Frontity packages
+
+For example:
+- `@frontity/file-frontity-settings` (official)
+- `wp-org-frontity-settings`
+- `@frontity/saturn-frontity-theme` (official)
+- `mars-frontity-theme`
+- `@frontity/wp-org-frontity-extension` (official)
+- `graphql-wp-org-frontity-extension`
+
+And use a regexp like:
+```js
+const getSettings = require(`./node_modules/${config.settingsPackage}-frontity-settings/index.js`)
+package.forEach(pkg =&gt; {
+  require(`./packages/${pkg.name}-frontity-(theme|extension)/index.js`)
+})
+```
+
+But it&#39;s not ideal because Webpack will include all packages, no matter if they are actually used or not :-1:
+
+### 2.  Analyze what packages are needed and write a file to disk
+
+This must be done in `frontity dev` or `frontity build` before Webpack is run:
+```js
+// build.js
+const config = require(&quot;./frontity.config.js&quot;)
+const settingsContent = `export default from ${config.settingsPackage}`
+writeFile(&quot;./dynamic-settings.js&quot;, fileContent)
+```
+
+Then, this is what Webpack sees:
+```js
+// server.js
+const getSettings = require(&quot;./dynamic-settings.js&quot;)
+```
+
+I don&#39;t like having to write a file to disk to solve this, but I guess it&#39;s ok for settings. But for packages, this approach has a new problem.
+
+## The problem of solution 2
+
+ A user can have multiple packages for different sites or environments. 
+
+For example, it&#39;s `frontity.settings.js` could be:
+
+```js
+ module.exports = {
+    site: &quot;my-blog&quot;,
+    matches: {
+      amp: &quot;/amp/$&quot;,
+      main: &quot;*&quot;
+    },
+    settings: {
+      url: &quot;https://my-blog.com&quot;
+    },
+    packages: {
+      &quot;@my-org/amp-theme&quot;: {
+        matches: &quot;amp&quot;,
+        settings: {
+          color: &quot;#AAA&quot;
+        }
+      },
+      &quot;@my-org/main-theme&quot;: {
+        matches: &quot;main&quot;,
+        settings: {
+          color: &quot;#BBB&quot;
+        }
+      },
+      &quot;@frontity/wp-org-source&quot;: {
+        settings: {
+          endpoint: &quot;https://my-blog.com/wp-json/&quot;,
+          perPage: 13
+        }
+      }
+    }
+  }
+```
+
+If we extract the packages used here and write them to disk...
+- `@my-org/amp-theme`
+- `@my-org/main-theme`
+- `@frontity/wp-org-source`
+
+...the client bundle will include both the amp and the main theme. That is bad. It&#39;ll be even worse if the user has different themes for different sites.
+
+...the server bundle will include both but that is ok because it is responsible for rendering both the amp and the main version.
+
+ ## The possible solutions
+
+### 1. Code split each package
+
+If we go back to code splitting each package, the client bundles can import only the bundles they need on runtime.
+
+There&#39;s a couple of problems with this approach (yes! third generation problems):
+
+- We need to hack `loadable-components` to load each store before the SSR or go back to `react-universal-component`. It seems like `react-universal-component` won&#39;t work with React Concurrent.
+- Some Frontity packages are really small (a few kbs) and we will be adding an additional HTTP call for each one, which seems unnecessary.
+
+### 2. Create one entry point for each site/match
+
+If we create a bundle for each match (amp vs main) and for each site, we could have different client bundles for each case and those will only contain the packages needed in each case. It&#39;d be like creating a different app for each case. 
+
+It seems like an ideal solution but I don&#39;t know if it has any other drawback.
+
+----
+
+Ok, this was longer and more complex than expected :sweat_smile:
+
+ @development-team If you want to chime in and have more ideas or crazy solutions you&#39;re very welcome!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 24 Apr 2019 10:22:08 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Working perfectly now <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/13</link>
+        <pubDate>Wed, 24 Apr 2019 10:22:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-13</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, I think I got it!</p>
+<p>I was able to generate two client bundles and switch between them at runtime.</p>
+<p>This means we can create one bundle per site and per mode <img src="https://community.frontity.org/images/emoji/apple/muscle.png?v=6" title=":muscle:" class="emoji" alt=":muscle:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/12</link>
+        <pubDate>Mon, 11 Mar 2019 11:44:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-12</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Uh, with this configuration maybe we can create a client bundle per site and per mode instead of just one per mode. I’m not sure if it’s feasible yet, I’ll think about it!</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/11</link>
+        <pubDate>Sun, 10 Mar 2019 12:42:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-11</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Right now I’m thinking about these bundles:</p>
+<ul>
+<li>One server bundle (one file), not matter how many modes.</li>
+<li>One client bundle (and its chunks) per mode.</li>
+<li>One inline bundle (one file) per mode.</li>
+</ul>
+<p>If there’s no <code>client.js</code> for a mode in any of the packages, that bundle is skipped.<br>
+If there’s no <code>inline.js</code> for a mode in any of the packages, that bundle is skipped.</p>
+<p>It looks like we are going to need different automatically generated files for the different entry points:</p>
+<ul>
+<li>All the <code>client.js</code> of all packages for each mode.</li>
+<li>All the <code>inline.js</code> of all packages for each mode.</li>
+<li>All the <code>server.js</code> files of all packages. One file is fine for all modes, but it needs the mode info inside the file:</li>
+</ul>
+<pre><code class="lang-auto">import myThemeReact from "my-theme/src/react/server.js"
+import myThemeAmp from "my-theme/src/amp/server.js"
+import wpSourceReact from "@frontity/wp-source/src/react/server.js"
+import wpSourceAmp from "@frontity/wp-source/src/amp/server.js"
+
+export default {
+  react: {
+    "my-theme": myThemeReact,
+    "@frontity/wp-source": wpSourceReact,
+  },
+  amp: {
+    "my-theme": myThemeAmp
+    "@frontity/wp-source": wpSourceAmp,
+  }
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/10</link>
+        <pubDate>Sun, 10 Mar 2019 12:38:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-10</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> is right and <code>frontity.package.js</code> is not a good idea (<a href="https://community.frontity.org/t/the-settings-api/58/7?u=luisherranz">comment here</a>).</p>
+<p>I’ll try to make it work automagically in the bundling step.</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/9</link>
+        <pubDate>Fri, 08 Mar 2019 16:29:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-9</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><code>frontity.packages.js</code> could be something like this:</p>
+<pre><code class="lang-auto">import tendencyTheme from "tendency-theme";
+import wpOrgSource from "@frontity/wp-org-source";
+import disqusComments from "@frontity/disqus-comments";
+
+export default {
+  "tendency-theme": tendencyTheme,
+  "@frontity/wp-org-source": wpOrgSource,
+  "@frontity/disqus-comments": disqusComments,
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/8</link>
+        <pubDate>Sun, 03 Mar 2019 18:13:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-8</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>One last thing I’ve just realized: apart from the imports, we need each package name to look for their <code>frontity.config.js</code> files. Only the name is ok because these are needed outside of Webpack, in the build phase.</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/7</link>
+        <pubDate>Sun, 03 Mar 2019 18:10:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-7</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>but aren’t we installing all of the packages with npm</p>
+</blockquote>
+</aside>
+<p>If you install a package with npm it does nothing until you import them in your code.</p>
+<p>In the past we used a Webpack’s dynamic import using a regexp of <code>packages/</code> but we can’t do that anymore because they come now from <code>node_modules</code>.</p>
+<aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>When are <code>frontity.packages.js</code> and <code>frontity.config.js</code> used?</p>
+</blockquote>
+</aside>
+<p>We can use <code>frontity.packages.js</code> to list the used packages. We could create it automatically but I think it’s not a good idea because it will obscure what packages are in the bundles. With a <code>frontity.packages.js</code>  it’s more clear what’s in it and what’s not. In a hosting this file can be created automatically. You have to create a <code>package.json</code> anyway. And it can be edited automatically by our Frontity Admin as well.</p>
+<p><code>frontity.config.js</code> is similar to <code>next.config.js</code>, for settings in general, webpack overrides, babel overrides…</p>
+<aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Does this mean that developers will have to declare their packages in parallel to having them listed in <code>package.json</code> ?</p>
+</blockquote>
+</aside>
+<p>Yes.</p>
+<aside class="quote group-developer-team" data-post="5" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>We will have 3 different files, right? <code>config</code> , <code>packages</code> and <code>settings</code> .</p>
+</blockquote>
+</aside>
+<p>And yes <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=6" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/6</link>
+        <pubDate>Fri, 01 Mar 2019 16:57:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-6</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m ok with the idea of <code>one site » one service</code>. However I don’t understand how everything is connected.</p>
+<ul>
+<li>When are <code>frontity.packages.js</code> and <code>frontity.config.js</code> used?</li>
+<li>Does this mean that developers will have to declare their packages in parallel to having them listed in <code>package.json</code>?</li>
+<li>We will have 3 different files, right? <code>config</code>, <code>packages</code> and <code>settings</code>.</li>
+</ul>
+<p>I think I’m missing something else, maybe I already forgot how this would work, but aren’t we installing all of the packages with npm, but those on development that will be in packages? I don’t know if this is something that already is posted somewhere and I missed or something yet to be done.</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/5</link>
+        <pubDate>Fri, 01 Mar 2019 13:28:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-5</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, I’ve been thinking a lot about this since yesterday. It’s clear that we need to find a compromise, the question is where.</p>
+<p>In my opinion the compromise that leads to simpler code and maintenance of the framework and to an easier to understand concept for the developer is: <strong>all packages are included in the bundles</strong>.</p>
+<p>It’s kind of a pity because it won’t be recommendable to have one project for several sites if those sites are very different, but it simplifies everything else and it’s easy to explain.</p>
+<h3>Main benefits</h3>
+<ul>
+<li>Code splitting with SSR just works, and we won’t create unnecessary chunks for each package.</li>
+<li>Service workers &amp; offline just works without extra effort.</li>
+</ul>
+<h3>Main drawbacks</h3>
+<ul>
+<li>All the packages of the app will be included in both the client and server bundles. For example, if users want to use two different themes for two different sites they need to create two apps.</li>
+</ul>
+<h3>Implementation</h3>
+<ul>
+<li>We have a separate <code>frontity.packages.js</code> file where all the packages are imported.<br>
+<em>=&gt; We could create this file automatically and hide it from the developer as I described in the OP, but then it’s not clear for the developer what packages are included in the bundles.</em><br>
+<em>=&gt; We can update it automatically when users install packages from the Frontity Admin, but I think it’s good that it is visible, editable and goes to the control version.</em>
+</li>
+</ul>
+<pre><code class="lang-auto">// frontity.packages.js
+import saturn from "saturn-theme"
+import wpOrgSource from "wp-org-source"
+
+export default [
+  saturn,
+  wpOrgSource
+]
+</code></pre>
+<ul>
+<li>The default <code>frontity.config.js</code> contains the <code>file-settings</code> package import.<br>
+<em>=&gt; This means the <code>file-settings</code> package will be imported always, no matter if it is used or not. It’s a small price for an easier configuration.</em>
+</li>
+</ul>
+<pre><code class="lang-auto">// default frontity.config.js
+import getFileSettings from "file-settings"
+
+export default {
+  getSettings: getFileSettings 
+}
+
+// user custom frontity.config.js
+import getWpSettings from "wp-org-settings"
+
+export default config =&gt; {
+  config.getSettings = getWpSettings 
+}
+</code></pre>
+<h3>What this means for Frontity hostings</h3>
+<p>Frontity won’t be prepared to be a monolithic app serving many different sites with different themes/packages (like our old version) but hostings can still be viable if they use a serverless approach: one set of theme/packages, one app.</p>
+<h3>What this means for our settings</h3>
+<p>Maybe, we should take this opportunity to simplify our settings because one app is going to related directly to only one site.</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/4</link>
+        <pubDate>Fri, 01 Mar 2019 11:29:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-4</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, this is a real stopper. We need to figure out a way to make this work.</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/3</link>
+        <pubDate>Thu, 28 Feb 2019 17:29:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-3</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-developer-team" data-post="1" data-topic="59">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<ol start="2">
+<li>Create one entry point for each site/match</li>
+</ol>
+</blockquote>
+</aside>
+<p>Ok, one problem with that approach are the Webpack’s service-workers/offline plugins. They don’t work with multiple entry points. So maybe we need to create one Webpack config per site/match instead of only an entry point.</p>
+<p>Another one is code-splitting which is based on Webpack stats analysis. Quite probably they won’t work with multiple entry-points or Webpack configs.</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/2</link>
+        <pubDate>Thu, 28 Feb 2019 17:22:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-2</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+      <item>
+        <title>How to resolve dynamic imports in Webpack</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is something we need to solve before we can go on.</p>
+<h2>The problems</h2>
+<p>We have packages (Settings and Frontity packages) defined dynamically, not statically:</p>
+<ul>
+<li>
+<strong>Dynamically</strong>: defined in variables<br>
+<code>settingsPackage = "my-pkg"</code>
+</li>
+<li>
+<strong>Statically</strong>: written in code<br>
+<code>require("my-pkg")</code>
+</li>
+</ul>
+<p>For example, the Settings Package is defined in <code>frontity.config.js</code> like this:</p>
+<pre><code class="lang-auto">// frontity.config.js
+module.exports = {
+  settingsPackage: '@frontity/file-settings' 
+}
+</code></pre>
+<p>That means that Frontity has to do something like this to import them:</p>
+<pre><code class="lang-auto">// sever.js
+const config = require("./frontity.config.js")
+
+ // ⬇️ this works in Node but not in Webpack
+const getSettings = require(config.settingsPackage)
+
+const { settings, packages } = await getSettings()
+</code></pre>
+<ul>
+<li>
+<strong>Node</strong> runs the code and requires on runtime, so that works.</li>
+<li>
+<strong>Webpack</strong> analyzes the static code to generate the bundle. When it gets to that dynamic import, it doesn’t know what to import and throws an error.</li>
+</ul>
+<p>Webpack has a way to overcome this problem, which is what we used in the past. It accepts a regexp or a string that it later converts to a regexp:</p>
+<pre><code class="lang-auto">const config = require("./frontity.config.js")
+const getSettings = require(`./settings/${config.settingsPackage}/index.js`)
+
+const { settings, packages } = await getSettings()
+package.forEach(pkg =&gt; {
+  require(`./packages/${pkg.name}/index.js`)
+})
+</code></pre>
+<p>If you do that, Webpack is able to analyze <code>./settings/${config.settingsPackage}/index.js</code> and import <strong>all the possibilities</strong> of that regexp, <strong>no matter if they are used or not</strong>. For example:</p>
+<ul>
+<li><code>./settings/file-settings/index.js</code></li>
+<li><code>./settings/wp-org-settings/index.js</code></li>
+</ul>
+<p>There’s a couple of problems with the way we want to do things now:</p>
+<h3>1. Webpack imports all the packages it finds in the regexp</h3>
+<p>If users forget to npm uninstall a package they are not using anymore, it will be included anyway. This is really bad and counterintuitive. In my opinion, unacceptable.</p>
+<p>=&gt; <em>In the past we solved this because each package created its own chunk in the client and we didn’t care about the bundle size in the server.</em></p>
+<h3>2.  It doesn’t work with <code>node_modules</code>
+</h3>
+<p>There’s no way to create a regexp to distinguish between Settings and Frontity packages from the rest in <code>node_modules</code>.</p>
+<p>=&gt; <em>In the past we solved this because all packages were created in the <code>./packages/</code> folder.</em></p>
+<hr>
+<h2>Some possible solutions</h2>
+<h3>1. Force a custom name for Settings or Frontity packages</h3>
+<p>For example:</p>
+<ul>
+<li>
+<code>@frontity/file-frontity-settings</code> (official)</li>
+<li><code>wp-org-frontity-settings</code></li>
+<li>
+<code>@frontity/saturn-frontity-theme</code> (official)</li>
+<li><code>mars-frontity-theme</code></li>
+<li>
+<code>@frontity/wp-org-frontity-extension</code> (official)</li>
+<li><code>graphql-wp-org-frontity-extension</code></li>
+</ul>
+<p>And use a regexp like:</p>
+<pre><code class="lang-auto">const getSettings = require(`./node_modules/${config.settingsPackage}-frontity-settings/index.js`)
+package.forEach(pkg =&gt; {
+  require(`./packages/${pkg.name}-frontity-(theme|extension)/index.js`)
+})
+</code></pre>
+<p>But it’s not ideal because Webpack will include all packages, no matter if they are actually used or not <img src="https://community.frontity.org/images/emoji/apple/-1.png?v=9" title=":-1:" class="emoji" alt=":-1:"></p>
+<h3>2.  Analyze what packages are needed and write a file to disk</h3>
+<p>This must be done in <code>frontity dev</code> or <code>frontity build</code> before Webpack is run:</p>
+<pre><code class="lang-auto">// build.js
+const config = require("./frontity.config.js")
+const settingsContent = `export default from ${config.settingsPackage}`
+writeFile("./dynamic-settings.js", fileContent)
+</code></pre>
+<p>Then, this is what Webpack sees:</p>
+<pre><code class="lang-auto">// server.js
+const getSettings = require("./dynamic-settings.js")
+</code></pre>
+<p>I don’t like having to write a file to disk to solve this, but I guess it’s ok for settings. But for packages, this approach has a new problem.</p>
+<h2>The problem of solution 2</h2>
+<p>A user can have multiple packages for different sites or environments.</p>
+<p>For example, it’s <code>frontity.settings.js</code> could be:</p>
+<pre><code class="lang-auto"> module.exports = {
+    site: "my-blog",
+    matches: {
+      amp: "/amp/$",
+      main: "*"
+    },
+    settings: {
+      url: "https://my-blog.com"
+    },
+    packages: {
+      "@my-org/amp-theme": {
+        matches: "amp",
+        settings: {
+          color: "#AAA"
+        }
+      },
+      "@my-org/main-theme": {
+        matches: "main",
+        settings: {
+          color: "#BBB"
+        }
+      },
+      "@frontity/wp-org-source": {
+        settings: {
+          endpoint: "https://my-blog.com/wp-json/",
+          perPage: 13
+        }
+      }
+    }
+  }
+</code></pre>
+<p>If we extract the packages used here and write them to disk…</p>
+<ul>
+<li><code>@my-org/amp-theme</code></li>
+<li><code>@my-org/main-theme</code></li>
+<li><code>@frontity/wp-org-source</code></li>
+</ul>
+<p>…the client bundle will include both the amp and the main theme. That is bad. It’ll be even worse if the user has different themes for different sites.</p>
+<p>…the server bundle will include both but that is ok because it is responsible for rendering both the amp and the main version.</p>
+<h2>The possible solutions</h2>
+<h3>1. Code split each package</h3>
+<p>If we go back to code splitting each package, the client bundles can import only the bundles they need on runtime.</p>
+<p>There’s a couple of problems with this approach (yes! third generation problems):</p>
+<ul>
+<li>We need to hack <code>loadable-components</code> to load each store before the SSR or go back to <code>react-universal-component</code>. It seems like <code>react-universal-component</code> won’t work with React Concurrent.</li>
+<li>Some Frontity packages are really small (a few kbs) and we will be adding an additional HTTP call for each one, which seems unnecessary.</li>
+</ul>
+<h3>2. Create one entry point for each site/match</h3>
+<p>If we create a bundle for each match (amp vs main) and for each site, we could have different client bundles for each case and those will only contain the packages needed in each case. It’d be like creating a different app for each case.</p>
+<p>It seems like an ideal solution but I don’t know if it has any other drawback.</p>
+<hr>
+<p>Ok, this was longer and more complex than expected <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p><a class="mention-group" href="https://community.frontity.org/groups/development-team">@development-team</a> If you want to chime in and have more ideas or crazy solutions you’re very welcome!</p>
+          <p><a href="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59/1</link>
+        <pubDate>Thu, 28 Feb 2019 13:06:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-59-1</guid>
+        <source url="https://community.frontity.org/t/how-to-resolve-dynamic-imports-in-webpack/59.rss">How to resolve dynamic imports in Webpack</source>
+      </item>
+  </channel>
+</rss>

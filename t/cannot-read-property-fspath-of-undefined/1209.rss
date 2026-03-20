@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+    <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209</link>
+    <description>Hi! :-) 
+
+I&#39;m trying to deploy my company&#39;s site and I&#39;m getting this error:
+
+    TypeError: Cannot read property &#39;fsPath&#39; of undefined
+    2020-02-07T12:33:50.534Z      at Object.build (/zeit/b027f802d99b8095/.build-utils/.builder/node_modules/@frontity/now/dist/index.js:95:49)
+    2020-02-07T12:33:50.534Z      at async buildStep (/var/task/sandbox-worker.js:20292:20)
+    2020-02-07T12:33:50.534Z      at async mainSub (/var/task/sandbox-worker.js:20047:9)
+    2020-02-07T12:33:50.534Z      at async main (/var/task/sandbox-worker.js:19975:5)
+
+Here is my now.json file:
+
+    {
+      &quot;version&quot;: 2,
+      &quot;builds&quot;: [
+        {
+          &quot;src&quot;: &quot;api/*.js&quot;,
+          &quot;use&quot;: &quot;@now/node&quot;
+        },
+        {
+          &quot;src&quot;: &quot;package.json&quot;,
+          &quot;use&quot;: &quot;@frontity/now&quot;
+        }
+      ],
+      &quot;routes&quot;: [
+        {
+          &quot;src&quot;: &quot;/certificacao-digital&quot;,
+          &quot;status&quot;: 308,
+          &quot;headers&quot;: { &quot;Location&quot;: &quot;/certificados-digitais/&quot; }
+        },
+        {
+          &quot;src&quot;: &quot;/framework&quot;,
+          &quot;status&quot;: 308,
+          &quot;headers&quot;: { &quot;Location&quot;: &quot;/bry-framework/&quot; }
+        },
+        {
+          &quot;src&quot;: &quot;/certificado-de-atributos&quot;,
+          &quot;status&quot;: 308,
+          &quot;headers&quot;: { &quot;Location&quot;: &quot;/bry-atributos/&quot; }
+        },
+        { &quot;src&quot;: &quot;/api/(.*)&quot;, &quot;methods&quot;: [&quot;GET&quot;], &quot;status&quot;: 404 },
+        {
+          &quot;src&quot;: &quot;/api/(.*)&quot;,
+          &quot;headers&quot;: { &quot;cache-control&quot;: &quot;no-cache&quot; },
+          &quot;dest&quot;: &quot;/api/$1.js&quot;
+        },
+        {
+          &quot;src&quot;: &quot;/static/(.*)&quot;,
+          &quot;headers&quot;: {
+            &quot;cache-control&quot;: &quot;public,max-age=31536000,immutable&quot;
+          },
+          &quot;dest&quot;: &quot;/static/$1&quot;
+        },
+        { &quot;src&quot;: &quot;/favicon.ico&quot;, &quot;dest&quot;: &quot;favicon.ico&quot; },
+        {
+          &quot;src&quot;: &quot;($|/.*)&quot;,
+          &quot;headers&quot;: {
+            &quot;cache-control&quot;: &quot;s-maxage=1,stale-while-revalidate&quot;
+          },
+          &quot;dest&quot;: &quot;/server.js&quot;
+        }
+      ],
+      &quot;build&quot;: {
+        &quot;env&quot;: {
+          &quot;SSH_PRIVATE_KEY&quot;: &quot;@gitlab-ssh-key-react-ui-components&quot;
+        }
+      }
+    }
+
+I think that this error was generated after I inserted an build env variable. :thinking:
+
+Here is my gitlab-ci.yml:
+
+     image: node
+    before_script:
+      - &quot;which ssh-agent || ( apt-get update -y &amp;&amp; apt-get install openssh-client -y )&quot;
+      - eval $(ssh-agent -s)
+      - echo &quot;$SSH_PRIVATE_KEY&quot; | tr -d &#39;\r&#39; | ssh-add -
+      - mkdir -p ~/.ssh
+      - chmod 700 ~/.ssh
+      - &#39;[[ -f /.dockerenv ]] &amp;&amp; echo -e &quot;Host *\n\tStrictHostKeyChecking no\n\n&quot; &gt; ~/.ssh/config&#39;
+    stages:
+      - setup
+      - test
+      - deploy
+    setup:
+      stage: setup
+      script:
+        - npm install
+        - npm run build
+    test:
+      stage: test
+      script: npm test
+    deploy_staging:
+      stage: deploy
+      script:
+        - npm i -g now --silent
+        - npm install
+        - npm run build
+        - now -e NODE_ENV=staging --token=${NOW_TOKEN}
+        - now alias site2020.bry.now.sh --token=${NOW_TOKEN}
+      environment:
+        name: staging
+        url: https://site2020.bry.now.sh
+      only:
+        - master
+    deploy_prod:
+      stage: deploy
+      script:
+        - npm i -g now --silent
+        - npm install
+        - npm run build
+        - now -e NODE_ENV=production --token=${NOW_TOKEN}
+        - now alias site2020-puce-one.now.sh --token=${NOW_TOKEN}
+      environment:
+        name: production
+        url: https://site2020-puce-one.now.sh
+      only:
+        - master</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 12 Feb 2020 15:16:58 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Let’s continue here: <a href="https://github.com/frontity/now-builder/issues/21">https://github.com/frontity/now-builder/issues/21</a></p>
+<p><img src="https://community.frontity.org/images/emoji/apple/point_up_2.png?v=9" title=":point_up_2:" class="emoji" alt=":point_up_2:"> please start with a clean repo using <code>npx frontity create</code> and add the necessary code to make <code>now</code> stop working. Then share the reproducible repo in the issue and we’ll fix the problem.</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/16</link>
+        <pubDate>Wed, 12 Feb 2020 15:16:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-16</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> Only folder analyze is generated with this pipeline:</p>
+<pre><code>deploy_staging:
+  stage: deploy
+  script:
+    - npm i -g now@16.7.3 --silent
+    - rm ./package-lock.json
+    - npm install
+    - npm run build
+    - cd build
+    - ls
+</code></pre>
+<p>The result of <code>ls</code> is just the analyse folder only. <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/15</link>
+        <pubDate>Wed, 12 Feb 2020 15:02:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-15</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p><img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>. I dont know what is happening. I changed my now.json because I have a serveless function in api directory. The problem with my solution is that my “build” directory is in .gitignore. So the build isn’t generated in the master branch.</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/14</link>
+        <pubDate>Wed, 12 Feb 2020 12:19:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-14</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve just created a new Frontity project with <code>npx frontity create</code>, then added this <code>now.json</code> file:</p>
+<pre><code class="lang-json">{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@frontity/now"
+    }
+  ]
+}
+</code></pre>
+<p>and finally deploy to now using Now CLI 17.0.3 and it worked fine.</p>
+<p>I’m not sure where you error is coming from but you can keep using <code>npm run build &amp;&amp; now --prod</code> if that works for you <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/13</link>
+        <pubDate>Wed, 12 Feb 2020 11:48:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-13</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe change the caret for tilde for prevent breaking changes</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/12</link>
+        <pubDate>Tue, 11 Feb 2020 17:17:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-12</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>I think that the problem is in frontity/now dependencies. Now updated their <span class="mention">@now</span>/build-utils. One solution is freeze package <span class="mention">@now</span>/build-utils version in 0.9.4 and <span class="mention">@now</span>/node-bridge in 1.2.3. What do you think <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>? Can I freeze this version in my package.json? Using resolutions or dependencies?</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/11</link>
+        <pubDate>Tue, 11 Feb 2020 17:04:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-11</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>Looks like frontity/now arent working with the new now cli (17.0.3). <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/10</link>
+        <pubDate>Tue, 11 Feb 2020 14:00:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-10</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>If you use <code>@frontity/now</code> the <code>npx frontity build</code> will happen in the cloud.</p>
+<p>But the <code>Cannot read property 'fsPath' of undefined</code> errors means something went wrong while building the <code>server.js</code> file. Probably an error in Webpack bundling.</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/9</link>
+        <pubDate>Tue, 11 Feb 2020 11:44:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-9</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, but my build directory is in .gitignore. .nowignore also is inherited from gitignore too.</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/8</link>
+        <pubDate>Mon, 10 Feb 2020 19:48:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-8</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It looks like the <code>TypeError: Cannot read property 'fsPath' of undefined</code> error is generated by Webpack failing to create the <code>server.js</code> file.</p>
+<p>If you run <code>npx frontity dev -p</code> in that exact commit, does it generate a <code>server.js</code> file?</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/6</link>
+        <pubDate>Mon, 10 Feb 2020 16:56:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-6</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>My gitlab-ci.yml are showing the following message:</p>
+<pre><code>Now CLI 17.0.3
+- Setting up project
+Error! You defined 1 build that did not match any source files (please ensure they are NOT defined in .nowignore):
+- {"src":"build/server.js","use":"@now/node"}
+</code></pre>
+<p>If I deploy with npm run build &amp;&amp; now --prod works perfectly.</p>
+<p>Any one can see the problem in my now.json or gitlab-ci?</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/5</link>
+        <pubDate>Mon, 10 Feb 2020 13:35:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-5</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>! I suppose that I cant use build variables inside my now.json. Maybe <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/now are deleting this command. <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/3</link>
+        <pubDate>Fri, 07 Feb 2020 21:38:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-3</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>UPDATE:</p>
+<p>I successful deployed changing my now.json file to:</p>
+<pre><code>{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/*.js",
+      "use": "@now/node"
+    },
+    {
+      "src": "build/static/**/*",
+      "use": "@now/static"
+    },
+    {
+      "src": "favicon.ico",
+      "use": "@now/static"
+    },
+    {
+      "src": "build/server.js",
+      "use": "@now/node"
+    },
+
+    {
+      "src": "package.json",
+      "use": "@now/node-server"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/certificacao-digital",
+      "status": 308,
+      "headers": { "Location": "/certificados-digitais/" }
+    },
+    {
+      "src": "/framework",
+      "status": 308,
+      "headers": { "Location": "/bry-framework/" }
+    },
+    {
+      "src": "/certificado-de-atributos",
+      "status": 308,
+      "headers": { "Location": "/bry-atributos/" }
+    },
+    { "src": "/api/(.*)", "methods": ["GET"], "status": 404 },
+    {
+      "src": "/api/(.*)",
+      "headers": { "cache-control": "no-cache" },
+      "dest": "/api/$1.js"
+    },
+    {
+      "src": "/static/(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "dest": "/build/static/$1"
+    },
+    { "src": "/favicon.ico", "dest": "favicon.ico" },
+    {
+      "src": "($|/.*)",
+      "headers": {
+        "cache-control": "s-maxage=1,stale-while-revalidate"
+      },
+      "dest": "/build/server.js"
+    }
+  ],
+  "build": {
+    "env": {
+      "SSH_PRIVATE_KEY": "@gitlab-ssh-key-react-ui-components"
+    }
+  }
+}
+</code></pre>
+<p>Is it good?</p>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/2</link>
+        <pubDate>Fri, 07 Feb 2020 14:13:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-2</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+      <item>
+        <title>Cannot read property &#39;fsPath&#39; of undefined</title>
+        <dc:creator><![CDATA[christian.nascimento]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I’m trying to deploy my company’s site and I’m getting this error:</p>
+<pre><code>TypeError: Cannot read property 'fsPath' of undefined
+2020-02-07T12:33:50.534Z      at Object.build (/zeit/b027f802d99b8095/.build-utils/.builder/node_modules/@frontity/now/dist/index.js:95:49)
+2020-02-07T12:33:50.534Z      at async buildStep (/var/task/sandbox-worker.js:20292:20)
+2020-02-07T12:33:50.534Z      at async mainSub (/var/task/sandbox-worker.js:20047:9)
+2020-02-07T12:33:50.534Z      at async main (/var/task/sandbox-worker.js:19975:5)
+</code></pre>
+<p>Here is my now.json file:</p>
+<pre><code>{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/*.js",
+      "use": "@now/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@frontity/now"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/certificacao-digital",
+      "status": 308,
+      "headers": { "Location": "/certificados-digitais/" }
+    },
+    {
+      "src": "/framework",
+      "status": 308,
+      "headers": { "Location": "/bry-framework/" }
+    },
+    {
+      "src": "/certificado-de-atributos",
+      "status": 308,
+      "headers": { "Location": "/bry-atributos/" }
+    },
+    { "src": "/api/(.*)", "methods": ["GET"], "status": 404 },
+    {
+      "src": "/api/(.*)",
+      "headers": { "cache-control": "no-cache" },
+      "dest": "/api/$1.js"
+    },
+    {
+      "src": "/static/(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "dest": "/static/$1"
+    },
+    { "src": "/favicon.ico", "dest": "favicon.ico" },
+    {
+      "src": "($|/.*)",
+      "headers": {
+        "cache-control": "s-maxage=1,stale-while-revalidate"
+      },
+      "dest": "/server.js"
+    }
+  ],
+  "build": {
+    "env": {
+      "SSH_PRIVATE_KEY": "@gitlab-ssh-key-react-ui-components"
+    }
+  }
+}
+</code></pre>
+<p>I think that this error was generated after I inserted an build env variable. <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+<p>Here is my gitlab-ci.yml:</p>
+<pre><code> image: node
+before_script:
+  - "which ssh-agent || ( apt-get update -y &amp;&amp; apt-get install openssh-client -y )"
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - '[[ -f /.dockerenv ]] &amp;&amp; echo -e "Host *\n\tStrictHostKeyChecking no\n\n" &gt; ~/.ssh/config'
+stages:
+  - setup
+  - test
+  - deploy
+setup:
+  stage: setup
+  script:
+    - npm install
+    - npm run build
+test:
+  stage: test
+  script: npm test
+deploy_staging:
+  stage: deploy
+  script:
+    - npm i -g now --silent
+    - npm install
+    - npm run build
+    - now -e NODE_ENV=staging --token=${NOW_TOKEN}
+    - now alias site2020.bry.now.sh --token=${NOW_TOKEN}
+  environment:
+    name: staging
+    url: https://site2020.bry.now.sh
+  only:
+    - master
+deploy_prod:
+  stage: deploy
+  script:
+    - npm i -g now --silent
+    - npm install
+    - npm run build
+    - now -e NODE_ENV=production --token=${NOW_TOKEN}
+    - now alias site2020-puce-one.now.sh --token=${NOW_TOKEN}
+  environment:
+    name: production
+    url: https://site2020-puce-one.now.sh
+  only:
+    - master</code></pre>
+          <p><a href="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209/1</link>
+        <pubDate>Fri, 07 Feb 2020 12:45:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1209-1</guid>
+        <source url="https://community.frontity.org/t/cannot-read-property-fspath-of-undefined/1209.rss">Cannot read property &#39;fsPath&#39; of undefined</source>
+      </item>
+  </channel>
+</rss>

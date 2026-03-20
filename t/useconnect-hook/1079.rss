@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>useConnect hook</title>
+    <link>https://community.frontity.org/t/useconnect-hook/1079</link>
+    <description>**--- [Feature Card](https://www.notion.so/frontity/useConnect-hook-ddb70291a83b4456b86662c5cb84a8ea)**
+
+&lt;!-- Please, follow this template in order to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+## Description
+Allow the use of a hook to retrieve `state`, `actions` and `libraries`.
+
+## User Stories
+
+&gt; As a **Frontity theme developer**
+&gt; I want to **use a hook to get state, actions and libraries**
+&gt; so that **I can keep my component props clean**
+
+## Examples
+
+```js
+import { useConnect } from &quot;frontity&quot;;
+
+const MyComp = () =&gt; {
+  const { state, actions, libraries } = useConnect();
+  return ( /* ... */ );
+}
+```
+
+## Possible solution
+
+In TypeScript it will need to know the type of the current `Package`.
+
+```typescript
+import { useConnect } from &quot;frontity&quot;;
+
+const MyComp: React.FC = () =&gt; {
+  const { state, actions, libraries } = useConnect&lt;MyPackage&gt;();
+  return ( /* ... */ );
+}
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 04 Jun 2020 08:44:15 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/useconnect-hook/1079.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Sure <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<hr>
+<h2>Implementation</h2>
+<p>This hook was finally developed by <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> in <a href="https://github.com/frontity/frontity/pull/404">this pull request</a>.</p>
+<p>The implementation didn’t vary from what was proposed here.</p>
+<p>The most important thing to notice is that the hook still requires the use of <code>connect</code>:</p>
+<pre><code class="lang-js">import { connect, useConnect } from "frontity";
+
+const Comp = () =&gt; {
+  const { state, actions, libraries } = useConnect();
+
+  return (
+    // ...
+  );
+};
+
+export default connect(Comp);
+</code></pre>
+<h2>Use cases</h2>
+<p>There are two clear use cases for the hook:</p>
+<ul>
+<li><strong>When you need to pass props down to an HTML node.</strong></li>
+</ul>
+<p>In this case, you also need to use the new <code>{ injectProps: false }</code> option of <code>connect</code> to avoid the injection of the <code>state</code>, <code>actions</code> and <code>libraries</code> options.</p>
+<pre><code class="lang-js">import { connect, useConnect } from "frontity";
+
+const Input = (props) =&gt; {
+  const { state, actions, libraries } = useConnect();
+
+  return &lt;input {...props} /&gt;;
+};
+
+export default connect(Input, { injectProps: false });
+</code></pre>
+<ul>
+<li><strong>When developing other hooks that need access to <code>state</code>, <code>actions</code> or <code>libraries</code>.</strong></li>
+</ul>
+<p>For example, a hook that retrieves the current post needs to access <code>state</code>. Without the <code>useConnect</code> hook it would be like this:</p>
+<pre><code class="lang-js">const useCurrentPost = (state) =&gt; {
+  const data = state.source.get(state.router.link);
+  return state.source[data.type][data.id];
+};
+</code></pre>
+<p>And the component needs to get <code>state</code> and pass it to the hook.</p>
+<pre><code class="lang-js">import { useCurrentPost } from "./my-hooks";
+
+const Comp = ({ state }) =&gt; {
+  const data = useCurrentPost(state);
+};
+
+export default connect(Comp);
+</code></pre>
+<p>Thanks to the useConnect hook, we can avoid the need to pass <code>state</code> to this type of hoks:</p>
+<pre><code class="lang-js">const useCurrentPost = () =&gt; {
+  const { state } = useConnect();
+  const data = state.source.get(state.router.link);
+  return state.source[data.type][data.id];
+};
+</code></pre>
+<p>The component can just use the hook without worrying about <code>state</code>.</p>
+<pre><code class="lang-js">import { useCurrentPost } from "./my-hooks";
+
+// More simple component.
+const Comp = () =&gt; {
+  const data = useCurrentPost();
+};
+
+export default connect(Comp);
+</code></pre>
+<p>The component still needs to be connected.</p>
+<h2>TypeScript</h2>
+<p>The usage of TypeScript is slightly simplified because you don’t have to merge the props with <code>state</code>, <code>actions</code> and <code>libraries</code>.</p>
+<p>These are the types for a normal connected component:</p>
+<pre><code class="lang-js">import { connect } from "frontity";
+import { Connect } from "frontity/types";
+import { Packages } from "../../types";
+
+const Comp: React.FC&lt;Connect&lt;Packages, { otherProp: string }&gt;&gt; = ({
+  state,
+  otherProp,
+}) =&gt; {
+  // Component logic.
+};
+
+export default connect(Comp);
+</code></pre>
+<p>And these are the types for <code>useConnect</code>:</p>
+<pre><code class="lang-js">import { connect, useConnect } from "frontity";
+import { Packages } from "../../types";
+
+const Comp: React.FC&lt;{ otherProp: string }&gt;&gt; = ({
+  otherProp,
+}) =&gt; {
+  const { state } = useConnect&lt;Packages&gt;();
+  // Component logic.
+};
+
+export default connect(Comp);
+</code></pre>
+<hr>
+<p>We don’t plan to support other implementations for the moment.</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/13</link>
+        <pubDate>Thu, 04 Jun 2020 08:44:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-13</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>This has been released and we can find more info at <a href="https://docs.frontity.org/api-reference-1/frontity#useconnect">our docs</a>. <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> or <a class="mention" href="https://community.frontity.org/u/david">@David</a>, as you were the reviewers of the Pull Request, could you do a quick recap here please?</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/11</link>
+        <pubDate>Wed, 03 Jun 2020 06:39:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-11</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I have finally realized that we cannot do this:</p>
+<pre><code class="lang-js">const Comp = () =&gt; {
+  const { state, actions, libraries } = useConnect();
+  // ...
+};
+
+export default Comp;
+</code></pre>
+<p>even if we add reproxification to Connect, because we are doing <code>memo</code> in <code>connect</code> and that is an important optimization.</p>
+<p>So in the end, the recommendation would be to do this:</p>
+<pre><code class="lang-js">const Comp = () =&gt; {
+  const { state, actions, libraries } = useConnect();
+  // ...
+};
+
+export default memo(Comp);
+</code></pre>
+<p>which doesn’t make sense because if we recommend wrapping the component, we can recommend to wrap it in <code>connect</code> and avoid the complexity of reproxification.</p>
+<pre><code class="lang-js">const Comp = () =&gt; {
+  const { state, actions, libraries } = useConnect();
+  // ...
+};
+
+export default connect(Comp);
+</code></pre>
+<p>And this hook is something we can do today with basically a line of code.</p>
+<hr>
+<p>We could also do the mapState implementation:</p>
+<pre><code class="lang-js">const Comp = () =&gt; {
+  const { link } = useConnect(({ state }) =&gt; state.router.link);
+  // ...
+};
+
+export default Comp;
+</code></pre>
+<p>but I think it can lead to confusion. For example, this component won’t be reactive to changes of <code>link</code> and it is not trivial to know why:</p>
+<pre><code class="lang-js">const Comp = () =&gt; {
+  const { router } = useConnect(({ state }) =&gt; state.router);
+  return &lt;div&gt;{router.link}&lt;/div&gt;;
+};
+
+export default Comp;
+</code></pre>
+<p>And again, we would have to recommend using <code>memo</code> anyway, so why bother.</p>
+<hr>
+<p>Finally, one of the problems that this hook solves is to avoid passing <code>state</code>, <code>actions</code> and <code>libraries</code> as props to a children component, like this:</p>
+<pre><code class="lang-js">const CompWrapper = ({ state, someProp, ...restOfTheProps }) =&gt; {
+  // Do something with state and someProps.
+
+  // Comp will receive `actions` and `libraries`.
+  return &lt;Comp {...restOfTheProps} /&gt;;
+};
+
+export default connect(CompWrapper);
+</code></pre>
+<p>For that to work now, you have to extract also <code>actions</code> and <code>libraries</code> like this:</p>
+<pre><code class="lang-js">const CompWrapper = ({
+  state,
+  actions,
+  libraries,
+  someProp,
+  ...restOfTheProps
+}) =&gt; {
+  // Do something with state and someProps.
+
+  // Comp won't receive anything but ...restOfTheProps.
+  return &lt;Comp {...restOfTheProps} /&gt;;
+};
+
+export default connect(CompWrapper);
+</code></pre>
+<p>We can solve it using the <code>useConnect</code> hook, but we need to prevent <code>connect</code> from injecting the props. My proposal is to add a second argument to <code>connect</code> for options and add an <code>injectProps</code> boolean, like this:</p>
+<pre><code class="lang-js">const CompWrapper = ({ someProp, ...restOfTheProps }) =&gt; {
+  const { state } = useConnect();
+  // Do something with state and someProps.
+
+  // Comp won't receive anything but ...restOfTheProps.
+  https: return &lt;Comp {...restOfTheProps} /&gt;;
+};
+
+export default connect(CompWrapper, { injectProps: false });
+</code></pre>
+<p>Most of the times this won’t be necessary as this is only an edge case.</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/10</link>
+        <pubDate>Tue, 28 Apr 2020 07:55:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-10</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I have just realized that these two approaches are compatible and we could support both.</p>
+<h3>Pass a mapState function</h3>
+<p>In this case, only the mapState function is reactive. This works fine:</p>
+<pre><code>const isReady = useConnect(({ state }) =&gt; state.source.get(state.router.link).isReady)
+</code></pre>
+<p>But this doesn’t:</p>
+<pre><code>const state = useConnect(({ state }) =&gt; state);
+const isReady = state.source.get(state.router.link).isReady;
+</code></pre>
+<p>So we would have to be careful teaching that because it is not intuitive.</p>
+<h3>Don’t pass a mapState function</h3>
+<p>This implementation will be possible once we improve Connect internals. Right now, Connect works with a single proxy and for this to work we need to create a different proxy for each React component that uses this hook.</p>
+<p>The good thing about this implementation is that the whole React component is reactive, so there’s no way to break it. This will always work:</p>
+<pre><code>const { state } = useConnect();
+const isReady = state.source.get(state.router.link).isReady);
+</code></pre>
+<hr>
+<p>We could implement the first one now and the second one once we improve Connect internals, or just choose one of them.</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/9</link>
+        <pubDate>Tue, 31 Mar 2020 07:42:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-9</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Just chiming in to say great idea <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="5" data-topic="1079">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I don’t know why I didn’t thought about this in the first place, but of course it is possible to make it work by accepting a <code>mapState</code> function:</p>
+<pre><code>
+</code></pre>
+</blockquote>
+</aside>
+<p>About this;</p>
+<aside class="quote group-development-team" data-username="luisherranz" data-post="7" data-topic="1079">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>And I would not make custom hooks at first, because I think that when people is learning Frontity they need to understand how it works and how things are organized.</p>
+</blockquote>
+</aside>
+<p>I’m also against making more specialized “frontity” hooks. I think this should belong in the userspace. We should show examples in the documentation on how to use <code>useConnect</code> to make custom hooks though!</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/8</link>
+        <pubDate>Tue, 25 Feb 2020 22:31:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-8</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’d go with <code>useConnect</code> for consistency, yes.</p>
+<p>And I would not make custom hooks at first, because I think that when people is learning Frontity they need to understand how it works and how things are organized.</p>
+<p>If they see something like this:</p>
+<pre><code>import { useConnect } from "frontity";
+
+const link = useConnect(({ state }) =&gt; state.router.link);
+</code></pre>
+<p>it’s much more clear that:</p>
+<ul>
+<li>The link is coming from the router.</li>
+<li>It is stored in <code>state.router.link</code>.</li>
+<li>They can use <code>useConnect</code> to get things from the state.</li>
+</ul>
+<p>than if you show them something like this:</p>
+<pre><code>import { useLink } from "@frontity/hooks";
+
+const link = useLink();
+</code></pre>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/7</link>
+        <pubDate>Tue, 25 Feb 2020 20:00:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-7</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Wow, I think I really like this approach. It would make sense to have a collection of hooks in order to simplify the access to the state, and you wouldn’t need to wrap components or anything, just use them wherever you want!</p>
+<p>Apart from that, <code>useConnect</code> or <code>useStore</code>? I prefer <code>useConnect</code> but maybe because of the name of the library. Do you think <code>useStore</code> would be a better name?</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/6</link>
+        <pubDate>Tue, 25 Feb 2020 10:43:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-6</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I don’t know why I didn’t thought about this in the first place, but of course it is possible to make it work by accepting a <code>mapState</code> function:</p>
+<pre><code>const MyComp = () =&gt; {
+  const name = useConnect(({ state }) =&gt; state.user.name);
+  return (
+    &lt;span&gt;{name}&lt;/span&gt;
+  );
+};
+</code></pre>
+<p>That solution could work today.</p>
+<p>And you can of course return as many things as you want and even compute things.</p>
+<pre><code>const MyComp = () =&gt; {
+  const { fullname, avatar } = useConnect(({ state }) =&gt; ({
+    fullname: `${state.user.name} {state.user.surname}`,
+    avatar: state.user.avatar
+  });
+  return (
+    &lt;&gt;
+      &lt;span&gt;{fullname}&lt;/span&gt;
+      &lt;img src={avatar} /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>TypeScript would work like this:</p>
+<pre><code>const name = useConnect&lt;MyPackage&gt;(({ state }) =&gt; state.user.name);
+</code></pre>
+<p>You can also create hooks and reuse them:</p>
+<pre><code>const useFullName = () =&gt; useConnect(({ state }) =&gt; `${state.user.name} {state.user.surname}`);
+const useAvatar = () =&gt; useConnect(({ state }) =&gt; state.user.avatar); 
+
+const MyComp = () =&gt; {
+  const fullname = useFullName();
+  const useAvatar = useAvatar();
+  return (
+    &lt;&gt;
+      &lt;span&gt;{fullname}&lt;/span&gt;
+      &lt;img src={avatar} /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+<p>And we could add shallow compare to the returned value/object to avoid some unnecessary rerenders.</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/5</link>
+        <pubDate>Tue, 25 Feb 2020 08:00:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-5</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I think that if the naming was <code>connect</code> for the wrapper of the component, used like it’s being used now, and <code>useStore</code> for the hook, it wouldn’t be so terrible, but for the part where you are importing both from the same package and adds boilerplate <img src="https://community.frontity.org/images/emoji/apple/confused.png?v=9" title=":confused:" class="emoji" alt=":confused:"></p>
+<p>I find <code>useConnect</code> confusing in any case as the natural way to call this would be <code>useStore</code>.</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/4</link>
+        <pubDate>Mon, 20 Jan 2020 16:34:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-4</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>My 2 cents:<br>
+Yeah, I don’t really like the idea of both wrapping the component with <code>connect</code> and using the hook because it will be confusing for the user to have 2 APIs. I think that wrapping the return in <code>useObserver</code> is probably the least bad option, but I would argue if the API is poor, we <strong>shouldn’t</strong> give the option to use hooks “just because”. I think it’s better to have just one clear way to use <code>connect</code> as a HOC.</p>
+<aside class="quote group-development-team" data-post="2" data-topic="1079">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<pre><code>return useObserver(() =&gt; ( 
+  &lt;Link to="/logout"&gt; 
+    &lt;span className="name"&gt;{name}&lt;/span&gt; 
+  &lt;/Link&gt; )); 
+};
+</code></pre>
+</blockquote>
+</aside>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/3</link>
+        <pubDate>Mon, 20 Jan 2020 16:05:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-3</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>This is a tougher problem than I thought because with the current implementation there’s nothing to subscribe to, the component must be wrapped in a computation. With hooks, you don’t have the opportunity to wrap the component.</p>
+<p>The guys from Mobx solve it using this approach:</p>
+<pre><code>function LogoutWidget() {
+  const { user } = useStore();
+  return useObserver(() =&gt; (
+    &lt;Link to="/logout"&gt;
+      &lt;span className="name"&gt;{user.name}&lt;/span&gt;
+    &lt;/Link&gt;
+  ));
+};
+</code></pre>
+<p>I don’t quite like it because you need to use two hooks instead of one. Apart from that, I guess that if you access <code>user.name</code> before <code>useObserver</code> it won’t re-render automatically. For example, this won’t work!</p>
+<pre><code>function LogoutWidget() {
+  const { user } = useStore();
+  const name = user.name;
+
+  return useObserver(() =&gt; (
+    &lt;Link to="/logout"&gt;
+      &lt;span className="name"&gt;{name}&lt;/span&gt;
+    &lt;/Link&gt;
+  ));
+};
+</code></pre>
+<p>We can solve it wrapping the component with <code>connect</code>:</p>
+<pre><code>const MyComp = connect(() =&gt; {
+  const { state } = useConnect();
+  return (
+    &lt;span&gt;{state.user.name}&lt;/span&gt;
+  );
+});
+</code></pre>
+<p>or</p>
+<pre><code>const MyComp = () =&gt; {
+  const { state } = useConnect();
+  return (
+    &lt;span&gt;{state.user.name}&lt;/span&gt;
+  );
+};
+
+export default connect(MyComp);
+</code></pre>
+<p>But it feels kind of strange to have to use both <code>connect</code> and <code>useConnect</code>. Apart from that, who does <code>connect</code> knows that it doesn’t have to inject <code>state</code>, <code>actions</code> and <code>libraries</code>? We’d have to introduce another API or tell connect somehow:</p>
+<pre><code>export default connect(MyComp, false); // Pass false to avoid injection
+export default connectHook(MyComp); // Alternative API.
+</code></pre>
+<p>Not very elegant.</p>
+<hr>
+<p>On the other hand, if we want to make <code>useConnect</code> work on its own, we need to isolate the <code>state</code> we pass to it using a unique proxy for each component. That’s something we want to add in the next version of Frontity Connect so we can explore that.</p>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/2</link>
+        <pubDate>Fri, 17 Jan 2020 10:38:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-2</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+      <item>
+        <title>useConnect hook</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/useConnect-hook-ddb70291a83b4456b86662c5cb84a8ea">Feature Card</a></strong></p>
+
+<h2>Description</h2>
+<p>Allow the use of a hook to retrieve <code>state</code>, <code>actions</code> and <code>libraries</code>.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity theme developer</strong><br>
+I want to <strong>use a hook to get state, actions and libraries</strong><br>
+so that <strong>I can keep my component props clean</strong></p>
+</blockquote>
+<h2>Examples</h2>
+<pre><code class="lang-js">import { useConnect } from "frontity";
+
+const MyComp = () =&gt; {
+  const { state, actions, libraries } = useConnect();
+  return ( /* ... */ );
+}
+</code></pre>
+<h2>Possible solution</h2>
+<p>In TypeScript it will need to know the type of the current <code>Package</code>.</p>
+<pre><code class="lang-typescript">import { useConnect } from "frontity";
+
+const MyComp: React.FC = () =&gt; {
+  const { state, actions, libraries } = useConnect&lt;MyPackage&gt;();
+  return ( /* ... */ );
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/useconnect-hook/1079/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/useconnect-hook/1079/1</link>
+        <pubDate>Thu, 16 Jan 2020 13:27:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1079-1</guid>
+        <source url="https://community.frontity.org/t/useconnect-hook/1079.rss">useConnect hook</source>
+      </item>
+  </channel>
+</rss>

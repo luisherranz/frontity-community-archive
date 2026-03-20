@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Get a post by ID</title>
+    <link>https://community.frontity.org/t/get-a-post-by-id/4935</link>
+    <description>Hey everyone,
+
+First off, Frontity is great so far and it&#39;s only getting better the more I understand the concepts.
+
+I&#39;m clearly getting confused with the process of fetching data, however.
+
+I have an ACF field which includes a repeater of references to posts, as well as a background image. I&#39;ve been able to get the data for the background image without issues, but now I want to get the data from the *referenced post*.
+
+I thought I could fetch the data by doing:
+`const data = state.source.post[sample.ID];` (where `sample.ID` is a number like 51 — I&#39;ve confirmed that the document ID is correct)
+
+However when I log this out I get undefined...
+
+You can see the full source here:
+https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/SampleSlider/SampleSlider.js#L19-L38
+
+What am I doing wrong?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 06 Jul 2021 13:08:36 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/get-a-post-by-id/4935.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>. The ID linking to the page I’m looking to return can be found by doing <code>console.log(id)</code> in the <code>Wayfinder.js</code> file. That comes from another component called <code>ContentBlocks.js</code>. This component loops through a ‘flexible content’ field in ACF which can contain different blocks — it’s a bit of a ‘page builder’ component I wrote.</p>
+<p>Ultimately though the id is passed to <code>Wayfinder.js</code> so logging the <code>id</code> prop should return a number.</p>
+<aside class="quote no-group" data-username="Johan" data-post="8" data-topic="4935">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/johan/40/2611_2.png" class="avatar"> Johan:</div>
+<blockquote>
+<p>Why not use <code>useEffect</code> to retrieve the post content before rendering it?</p>
+</blockquote>
+</aside>
+<p>I actually did try something like this using the <code>await-to-js</code> library;</p>
+<pre><code class="lang-javascript">  const [post, setPost] = useState(null);
+
+  useEffect(() =&gt; {
+    async function getPostById() {
+      const { api } = libraries.source;
+      let err;
+      let res;
+      let resData;
+
+      [err, res] = await to(
+        api.get({
+          endpoint: `pages/${id}`,
+          params: {
+            _embed: true,
+          },
+        })
+      );
+      if (!res) {
+        console.error(
+          'No response returned from get. Please check the endpoint is correct'
+        );
+        console.error(err);
+      }
+
+      [err, resData] = await to(res.json());
+      if (!resData) {
+        console.error(
+          'Error getting JSON from res. Please check the endpoint is returning a proper JSON'
+        );
+        console.error(err);
+      }
+
+      setPost(resData);
+    }
+
+    getPostById();
+  }, []);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/9</link>
+        <pubDate>Tue, 06 Jul 2021 13:08:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-9</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Why not use <code>useEffect</code> to retrieve the post content before rendering it?</p>
+<pre><code class="lang-javascript">import React, { useEffect } from "react";
+import PropTypes from 'prop-types';
+import { connect } from 'frontity';
+
+const Wayfinder = ({ id, state, actions }) =&gt; {
+  if (!id) return null;
+
+useEffect(() =&gt; {
+    actions.source.fetch("/posts/" + id);
+  }, []);
+
+  const data = state.source.get("/posts/" + id);
+  const post = state.source.post[id];
+
+  return (
+    &lt;div&gt;
+      &lt;a href={post.link}&gt;{post.title.rendered}&lt;/a&gt;
+      &lt;br /&gt;
+    &lt;/div&gt;
+  );
+};
+
+export default connect(Wayfinder);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/8</link>
+        <pubDate>Tue, 06 Jul 2021 12:36:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-8</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/modg">@modg</a></p>
+<p>I’ve cloned your repo locally, and I can see what’s being returned from your API at <a href="http://167.99.197.102/wp-json/wp/v2/posts">http://167.99.197.102/wp-json/wp/v2/posts</a>.</p>
+<p>I’m not sure what I should be looking for. Which is the ACF field that contains the ID of the post that you want to fetch?</p>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/7</link>
+        <pubDate>Tue, 06 Jul 2021 11:58:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-7</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> — apologies, I’m still not getting this… <img src="https://community.frontity.org/images/emoji/apple/tired_face.png?v=9" title=":tired_face:" class="emoji" alt=":tired_face:"></p>
+<p>Here is my component. The <code>id</code> prop returns an ID for a page, like <code>52</code> or <code>12</code>, etc.</p>
+<pre><code class="lang-js">import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'frontity';
+
+const Wayfinder = ({ id, state }) =&gt; {
+  if (!id) return null;
+
+  return (
+    &lt;div&gt;
+      {id}
+      &lt;br /&gt;
+    &lt;/div&gt;
+  );
+};
+
+export default connect(Wayfinder);
+</code></pre>
+<p>All I want to do is fetch the page data from any given ID to this component and have access to its content like featured image, title, acf fields, etc.</p>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/6</link>
+        <pubDate>Tue, 06 Jul 2021 09:41:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-6</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/modg">@modg</a></p>
+<p>I’m not sure of the structure of your data or what you’re looping over, but yes, the data needs to be fetched and the state populated with the fetched data <strong>before</strong> you use <code>state.source.post[id]</code>.</p>
+<p>If doing something like <code>const data = state.source.post[sample.ID];</code> add some error checking code to ensure that <code>data</code> is not <em>undefined</em> before attempting to use it.</p>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/5</link>
+        <pubDate>Mon, 05 Jul 2021 16:54:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-5</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks so much for the reply <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>. I’m due to work on this project again tomorrow so I’ll be able to take a proper look then.</p>
+<p>But in theory, and so I have it straight using my <a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/SampleSlider/SampleSlider.js" rel="noopener nofollow ugc">first link</a> as an example, from this component I would use <code>libraries.source.api.get()</code> to fetch all of the pages in the loop, something like:</p>
+<pre><code class="lang-js">{slide.samples[0].sample.map((sample) =&gt; {
+  const data = state.source.post[sample.ID];
+  const samplesData = await api.get({
+    endpoint: "posts",
+    params: { _embed: true, posts: sample.ID },
+  });
+
+  // return...
+})}
+</code></pre>
+<p>Or would I do that <em>before</em> the loop, add the retrieved data to the state using <code>libraries.source.populate()</code> and <em>then</em> retrieve the data from the state in my loop?</p>
+<p>Hope I’m understanding this right and that my reply is clear. Thanks again!</p>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/4</link>
+        <pubDate>Mon, 05 Jul 2021 16:41:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-4</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/modg">@modg</a></p>
+<p>If the data is not already in the state then you will get <code>undefined</code>. Frontity normally fetches data using URLs constructed using the post slug, basically the same way that WordPress uses permalinks.</p>
+<p>See <a href="https://community.frontity.org/t/get-link-from-post-id/1241">this thread</a> which also discusses this topic.</p>
+<p>You will need to use <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-api-get"><code>libraries.source.api.get</code></a> to fetch the specific post using an endpoint such as <code>http://www.domain.com/wp-json/wp/v2/posts/33</code>.</p>
+<p>You will then also need to add the retrieved data into the state using <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-populate"><code>libraries.source.populate</code></a>, as <code>libraries.source.api.get</code> doesn’t automatically populate the state in the way that <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#actions-source-fetch"><code>actions.source.fetch</code></a> does.</p>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/3</link>
+        <pubDate>Mon, 05 Jul 2021 15:34:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-3</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Clearly missing something here as I’m running into the same trouble with another component.</p>
+<aside class="onebox githubblob" data-onebox-src="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/Wayfinder/Wayfinder.js">
+  <header class="source">
+
+      <a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/Wayfinder/Wayfinder.js" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+
+  <article class="onebox-body">
+    <h4><a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/Wayfinder/Wayfinder.js" target="_blank" rel="noopener nofollow ugc">Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/Wayfinder/Wayfinder.js</a></h4>
+
+
+    <pre><code class="lang-js">import React from 'react';
+import PropTypes from 'prop-types';
+import { connect, styled } from 'frontity';
+
+//
+
+const Wayfinder = ({ id, state }) =&gt; {
+  if (!id) return null;
+
+  console.log('id', id);
+  const data = state.source.get('2021/07/pebble-sea-pink/');
+  console.log('data', data);
+  // const post = state.source.post[id];
+  // console.log('post', post);
+
+  return (
+    &lt;WayfinderSC&gt;
+      {id}
+      &lt;br /&gt;
+    &lt;/WayfinderSC&gt;
+</code></pre>
+
+
+  This file has been truncated. <a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/Wayfinder/Wayfinder.js" target="_blank" rel="noopener nofollow ugc">show original</a>
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>I’ve read through the documentation on state over and over again but clearly I’m missing something. Hopefully someone can help as I’m really finding progress to be slow trying to work this stuff out.</p>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/2</link>
+        <pubDate>Fri, 02 Jul 2021 15:12:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-2</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+      <item>
+        <title>Get a post by ID</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey everyone,</p>
+<p>First off, Frontity is great so far and it’s only getting better the more I understand the concepts.</p>
+<p>I’m clearly getting confused with the process of fetching data, however.</p>
+<p>I have an ACF field which includes a repeater of references to posts, as well as a background image. I’ve been able to get the data for the background image without issues, but now I want to get the data from the <em>referenced post</em>.</p>
+<p>I thought I could fetch the data by doing:<br>
+<code>const data = state.source.post[sample.ID];</code> (where <code>sample.ID</code> is a number like 51 — I’ve confirmed that the document ID is correct)</p>
+<p>However when I log this out I get undefined…</p>
+<p>You can see the full source here:</p><aside class="onebox githubblob" data-onebox-src="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/SampleSlider/SampleSlider.js#L19-L38">
+  <header class="source">
+
+      <a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/SampleSlider/SampleSlider.js#L19-L38" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+
+  <article class="onebox-body">
+    <h4><a href="https://github.com/Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/SampleSlider/SampleSlider.js#L19-L38" target="_blank" rel="noopener nofollow ugc">Modular-Everything/Marton-Mills/blob/main/packages/marton-new/src/components/SampleSlider/SampleSlider.js#L19-L38</a></h4>
+
+
+
+  <pre class="onebox">    <code class="lang-js">
+      <ol class="start lines" start="19" style="counter-reset: li-counter 18 ;">
+          <li>{content.map((slide) =&gt; (</li>
+          <li>  &lt;SwiperSlide&gt;</li>
+          <li>    &lt;div className="samples-wrapper"&gt;</li>
+          <li>      &lt;div className="samples"&gt;</li>
+          <li>        {slide.samples[0].sample.map((sample) =&gt; {</li>
+          <li>          const data = state.source.post[sample.ID];</li>
+          <li>          console.log(data);</li>
+          <li>          return &lt;div className="sample"&gt;Sample&lt;/div&gt;;</li>
+          <li>        })}</li>
+          <li>      &lt;/div&gt;</li>
+          <li>    &lt;/div&gt;</li>
+          <li>
+          </li>
+<li>    &lt;div className="background"&gt;</li>
+          <li>      &lt;SlideImage</li>
+          <li>        src={slide.background_image.url}</li>
+          <li>        alt={slide.background_image.alt}</li>
+          <li>      /&gt;</li>
+          <li>    &lt;/div&gt;</li>
+          <li>  &lt;/SwiperSlide&gt;</li>
+          <li>))}</li>
+      </ol>
+    </code>
+  </pre>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>What am I doing wrong?</p>
+          <p><a href="https://community.frontity.org/t/get-a-post-by-id/4935/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-a-post-by-id/4935/1</link>
+        <pubDate>Fri, 02 Jul 2021 11:31:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4935-1</guid>
+        <source url="https://community.frontity.org/t/get-a-post-by-id/4935.rss">Get a post by ID</source>
+      </item>
+  </channel>
+</rss>

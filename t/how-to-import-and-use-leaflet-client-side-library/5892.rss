@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to import and use Leaflet (client side library)?</title>
+    <link>https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892</link>
+    <description>Hi, I&#39;m trying to import and use the React Leaflet library. But it uses window. So I tried dynamic import. 
+```
+actions: {
+        theme: {
+            beforeCSR: async ({ libraries }) =&gt; {
+                const { MapContainer, TileLayer, Marker, Popup } = await import(
+                    &quot;react-leaflet&quot;
+                );
+
+                libraries.MapContainer = MapContainer;
+                libraries.TileLayer = TileLayer;
+                libraries.Marker = Marker;
+                libraries.Popup = Popup;
+            },
+        },
+    },
+```
+Then I want to access the library in the &quot;CustomMap&quot; component like this:
+```
+import React from &quot;react&quot;;
+import { connect, css } from &quot;frontity&quot;;
+
+const CustomMap = ({ libraries }) =&gt; {
+    const { MapContainer, TileLayer, Marker, Popup } = libraries;
+
+    if (MapContainer &amp;&amp; TileLayer &amp;&amp; Marker &amp;&amp; Popup) {
+        return (
+            &lt;MapContainer
+                center={[50, 100]}
+                zoom={15}
+                attributionControl={false}
+                css={css`
+                    margin-top: 24px;
+                `}
+            &gt;
+                &lt;TileLayer url=&quot;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&quot; /&gt;
+
+                &lt;Marker position={[50, 100]}&gt;
+                    &lt;Popup&gt;Popup&lt;/Popup&gt;
+                &lt;/Marker&gt;
+            &lt;/MapContainer&gt;
+        );
+    } else {
+        return null;
+    }
+};
+
+export default connect(CustomMap);
+```
+I get this error:
+```
+Warning: Expected server HTML to contain a matching &lt;div&gt; in &lt;div&gt;.at div at MapContainer 
+```
+How to import such a library correctly?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 16 May 2022 20:50:38 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to import and use Leaflet (client side library)?</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/paulius">@Paulius</a>, this reply arrives probably too late, but I’d suggest you do:</p>
+<pre><code class="lang-javascript">import { loadable } from 'frontity';
+const CustomMap = loadable(() =&gt; import('./custom-map'), { ssr: false });
+</code></pre>
+<pre><code class="lang-javascript">// custom-map.js
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+
+const CustomMap = () =&gt; {
+...
+}
+
+export default CustomMap;
+</code></pre>
+<p>This will load the component that is using Leaflet only on client side.</p>
+          <p><a href="https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892/2</link>
+        <pubDate>Mon, 16 May 2022 20:50:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5892-2</guid>
+        <source url="https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892.rss">How to import and use Leaflet (client side library)?</source>
+      </item>
+      <item>
+        <title>How to import and use Leaflet (client side library)?</title>
+        <dc:creator><![CDATA[Paulius]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, I’m trying to import and use the React Leaflet library. But it uses window. So I tried dynamic import.</p>
+<pre><code class="lang-javascript">actions: {
+        theme: {
+            beforeCSR: async ({ libraries }) =&gt; {
+                const { MapContainer, TileLayer, Marker, Popup } = await import(
+                    "react-leaflet"
+                );
+
+                libraries.MapContainer = MapContainer;
+                libraries.TileLayer = TileLayer;
+                libraries.Marker = Marker;
+                libraries.Popup = Popup;
+            },
+        },
+    },
+</code></pre>
+<p>Then I want to access the library in the “CustomMap” component like this:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { connect, css } from "frontity";
+
+const CustomMap = ({ libraries }) =&gt; {
+    const { MapContainer, TileLayer, Marker, Popup } = libraries;
+
+    if (MapContainer &amp;&amp; TileLayer &amp;&amp; Marker &amp;&amp; Popup) {
+        return (
+            &lt;MapContainer
+                center={[50, 100]}
+                zoom={15}
+                attributionControl={false}
+                css={css`
+                    margin-top: 24px;
+                `}
+            &gt;
+                &lt;TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /&gt;
+
+                &lt;Marker position={[50, 100]}&gt;
+                    &lt;Popup&gt;Popup&lt;/Popup&gt;
+                &lt;/Marker&gt;
+            &lt;/MapContainer&gt;
+        );
+    } else {
+        return null;
+    }
+};
+
+export default connect(CustomMap);
+</code></pre>
+<p>I get this error:</p>
+<pre><code class="lang-javascript">Warning: Expected server HTML to contain a matching &lt;div&gt; in &lt;div&gt;.at div at MapContainer 
+</code></pre>
+<p>How to import such a library correctly?</p>
+          <p><a href="https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892/1</link>
+        <pubDate>Mon, 04 Apr 2022 18:53:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5892-1</guid>
+        <source url="https://community.frontity.org/t/how-to-import-and-use-leaflet-client-side-library/5892.rss">How to import and use Leaflet (client side library)?</source>
+      </item>
+  </channel>
+</rss>

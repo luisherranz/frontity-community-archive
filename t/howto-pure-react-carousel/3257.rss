@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>HowTo? Pure React Carousel</title>
+    <link>https://community.frontity.org/t/howto-pure-react-carousel/3257</link>
+    <description>HEY! 
+
+Cool thing I&#39;m having trouble implementing and have no idea on how to approach this so ideas appreciated. 
+
+I&#39;m using [Pure React Carousel](https://www.npmjs.com/package/pure-react-carousel) to add a swipeable carousel of &quot;testimonials&quot; of guests for a property management website. 
+
+
+Here is the branch that&#39;s deployed. As you can see, my testimonials component is on the very bottom: [https://guestrealty-o0bjkqfx6.vercel.app/](https://guestrealty-o0bjkqfx6.vercel.app/)
+
+Here is the branch its deployed to: [Github Repo](https://github.com/guestrealtyco/guestrealty/tree/slider)
+
+
+In the Carousel documentation,  to implement it seems all you have to do is the following:
+
+    import React from &#39;react&#39;;
+    import { CarouselProvider, Slider, Slide, ButtonBack, ButtonNext } from &#39;pure-react-carousel&#39;;
+    import &#39;pure-react-carousel/dist/react-carousel.es.css&#39;;
+     
+    export default class extends React.Component {
+      render() {
+        return (
+          &lt;CarouselProvider
+            naturalSlideWidth={100}
+            naturalSlideHeight={125}
+            totalSlides={3}
+          &gt;
+            &lt;Slider&gt;
+              &lt;Slide index={0}&gt;I am the first Slide.&lt;/Slide&gt;
+              &lt;Slide index={1}&gt;I am the second Slide.&lt;/Slide&gt;
+              &lt;Slide index={2}&gt;I am the third Slide.&lt;/Slide&gt;
+            &lt;/Slider&gt;
+          &lt;/CarouselProvider&gt;
+        );
+      }
+    }
+
+So my thinking was to use a preprocessor to format the div&#39;s of blockquote Gutenberg blog to format like a div above, then pull it into my testimonials component using HTML to react. I know that&#39;s probably not the right way of doing it, but what I&#39;m trying to achieve is the above code with how I implemented it below:
+
+my Testimonials component:
+
+    import React from &quot;react&quot;;
+    import { connect, styled } from &quot;frontity&quot;
+    import { CarouselProvider, Slider, Slide, ButtonBack, ButtonNext } from &#39;pure-react-carousel&#39;;
+    import &#39;pure-react-carousel/dist/react-carousel.es.css&#39;;
+
+    const Testimonial = ({ state, libraries }) =&gt; {
+
+        const data = state.source.get(&quot;/testimonials&quot;);
+        const quotes = state.source.page[data.id];
+        const Html2React = libraries.html2react.Component;
+
+          return (
+            &lt;ContactContainer&gt;
+                &lt;CarouselProvider
+                    naturalSlideWidth={100}
+                    naturalSlideHeight={125}
+                    totalSlides={4}
+                &gt;
+                    &lt;Slider&gt;
+                        
+                    &lt;Html2React html={quotes.content.rendered} /&gt;
+                    &lt;/Slider&gt;
+                    &lt;ButtonBack&gt;Back&lt;/ButtonBack&gt;
+                    &lt;ButtonNext&gt;Next&lt;/ButtonNext&gt;
+                &lt;/CarouselProvider&gt;
+            &lt;/ContactContainer&gt;
+        );
+    };
+
+    export default connect(Testimonial);
+
+    const ContactContainer = styled.div`
+        padding: 5px;
+    `
+
+my quotes preprocessor:
+
+    import React from &#39;react&#39;;
+    import { styled } from &quot;frontity&quot;;
+
+    const Quote = ({ quote, author}) =&gt; {
+        console.log(&#39;Quote&#39;)
+        console.log({ quote, author})
+        return (
+            &lt;Container&gt;
+                &lt;Blockquote&gt;
+                    &lt;h3&gt;&quot; {quote} &quot;&lt;/h3&gt;
+                    &lt;h4&gt;- {author} &lt;/h4&gt;
+                &lt;/Blockquote&gt;
+            &lt;/Container&gt;
+        )
+    }
+
+    const quote = {
+        name: &#39;quote&#39;,
+        priority: 20,
+        test: ({ component, props }) =&gt; component === &quot;blockquote&quot; &amp;&amp; props.className === &quot;wp-block-quote&quot;,
+        processor: ({ node }) =&gt; {
+            const quote = node.children[0].children[0].content
+            const author = node.children[1].children[0].content
+            return{
+                component: Quote,
+                props: { quote, author}
+            }
+        },
+    }
+
+    export default quote;
+
+    const Container = styled.div`
+        background: #f6f2ec;
+    `
+
+    const Blockquote = styled.div`
+        background: #153211;
+        border: 2px solid #ccb25c;
+        border-radius: 25px;
+        padding: 10px;
+        margin: 10px;
+        h3{
+            color: #ccb25c;
+            font-weight: 800;
+            font-style: italic;
+            font-size: 2rem;
+        }
+        h4{
+            color: #f6f2ec; 
+        }
+    `
+
+How can I break up the HTML into separate divs that are rendered in HTML to react to become separate divs to make this carousel usable?
+
+Currently, it seems that when I render the HTML, it renders the 4 divs generated from my quotes preprocessor as one giant div (which is why my slider only thinks there is only one slide?). I&#39;m trying to make each blockquote in the green boxes as its own slide. 
+
+![screencapture-guestrealty-o0bjkqfx6-vercel-app-2020-10-26-20_52_18|436x500](upload://lItumLJYyEHBjHzZ0i1WVhcmSQ.png)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 29 Oct 2020 16:33:21 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>HowTo? Pure React Carousel</title>
+        <dc:creator><![CDATA[chayce.solchaga]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/chris1337">@Chris1337</a></p>
+<p>Never ended up making that work for my testimonials, but I did get it to work for a different component - my custom post type archive where users can swipe through the different properties.</p>
+<p>I still had some trouble styling buttons in it so I just decided to put text to have users swipe but other than that happy with what I have. In the future if I could do this website over again, I would’ve probably worked with processors from the beginning - I think it would’ve made building this carousel much simpler.</p>
+<p>Here’s a link to show that carousels can work if you scroll all the way to the bottom of the page: <a href="https://guestrealty-7fygbb34u.vercel.app/sub/property-owners/" rel="noopener nofollow ugc">https://guestrealty-7fygbb34u.vercel.app/sub/property-owners/</a></p>
+<p>Once I finish my portfolio site, and implement a slider taking my previous experience from this site, I’ll post a tutorial so that way people can understand on how things should be set up on Wordpress and the Frontity side so its easier to understand some of the gotchas.</p>
+          <p><a href="https://community.frontity.org/t/howto-pure-react-carousel/3257/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/howto-pure-react-carousel/3257/7</link>
+        <pubDate>Thu, 29 Oct 2020 16:31:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3257-7</guid>
+        <source url="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss">HowTo? Pure React Carousel</source>
+      </item>
+      <item>
+        <title>HowTo? Pure React Carousel</title>
+        <dc:creator><![CDATA[Chris1337]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/chayce.solchaga">@chayce.solchaga</a></p>
+<p>didn’t know you actually use a processor for the quotes.<br>
+With the  <code>&lt;Slide&gt;</code> inside your processor you should be fine with rendering your quotes.</p>
+<pre><code class="lang-jsx">&lt;Slider&gt;                    
+    &lt;Html2React html={quotes.content.rendered} /&gt;
+&lt;/Slider&gt;
+</code></pre>
+<p>At least as long as <code>&lt;Html2React /&gt;</code> don’t create an additional div container around your quotes.<br>
+If so, you need to have an option to remove that div created by <code>&lt;Html2React /&gt;</code>.<br>
+But i actually don’t know.</p>
+<p>Kind regards<br>
+Chris</p>
+          <p><a href="https://community.frontity.org/t/howto-pure-react-carousel/3257/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/howto-pure-react-carousel/3257/6</link>
+        <pubDate>Tue, 27 Oct 2020 23:21:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3257-6</guid>
+        <source url="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss">HowTo? Pure React Carousel</source>
+      </item>
+      <item>
+        <title>HowTo? Pure React Carousel</title>
+        <dc:creator><![CDATA[chayce.solchaga]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/chris1337">@Chris1337</a><br>
+First of all, thank you for all the help! I truly appreciate it.</p>
+<p>When I console.log the following this is what happens:<br>
+console.log(quotes) - in the testimonial component:</p>
+<pre><code> {quotes: Proxy}
+quotes: Proxy
+[[Handler]]: Object
+[[Target]]: Object
+acf: []
+author: 1
+comment_status: "closed"
+content:
+protected: false
+rendered: "↵&lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;I love this&lt;/p&gt;&lt;cite&gt;Test user 1, Property Owner&lt;/cite&gt;&lt;/blockquote&gt;↵↵↵↵&lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;I love this also&lt;/p&gt;&lt;cite&gt;Test User 2&lt;/cite&gt;&lt;/blockquote&gt;↵↵↵↵&lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;I also love this. Great job!&lt;/p&gt;&lt;cite&gt;Test User 3, Guest at 33 Bronte&lt;/cite&gt;&lt;/blockquote&gt;↵↵↵↵&lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;This is the best comment ever&lt;/p&gt;&lt;cite&gt;Happy Renter, Aus&lt;/cite&gt;&lt;/blockquote&gt;↵"
+__proto__:
+constructor: ƒ Object()
+hasOwnProperty: ƒ hasOwnProperty()
+isPrototypeOf: ƒ isPrototypeOf()
+propertyIsEnumerable: ƒ propertyIsEnumerable()
+toLocaleString: ƒ toLocaleString()
+toString: ƒ toString()
+valueOf: ƒ valueOf()
+__defineGetter__: ƒ __defineGetter__()
+__defineSetter__: ƒ __defineSetter__()
+__lookupGetter__: ƒ __lookupGetter__()
+__lookupSetter__: ƒ __lookupSetter__()
+get __proto__: ƒ __proto__()
+set __proto__: ƒ __proto__()
+date: "2020-10-27T00:04:43"
+date_gmt: "2020-10-27T00:04:43"
+excerpt: {rendered: "&lt;p&gt;I love this Test user 1, Property Owner I love …s is the best comment ever Happy Renter, Aus&lt;/p&gt;↵", protected: false}
+featured_media: 0
+guid: {rendered: "https://guestrealty.co/?page_id=305"}
+id: 305
+link: "/testimonials/"
+menu_order: 0
+meta: []
+modified: "2020-10-27T01:42:59"
+modified_gmt: "2020-10-27T01:42:59"
+parent: 0
+ping_status: "closed"
+slug: "testimonials"
+status: "publish"
+template: ""
+title: {rendered: "Testimonials"}
+type: "page"
+_embedded: {author: Array(1)}
+_links: {self: Array(1), collection: Array(1), about: Array(1), author: Array(1), replies: Array(1), …}
+__proto__: Object
+[[IsRevoked]]: false
+__proto__: Object
+</code></pre>
+<p>When I console.log quotes.content - it throws an error.</p>
+<p>When I am inside of my quotes processor, I am console.logging quote and it returns the quote and author as specified from what I defined as quote in quotes:</p>
+<pre><code>import React from 'react';
+import { styled } from "frontity";
+import { Slide } from 'pure-react-carousel';
+import 'pure-react-carousel/dist/react-carousel.es.css';
+
+const Quote = ({ quote, author}) =&gt; {
+// Console.log's quote and author
+    console.log('Quote')
+    console.log({ quote, author})
+    return (
+        &lt;Slide&gt;  
+            &lt;Blockquote&gt;
+                &lt;h3&gt;" {quote} "&lt;/h3&gt;
+                &lt;h4&gt;- {author} &lt;/h4&gt;
+            &lt;/Blockquote&gt;
+        &lt;/Slide&gt;
+        
+    )
+}
+
+const quote = {
+    name: 'quote',
+    priority: 20,
+    test: ({ component, props }) =&gt; component === "blockquote" &amp;&amp; props.className === "wp-block-quote",
+    processor: ({ node }) =&gt; {
+// Where I defined quote and author
+        const quote = node.children[0].children[0].content
+        const author = node.children[1].children[0].content
+        return{
+            component: Quote,
+            props: { quote, author}
+        }
+    },
+}
+
+export default quote;
+</code></pre>
+<p>and resulting console.log:</p>
+<pre><code>Quote
+{quote: "I love this", author: "Test user 1, Property Owner"}
+author: "Test user 1, Property Owner"
+quote: "I love this"
+__proto__: Object
+Quote
+{quote: "I love this also", author: "Test User 2"}
+author: "Test User 2"
+quote: "I love this also"
+__proto__: Object
+Quote
+{quote: "I also love this. Great job!", author: "Test User 3, Guest at 33 Bronte"}
+author: "Test User 3, Guest at 33 Bronte"
+quote: "I also love this. Great job!"
+__proto__: Object
+Quote
+{quote: "This is the best comment ever", author: "Happy Renter, Aus"}
+author: "Happy Renter, Aus"
+quote: "This is the best comment ever"
+__proto__: Object</code></pre>
+          <p><a href="https://community.frontity.org/t/howto-pure-react-carousel/3257/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/howto-pure-react-carousel/3257/5</link>
+        <pubDate>Tue, 27 Oct 2020 17:41:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3257-5</guid>
+        <source url="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss">HowTo? Pure React Carousel</source>
+      </item>
+      <item>
+        <title>HowTo? Pure React Carousel</title>
+        <dc:creator><![CDATA[Chris1337]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/chayce.solchaga">@chayce.solchaga</a>,</p>
+<p>if you log <code>quotes</code> and <code>quotes.content</code>, what is the output?</p>
+<pre><code class="lang-js">console.log(quotes);
+console.log(quotes.content);
+</code></pre>
+<p>Kind regards<br>
+Chris</p>
+          <p><a href="https://community.frontity.org/t/howto-pure-react-carousel/3257/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/howto-pure-react-carousel/3257/4</link>
+        <pubDate>Tue, 27 Oct 2020 11:27:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3257-4</guid>
+        <source url="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss">HowTo? Pure React Carousel</source>
+      </item>
+      <item>
+        <title>HowTo? Pure React Carousel</title>
+        <dc:creator><![CDATA[chayce.solchaga]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/chris1337">@Chris1337</a> I totally didn’t even think to map.</p>
+<p>My next question is how do I format this to reach the children of content by each blockquote? I tried implementing a map and got the famous array.map is not a function error =(.</p>
+<p>This is how my data structure is coming in from content.rendered:</p>
+<pre><code>"
+    &lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;I love this&lt;/p&gt;&lt;cite&gt;Test user 1, Property Owner&lt;/cite&gt;&lt;/blockquote&gt;
+    &lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;I love this also&lt;/p&gt;&lt;cite&gt;Test User 2&lt;/cite&gt;&lt;/blockquote&gt;
+    &lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;I also love this. Great job!&lt;/p&gt;&lt;cite&gt;Test User 3, Guest at 33 Bronte&lt;/cite&gt;&lt;/blockquote&gt;
+    &lt;blockquote class="wp-block-quote"&gt;&lt;p&gt;This is the best comment ever&lt;/p&gt;&lt;cite&gt;Happy Renter, Aus&lt;/cite&gt;&lt;/blockquote&gt;
+"
+</code></pre>
+<p>And what I have now:</p>
+<pre><code>const Testimonial = ({ state, libraries }) =&gt; {
+    const data = state.source.get("/testimonials");
+    const quotes = state.source.page[data.id];
+    const Html2React = libraries.html2react.Component;
+      return (
+        &lt;ContactContainer&gt;
+            &lt;CarouselProvider
+                naturalSlideWidth={100}
+                naturalSlideHeight={125}
+                totalSlides={quotes.length}
+            &gt;
+            &lt;Slider&gt;
+            {quotes.map((quote, i) =&gt; (
+                &lt;Slide key={quote} index={i}&gt;
+                    &lt;Html2React html={quote.content.rendered} /&gt;
+                &lt;/Slide&gt;
+            ))}
+            &lt;/Slider&gt;
+            &lt;ButtonBack&gt;Back&lt;/ButtonBack&gt;
+            &lt;ButtonNext&gt;Next&lt;/ButtonNext&gt;
+            &lt;/CarouselProvider&gt;
+        &lt;/ContactContainer&gt;
+    );
+};</code></pre>
+          <p><a href="https://community.frontity.org/t/howto-pure-react-carousel/3257/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/howto-pure-react-carousel/3257/3</link>
+        <pubDate>Tue, 27 Oct 2020 06:02:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3257-3</guid>
+        <source url="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss">HowTo? Pure React Carousel</source>
+      </item>
+      <item>
+        <title>HowTo? Pure React Carousel</title>
+        <dc:creator><![CDATA[Chris1337]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi!</p>
+<p>As you can See in this quote, the slider/carousel you use needs this structure.</p>
+<aside class="quote no-group" data-username="chayce.solchaga" data-post="1" data-topic="3257">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/chayce.solchaga/40/1767_2.png" class="avatar"> chayce.solchaga:</div>
+<blockquote>
+<pre><code class="lang-javascript">&lt;Slider&gt;
+          &lt;Slide index={0}&gt;I am the first Slide.&lt;/Slide&gt;
+          &lt;Slide index={1}&gt;I am the second Slide.&lt;/Slide&gt;
+          &lt;Slide index={2}&gt;I am the third Slide.&lt;/Slide&gt;
+&lt;/Slider&gt;
+</code></pre>
+</blockquote>
+</aside>
+<p>Your actual code doesn’t use this required schema above.</p>
+<aside class="quote no-group" data-username="chayce.solchaga" data-post="1" data-topic="3257">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/chayce.solchaga/40/1767_2.png" class="avatar"> chayce.solchaga:</div>
+<blockquote>
+<pre><code class="lang-javascript">&lt;Slider&gt;                    
+          &lt;Html2React html={quotes.content.rendered} /&gt;
+&lt;/Slider&gt;
+</code></pre>
+</blockquote>
+</aside>
+<p>You need to wrap each slide item with the <code>&lt;Slide&gt;...&lt;/Slide&gt;</code> container.<br>
+See: <a href="https://www.npmjs.com/package/pure-react-carousel#slide-" rel="noopener nofollow ugc">https://www.npmjs.com/package/pure-react-carousel#slide-</a></p>
+<p>One option is to map your content Items.</p>
+<pre><code class="lang-js">qoutes.map((qoute, i) =&gt; (
+    &lt;Slide key={i} index={i}&gt;
+        &lt;Html2React html={quote.content.rendered} /&gt;
+    &lt;/Slide&gt;
+));
+</code></pre>
+<p>Something like this should work inside the <code>&lt;Slider&gt;...&lt;/Slider&gt;</code> Container.<br>
+I don’t know the structure of your data, so you eventually need to adjust the js map.</p>
+<p>And i would recommend you to <em>dynamically</em> set the <code>totalSlides</code> instead of setting this property static.<br>
+Because this value need to match with the real count of slides.<br>
+Something like <code>totalSlides={quotes.length}</code> should work.</p>
+<p>Kind regards<br>
+Chris</p>
+          <p><a href="https://community.frontity.org/t/howto-pure-react-carousel/3257/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/howto-pure-react-carousel/3257/2</link>
+        <pubDate>Tue, 27 Oct 2020 04:24:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3257-2</guid>
+        <source url="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss">HowTo? Pure React Carousel</source>
+      </item>
+      <item>
+        <title>HowTo? Pure React Carousel</title>
+        <dc:creator><![CDATA[chayce.solchaga]]></dc:creator>
+        <description><![CDATA[
+            <p>HEY!</p>
+<p>Cool thing I’m having trouble implementing and have no idea on how to approach this so ideas appreciated.</p>
+<p>I’m using <a href="https://www.npmjs.com/package/pure-react-carousel" rel="noopener nofollow ugc">Pure React Carousel</a> to add a swipeable carousel of “testimonials” of guests for a property management website.</p>
+<p>Here is the branch that’s deployed. As you can see, my testimonials component is on the very bottom: <a href="https://guestrealty-o0bjkqfx6.vercel.app/" rel="noopener nofollow ugc">https://guestrealty-o0bjkqfx6.vercel.app/</a></p>
+<p>Here is the branch its deployed to: <a href="https://github.com/guestrealtyco/guestrealty/tree/slider" rel="noopener nofollow ugc">Github Repo</a></p>
+<p>In the Carousel documentation,  to implement it seems all you have to do is the following:</p>
+<pre><code>import React from 'react';
+import { CarouselProvider, Slider, Slide, ButtonBack, ButtonNext } from 'pure-react-carousel';
+import 'pure-react-carousel/dist/react-carousel.es.css';
+ 
+export default class extends React.Component {
+  render() {
+    return (
+      &lt;CarouselProvider
+        naturalSlideWidth={100}
+        naturalSlideHeight={125}
+        totalSlides={3}
+      &gt;
+        &lt;Slider&gt;
+          &lt;Slide index={0}&gt;I am the first Slide.&lt;/Slide&gt;
+          &lt;Slide index={1}&gt;I am the second Slide.&lt;/Slide&gt;
+          &lt;Slide index={2}&gt;I am the third Slide.&lt;/Slide&gt;
+        &lt;/Slider&gt;
+      &lt;/CarouselProvider&gt;
+    );
+  }
+}
+</code></pre>
+<p>So my thinking was to use a preprocessor to format the div’s of blockquote Gutenberg blog to format like a div above, then pull it into my testimonials component using HTML to react. I know that’s probably not the right way of doing it, but what I’m trying to achieve is the above code with how I implemented it below:</p>
+<p>my Testimonials component:</p>
+<pre><code>import React from "react";
+import { connect, styled } from "frontity"
+import { CarouselProvider, Slider, Slide, ButtonBack, ButtonNext } from 'pure-react-carousel';
+import 'pure-react-carousel/dist/react-carousel.es.css';
+
+const Testimonial = ({ state, libraries }) =&gt; {
+
+    const data = state.source.get("/testimonials");
+    const quotes = state.source.page[data.id];
+    const Html2React = libraries.html2react.Component;
+
+      return (
+        &lt;ContactContainer&gt;
+            &lt;CarouselProvider
+                naturalSlideWidth={100}
+                naturalSlideHeight={125}
+                totalSlides={4}
+            &gt;
+                &lt;Slider&gt;
+                    
+                &lt;Html2React html={quotes.content.rendered} /&gt;
+                &lt;/Slider&gt;
+                &lt;ButtonBack&gt;Back&lt;/ButtonBack&gt;
+                &lt;ButtonNext&gt;Next&lt;/ButtonNext&gt;
+            &lt;/CarouselProvider&gt;
+        &lt;/ContactContainer&gt;
+    );
+};
+
+export default connect(Testimonial);
+
+const ContactContainer = styled.div`
+    padding: 5px;
+`
+</code></pre>
+<p>my quotes preprocessor:</p>
+<pre><code>import React from 'react';
+import { styled } from "frontity";
+
+const Quote = ({ quote, author}) =&gt; {
+    console.log('Quote')
+    console.log({ quote, author})
+    return (
+        &lt;Container&gt;
+            &lt;Blockquote&gt;
+                &lt;h3&gt;" {quote} "&lt;/h3&gt;
+                &lt;h4&gt;- {author} &lt;/h4&gt;
+            &lt;/Blockquote&gt;
+        &lt;/Container&gt;
+    )
+}
+
+const quote = {
+    name: 'quote',
+    priority: 20,
+    test: ({ component, props }) =&gt; component === "blockquote" &amp;&amp; props.className === "wp-block-quote",
+    processor: ({ node }) =&gt; {
+        const quote = node.children[0].children[0].content
+        const author = node.children[1].children[0].content
+        return{
+            component: Quote,
+            props: { quote, author}
+        }
+    },
+}
+
+export default quote;
+
+const Container = styled.div`
+    background: #f6f2ec;
+`
+
+const Blockquote = styled.div`
+    background: #153211;
+    border: 2px solid #ccb25c;
+    border-radius: 25px;
+    padding: 10px;
+    margin: 10px;
+    h3{
+        color: #ccb25c;
+        font-weight: 800;
+        font-style: italic;
+        font-size: 2rem;
+    }
+    h4{
+        color: #f6f2ec; 
+    }
+`
+</code></pre>
+<p>How can I break up the HTML into separate divs that are rendered in HTML to react to become separate divs to make this carousel usable?</p>
+<p>Currently, it seems that when I render the HTML, it renders the 4 divs generated from my quotes preprocessor as one giant div (which is why my slider only thinks there is only one slide?). I’m trying to make each blockquote in the green boxes as its own slide.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/0/02747683521c3af6581a614d5f51927f6930fd30.png" data-download-href="https://community.frontity.org/uploads/default/02747683521c3af6581a614d5f51927f6930fd30" title="screencapture-guestrealty-o0bjkqfx6-vercel-app-2020-10-26-20_52_18"><img src="https://community.frontity.org/uploads/default/optimized/2X/0/02747683521c3af6581a614d5f51927f6930fd30_2_436x500.png" alt="screencapture-guestrealty-o0bjkqfx6-vercel-app-2020-10-26-20_52_18" data-base62-sha1="lItumLJYyEHBjHzZ0i1WVhcmSQ" width="436" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/0/02747683521c3af6581a614d5f51927f6930fd30_2_436x500.png, https://community.frontity.org/uploads/default/optimized/2X/0/02747683521c3af6581a614d5f51927f6930fd30_2_654x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/0/02747683521c3af6581a614d5f51927f6930fd30_2_872x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/0/02747683521c3af6581a614d5f51927f6930fd30_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/howto-pure-react-carousel/3257/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/howto-pure-react-carousel/3257/1</link>
+        <pubDate>Tue, 27 Oct 2020 03:55:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3257-1</guid>
+        <source url="https://community.frontity.org/t/howto-pure-react-carousel/3257.rss">HowTo? Pure React Carousel</source>
+      </item>
+  </channel>
+</rss>

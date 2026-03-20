@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Error when deploying to now</title>
+    <link>https://community.frontity.org/t/error-when-deploying-to-now/1758</link>
+    <description>I&#39;m trying to deploy this project → https://github.com/frontity-demos/demo-custom-post-types
+to now by using `npx now --prod` from the root of the project
+
+I&#39;m getting this when trying to access to https://demo-cpt.now.sh/
+
+![Captura de pantalla 2020-05-06 a las 11.26.45|663x500](upload://7iZaQzSFTiG7cCYdlZR1jFa0HE1.png) 
+
+The logs I get from https://vercel.com/juanmaguitar/demo-cpt/mqf119kwz are these ones
+
+```
+11:22:51.912  Retrieving list of deployment files...
+11:22:52.088  Downloading 75 deployment files...
+11:22:54.723  Installing build runtime...
+11:22:56.067  Build runtime installed: 1343.500ms
+11:22:56.377  Looking up build cache...
+11:22:56.413  Build cache not found
+11:22:56.727  Downloading user files...
+11:23:07.477  &gt; core-js@2.6.11 postinstall /zeit/3b260983/node_modules/babel-polyfill/node_modules/core-js
+11:23:07.477  &gt; node -e &quot;try{require(&#39;./postinstall&#39;)}catch(e){}&quot;
+11:23:07.531  [96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+11:23:07.531  [96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+11:23:07.531  [96m&gt;[94m https://opencollective.com/core-js [0m
+11:23:07.531  [96m&gt;[94m https://www.patreon.com/zloirock [0m
+11:23:07.531  [96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+11:23:07.535  &gt; core-js@2.6.11 postinstall /zeit/3b260983/node_modules/babel-runtime/node_modules/core-js
+11:23:07.535  &gt; node -e &quot;try{require(&#39;./postinstall&#39;)}catch(e){}&quot;
+11:23:07.588  &gt; core-js@3.6.5 postinstall /zeit/3b260983/node_modules/core-js
+11:23:07.588  &gt; node -e &quot;try{require(&#39;./postinstall&#39;)}catch(e){}&quot;
+11:23:07.635  &gt; ejs@2.7.4 postinstall /zeit/3b260983/node_modules/ejs
+11:23:07.635  &gt; node ./postinstall.js
+11:23:07.681  Thank you for installing [35mEJS[0m: built with the [32mJake[0m JavaScript build tool ([32mhttps://jakejs.com/[0m)
+11:23:08.210  npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.12 (node_modules/fsevents):
+11:23:08.210  npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.12: wanted {&quot;os&quot;:&quot;darwin&quot;,&quot;arch&quot;:&quot;any&quot;} (current: {&quot;os&quot;:&quot;linux&quot;,&quot;arch&quot;:&quot;x64&quot;})
+11:23:08.212  added 798 packages from 539 contributors in 10.631s
+11:23:08.525  15 packages are looking for funding
+11:23:08.525    run `npm fund` for details
+11:23:08.551  Running &quot;build&quot; script in &quot;package.json&quot;
+11:23:08.552  Running &quot;npm run build&quot;
+11:23:08.727  &gt; demo-cpt@1.0.0 build /zeit/3b260983
+11:23:08.727  &gt; frontity build
+11:23:09.438  mode: production
+11:23:09.505  Building es5 bundle
+11:23:22.591  Building module bundle
+11:23:29.718  Building server bundle
+11:23:40.522  Finished.
+11:23:41.355  Uploading build outputs...
+11:23:44.065  Done with &quot;package.json&quot;
+```
+
+Any clues?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 06 May 2020 16:01:02 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/error-when-deploying-to-now/1758.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Error when deploying to now</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes I think the problem is the REST API is taking too long to respond, and as that version contained this code</p>
+<p><strong><code>packages/twentytwenty-theme/src/index.js</code></strong></p>
+<pre><code class="lang-javascript">...
+const twentyTwentyTheme = {
+  name: "@frontity/twentytwenty-theme",
+  roots: { ... },
+  state: { ... },
+  actions: {
+    theme: {
+      ...,
+      beforeSSR: async ({ actions }) =&gt; {
+        await actions.source.fetch(`/comics_post/`)
+      }
+    },
+  },
+  libraries: {...}
+};
+
+export default twentyTwentyTheme;
+</code></pre>
+<p>This was causing the server to spend more than 10s to respond which makes <strong>Vercel</strong> servers to cut the connection and trigger this <code>Task timed out</code> error</p>
+<p>By moving that logic to the client, the request is done from the client side so no more <code>timed out</code> errors on the server</p>
+<p><strong><code>packages/twentytwenty-theme/src/components/sub-header-comics.js</code></strong></p>
+<pre><code class="lang-javascript">import React, {useState, useEffect} from "react";
+import { connect, styled } from "frontity";
+import Link from "./link";
+
+const ComicsSubHeader = ({ state, actions }) =&gt; {
+  const { comics_post } = state.source;
+  const { headerBg } = state.theme.colors;
+ 
+  useEffect(() =&gt; {
+    async function fetchData() {
+      await actions.source.fetch(`/comics_post/`)
+    }
+    fetchData();
+  })
+  
+  const ComicsBar = ({comics}) =&gt; (&lt;&gt;
+    &lt;TitleGroup&gt;
+      &lt;SiteTitle&gt;
+        &lt;StyledLink link="/comics_post"&gt;Comics:&lt;/StyledLink&gt;
+      &lt;/SiteTitle&gt;
+    &lt;/TitleGroup&gt;
+
+    {
+      comics &amp;&amp; Object.keys(comics)
+        .map(key =&gt; comics[key])
+        .map(({title, link}, index) =&gt; {
+          return (
+            &lt;Link key={index} link={link}&gt;{title.rendered}&lt;/Link&gt;
+          )
+        })
+    }
+   &lt;/&gt;)
+
+  return (
+    &lt;PageHeader bg={headerBg} id="site-header"&gt;
+      &lt;HeaderInner&gt;
+       { comics_post ? &lt;ComicsBar comics={comics_post}/&gt; : &lt;p&gt;Loading comics...&lt;/p&gt;}
+      &lt;/HeaderInner&gt;
+    &lt;/PageHeader&gt;
+  );
+};
+
+export default connect(ComicsSubHeader);
+
+...
+</code></pre>
+<p>Here’s the updated repo &amp; deployed demo:</p>
+<ul>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/earth_americas.png?v=9" title=":earth_americas:" class="emoji" alt=":earth_americas:"> demo →  <a href="https://demo-cpt.now.sh/">https://demo-cpt.now.sh/</a>
+</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/octopus.png?v=9" title=":octopus:" class="emoji" alt=":octopus:"> repo → <a href="https://github.com/frontity-demos/demo-custom-post-types">https://github.com/frontity-demos/demo-custom-post-types</a>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/error-when-deploying-to-now/1758/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/error-when-deploying-to-now/1758/7</link>
+        <pubDate>Wed, 06 May 2020 15:43:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1758-7</guid>
+        <source url="https://community.frontity.org/t/error-when-deploying-to-now/1758.rss">Error when deploying to now</source>
+      </item>
+      <item>
+        <title>Error when deploying to now</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By looking at the logs the error seems a timeout at 10 seconds.</p>
+<p>That WordPress took 8 seconds to respond in my local computer for this request:</p>
+<pre><code class="lang-bash">https://13millonesdenaves.com/wp-json/wp/v2/posts?_embed=true
+</code></pre>
+<p>So maybe it’s just timing out.</p>
+<p>Check if you can rise the timeout time in Now or ask the person to install the <a href="https://wordpress.org/plugins/wp-rest-cache/">REST API Cache plugin</a> in his/her wordpress.</p>
+          <p><a href="https://community.frontity.org/t/error-when-deploying-to-now/1758/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/error-when-deploying-to-now/1758/6</link>
+        <pubDate>Wed, 06 May 2020 14:08:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1758-6</guid>
+        <source url="https://community.frontity.org/t/error-when-deploying-to-now/1758.rss">Error when deploying to now</source>
+      </item>
+      <item>
+        <title>Error when deploying to now</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m trying to deploy this project → <a href="https://github.com/frontity-demos/demo-custom-post-types">https://github.com/frontity-demos/demo-custom-post-types</a><br>
+to now by using <code>npx now --prod</code> from the root of the project</p>
+<p>I’m getting this when trying to access to <a href="https://demo-cpt.now.sh/">https://demo-cpt.now.sh/</a></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/3334a9036630de3d825644b05114b1914811ba1d.png" data-download-href="https://community.frontity.org/uploads/default/3334a9036630de3d825644b05114b1914811ba1d" title="Captura de pantalla 2020-05-06 a las 11.26.45"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/3334a9036630de3d825644b05114b1914811ba1d_2_663x500.png" alt="Captura de pantalla 2020-05-06 a las 11.26.45" data-base62-sha1="7iZaQzSFTiG7cCYdlZR1jFa0HE1" width="663" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/3334a9036630de3d825644b05114b1914811ba1d_2_663x500.png, https://community.frontity.org/uploads/default/original/2X/3/3334a9036630de3d825644b05114b1914811ba1d.png 1.5x, https://community.frontity.org/uploads/default/original/2X/3/3334a9036630de3d825644b05114b1914811ba1d.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/3334a9036630de3d825644b05114b1914811ba1d_2_10x10.png"></a></div><p></p>
+<p>The logs I get from <a href="https://vercel.com/juanmaguitar/demo-cpt/mqf119kwz">https://vercel.com/juanmaguitar/demo-cpt/mqf119kwz</a> are these ones</p>
+<pre><code class="lang-javascript">11:22:51.912  Retrieving list of deployment files...
+11:22:52.088  Downloading 75 deployment files...
+11:22:54.723  Installing build runtime...
+11:22:56.067  Build runtime installed: 1343.500ms
+11:22:56.377  Looking up build cache...
+11:22:56.413  Build cache not found
+11:22:56.727  Downloading user files...
+11:23:07.477  &gt; core-js@2.6.11 postinstall /zeit/3b260983/node_modules/babel-polyfill/node_modules/core-js
+11:23:07.477  &gt; node -e "try{require('./postinstall')}catch(e){}"
+11:23:07.531  e[96mThank you for using core-js (e[94m https://github.com/zloirock/core-js e[96m) for polyfilling JavaScript standard library!e[0m
+11:23:07.531  e[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: e[0m
+11:23:07.531  e[96m&gt;e[94m https://opencollective.com/core-js e[0m
+11:23:07.531  e[96m&gt;e[94m https://www.patreon.com/zloirock e[0m
+11:23:07.531  e[96mAlso, the author of core-js (e[94m https://github.com/zloirock e[96m) is looking for a good job -)e[0m
+11:23:07.535  &gt; core-js@2.6.11 postinstall /zeit/3b260983/node_modules/babel-runtime/node_modules/core-js
+11:23:07.535  &gt; node -e "try{require('./postinstall')}catch(e){}"
+11:23:07.588  &gt; core-js@3.6.5 postinstall /zeit/3b260983/node_modules/core-js
+11:23:07.588  &gt; node -e "try{require('./postinstall')}catch(e){}"
+11:23:07.635  &gt; ejs@2.7.4 postinstall /zeit/3b260983/node_modules/ejs
+11:23:07.635  &gt; node ./postinstall.js
+11:23:07.681  Thank you for installing e[35mEJSe[0m: built with the e[32mJakee[0m JavaScript build tool (e[32mhttps://jakejs.com/e[0m)
+11:23:08.210  npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.12 (node_modules/fsevents):
+11:23:08.210  npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.12: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})
+11:23:08.212  added 798 packages from 539 contributors in 10.631s
+11:23:08.525  15 packages are looking for funding
+11:23:08.525    run `npm fund` for details
+11:23:08.551  Running "build" script in "package.json"
+11:23:08.552  Running "npm run build"
+11:23:08.727  &gt; demo-cpt@1.0.0 build /zeit/3b260983
+11:23:08.727  &gt; frontity build
+11:23:09.438  mode: production
+11:23:09.505  Building es5 bundle
+11:23:22.591  Building module bundle
+11:23:29.718  Building server bundle
+11:23:40.522  Finished.
+11:23:41.355  Uploading build outputs...
+11:23:44.065  Done with "package.json"
+</code></pre>
+<p>Any clues?</p>
+          <p><a href="https://community.frontity.org/t/error-when-deploying-to-now/1758/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/error-when-deploying-to-now/1758/1</link>
+        <pubDate>Wed, 06 May 2020 09:29:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1758-1</guid>
+        <source url="https://community.frontity.org/t/error-when-deploying-to-now/1758.rss">Error when deploying to now</source>
+      </item>
+  </channel>
+</rss>

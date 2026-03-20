@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Custom handler for postsPage not working... Why?</title>
+    <link>https://community.frontity.org/t/custom-handler-for-postspage-not-working-why/5282</link>
+    <description>&lt;!-- 
+
+Are you asking about &quot;how to solve a specific issue/error/problem in your Frontity project&quot;?
+
+If so, please check this guide on the information we suggest you include in your topic so the community (and the Frontity team) can provide the best possible help as quickly and as efficiently as possible
+
+https://community.frontity.org/t/about-the-dev-talk-questions-category/2/3
+
+The info you may provide:
+- Description of your issue
+- Specific errors you’re getting in the terminal or in the browser’s console
+- A repository with the code of your project
+- A deployed version of your site
+- The URL of your WP REST API
+
+--&gt;
+
+I need to create a custom handler to fetch info from my custom WP-REST api endpoint. I have done this before. Actually, this worked, but as soon as I changed the pattern to &quot;/blog&quot; (so info would be added to `postsPage`), the handler isn&#39;t being even evaluated. I have tried changing the priority and the pattern. I&#39;m logging the data received, and it seems to me everything is on its place but handler still not working.
+
+I created a brand new project with the necessary code for evaluation. Here is the repository url:
+
+https://github.com/JasonS09/test-frontity-theme
+
+Here you can see snippets of the code:
+
+/src/handlers/categories.js, where I export the handler. `Console.log` is never fired.
+```
+const categories = {
+    name: &#39;categories&#39;,
+
+    priority: 10,
+
+    pattern: &#39;/blog&#39;,
+
+    func: async ({link, libraries, state}) =&gt; {
+        console.log(&#39;Being handled&#39;) /*I should see this on console*/
+        const response = await libraries.source.api.get({
+            endpoint: &#39;/jasonsegnini/v1/categories/&#39;
+        })
+
+        const categories = await response.json()
+
+        Object.assign(state.source.data[link], {
+           categories: categories
+        })
+    }
+}
+
+export default categories
+```
+The index.js:
+
+```
+import Root from &quot;./components&quot;
+import categories from &quot;./handlers/categories&quot;
+
+const myFirstTheme = {
+  name: &quot;test-theme&quot;,
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {},
+  },
+  actions: {
+    theme: {
+      init: ({libraries}) =&gt;
+        libraries.source.handlers.push(categories),
+
+      beforeSSR: async ({state, actions}) =&gt;
+        await actions.source.fetch(state.source.postsPage) /*postsPage is /blog, same as the handler&#39;s pattern*/
+    },
+  },
+}
+
+export default myFirstTheme
+```
+The theme settings:
+
+```
+const settings = {
+  &quot;name&quot;: &quot;test-project&quot;,
+  &quot;state&quot;: {
+    &quot;frontity&quot;: {
+      &quot;url&quot;: &quot;https://test.frontity.org&quot;,
+      &quot;title&quot;: &quot;Test Frontity Blog&quot;,
+      &quot;description&quot;: &quot;WordPress installation for Frontity development&quot;
+    }
+  },
+  &quot;packages&quot;: [
+    {
+      &quot;name&quot;: &quot;test-theme&quot;
+    },
+    {
+      &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+      &quot;state&quot;: {
+        &quot;source&quot;: {
+          &quot;url&quot;: &quot;https://jasonsegnini.com/&quot;,
+          &quot;homepage&quot;: &quot;/home&quot;,
+          &quot;postsPage&quot;: &quot;/blog&quot;
+        }
+      }
+    },
+    &quot;@frontity/tiny-router&quot;,
+    &quot;@frontity/html2react&quot;
+  ]
+};
+
+export default settings;
+```
+
+The root component for testing (/src/components/index.js):
+
+```
+import {connect} from &quot;frontity&quot;;
+
+const Root = ({state}) =&gt; {
+  const data = state.source.get(state.source.postsPage)
+  console.log(state.source.postsPage) /*Output: /blog*/
+  const items = data.categories
+  console.log(items) /*undefined*/
+
+    return (
+      &lt;&gt;
+        You can edit your package in:
+        &lt;pre&gt;packages\test-theme\src\index.js&lt;/pre&gt;
+      &lt;/&gt;
+    );
+  };
+
+  export default connect(Root)
+```
+
+Take into account that issue doesn&#39;t seem to be happening inside the handler as console.log isn&#39;t outputting anything. In theory, this should work, right? Or am I missing something?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 16 Sep 2021 12:45:22 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/custom-handler-for-postspage-not-working-why/5282.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Custom handler for postsPage not working... Why?</title>
+        <dc:creator><![CDATA[segninijason]]></dc:creator>
+        <description><![CDATA[
+            <p>I need to create a custom handler to fetch info from my custom WP-REST api endpoint. I have done this before. Actually, this worked, but as soon as I changed the pattern to “/blog” (so info would be added to <code>postsPage</code>), the handler isn’t being even evaluated. I have tried changing the priority and the pattern. I’m logging the data received, and it seems to me everything is on its place but handler still not working.</p>
+<p>I created a brand new project with the necessary code for evaluation. Here is the repository url:</p>
+<aside class="onebox allowlistedgeneric" data-onebox-src="https://github.com/JasonS09/test-frontity-theme">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+
+      <a href="https://github.com/JasonS09/test-frontity-theme" target="_blank" rel="noopener nofollow ugc">GitHub</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/345;"><img src="https://community.frontity.org/uploads/default/optimized/2X/d/d7deac512e7296a6df5f2d40d0996a2b6e581702_2_690x345.png" class="thumbnail" width="690" height="345" srcset="https://community.frontity.org/uploads/default/optimized/2X/d/d7deac512e7296a6df5f2d40d0996a2b6e581702_2_690x345.png, https://community.frontity.org/uploads/default/optimized/2X/d/d7deac512e7296a6df5f2d40d0996a2b6e581702_2_1035x517.png 1.5x, https://community.frontity.org/uploads/default/original/2X/d/d7deac512e7296a6df5f2d40d0996a2b6e581702.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/d/d7deac512e7296a6df5f2d40d0996a2b6e581702_2_10x10.png"></div>
+
+<h3><a href="https://github.com/JasonS09/test-frontity-theme" target="_blank" rel="noopener nofollow ugc">GitHub - JasonS09/test-frontity-theme</a></h3>
+
+  <p>Contribute to JasonS09/test-frontity-theme development by creating an account on GitHub.</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>Here you can see snippets of the code:</p>
+<p>/src/handlers/categories.js, where I export the handler. <code>Console.log</code> is never fired.</p>
+<pre><code class="lang-javascript">const categories = {
+    name: 'categories',
+
+    priority: 10,
+
+    pattern: '/blog',
+
+    func: async ({link, libraries, state}) =&gt; {
+        console.log('Being handled') /*I should see this on console*/
+        const response = await libraries.source.api.get({
+            endpoint: '/jasonsegnini/v1/categories/'
+        })
+
+        const categories = await response.json()
+
+        Object.assign(state.source.data[link], {
+           categories: categories
+        })
+    }
+}
+
+export default categories
+</code></pre>
+<p>The index.js:</p>
+<pre><code class="lang-javascript">import Root from "./components"
+import categories from "./handlers/categories"
+
+const myFirstTheme = {
+  name: "test-theme",
+  roots: {
+    theme: Root,
+  },
+  state: {
+    theme: {},
+  },
+  actions: {
+    theme: {
+      init: ({libraries}) =&gt;
+        libraries.source.handlers.push(categories),
+
+      beforeSSR: async ({state, actions}) =&gt;
+        await actions.source.fetch(state.source.postsPage) /*postsPage is /blog, same as the handler's pattern*/
+    },
+  },
+}
+
+export default myFirstTheme
+</code></pre>
+<p>The theme settings:</p>
+<pre><code class="lang-javascript">const settings = {
+  "name": "test-project",
+  "state": {
+    "frontity": {
+      "url": "https://test.frontity.org",
+      "title": "Test Frontity Blog",
+      "description": "WordPress installation for Frontity development"
+    }
+  },
+  "packages": [
+    {
+      "name": "test-theme"
+    },
+    {
+      "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "url": "https://jasonsegnini.com/",
+          "homepage": "/home",
+          "postsPage": "/blog"
+        }
+      }
+    },
+    "@frontity/tiny-router",
+    "@frontity/html2react"
+  ]
+};
+
+export default settings;
+</code></pre>
+<p>The root component for testing (/src/components/index.js):</p>
+<pre><code class="lang-javascript">import {connect} from "frontity";
+
+const Root = ({state}) =&gt; {
+  const data = state.source.get(state.source.postsPage)
+  console.log(state.source.postsPage) /*Output: /blog*/
+  const items = data.categories
+  console.log(items) /*undefined*/
+
+    return (
+      &lt;&gt;
+        You can edit your package in:
+        &lt;pre&gt;packages\test-theme\src\index.js&lt;/pre&gt;
+      &lt;/&gt;
+    );
+  };
+
+  export default connect(Root)
+</code></pre>
+<p>Take into account that issue doesn’t seem to be happening inside the handler as console.log isn’t outputting anything. In theory, this should work, right? Or am I missing something?</p>
+          <p><a href="https://community.frontity.org/t/custom-handler-for-postspage-not-working-why/5282/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-handler-for-postspage-not-working-why/5282/1</link>
+        <pubDate>Thu, 16 Sep 2021 12:45:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5282-1</guid>
+        <source url="https://community.frontity.org/t/custom-handler-for-postspage-not-working-why/5282.rss">Custom handler for postsPage not working... Why?</source>
+      </item>
+  </channel>
+</rss>

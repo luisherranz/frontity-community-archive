@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Title tag not updated when using the head-tags package</title>
+    <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151</link>
+    <description>Can I ask a question
+
+Why title is not updated with page name ?
+
+![image|690x342](upload://k0A2d5SHMvgA5MJ5owF3cB2VfGT.png)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 09 Jul 2020 19:51:36 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/david">@David</a> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>Thank you very much David for your support. I added this one and it works! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+<aside class="quote group-dev-team" data-username="David" data-post="23" data-topic="1151" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>To let WordPress add the <code>&lt;title&gt;</code> tag, a theme should execute the following code:</p>
+<pre><code class="lang-php">function theme_slug_setup() {
+  add_theme_support( 'title-tag' );
+}
+add_action( 'after_setup_theme', 'theme_slug_setup' );
+</code></pre>
+</blockquote>
+</aside>
+<p>Best,<br>
+Dejan</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/24">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/24</link>
+        <pubDate>Thu, 09 Jul 2020 19:51:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-24</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi again, <a class="mention" href="https://community.frontity.org/u/dejangeorgiev">@dejangeorgiev</a> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>What the REST API - Head Tags plugin does is to simply parse the HTML the <code>wp_head</code> action generates for each entity and adds the result to the <code>head_tags</code> fields. If the title tag doesn’t appear, that means it wasn’t gererated during the execution of <code>wp_head</code> action.</p>
+<p>Regarding how to add the <code>&lt;title&gt;</code> tag, there are two types of WordPress themes:</p>
+<ul>
+<li>Those which let WordPress to add it automatically</li>
+<li>Those which add it themselves</li>
+</ul>
+<p>To let WordPress add the <code>&lt;title&gt;</code> tag, a theme should execute the following code:</p>
+<pre><code class="lang-php">function theme_slug_setup() {
+  add_theme_support( 'title-tag' );
+}
+add_action( 'after_setup_theme', 'theme_slug_setup' );
+</code></pre>
+<p>That way, WordPress will render the title when the <code>wp_head</code> action is called. The function in charge of doing so is <code>_wp_render_title_tag</code> (defined in <a href="https://github.com/WordPress/WordPress/blob/master/wp-includes/general-template.php#L1232-L1238">wp-includes/general-template.php</a>) which is added to the <code>wp_head</code> hook in the <a href="https://github.com/WordPress/WordPress/blob/master/wp-includes/default-filters.php#L282">wp-includes/default-filters.php</a> file.</p>
+<p>That’s the ideal solution, but if you don’t want WordPress to add the title automatically, the theme would have to add it somewhere (in functions.php, for example):</p>
+<pre><code class="lang-php">function theme_slug_render_title() {
+  echo '&lt;title&gt;' . wp_title( '|', true, 'right' ) . '&lt;/title&gt;' . "\n";
+}
+
+add_action( 'wp_head', 'theme_slug_render_title' );
+</code></pre>
+<p>Any of these options should work.</p>
+<p>Try it out and let us know. <img src="https://community.frontity.org/images/emoji/apple/wink.png?v=9" title=":wink:" class="emoji" alt=":wink:"></p>
+<hr>
+<p>PS: Do not forget to clear the plugin cache right after! <img src="https://community.frontity.org/images/emoji/apple/warning.png?v=9" title=":warning:" class="emoji" alt=":warning:"></p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/23">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/23</link>
+        <pubDate>Thu, 09 Jul 2020 13:35:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-23</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>hi <a class="mention" href="https://community.frontity.org/u/david">@David</a></p>
+<p>I use a fully custom developed theme. Yes, i had the <code>&lt;title&gt;</code> tag and <code>wp_head()</code> in <code>header.php</code> but now i removed the <code>title</code> tag. Still can’t see it in Head Tags…</p>
+<p>Thanks for your help.<br>
+Best,<br>
+Dejan</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/22</link>
+        <pubDate>Wed, 08 Jul 2020 19:33:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-22</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a></p>
+<p>Yes, i confirm i use the Head Tags plugin.</p>
+<p>Yes, i get title when i use the WP Theme. Do you think this might be the issue?</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/21</link>
+        <pubDate>Wed, 08 Jul 2020 19:24:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-21</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/dejangeorgiev">@dejangeorgiev</a>, I checked your site and I can confirm that <code>title</code> tags are not included in the REST API response using our Head Tags plugin. It is strange because all other tags are there and they are fine.</p>
+<p>What theme are you using in the WordPress site (<a href="https://admin.ruthgeorgiev.com">https://admin.ruthgeorgiev.com</a>)? Maybe is it generating the <code>&lt;title&gt;</code> tag in a different hook than <code>wp_head</code>?</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/20</link>
+        <pubDate>Wed, 08 Jul 2020 12:12:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-20</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dejangeorgiev">@dejangeorgiev</a></p>
+<p>Just to confirm, you <strong>are</strong> using the Head Tags plugin on your WordPress site, yes?</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://s.w.org/favicon.ico?2" class="site-icon" width="32" height="32">
+      <a href="https://wordpress.org/plugins/rest-api-head-tags/" target="_blank">WordPress.org</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/223;"><img src="https://community.frontity.org/uploads/default/original/2X/1/1b50c2647241bd65e456968f194984a91f82a00f.png" class="thumbnail" width="690" height="223" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/1/1b50c2647241bd65e456968f194984a91f82a00f_2_10x10.png"></div>
+
+<h3><a href="https://wordpress.org/plugins/rest-api-head-tags/" target="_blank">REST API – Head Tags</a></h3>
+
+<p>Adds all the meta tags of the head section to WordPress REST API responses, including the ones generated by SEO plugins like Yoast or All in One SEO.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>If you open your site using the WP theme, i.e. not Frontity, do you get the <code>&lt;title&gt;</code> in the <code>&lt;head&gt;</code> there?</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/17</link>
+        <pubDate>Wed, 08 Jul 2020 08:35:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-17</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a></p>
+<p>Well, not sure if i explained the issue very well in my previous comment.<br>
+The thing is, i don’t get the value of the title that i add in Yoast SEO. (see Screenshots)<br>
+This is the title in Yoast:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/d/db1ff8d7b20aa62e35ae8937840c43f71ce223ea.png" data-download-href="https://community.frontity.org/uploads/default/db1ff8d7b20aa62e35ae8937840c43f71ce223ea" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/d/db1ff8d7b20aa62e35ae8937840c43f71ce223ea_2_685x500.png" alt="image" data-base62-sha1="vgt44YyARiypgTrgNaL1DLcrDJw" width="685" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/d/db1ff8d7b20aa62e35ae8937840c43f71ce223ea_2_685x500.png, https://community.frontity.org/uploads/default/original/2X/d/db1ff8d7b20aa62e35ae8937840c43f71ce223ea.png 1.5x, https://community.frontity.org/uploads/default/original/2X/d/db1ff8d7b20aa62e35ae8937840c43f71ce223ea.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/d/db1ff8d7b20aa62e35ae8937840c43f71ce223ea_2_10x10.png"></a></div><p></p>
+<p>This is what i get in the console (note that i override the title currently), but when i don’t do that, i get an empty title tag. Thus i can’t find the title tag into <code>head_tags</code> (see Screenshot from the developer console)<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/9/95e06d7e3fe12971e81c6c7b2aa3c79a8906e113.png" data-download-href="https://community.frontity.org/uploads/default/95e06d7e3fe12971e81c6c7b2aa3c79a8906e113" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/9/95e06d7e3fe12971e81c6c7b2aa3c79a8906e113_2_690x413.png" alt="image" data-base62-sha1="lnRYAwmT3AMRkJ9LhIAFpaoMi9t" width="690" height="413" srcset="https://community.frontity.org/uploads/default/optimized/2X/9/95e06d7e3fe12971e81c6c7b2aa3c79a8906e113_2_690x413.png, https://community.frontity.org/uploads/default/optimized/2X/9/95e06d7e3fe12971e81c6c7b2aa3c79a8906e113_2_1035x619.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/9/95e06d7e3fe12971e81c6c7b2aa3c79a8906e113_2_1380x826.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/9/95e06d7e3fe12971e81c6c7b2aa3c79a8906e113_2_10x10.png"></a></div><p></p>
+<p>So, for clarification, currently i use “<code>./page-meta-title</code>” because i don’t want the title tag to be empty, but i can completely ignore this component if there is another solution from where i can get the Yoast SEO title in the “<code>head_tags</code>”</p>
+<p>Hope you get my point. <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"><br>
+Thank you very much for your support.<br>
+Best,<br>
+Dejan</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/16</link>
+        <pubDate>Tue, 07 Jul 2020 19:26:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-16</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dejangeorgiev">@dejangeorgiev</a></p>
+<p>In your <code>index.js</code> file you have this import line:</p>
+<p><code>import MetaTitle from "./page-meta-title";</code></p>
+<p>which I think should be either:</p>
+<p><code>import Title from "./page-meta-title";</code></p>
+<p>and then you would use <code>&lt;Title /&gt;</code> on line 39, or if you want to keep line 39 as <code>&lt;MetaTitle/&gt;</code> then:</p>
+<p><code>import Title as MetaTitle from "./page-meta-title";</code></p>
+<p>Let me know if this fixes the problem.</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/14</link>
+        <pubDate>Tue, 07 Jul 2020 16:47:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-14</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>I have the same issue and i use twentytwenty theme. I have overwritten the title as i didn’t found any other solution.</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/dejangeorgiev/ruthgeorgiev-frontity/blob/master/packages/twentytwenty-theme/src/components/page-meta-title.js" target="_blank" rel="nofollow noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/dejangeorgiev/ruthgeorgiev-frontity/blob/master/packages/twentytwenty-theme/src/components/page-meta-title.js" target="_blank" rel="nofollow noopener">dejangeorgiev/ruthgeorgiev-frontity/blob/master/packages/twentytwenty-theme/src/components/page-meta-title.js</a></h4>
+<pre><code class="lang-js">import React, {useEffect} from "react";
+import {Head, connect, decode} from "frontity";
+
+const Title = ({state, actions}) =&gt; {
+    // Get data about the current URL.
+    const data = state.source.get(state.router.link);
+    // Set the default title.
+    let title = state.frontity.title;
+    // Set the default description.
+    let description = state.frontity.description;
+
+    if (data.isTaxonomy) {
+        // Add titles to taxonomies, like "Category: Italian - Blog Name" or "Tag: Asian - Blog Name".
+        // 1. Get the taxonomy entity from the state to get its taxonomy term and name.
+        const {taxonomy, name} = state.source[data.taxonomy][data.id];
+        // 2. Uppercase first letter of the taxonomy term (from "category" to "Category").
+        const taxonomyCapitalized =
+            taxonomy.charAt(0).toUpperCase() + taxonomy.slice(1);
+        // 3. Render the proper title.
+        title = `${taxonomyCapitalized}: ${decode(name)} - ${state.frontity.title}`;
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/dejangeorgiev/ruthgeorgiev-frontity/blob/master/packages/twentytwenty-theme/src/components/page-meta-title.js" target="_blank" rel="nofollow noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Can you please help on how can i use the <code>&lt;title /&gt;</code> tag from Yoast e.g. <code>head_tags</code></p>
+<p>Thank you very much for your support.<br>
+Best,<br>
+Dejan</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/9</link>
+        <pubDate>Mon, 06 Jul 2020 19:23:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-9</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, that’s the problem. The head-tags plugin adds the tags found in the <code>&lt;head&gt;</code> of your WordPress. If there is no <code>&lt;title&gt;</code> tag, then it won’t show any.</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/8</link>
+        <pubDate>Wed, 29 Jan 2020 16:24:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-8</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[modyydom]]></dc:creator>
+        <description><![CDATA[
+            <p>no theme also <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/7</link>
+        <pubDate>Tue, 28 Jan 2020 20:33:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-7</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="5" data-topic="1151">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/m/edb3f5/40.png" class="avatar"> modyydom:</div>
+<blockquote>
+<p>No SEO plugins</p>
+</blockquote>
+</aside>
+<p>Without SEO plugins, the <code>title</code> should be populated by your theme. What theme are you using?</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/6</link>
+        <pubDate>Tue, 28 Jan 2020 19:28:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-6</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[modyydom]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="2" data-topic="1151">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Is that happening for every page or just a few? In what kind of pages?</p>
+</blockquote>
+</aside>
+<p>for every page, post, category and …etc</p>
+<aside class="quote group-development-team" data-post="2" data-topic="1151">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>What packages are installed in your project? (paste the output of running <code>npx frontity info</code> )</p>
+</blockquote>
+</aside>
+<pre><code>
+## System:
+ - OS: Windows 10 10.0.18362
+ - CPU: (8) x64 Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
+ - Memory: 1.18 GB / 15.89 GB
+## Binaries:
+ - Node: 12.13.1 - C:\Program Files\nodejs\node.EXE
+ - npm: 6.11.3 - C:\Program Files\nodejs\npm.CMD
+## Browsers:
+ - Edge: 44.18362.449.0
+ - Internet Explorer: 11.0.18362.1
+## npmPackages:
+ - bootstrap: ^4.4.1 =&gt; 4.4.1 
+ - frontity: ^1.4.4 =&gt; 1.4.4 
+ - frontity-contact-form-7: ^0.1.4 =&gt; 0.1.4 
+ - prop-types: ^15.7.2 =&gt; 15.7.2 
+ - react: ^16.12.0 =&gt; 16.12.0 
+ - react-select: ^3.0.8 =&gt; 3.0.8 
+ - react-slick: ^0.25.2 =&gt; 0.25.2 
+ - react-spinners: ^0.8.0 =&gt; 0.8.0 
+ - react-spring: ^8.0.27 =&gt; 8.0.27 
+ - slick-carousel: ^1.8.1 =&gt; 1.8.1 
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+
+</code></pre>
+<aside class="quote group-development-team" data-post="2" data-topic="1151">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Did you set any value for <code>state.frontity.title</code> in your <code>frontity.settings.js</code> file?<br>
+Have you set any value for  <code>state.frontity.url</code>  in your  <code>frontity.settings.js</code>  file?</p>
+</blockquote>
+</aside>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/6d5737b2ab545eea6ba6de464b30ac0e6d0da468.png" data-download-href="https://community.frontity.org/uploads/default/6d5737b2ab545eea6ba6de464b30ac0e6d0da468" title="image"><img src="https://community.frontity.org/uploads/default/original/1X/6d5737b2ab545eea6ba6de464b30ac0e6d0da468.png" alt="image" data-base62-sha1="fBgUeK11uWdWYd89CdfZScTufOg" width="690" height="134" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/6d5737b2ab545eea6ba6de464b30ac0e6d0da468_2_10x10.png"></a></div><p></p>
+<aside class="quote group-development-team" data-post="2" data-topic="1151">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>What SEO plugin are you using in your WordPress?</p>
+</blockquote>
+</aside>
+<p>No SEO plugins</p>
+<p>thank you for you attention <img src="https://community.frontity.org/images/emoji/apple/star_struck.png?v=9" title=":star_struck:" class="emoji" alt=":star_struck:"></p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/5</link>
+        <pubDate>Tue, 28 Jan 2020 17:10:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-5</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[modyydom]]></dc:creator>
+        <description><![CDATA[
+            <p>As you can see that head_tags doesn’t have title tag<br>
+<img src="https://community.frontity.org/uploads/default/original/1X/53ea0fcd1c39a7d154975860d611dc5b1289c48c.png" alt="image" data-base62-sha1="bYl6vwYhW2RUbxz3zhR8qA71Me0" width="343" height="242"></p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/4</link>
+        <pubDate>Tue, 28 Jan 2020 17:04:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-4</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Do you have a <code>&lt;title&gt;&lt;/title&gt;</code>  tag in your theme somewhere? It could be that your are overriding the one that the head-tags package is creating.</p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/3</link>
+        <pubDate>Tue, 28 Jan 2020 12:46:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-3</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="1" data-topic="1151">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/m/edb3f5/40.png" class="avatar"> modyydom:</div>
+<blockquote>
+<p>Why title is not updated with page name ?</p>
+</blockquote>
+</aside>
+<p>Uhm, we need to answer some questions before:</p>
+<ul>
+<li>Is that happening for every page or just a few? In what kind of pages?</li>
+<li>What packages are installed in your project? (paste the output of running <code>npx frontity info</code>)</li>
+<li>Did you set any value for <code>state.frontity.title</code> in your <code>frontity.settings.js</code> file?</li>
+<li>Have you set any value for <code>state.frontity.url</code> in your <code>frontity.settings.js</code> file?</li>
+<li>What SEO plugin are you using in your WordPress?</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/2</link>
+        <pubDate>Tue, 28 Jan 2020 09:50:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-2</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+      <item>
+        <title>Title tag not updated when using the head-tags package</title>
+        <dc:creator><![CDATA[modyydom]]></dc:creator>
+        <description><![CDATA[
+            <p>Can I ask a question</p>
+<p>Why title is not updated with page name ?</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/8c3c4c84d7d8679d0c3f37025b57c68afdde46d7.png" alt="image" data-base62-sha1="k0A2d5SHMvgA5MJ5owF3cB2VfGT" width="690" height="342"></p>
+          <p><a href="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151/1</link>
+        <pubDate>Mon, 27 Jan 2020 22:47:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1151-1</guid>
+        <source url="https://community.frontity.org/t/title-tag-not-updated-when-using-the-head-tags-package/1151.rss">Title tag not updated when using the head-tags package</source>
+      </item>
+  </channel>
+</rss>

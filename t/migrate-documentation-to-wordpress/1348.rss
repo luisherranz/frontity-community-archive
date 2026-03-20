@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Migrate documentation to WordPress</title>
+    <link>https://community.frontity.org/t/migrate-documentation-to-wordpress/1348</link>
+    <description>
+## Description
+
+Right now our documentation is on GitBook. We want to change it mainly becasue of two things:
+
+1. We don&#39;t want to limit collaboration to only those who know how to write markdown and use git.
+2. We want to use Frontity in the front-end to have total control over our documentation and at the same time demonstrate to other Frontity users how it can be done.
+
+For this reasons we are going to migrate our documentation to WordPress and allow any person to login and suggest changes to our documentation using the Gutenberg block editor.
+
+## User Stories
+
+&gt; As a **Frontity non-techincal contributor**
+&gt; I want to **collaborate with the documentation**
+&gt; so that **I can add value to the community even though I don&#39;t know how to code**
+
+## Possible solutions
+
+### Allow anyone to login
+
+This part is already working thanks to our integration of both the community and our WordPress with a SSO of Auth0.
+
+### Allow people to submit reviews
+
+These are the normal WordPress user roles:
+
+- **Subscriber** - No edit rights
+- **Contributor** - Submit them for review posts created by themselves
+- **Author** - Publish posts created by themselves
+- **Editor** - Edit and publish posts created by anyone
+
+We need to either modify one of those or add a new user role to allow them to submit reviews for any post, not only those created by themselves.
+
+After that, we need to make sure they can submit reviews. I&#39;m not sure how good is WordPress at this because there are some external plugins as well:
+
+- https://versionpress.com/
+- https://wordpress.org/plugins/revisionize/
+- https://wordpress.org/plugins/revision-manager-tmc/
+- https://wordpress.org/plugins/revisionary/
+
+It&#39;d be nice to also have the possibility to share those drafts externally, with something like:
+
+- https://wordpress.org/plugins/public-post-preview/
+- https://wordpress.org/plugins/simple-preview/
+
+All those plugins are only example, I haven&#39;t done an extensive research.
+
+### Adding doc changes to our pull requests
+
+Most of the times we do a PR we need to include changes to our documentation. Right now we are creating a new draft and adding the link to the PR. It works fine for us but has many limitations:
+
+- The draft cannot be seen publicly for external developers.
+- The draft cannot be created by external developers.
+- Changes are external to git, not included in the PR.
+
+We need to find a way to add, or at least reference those database-based changes in the PRs. These are a couple of ideas:
+
+1. Export the modified posts:
+   - Pull the DB in your local WP installation (maybe using something like https://wordpress.org/plugins/wp-migrate-db/).
+   - Modify the relevant posts and save them.
+   - Export them using the WP export tool.
+   - Commit the XML file in your PR.
+2. Add the WP database to git:
+   - Keep the database (or part of it) in sync with the `dev` branch of our repositories.
+   - In your PR, use a `npm` command to spin up a local WP with that DB (similar to what we are going to do for e2e tests: https://github.com/luisherranz/wordpress-e2e-testing).
+   - Modify the relevant posts.
+   - Use a `npm` command to save the database to disk.
+   - Commit the database changes.
+
+This has the added benefit that we can solve merge conflicts between different post reviews using git, although I don&#39;t know how good is WordPress itself at that or if it is even supported.
+
+### Managing different versions
+
+It&#39;d be nice to be able to maintain documentation for different versions, like 1.0, 2.0 and so on.
+
+But we have to keep in mind that we cannot do it with a dropdown to select the version, like most libraries do, because we don&#39;t have a single version. Each of our packages can be versioned independiently, so our system should accomodate that.
+
+One possible solution would be to add a custom field with the version and a custom field that references to older versions for that post. If that is present, a dropdown appears in that post linking to the old post. Each time we release a new major version we rename the old post, for example from `wp-source` to `wp-source-v1` and we create a new post `wp-source` with the custom field populated with a reference to `wp-source-v1`.
+
+### Supporting different languages
+
+It&#39;d be nice to allow people to translate our documentation to different languages. There are many ways to do so right now, so I won&#39;t propose anything specific here.
+
+Besides that, Gutenberg will officially support localization in the future, so we may just wait until then.
+
+### Gutenberg blocks
+
+We can create blocks for different things that are common in the documentation:
+
+- Code blocks
+- Codesandbox embeds
+- Warnings
+- Deprecation notices
+
+---
+
+Feel free to keep adding possible solutions or more things we should take into consideration.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 16 Apr 2020 07:25:52 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/migrate-documentation-to-wordpress/1348.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Migrate documentation to WordPress</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h2>Description</h2>
+<p>Right now our documentation is on GitBook. We want to change it mainly becasue of two things:</p>
+<ol>
+<li>We don’t want to limit collaboration to only those who know how to write markdown and use git.</li>
+<li>We want to use Frontity in the front-end to have total control over our documentation and at the same time demonstrate to other Frontity users how it can be done.</li>
+</ol>
+<p>For this reasons we are going to migrate our documentation to WordPress and allow any person to login and suggest changes to our documentation using the Gutenberg block editor.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity non-techincal contributor</strong><br>
+I want to <strong>collaborate with the documentation</strong><br>
+so that <strong>I can add value to the community even though I don’t know how to code</strong></p>
+</blockquote>
+<h2>Possible solutions</h2>
+<h3>Allow anyone to login</h3>
+<p>This part is already working thanks to our integration of both the community and our WordPress with a SSO of Auth0.</p>
+<h3>Allow people to submit reviews</h3>
+<p>These are the normal WordPress user roles:</p>
+<ul>
+<li>
+<strong>Subscriber</strong> - No edit rights</li>
+<li>
+<strong>Contributor</strong> - Submit them for review posts created by themselves</li>
+<li>
+<strong>Author</strong> - Publish posts created by themselves</li>
+<li>
+<strong>Editor</strong> - Edit and publish posts created by anyone</li>
+</ul>
+<p>We need to either modify one of those or add a new user role to allow them to submit reviews for any post, not only those created by themselves.</p>
+<p>After that, we need to make sure they can submit reviews. I’m not sure how good is WordPress at this because there are some external plugins as well:</p>
+<ul>
+<li><a href="https://versionpress.com/">https://versionpress.com/</a></li>
+<li><a href="https://wordpress.org/plugins/revisionize/">https://wordpress.org/plugins/revisionize/</a></li>
+<li><a href="https://wordpress.org/plugins/revision-manager-tmc/">https://wordpress.org/plugins/revision-manager-tmc/</a></li>
+<li><a href="https://wordpress.org/plugins/revisionary/">https://wordpress.org/plugins/revisionary/</a></li>
+</ul>
+<p>It’d be nice to also have the possibility to share those drafts externally, with something like:</p>
+<ul>
+<li><a href="https://wordpress.org/plugins/public-post-preview/">https://wordpress.org/plugins/public-post-preview/</a></li>
+<li><a href="https://wordpress.org/plugins/simple-preview/">https://wordpress.org/plugins/simple-preview/</a></li>
+</ul>
+<p>All those plugins are only example, I haven’t done an extensive research.</p>
+<h3>Adding doc changes to our pull requests</h3>
+<p>Most of the times we do a PR we need to include changes to our documentation. Right now we are creating a new draft and adding the link to the PR. It works fine for us but has many limitations:</p>
+<ul>
+<li>The draft cannot be seen publicly for external developers.</li>
+<li>The draft cannot be created by external developers.</li>
+<li>Changes are external to git, not included in the PR.</li>
+</ul>
+<p>We need to find a way to add, or at least reference those database-based changes in the PRs. These are a couple of ideas:</p>
+<ol>
+<li>Export the modified posts:
+<ul>
+<li>Pull the DB in your local WP installation (maybe using something like <a href="https://wordpress.org/plugins/wp-migrate-db/">https://wordpress.org/plugins/wp-migrate-db/</a>).</li>
+<li>Modify the relevant posts and save them.</li>
+<li>Export them using the WP export tool.</li>
+<li>Commit the XML file in your PR.</li>
+</ul>
+</li>
+<li>Add the WP database to git:
+<ul>
+<li>Keep the database (or part of it) in sync with the <code>dev</code> branch of our repositories.</li>
+<li>In your PR, use a <code>npm</code> command to spin up a local WP with that DB (similar to what we are going to do for e2e tests: <a href="https://github.com/luisherranz/wordpress-e2e-testing">https://github.com/luisherranz/wordpress-e2e-testing</a>).</li>
+<li>Modify the relevant posts.</li>
+<li>Use a <code>npm</code> command to save the database to disk.</li>
+<li>Commit the database changes.</li>
+</ul>
+</li>
+</ol>
+<p>This has the added benefit that we can solve merge conflicts between different post reviews using git, although I don’t know how good is WordPress itself at that or if it is even supported.</p>
+<h3>Managing different versions</h3>
+<p>It’d be nice to be able to maintain documentation for different versions, like 1.0, 2.0 and so on.</p>
+<p>But we have to keep in mind that we cannot do it with a dropdown to select the version, like most libraries do, because we don’t have a single version. Each of our packages can be versioned independiently, so our system should accomodate that.</p>
+<p>One possible solution would be to add a custom field with the version and a custom field that references to older versions for that post. If that is present, a dropdown appears in that post linking to the old post. Each time we release a new major version we rename the old post, for example from <code>wp-source</code> to <code>wp-source-v1</code> and we create a new post <code>wp-source</code> with the custom field populated with a reference to <code>wp-source-v1</code>.</p>
+<h3>Supporting different languages</h3>
+<p>It’d be nice to allow people to translate our documentation to different languages. There are many ways to do so right now, so I won’t propose anything specific here.</p>
+<p>Besides that, Gutenberg will officially support localization in the future, so we may just wait until then.</p>
+<h3>Gutenberg blocks</h3>
+<p>We can create blocks for different things that are common in the documentation:</p>
+<ul>
+<li>Code blocks</li>
+<li>Codesandbox embeds</li>
+<li>Warnings</li>
+<li>Deprecation notices</li>
+</ul>
+<hr>
+<p>Feel free to keep adding possible solutions or more things we should take into consideration.</p>
+          <p><a href="https://community.frontity.org/t/migrate-documentation-to-wordpress/1348/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/migrate-documentation-to-wordpress/1348/1</link>
+        <pubDate>Tue, 10 Mar 2020 08:36:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1348-1</guid>
+        <source url="https://community.frontity.org/t/migrate-documentation-to-wordpress/1348.rss">Migrate documentation to WordPress</source>
+      </item>
+  </channel>
+</rss>

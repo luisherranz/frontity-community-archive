@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Frontity CLI - Create command - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="Collection of ideas on what we need to do with the frontity create command and how we are going to implement it. 
+Contraints
+
+Support for Node v8.10.
+Support for Linux, macOS and Windows.
+When using npx it shouldn’t down&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/frontity-cli-create-command/143" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Frontity CLI - Create command&#39;" href="/t/frontity-cli-create-command/143.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/frontity-cli-create-command/143" />
+<meta name="twitter:url" content="/t/frontity-cli-create-command/143" />
+<meta property="og:title" content="Frontity CLI - Create command" />
+<meta name="twitter:title" content="Frontity CLI - Create command" />
+<meta property="og:description" content="Collection of ideas on what we need to do with the frontity create command and how we are going to implement it.  Contraints  Support for Node v8.10. Support for Linux, macOS and Windows. When using npx it shouldn’t download anything but frontity. (e.g. @frontity/core)  Create app Command frontity create [options] [name]  User stories   ✅ - As a developer, I want to generate a new app inside a new directory named by me.  ✅ - As a developer, I want to generate a ..." />
+<meta name="twitter:description" content="Collection of ideas on what we need to do with the frontity create command and how we are going to implement it.  Contraints  Support for Node v8.10. Support for Linux, macOS and Windows. When using npx it shouldn’t download anything but frontity. (e.g. @frontity/core)  Create app Command frontity create [options] [name]  User stories   ✅ - As a developer, I want to generate a new app inside a new directory named by me.  ✅ - As a developer, I want to generate a ..." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="3 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="3 ❤" />
+<meta property="article:published_time" content="2019-04-08T12:56:18+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/frontity-cli-create-command/143?page=2">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Frontity CLI - Create command","mainEntity":{"@type":"Question","name":"Frontity CLI - Create command","text":"Collection of ideas on what we need to do with the frontity create command and how we are going to implement it.\n\nContraints\n\nSupport for Node v8.10.\n\nSupport for Linux, macOS and Windows.\n\nWhen using npx it shouldn’t download anything but frontity. (e.g. @frontity/core)\n\nCreate app\n\nCommand\n\nfrontity c&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2019-04-08T12:56:18.536Z","author":{"@type":"Person","name":"Eduardo Campaña"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/frontity-cli-create-command/143">Frontity CLI - Create command</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Frontity CLI - Create command'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-08T12:56:18Z' class='post-time'>
+                    8 April 2019 12:56
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-17T10:55:28Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>Collection of ideas on what we need to do with the <code>frontity create</code> command and how we are going to implement it.</p>
+<h2>Contraints</h2>
+<ul>
+<li>Support for <strong>Node v8.10</strong>.</li>
+<li>Support for <strong>Linux</strong>, <strong>macOS</strong> and <strong>Windows</strong>.</li>
+<li>When using <code>npx</code> it shouldn’t download anything but <code>frontity</code>. (e.g. <code>@frontity/core</code>)</li>
+</ul>
+<h2>Create app</h2>
+<h3>Command</h3>
+<pre><code class="lang-nohighlight">frontity create [options] [name]
+</code></pre>
+<h3>User stories</h3>
+<ul>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to generate a new app inside a new directory named by me.</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to generate a new app in my current directory if the directory is empty or is a new GitHub repo.</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to generate a new app with TypeScript support.</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to use <code>frontity create</code> and get prompts about the initial setup of my app.</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I also want to use <code>frontity create</code> programmatically (e.g. <code>import { create } from "frontity"</code>).</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, if the command throws, I want it to undo any work done to that point.</li>
+</ul>
+<h3>Parameters</h3>
+<ul>
+<li>
+<code>name</code> (optional)<br>
+A name for the app.</li>
+</ul>
+<h3>Options</h3>
+<ul>
+<li>
+<code>-t</code>, <code>--typescript</code><br>
+The app will be configured to use TypeScript.</li>
+<li>
+<code>-c</code>, <code>--use-cwd</code><br>
+The app will be generated in the current working directory</li>
+</ul>
+<h3>Result</h3>
+<p>A directory with the following structure:</p>
+<pre><code class="lang-nohighlight">my-project/
+|__ node_modules/
+|__ packages/
+|   |__ mars-theme/
+|__ package.json
+|__ frontity.settings.(js|ts)
+|__ tsconfig.json ?
+</code></pre>
+<h3>Steps</h3>
+<ol>
+<li>Validate and parse options.</li>
+<li>Ensure that the directory exists and is empty.</li>
+<li>Generate a <code>package.json</code> file.</li>
+<li>Generate a <code>frontity.settings.js</code> file. (<code>frontity.settinigs.ts</code> if <code>--typescript</code> options is passed)</li>
+<li>Create a <code>packages/</code> directory and clone <code>@frontity/mars-theme</code> inside it.</li>
+<li>Install dependencies.</li>
+<li>On error: Revert progress.</li>
+</ol>
+<h2>Create package</h2>
+<h3>Command</h3>
+<pre><code class="lang-nohighlight">frontity create-package [options] [name]
+</code></pre>
+<h3>User stories</h3>
+<ul>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> - As a developer, I want to generate an environment ready to start developing my package.</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> - As a developer, I want to generate an environment ready to use with TypeScript.</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> - As a developer, I want to generate a new package in an existent Frontity app.</li>
+</ul>
+<h3>Result</h3>
+<p>I’m guessing that the directory structure for packages would be the same as with apps, but I’m not sure. In this case, the important code is inside the package folder, and it should be a git repo. Maybe we should avoid to create a git repo on the root directory.</p>
+<p>A scenario that crosses my mind is when we are developing a package, we save the code of that package on Github, but we had some custom config in the root directory to help with development, and that config won’t be saved in Github. To restore that setup with just a command would be desirable but not possible. How can we approach this?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/create-frontity-project-in-current-folder/1351">Create frontity project in current folder</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/development-micro-updates-or-whos-working-on-what/45">:white_check_mark: Beta Roadmap &amp; Progress</a>
+                        <meta itemprop='position' content='2'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-09T12:21:10Z' class='post-time'>
+                    9 April 2019 12:21
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-09T14:10:57Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>What do you prefer for create app and create package?</p>
+<div class="poll" data-poll-status="open" data-poll-results="on_vote" data-poll-type="regular" data-poll-name="poll">
+<div>
+<div class="poll-container">
+<ul>
+<li data-poll-option-id="dd029dd2c9dc30710b2289e617104246">Two different commands</li>
+<li data-poll-option-id="fa6db8df7bbd6a6b52e2f5f10c757288">One command with --package option</li>
+</ul>
+</div>
+<div class="poll-info">
+<p>
+<span class="info-number">0</span>
+<span class="info-label">voters</span>
+</p>
+</div>
+</div>
+</div>
+<p>If you have any other suggestion please write them below.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-09T12:23:02Z' class='post-time'>
+                    9 April 2019 12:23
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-09T12:23:02Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/luisherranz">@luisherranz</a> <a class="mention" href="/u/david">@david</a> let me know what you think, if I’m missing something (probably) and if you have any other ideas on how <code>frontity create</code> should work <img src="/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-09T15:16:02Z' class='post-time'>
+                    9 April 2019 15:16
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-09T15:16:02Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Great work. I think it’s a great plan.</p>
+<p>Just a design note: we need to make sure our APIS can be used in three levels:</p>
+<ol>
+<li>Programmatic, passing <code>options</code> (i.e, using node <code>require</code>)</li>
+<li>CLI, using user input.</li>
+<li>CLI, passing <code>args</code>.</li>
+</ol>
+<p>So, instead of coding <code>frontity create</code> only for the cli it should work first like:</p>
+<pre><code class="lang-javascript">import { create } from 'frontity';
+
+const options = { typescript: true };
+
+create(options);
+</code></pre>
+<p>Use it with cli and args:</p>
+<pre><code class="lang-bash">&gt; frontity create --typescript 
+</code></pre>
+<p>And finally with no args, using a library of questions like <a href="https://www.npmjs.com/package/inquirer" rel="nofollow noopener">inquirer</a>.</p>
+<pre><code class="lang-bash">&gt; frontity create
+
+- What is the name of the folder?
+/my-app
+- Do you want to use typescript? [Y/n]
+
+</code></pre>
+<p>The cli obviously uses the programmatic code underneath.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-09T15:19:35Z' class='post-time'>
+                    9 April 2019 15:19
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-09T15:19:35Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I hadn’t think of the programmatic way. I’ll add it to the post.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-09T15:22:50Z' class='post-time'>
+                    9 April 2019 15:22
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-09T15:22:50Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I think it’s a good pattern and provides the tool to do the Frontity Admin in the future and makes it “hackable” to others. The “cli with args” option is also good for things like travis and whatnot.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-10T06:46:38Z' class='post-time'>
+                    10 April 2019 06:46
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-10T06:46:38Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Yeah, great work, <a class="mention" href="/u/orballo">@orballo</a>!</p>
+<p>Regarding on how to create apps or packages, I think it’s best to use two different commands, even if you haven’t created an app first you won’t be able to use <code>frontity create-package</code>.</p>
+<p>I mean, it makes sense to create an app and be able to add one or more packages to that app, develop them in the same project and then, with another command, publish them separately in npm.</p>
+<p>Something like:</p>
+<pre><code class="lang-bash">&gt; frontity create my-app
+&gt; frontity create-package my-pkg
+&gt; frontity publish my-pkg
+</code></pre>
+<p>What do you think?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-10T09:02:18Z' class='post-time'>
+                    10 April 2019 09:02
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-10T09:16:06Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I didn’t see it that way. Maybe we could support both ways. What worries me here, is how the repos are going to be used.</p>
+<p>If I have an app, I’d like to have a repo with everything, not just my custom package. But maybe I’d like to also have a repo for my custom package (e.g. my theme).</p>
+<p>If what I’m doing is to develop a package for the community, I don’t care about the app repo, I’d only want to save the package and that’s gonna be my repo. But, there are some configs in the app that I use for development that would be worth saving, and I’d be loosing them. I don’t know how to make all of this to work together.</p>
+<p>I thought about a file called <code>frontity.development.js</code> inside my package, or something like that, to store the settings I need in the app to develop my package, and them another user could just <code>frontity clone-package git@github.com:my/package</code> and generate the whole environment ready to run <code>frontity dev</code> and start coding.</p>
+<p>I actually don’t know if all this trouble is really necessary or I’m just overthinking it <img src="/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>PS: Two commands wins!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-11T08:02:30Z' class='post-time'>
+                    11 April 2019 08:02
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-11T08:02:30Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Would it make sense to add an option called <code>--now</code> that would generate also a <code>now.json</code> file?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-11T08:39:54Z' class='post-time'>
+                    11 April 2019 08:39
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-11T08:39:54Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="9" data-topic="143" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Would it make sense to add an option called <code>--now</code> that would generate also a <code>now.json</code> file?</p>
+</blockquote>
+</aside>
+<p><code>now</code> is going to be only one of the possible ways to deploy Frontity so I wouldn’t add anything specific to the cli.</p>
+<aside class="quote group-development-team" data-post="8" data-topic="143">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>If what I’m doing is to develop a package for the community, I don’t care about the app repo, I’d only want to save the package and that’s gonna be my repo. But, there are some configs in the app that I use for development that would be worth saving, and I’d be loosing them. I don’t know how to make all of this to work together.</p>
+</blockquote>
+</aside>
+<p>My take on this is: the dev creates the theme/extension inside a “Frontity project”, not in a separate project.</p>
+<pre><code class="lang-bash">my-custom-theme-project/
+|__ .git/
+|__ node_modules/
+|__ packages/
+    |__ my-custom-theme/ # &lt;- the dev wants to publish only this
+          |__ package.json
+          |__ src/
+|__ package.json
+|__ frontity.settings.js
+</code></pre>
+<p>When the theme/extension is ready to be published, the dev simply uses <code>frontity publish my-custom-theme</code> and the cli does the magic. The themes/extensions already need a <code>package.json</code> file: they are ready to be published in <code>npm</code>.</p>
+<p>The <code>frontity publish</code> command only checks things like if the <code>keywords</code> are right (as suggested by <a class="mention" href="/u/david">@David</a> a while ago).</p>
+<p>Regarding git, the devs can choose if they want to keep a “Frontity project git” (which I think it should be our recommendation), create a git submodule or only use git inside <code>my-custom-theme</code>:</p>
+<pre><code class="lang-bash">my-custom-theme-project/
+|__ node_modules/
+|__ packages/
+    |__ my-custom-theme/
+          |__ .git/
+          |__ package.json
+          |__ src/
+|__ package.json
+|__ frontity.settings.js
+</code></pre>
+<p>For that reason, we need to “clone” packages from npm and not from github:</p>
+<aside class="quote group-development-team" data-post="8" data-topic="143">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>user could just <code>frontity clone-package git@github.com:my/package</code></p>
+</blockquote>
+</aside>
+<p>So, it looks like we need naming for:</p>
+<pre><code class="lang-bash">&gt; frontity create my-app
+&gt; frontity create-package my-pkg
+&gt; frontity publish-package my-pkg
+&gt; frontity clone-package other-pkg
+</code></pre>
+<p>Maybe we can name <code>create</code> so we don’t have to name with <code>-package</code> the rest:</p>
+<pre><code class="lang-bash">&gt; frontity create-app my-app
+&gt; frontity create my-pkg
+&gt; frontity publish my-pkg
+&gt; frontity clone other-pkg
+</code></pre>
+<p><code>frontity create</code> could fail gracefully if the dev is not in a Frontity project folder and suggest to use <code>create-app</code> instead.</p>
+<p>I don’t quite like <code>clone</code> much because it may be confusing (we won’t add the <code>.git</code> folder).</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-15T08:47:36Z' class='post-time'>
+                    15 April 2019 08:47
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-15T08:47:36Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, I’ll be updating the first post with any changes I come up with during development and the ideas you are posting here.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-24T11:55:07Z' class='post-time'>
+                    24 April 2019 11:55
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-24T11:55:07Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/luisherranz">@luisherranz</a> once we have <code>dev</code>, <code>build</code> and <code>serve</code> in <code>frontity</code>, do we still need those commands to run in <code>@frontity/core</code>? I mean as scripts in its <code>package.json</code>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-24T11:56:14Z' class='post-time'>
+                    24 April 2019 11:56
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-24T11:56:14Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>No, we can use <code>frontity dev</code> and so on everywhere.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-29T09:39:28Z' class='post-time'>
+                    29 April 2019 09:39
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-29T09:39:28Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It’d be interesting to think about the settings of  <code>wp-source</code>:</p>
+<ul>
+<li>Give the user the default settings populated, like <code>{ api: "https://test.frontity.io/wp-json/" }</code>.</li>
+<li>Ask the user about those settings in the <code>create</code>.</li>
+</ul>
+<p>And any other setting that needs to be set so the app works.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-03T18:02:51Z' class='post-time'>
+                    3 May 2019 18:02
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-03T18:02:51Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a href="https://vadimdemedes.com/posts/creating-clis-with-ink-react-and-a-bit-of-magic" class="onebox" target="_blank" rel="nofollow noopener">https://vadimdemedes.com/posts/creating-clis-with-ink-react-and-a-bit-of-magic</a></p>
+<p>I like the idea of doing the CLI with React.</p>
+<p>What do you think <a class="mention" href="/u/orballo">@orballo</a>?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-06T09:12:45Z' class='post-time'>
+                    6 May 2019 09:12
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-06T09:12:45Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I think I’d love to try it out <img src="/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-06T09:29:07Z' class='post-time'>
+                    6 May 2019 09:29
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-06T09:29:07Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Maybe next week after the beta is out?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-07T10:11:40Z' class='post-time'>
+                    7 May 2019 10:11
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-07T10:11:40Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I really like the final <code>frontity create</code>! I think it’s really good, maybe we don’t need to invest more time now on it right now and we should focus on other important stuff.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-07T11:58:39Z' class='post-time'>
+                    7 May 2019 11:58
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-07T11:58:39Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Yup. After the beta we can try <code>pastel</code> and <code>ink</code>, and also implement the <code>create-package</code> function.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/frontity-cli-create-command/143">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-08T07:19:59Z' class='post-time'>
+                    8 May 2019 07:19
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-08T07:19:59Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>If we transpile the typescript code to javascript, it cannot access the <code>frontity.settings.ts</code> file.</p>
+<p>So either we:</p>
+<ol>
+<li>Don’t transpile the <code>frontity</code> code and run it using <code>ts-node</code>.</li>
+<li>Transpile <code>frontity.settings.ts</code> with <code>tsc</code> before Frontity starts.</li>
+</ol>
+<p><a class="mention" href="/u/orballo">@orballo</a> can you take a look at it?</p>
+<p>I think I’ll try the first one first. <code>ts-node</code> has a programmatic option: <a href="https://github.com/TypeStrong/ts-node#programmatic" rel="nofollow noopener">https://github.com/TypeStrong/ts-node#programmatic</a>.</p>
+<ul>
+<li>It can work with <code>require('ts-node').register()</code> inside the code</li>
+<li>It can work with <code>node -r ts-node/register</code> in the command line.</li>
+</ul>
+<p>EDIT: Uh, and it has a <code>transpile-only</code> option <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/frontity-cli-create-command/143?page=2">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

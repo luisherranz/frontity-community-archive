@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>WordPress &amp; Frontity in the same repository</title>
+    <link>https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813</link>
+    <description>I&#39;d like to start discussing our recommendation to combine Frontity and WordPress in the same repo.
+
+Of course, people can do what they please, but I think having an &quot;official recommendation&quot; would be great to standardize it a bit.
+
+My first idea was to recommend keeping Frontity in the `/wp-content/frontity` folder, like this:
+
+```plain
+/wp-content
+  /plugins
+  /themes
+  /frontity
+    package.json
+    frontity.settings.js
+    packages/...
+```
+
+But I don&#39;t think that&#39;s the best idea anymore, because it could compromise security. If people do the build in the same server, the server bundle will be exposed in the `/wp-content/frontity/build/server.js` file, accessible from the Internet, and could leak a secret if people don&#39;t use env variables.
+
+The other idea is to add Frontity at the root:
+
+```plain
+/wp-content
+  /plugins
+  /themes
+  ...
+/frontity
+    package.json
+    frontity.settings.js
+    packages/...
+```
+
+But my afraid is that having Frontity in the root may lead to permission problems in some hostings, but I&#39;m not sure about it.
+
+**Is there a place where the write permissions are granted but it&#39;s not exposed?**</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 27 May 2021 19:17:44 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>WordPress &amp; Frontity in the same repository</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="luisherranz" data-post="1" data-topic="2813">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Is there a place where the write permissions are granted but it’s not exposed?</p>
+</blockquote>
+</aside>
+<p>Why not run Frontity in the root and WordPress in a subdirectory? Both are able to handle that perfectly fine without any (technical) problems.</p>
+<pre><code class="lang-javascript">/frontity.config.js
+/package.json
+/wp/
+/wp/wp-content/
+</code></pre>
+<p>It would even be possible to install WP (and plugins/themes) with NPM (or actually Composer, but can be linked), which in some situations is a security requirement as well (manually settings updates).</p>
+<aside class="quote no-group" data-username="luisherranz" data-post="1" data-topic="2813">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>But my afraid is that having Frontity in the root may lead to permission problems in some hostings, but I’m not sure about it.</p>
+</blockquote>
+</aside>
+<p>I can’t think of any reason why Frontity in the root would cause permission problems, just as much as WordPress in the root would.</p>
+<p>However a proper setup where both are separated completely, with their own apache/nginx paths, would be the most preferred method. Although running WP in a subdirectory can offer a decent amount of security when done right.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/5</link>
+        <pubDate>Thu, 27 May 2021 17:42:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2813-5</guid>
+        <source url="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813.rss">WordPress &amp; Frontity in the same repository</source>
+      </item>
+      <item>
+        <title>WordPress &amp; Frontity in the same repository</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="dejangeorgiev" data-post="3" data-topic="2813">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/dejangeorgiev/40/938_2.png" class="avatar"> dejangeorgiev:</div>
+<blockquote>
+<p>How about going for your first idea and updating the docs, and letting users know, that they should use env variables? <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</blockquote>
+</aside>
+<p>Well, if there’s no other way… but I would prefer to find a way to forbid access to the plain JavaScript files from Frontity, just in case.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="1" data-topic="2813">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>The other idea is to add Frontity at the root</p>
+</blockquote>
+</aside>
+<p>By the way, forget about this, files at the root are also accessible of course <img src="https://community.frontity.org/images/emoji/apple/sweat.png?v=9" title=":sweat:" class="emoji" alt=":sweat:"></p>
+<hr>
+<p>Maybe we could add an <code>.htaccess</code> file to the <code>/wp-content/frontity</code> folder that forbids access:</p>
+<pre><code class="lang-bash"># /wp-content/frontity/.htaccess
+Order deny,allow
+Deny from all
+</code></pre>
+<p>And then another <code>.htaccess</code> file to the <code>/wp-content/frontity/build/static</code> folder tha enables access:</p>
+<pre><code class="lang-bash"># /wp-content/frontity/build/static/.htaccess
+Order allow,deny
+Allow from all
+</code></pre>
+<p>And suggest this change for Nginx users:</p>
+<pre><code class="lang-javascript">location ~ /wp-content/frontity(?!/build/static/) {
+  deny all;
+  return 403;
+}
+</code></pre>
+<p>I’ve just done a quick test and both seem to work fine.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/4</link>
+        <pubDate>Mon, 07 Sep 2020 09:13:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2813-4</guid>
+        <source url="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813.rss">WordPress &amp; Frontity in the same repository</source>
+      </item>
+      <item>
+        <title>WordPress &amp; Frontity in the same repository</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> great idea!</p>
+<pre><code>/wp-content
+  /plugins
+  /themes
+  /frontity
+    package.json
+    frontity.settings.js
+    packages/...
+</code></pre>
+<p>How about going for your first idea and updating the docs, and letting users know, that they should use env variables? <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/3</link>
+        <pubDate>Fri, 04 Sep 2020 16:01:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2813-3</guid>
+        <source url="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813.rss">WordPress &amp; Frontity in the same repository</source>
+      </item>
+      <item>
+        <title>WordPress &amp; Frontity in the same repository</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’d like to start discussing our recommendation to combine Frontity and WordPress in the same repo.</p>
+<p>Of course, people can do what they please, but I think having an “official recommendation” would be great to standardize it a bit.</p>
+<p>My first idea was to recommend keeping Frontity in the <code>/wp-content/frontity</code> folder, like this:</p>
+<pre><code class="lang-nohighlight">/wp-content
+  /plugins
+  /themes
+  /frontity
+    package.json
+    frontity.settings.js
+    packages/...
+</code></pre>
+<p>But I don’t think that’s the best idea anymore, because it could compromise security. If people do the build in the same server, the server bundle will be exposed in the <code>/wp-content/frontity/build/server.js</code> file, accessible from the Internet, and could leak a secret if people don’t use env variables.</p>
+<p>The other idea is to add Frontity at the root:</p>
+<pre><code class="lang-nohighlight">/wp-content
+  /plugins
+  /themes
+  ...
+/frontity
+    package.json
+    frontity.settings.js
+    packages/...
+</code></pre>
+<p>But my afraid is that having Frontity in the root may lead to permission problems in some hostings, but I’m not sure about it.</p>
+<p><strong>Is there a place where the write permissions are granted but it’s not exposed?</strong></p>
+          <p><a href="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813/1</link>
+        <pubDate>Fri, 04 Sep 2020 15:44:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2813-1</guid>
+        <source url="https://community.frontity.org/t/wordpress-frontity-in-the-same-repository/2813.rss">WordPress &amp; Frontity in the same repository</source>
+      </item>
+  </channel>
+</rss>

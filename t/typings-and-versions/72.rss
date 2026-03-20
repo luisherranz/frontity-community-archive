@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Typings and Versions</title>
+    <link>https://community.frontity.org/t/typings-and-versions/72</link>
+    <description>We are going to develop &quot;type packages&quot; for each API. So far we need:
+- The Settings API ([discussion here](https://community.frontity.org/t/the-settings-api/58)).
+- The Sources API ([discussion here](https://community.frontity.org/t/the-source-api/65)).
+- The Comments API (no discussion yet).
+
+They are imported and used by the real packages.
+
+Some naming suggestions:
+```bash
+* @frontity/settings-types
+* @frontity/types-settings
+* @frontity-types/settings
+```
+Any other idea? Which one do you prefer?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 06 May 2019 09:27:24 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/typings-and-versions/72.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been thinking about how to do versioning. It’s kind of tricky and we don’t know much yet, but I think we can start with this:</p>
+<p>For each package, we need to know its Frontity dependencies. For example, a theme may be compatible with v1 of <code>source</code> and v1 of <code>router</code> but v2 of  <code>comments</code>. We need a way to let it specify that.</p>
+<p>My proposal is to use the version in the package of each type, which is the API contract anyway. That means we can’t use <code>@frontity/types/source</code>, we need a separate package with a separate version <code>@frontity/source</code>.</p>
+<p>I think this is best explained with an example.</p>
+<p><code>my-theme/package.json</code></p>
+<pre><code class="lang-auto">  "types": "type.ts",
+  "dependencies": {
+    "@frontity/source": "^1.0.0",
+    "@frontity/router": "^1.0.0",
+    "@frontity/comments": "^2.0.0",
+  }
+</code></pre>
+<p><code>my-theme/type.ts</code></p>
+<pre><code class="lang-javascript">import { Action, Package } from "@frontity/types"
+import Router from "@frontity/router"
+import Source from "@frontity/source"
+import Comments from "@frontity/comments"
+
+interface MyTheme extends Package {
+  name: "my-theme";
+  namespaces: Namespaces&lt;"theme"&gt;;
+  state: {
+    theme: {
+      prop1: number;
+    };
+  };
+  actions: {
+    theme: {
+      beforeSSR: Action&lt;MyTheme&gt;;
+    };
+    router: Router["actions"]["router"];
+    source: Source["actions"]["source"];
+  };
+  roots: {
+    theme: React.ReactType;
+  };
+  libraries: {
+    comments: Comments["libraries"]["comments"];
+  };
+}
+export default MyTheme
+</code></pre>
+<p>If for example my-theme can work with both <code>router</code> v1 and v2 because it doesn’t use anything from v1 that has been deprecated, it can use <a href="https://flaviocopes.com/npm-semantic-versioning/" rel="nofollow noopener">an OR npm dependency</a>:<br>
+<code>my-theme/package.json</code></p>
+<pre><code class="lang-auto">  "dependencies": {
+    "@frontity/router": "^1.0.0 || ^2.0.0",
+    ...
+  }
+</code></pre>
+<p>Now, a package implementing one specific API also needs to import a type package. For example, <code>tiny-router</code>:<br>
+<code>@frontity/tiny-router/package.json</code></p>
+<pre><code class="lang-auto">  "types": "type.ts",
+  "dependencies": {
+    "@frontity/router": "^1.0.0",
+  }
+</code></pre>
+<p><code>@frontity/tiny-router/type.ts</code></p>
+<pre><code class="lang-javascript">import { Action, Package } from "@frontity/types"
+import Router from "@frontity/router"
+
+interface TinyRouter extends Router {
+  name: "@frontity/tiny-router";
+  namespaces: Namespaces&lt;"router"&gt;;
+  state: {
+    router: Router["state"]["router"] &amp; {
+      history: string[];
+    };
+  };
+  actions: {
+    router: Router["actions"]["router"];
+  };
+}
+export default TinyRouter
+</code></pre>
+<p>Here, we need some way to know that this package implements a router. My proposal is to use a npm keyword like <code>frontity-xxx</code>. For <code>tiny-router</code>:<br>
+<code>@frontity/tiny-router/package.json</code></p>
+<pre><code class="lang-auto">  "keywords": [
+    "frontity",
+    "frontity-router",
+  ],
+  "dependencies": {
+    "@frontity/router": "^1.0.0",
+  }
+</code></pre>
+<p>That way we can know which package implements which API and which package only depends on what API.</p>
+<p>We will be able to do a npm search for all available routers and:</p>
+<ul>
+<li>List them in the Frontity Admin.</li>
+<li>Warn the user if he is missing one package.</li>
+<li>Warn the user if there’s a mismatch.</li>
+<li>Upgrade the API for each type of package separately.</li>
+</ul>
+<p>One of the less obvious parts is to figure out how to maintain different APIs where the second one is just an augmented version of the first one. In our case, the API of <code>router</code> vs the API of the <code>3d-router</code>. Both need to be <code>router</code>, but the first one is going to be much simpler than the second one.</p>
+<p>We can use v1 for the <code>router</code> (<code>tiny-router</code>) and v2 for the context router (<code>3d-router</code>).</p>
+<p>One theme that needs contexts would need to specify it like this:<br>
+<code>my-theme/package.json</code></p>
+<pre><code class="lang-auto">  "dependencies": {
+    "@frontity/router": "^2.0.0",
+    ...
+  }
+</code></pre>
+<p>but an old comments package may have declared support only for v1:<br>
+<code>my-comments/package.json</code></p>
+<pre><code class="lang-auto">  "dependencies": {
+    "@frontity/router": "^1.0.0",
+    ...
+  }
+</code></pre>
+<p>One implementation of the v2 router, for example <code>3d-router</code>, works with both v1 and v2 so it may use this:<br>
+<code>@frontity/3d-router/package.json</code></p>
+<pre><code class="lang-auto">  "keywords": [
+    "frontity",
+    "frontity-router"
+  ],
+  "dependencies": {
+    "@frontity/router": "^1.0.0 || ^2.0.0",
+    ...
+  }
+</code></pre>
+<p>I’m not 100% sure if this is going to work fine, but we can try.</p>
+<p>Suggestions welcomed <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/10</link>
+        <pubDate>Mon, 06 May 2019 09:27:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-10</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We are going to use this structure for packages:</p>
+<pre><code class="lang-javascript">export interface Package {
+  name: string;
+  namespaces: string[];
+  roots?: {
+    [namespace: string]: React.ReactType;
+  };
+  fills?: {
+    [namespace: string]: React.ReactType;
+  };
+  state?: {
+    settings?: {
+      [namespace: string]: {
+        [key: string]: any;
+      };
+    };
+    [namespace: string]: {
+      [key: string]: any;
+    };
+  };
+  actions?: {
+    [namespace: string]: {
+      [action: string]:
+        | ((state: Package["state"]) =&gt; void)
+        | ((state: Package["state"]) =&gt; (input: any) =&gt; void);
+    };
+  };
+  libraries?: {
+    [namespace: string]: {
+      [library: string]: any;
+    };
+  };
+  //
+  // Filters are not supported yet.
+  // filters: {
+  //   [namespace: string]: {
+  //     [filter: string]: any;
+  //   };
+  // };
+  //
+  // Sagas are not supported yet.
+  // sagas: {
+  //   [namespace: string]: {
+  //     [saga: string]: any;
+  //   };
+  // };
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/9</link>
+        <pubDate>Tue, 30 Apr 2019 07:59:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-9</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve added tests for the typings of <code>file-settings</code>:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/d6bf31fa4bd3465fb2e1ec5add4abcea3549b9a4/packages/file-settings/src/__tests__/types.tests.ts" target="_blank" rel="nofollow noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/d6bf31fa4bd3465fb2e1ec5add4abcea3549b9a4/packages/file-settings/src/__tests__/types.tests.ts" target="_blank" rel="nofollow noopener">frontity/frontity/blob/d6bf31fa4bd3465fb2e1ec5add4abcea3549b9a4/packages/file-settings/src/__tests__/types.tests.ts</a></h4>
+<pre><code class="lang-ts">import { Settings, Package } from "../types";
+
+// Settings
+{
+  // 1. Minimal mono settings.
+  const settings1: Settings = {
+    packages: []
+  };
+
+  // 2. Minimal multi settings.
+  const settings2: Settings = [
+    {
+      name: "site-1",
+      packages: []
+    }
+  ];
+
+  // 3. Settings with minimal base settings, name and mode.
+  const settings3: Settings = {
+    name: "site",
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/frontity/frontity/blob/d6bf31fa4bd3465fb2e1ec5add4abcea3549b9a4/packages/file-settings/src/__tests__/types.tests.ts" target="_blank" rel="nofollow noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>It’s something I saw when I did a <a href="https://github.com/DefinitelyTyped/DefinitelyTyped/blob/c2f288c36255a1baf3383c79f08bccaccb0450c6/types/loadable__server/loadable__server-tests.tsx" rel="nofollow noopener">PR to DefinitelyTyped</a>.</p>
+<p>They are not real jest tests, only syntax. But jest throws if typescript fails, so they are useful anyway. I think it’s a good way to test types and have a list of the things that are supported.</p>
+<p>The main drawback is that you cannot test things that are not allowed, only things that are allowed, but it’s better than nothing.</p>
+<p>Jest requires at least one test, so I’ve used a final <code>test("Types are fine!", () =&gt; {})</code> at the end, but it’s fine because that’s what it’s shown in the jest output <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/8365c3dab88254a3de7446d2cfb4eed5a0fc65bf.png" alt="59" width="316" height="167"></p>
+<p><a class="mention-group" href="https://community.frontity.org/groups/development-team">@development-team</a> take a look at the file and let me know what you think!</p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/8</link>
+        <pubDate>Fri, 26 Apr 2019 10:32:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-8</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Perfect, thanks guys!</p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/7</link>
+        <pubDate>Wed, 17 Apr 2019 14:47:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-7</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I think one package is ok too. <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/6</link>
+        <pubDate>Wed, 17 Apr 2019 14:41:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-6</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I think it’s ok <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/5</link>
+        <pubDate>Wed, 17 Apr 2019 11:21:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-5</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention-group" href="https://community.frontity.org/groups/development-team">@development-team</a> <img src="https://community.frontity.org/images/emoji/apple/point_up_2.png?v=9" title=":point_up_2:" class="emoji" alt=":point_up_2:"> what do you think? I need to create the <code>packages</code> one now <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/4</link>
+        <pubDate>Wed, 17 Apr 2019 11:19:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-4</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>What if instead of a separate package for each type, we use only one with folders?</p>
+<p><code>@frontity/types/packages</code><br>
+<code>@frontity/types/settings</code><br>
+<code>@frontity/types/source</code><br>
+<code>@frontity/types/router</code><br>
+<code>@frontity/types/comments</code></p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/3</link>
+        <pubDate>Wed, 17 Apr 2019 08:21:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-3</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe we can do another one for <a href="https://community.frontity.org/t/the-packages-export-api/64" class="inline-onebox">The packages export API</a> to type the exports:</p>
+<pre><code class="lang-auto">import { Package, Namespace } from "@frontity-types/packages"
+
+const theme: Namespace = {
+  root: Theme
+  fills: Fills
+  Store: ThemeStore,
+  components: Components,
+};
+
+export default: Package {
+  theme
+}
+</code></pre>
+<p>where <code>@frontity-types/packages</code> has things like:</p>
+<pre><code class="lang-auto">interface Namespace {
+  root?: React.Component;
+  fills?: React.Component;
+  Store: Overmind.Config;
+  ...
+}
+
+interface Package {
+  [key: string]: Namespace
+} 
+</code></pre>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/2</link>
+        <pubDate>Fri, 08 Mar 2019 16:36:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-2</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+      <item>
+        <title>Typings and Versions</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We are going to develop “type packages” for each API. So far we need:</p>
+<ul>
+<li>The Settings API (<a href="https://community.frontity.org/t/the-settings-api/58">discussion here</a>).</li>
+<li>The Sources API (<a href="https://community.frontity.org/t/the-source-api/65">discussion here</a>).</li>
+<li>The Comments API (no discussion yet).</li>
+</ul>
+<p>They are imported and used by the real packages.</p>
+<p>Some naming suggestions:</p>
+<pre><code class="lang-bash">* @frontity/settings-types
+* @frontity/types-settings
+* @frontity-types/settings
+</code></pre>
+<p>Any other idea? Which one do you prefer?</p>
+          <p><a href="https://community.frontity.org/t/typings-and-versions/72/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typings-and-versions/72/1</link>
+        <pubDate>Fri, 08 Mar 2019 16:19:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-72-1</guid>
+        <source url="https://community.frontity.org/t/typings-and-versions/72.rss">Typings and Versions</source>
+      </item>
+  </channel>
+</rss>

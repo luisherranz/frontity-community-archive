@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Is there an ability to fetch Yoast data separately from the page?</title>
+    <link>https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899</link>
+    <description>I have a [project that uses subdomains as custom post type endpoints](https://community.frontity.org/t/how-to-set-frontity-homepage-independent-of-wordpress-home-page/3376/8?u=david1) in my Frontity theme.  However, because the route for these subdomains/custom post types is always `/`, I am only seeing `&lt;head&gt;` data corresponding to the home page of the website.  I can see that the Yoast data is working for other pages:
+
+* [Home page](https://microbeninja.com)
+* [Contact Us page](https://microbeninja.com/contact-us/) (different from Home page)
+* [Microsite/Subdomain page](https://annihilyzer.microbeninja.com) (same as Home page but should be the same as [this post in the back end](https://wpadmin.microbeninja.com/microsite/annihilyzer/))
+
+Is there a way I can just pull the Yoast data from a different route than what is being served?  Is this the right way to do this?  Should I be using the `head-tags` package instead?  Thanks for any help!  Below is a link to the repo:
+
+https://gitlab.artlyticalmedia.com/artlytical-media/microbe-ninja-frontity-theme</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 14 Jun 2021 22:46:56 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Is there an ability to fetch Yoast data separately from the page?</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>if you wanted to get the full <code>yoast_head</code> you can do something along the lines of</p>
+<p>theme’s index.js</p>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions, libraries }) =&gt; {
+  if(state.router.link === '/') 
+    // make sure contact page is loaded into our state
+    await actions.source.fetch('/contact')
+  }
+}
+</code></pre>
+<p>site’s index.js</p>
+<pre><code class="lang-javascript">// get the contact data we grabbed in beforeSSR
+const contact_data = state.source.get('/contact-us')
+const contact_post = state.source[contact_data.type][contact_data.id];  
+console.log(contact_poast.yoast_head) // full yoast_head string
+</code></pre>
+<p>I don’t know you get individual items out of yoast though, other than parsing that string</p>
+          <p><a href="https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899/2</link>
+        <pubDate>Mon, 14 Jun 2021 22:46:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3899-2</guid>
+        <source url="https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899.rss">Is there an ability to fetch Yoast data separately from the page?</source>
+      </item>
+      <item>
+        <title>Is there an ability to fetch Yoast data separately from the page?</title>
+        <dc:creator><![CDATA[david1]]></dc:creator>
+        <description><![CDATA[
+            <p>I have a <a href="https://community.frontity.org/t/how-to-set-frontity-homepage-independent-of-wordpress-home-page/3376/8">project that uses subdomains as custom post type endpoints</a> in my Frontity theme.  However, because the route for these subdomains/custom post types is always <code>/</code>, I am only seeing <code>&lt;head&gt;</code> data corresponding to the home page of the website.  I can see that the Yoast data is working for other pages:</p>
+<ul>
+<li><a href="https://microbeninja.com" rel="noopener nofollow ugc">Home page</a></li>
+<li>
+<a href="https://microbeninja.com/contact-us/" rel="noopener nofollow ugc">Contact Us page</a> (different from Home page)</li>
+<li>
+<a href="https://annihilyzer.microbeninja.com" rel="noopener nofollow ugc">Microsite/Subdomain page</a> (same as Home page but should be the same as <a href="https://wpadmin.microbeninja.com/microsite/annihilyzer/" rel="noopener nofollow ugc">this post in the back end</a>)</li>
+</ul>
+<p>Is there a way I can just pull the Yoast data from a different route than what is being served?  Is this the right way to do this?  Should I be using the <code>head-tags</code> package instead?  Thanks for any help!  Below is a link to the repo:</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/8/810bac49aedf389c5fbbb5fb194b4094e4ed2a04.png" class="site-icon" width="227" height="227">
+      <a href="https://gitlab.artlyticalmedia.com/artlytical-media/microbe-ninja-frontity-theme" target="_blank" rel="noopener nofollow ugc">GitLab</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/2X/1/10f2d759dce6ea753e1e0b2bf9dc52b57a2f433b.png" class="thumbnail onebox-avatar" width="128" height="128">
+
+<h3><a href="https://gitlab.artlyticalmedia.com/artlytical-media/microbe-ninja-frontity-theme" target="_blank" rel="noopener nofollow ugc">Artlytical Media / microbe-ninja-frontity-theme</a></h3>
+
+<p>GitLab Enterprise Edition</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899/1</link>
+        <pubDate>Thu, 28 Jan 2021 11:57:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3899-1</guid>
+        <source url="https://community.frontity.org/t/is-there-an-ability-to-fetch-yoast-data-separately-from-the-page/3899.rss">Is there an ability to fetch Yoast data separately from the page?</source>
+      </item>
+  </channel>
+</rss>

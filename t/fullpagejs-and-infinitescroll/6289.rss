@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>FullpageJs and InfiniteScroll</title>
+    <link>https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289</link>
+    <description>Hello,
+
+Lately i&#39;ve been trying to use Fullpage.js in my Frontity project to display posts in a tiktok way. First of all since Frontity only works with webpack 4 i can&#39;t use the last version of FullpageJs, if that helps.Making fullpage scroll whith hardcoded div is easy, but I struggle to do it with infinite scroll. 
+
+My infinite scroll works fine without FullpageJs but with it it kinda works , I can scroll down once with animation, next posts displays for 1 second and it then flicker back to first post . Also it loops between the first 2 posts of the list not the entire post list. So my question is how would you do to use both of these features ? I can&#39;t create a sandbx unfortunately but here is my post-list component;
+thanks
+```
+    &lt;Box className=&quot;boxWrapper&quot;&quot;&gt;
+
+      &lt;ReactFullpage
+        //fullpage options
+        licenseKey=&#39;my-license-key&#39;
+        scrollOverflow={true}
+        verticalCentered={true}
+        render={({ state, fullpage_api }) =&gt; {
+          return (
+
+            &lt;ReactFullpage.Wrapper &gt;
+              {posts.map(({ key, link, isLast, Wrapper, i }) =&gt; (
+
+                &lt;Wrapper key={key} className=&quot;section fp-auto-height&quot; &gt;
+                  &lt;Box &gt;
+
+                    &lt;Post
+                      post={post}
+                      postData={postData}
+                      link={link}
+                      catId={catId}
+                      posts={posts}
+                      isLast={isLast}
+                      key={key}
+                    /&gt;
+
+                    &lt;PostPrevInfinite
+                      bgColorArticle={bgColorArticle}
+                      nextImgArray={nextImgArray}
+                      // display={isLast ? &quot;none&quot; : &quot;flex&quot;}
+                      className=&quot;PostPrevInfinite&quot;
+                      isSponso={isSponso}
+                    /&gt;
+
+
+                    {!isLast &amp;&amp; &lt;hr /&gt;}
+                  &lt;/Box&gt;
+                &lt;/Wrapper&gt;
+              ))}
+
+            &lt;/ReactFullpage.Wrapper&gt;
+
+          );
+        }}
+      /&gt;
+      &lt; Container
+        css={css`
+          background: ${bgColorArticle};
+        `}
+      &gt;
+        {isFetching &amp;&amp; &lt;Loading /&gt;}
+        {
+          (isLimit || isError) &amp;&amp; (
+            &lt;Button
+              onClick={fetchNext}
+              css={css`
+              background: ${colorsHover};
+              transition: all 0.3s ease-in-out;
+              &amp;:hover {
+                transform: scale(0.9);
+              }
+            `}
+            &gt;
+              {isError ? &quot;Essayer à nouveau&quot; : &quot;Charger plus&quot;}
+            &lt;/Button&gt;
+          )
+        }
+      &lt;/Container &gt;
+    &lt;/Box &gt;
+  );
+};
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 08 Sep 2022 09:33:24 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>FullpageJs and InfiniteScroll</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve ended up using react-scroll-snap as Fullpage.js can’t be installed with the latest version due to the old version of React and Webpack that Frontity uses …</p>
+          <p><a href="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/4</link>
+        <pubDate>Thu, 08 Sep 2022 09:33:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6289-4</guid>
+        <source url="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289.rss">FullpageJs and InfiniteScroll</source>
+      </item>
+      <item>
+        <title>FullpageJs and InfiniteScroll</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>got it to work better, but for some reason first post is displayed normally, but if I scroll down the next post is loaded for a second and then display the first post again, and i can’t reach the third post, it loops trough those 2 first post, eventough the first post has been fetech and is in the posts array of the infnite scroll hook</p>
+<p>Any idea ? thanks</p>
+          <p><a href="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/3</link>
+        <pubDate>Sat, 03 Sep 2022 13:00:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6289-3</guid>
+        <source url="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289.rss">FullpageJs and InfiniteScroll</source>
+      </item>
+      <item>
+        <title>FullpageJs and InfiniteScroll</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>I have managed to almost make it work, but somehow i can’t scroll down if i don’t resize the window, and after that I can scroll down, next post is displayed, url change, but after a second it flickers back to first post</p>
+<p>any idea ?</p>
+<pre><code class="lang-javascript">  const rebuild = () =&gt; {
+    window.fullpage_api.reBuild()
+
+  }
+  useEffect(() =&gt; {
+    rebuild()
+
+  }, [state.source.data])
+  return (
+    &lt;Box&gt;
+
+
+      &lt;ReactFullpage
+        //fullpage options
+        
+        scrollOverflow={true}
+        verticalCentered={true}
+
+
+        render={({ state, fullpage_api }) =&gt; {
+          return (
+
+            &lt;ReactFullpage.Wrapper &gt;
+              {posts.map(({ key, link, isLast, Wrapper }) =&gt; (
+
+                &lt;Wrapper key={key} className="section " &gt;
+
+                  &lt;Box &gt;
+
+
+                    &lt;Post
+                      data-anchor={key}
+                      post={post}
+                      postData={postData}
+                      link={link}
+                      catId={catId}
+                      bgColorArticle={bgColorArticle}
+                      posts={posts}
+                      isLast={isLast}
+                      key={key}
+
+                      isSponso={isSponso}
+
+                    /&gt;
+                    &lt;Button onClick={fetchNext}&gt; fetch me&lt;/Button&gt;
+                    &lt;PostPrevInfinite
+                      bgColorArticle={bgColorArticle}
+                      nextImgArray={nextImgArray}
+                      // display={isLast ? "none" : "flex"}
+                      className="PostPrevInfinite"
+                      isSponso={isSponso}
+                      ref={isInView}
+                    /&gt;
+                    {!isLast &amp;&amp; &lt;hr /&gt;}
+
+
+                  &lt;/Box&gt;
+                &lt;/Wrapper&gt;
+              ))}
+
+            &lt;/ReactFullpage.Wrapper&gt;
+          );
+        }}
+      /&gt;
+
+</code></pre>
+          <p><a href="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/2</link>
+        <pubDate>Fri, 02 Sep 2022 12:44:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6289-2</guid>
+        <source url="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289.rss">FullpageJs and InfiniteScroll</source>
+      </item>
+      <item>
+        <title>FullpageJs and InfiniteScroll</title>
+        <dc:creator><![CDATA[1600tc]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,</p>
+<p>Lately i’ve been trying to use Fullpage.js in my Frontity project to display posts in a tiktok way. First of all since Frontity only works with webpack 4 i can’t use the last version of FullpageJs, if that helps.Making fullpage scroll whith hardcoded div is easy, but I struggle to do it with infinite scroll.</p>
+<p>My infinite scroll works fine without FullpageJs but with it it kinda works , I can scroll down once with animation, next posts displays for 1 second and it then flicker back to first post . Also it loops between the first 2 posts of the list not the entire post list. So my question is how would you do to use both of these features ? I can’t create a sandbx unfortunately but here is my post-list component;<br>
+thanks</p>
+<pre><code class="lang-javascript">    &lt;Box className="boxWrapper""&gt;
+
+      &lt;ReactFullpage
+        //fullpage options
+        licenseKey='my-license-key'
+        scrollOverflow={true}
+        verticalCentered={true}
+        render={({ state, fullpage_api }) =&gt; {
+          return (
+
+            &lt;ReactFullpage.Wrapper &gt;
+              {posts.map(({ key, link, isLast, Wrapper, i }) =&gt; (
+
+                &lt;Wrapper key={key} className="section fp-auto-height" &gt;
+                  &lt;Box &gt;
+
+                    &lt;Post
+                      post={post}
+                      postData={postData}
+                      link={link}
+                      catId={catId}
+                      posts={posts}
+                      isLast={isLast}
+                      key={key}
+                    /&gt;
+
+                    &lt;PostPrevInfinite
+                      bgColorArticle={bgColorArticle}
+                      nextImgArray={nextImgArray}
+                      // display={isLast ? "none" : "flex"}
+                      className="PostPrevInfinite"
+                      isSponso={isSponso}
+                    /&gt;
+
+
+                    {!isLast &amp;&amp; &lt;hr /&gt;}
+                  &lt;/Box&gt;
+                &lt;/Wrapper&gt;
+              ))}
+
+            &lt;/ReactFullpage.Wrapper&gt;
+
+          );
+        }}
+      /&gt;
+      &lt; Container
+        css={css`
+          background: ${bgColorArticle};
+        `}
+      &gt;
+        {isFetching &amp;&amp; &lt;Loading /&gt;}
+        {
+          (isLimit || isError) &amp;&amp; (
+            &lt;Button
+              onClick={fetchNext}
+              css={css`
+              background: ${colorsHover};
+              transition: all 0.3s ease-in-out;
+              &amp;:hover {
+                transform: scale(0.9);
+              }
+            `}
+            &gt;
+              {isError ? "Essayer à nouveau" : "Charger plus"}
+            &lt;/Button&gt;
+          )
+        }
+      &lt;/Container &gt;
+    &lt;/Box &gt;
+  );
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289/1</link>
+        <pubDate>Thu, 01 Sep 2022 01:13:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6289-1</guid>
+        <source url="https://community.frontity.org/t/fullpagejs-and-infinitescroll/6289.rss">FullpageJs and InfiniteScroll</source>
+      </item>
+  </channel>
+</rss>

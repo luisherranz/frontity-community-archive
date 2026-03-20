@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>[Proposal] add __frontity_info endpoint in server application</title>
+    <link>https://community.frontity.org/t/proposal-add-frontity-info-endpoint-in-server-application/4997</link>
+    <description>&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# Description
+&lt;!-- Try to give a detailed explanation of what do you expect of this feature --&gt;
+We should add an `/__frontity_info` endpoint in the Frontity server with information about the setup could be added for debugging purposes and to display project data in the/a Frontity WP Plugin.
+
+The data could be similar to the output of `npx frontity info`, although for security reasons this has to be reviewed, and additional data can be added.
+
+# Examples
+&lt;!-- Do you know examples that could inspire the community? Let us know! --&gt;
+The endpoint can be used in the WP Frontity plugin to display information about the project. This could help with monitoring the website from WP Admin and debugging issues. Also update notices of packages could be tracked (using [`npm-check-updates`](https://www.npmjs.com/package/npm-check-updates) for example).
+
+Also for issues posted here it could be a good alternative to asking people to dump `npx frontity info`, especially for less tech-savy members.
+
+# Functionalities
+&lt;!-- Initial list of functionalities that would be nice to include in this feature! --&gt;
+The endpoint should gather information about the server (`envinfo`), the project (`frontity.settings.js`) and installed packages (`package.json`), and return this as a JSON object.
+
+For security reasons it should be possible to enable/disable the endpoint.
+Additionally settings could be used to manage which data is visible or even limit by domain/IP.
+
+Although since this might be slow (eg. `envinfo` can take some time) a solution could be to dump static data when building the project, since most variables won&#39;t change.
+
+# Requirements
+&lt;!-- Initial list of requirements and constraints that need to be met. --&gt;
+*none at this time*
+
+# Dependencies
+&lt;!-- List of Feature Discussions that need to be finished before this one. --&gt;
+*none* (unless major server-side changes are planned, which I couldn&#39;t find)
+
+# Possible solution
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+Quick and dirty implementation:
+```
+// in https://github.com/frontity/frontity/blob/dev/packages/core/src/server/index.ts
+const returnInfo = () =&gt; {
+   let data = {};
+   // fill data with `envinfo`
+   // fill data with frontity.settings.js information
+   // fill data with package.json information
+   // ... more info?
+   return data;
+};
+app.use(get(&quot;/__frontity_info&quot;, returnInfo));
+```
+
+As mentioned in the **Functionalities**, a cached dump could be created at dev/build with Webpack which gets imported and returned when accessing the endpoint.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 16 Jul 2021 09:27:48 +0000</lastBuildDate>
+    <category>🗣 Feature Discussions</category>
+    <atom:link href="https://community.frontity.org/t/proposal-add-frontity-info-endpoint-in-server-application/4997.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>[Proposal] add __frontity_info endpoint in server application</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <h1>
+<a name="description-1" class="anchor" href="https://community.frontity.org#description-1"></a>Description</h1>
+
+<p>We should add an <code>/__frontity_info</code> endpoint in the Frontity server with information about the setup could be added for debugging purposes and to display project data in the/a Frontity WP Plugin.</p>
+<p>The data could be similar to the output of <code>npx frontity info</code>, although for security reasons this has to be reviewed, and additional data can be added.</p>
+<h1>
+<a name="examples-2" class="anchor" href="https://community.frontity.org#examples-2"></a>Examples</h1>
+
+<p>The endpoint can be used in the WP Frontity plugin to display information about the project. This could help with monitoring the website from WP Admin and debugging issues. Also update notices of packages could be tracked (using <a href="https://www.npmjs.com/package/npm-check-updates" rel="noopener nofollow ugc"><code>npm-check-updates</code></a> for example).</p>
+<p>Also for issues posted here it could be a good alternative to asking people to dump <code>npx frontity info</code>, especially for less tech-savy members.</p>
+<h1>
+<a name="functionalities-3" class="anchor" href="https://community.frontity.org#functionalities-3"></a>Functionalities</h1>
+
+<p>The endpoint should gather information about the server (<code>envinfo</code>), the project (<code>frontity.settings.js</code>) and installed packages (<code>package.json</code>), and return this as a JSON object.</p>
+<p>For security reasons it should be possible to enable/disable the endpoint.<br>
+Additionally settings could be used to manage which data is visible or even limit by domain/IP.</p>
+<p>Although since this might be slow (eg. <code>envinfo</code> can take some time) a solution could be to dump static data when building the project, since most variables won’t change.</p>
+<h1>
+<a name="requirements-4" class="anchor" href="https://community.frontity.org#requirements-4"></a>Requirements</h1>
+
+<p><em>none at this time</em></p>
+<h1>
+<a name="dependencies-5" class="anchor" href="https://community.frontity.org#dependencies-5"></a>Dependencies</h1>
+
+<p><em>none</em> (unless major server-side changes are planned, which I couldn’t find)</p>
+<h1>
+<a name="possible-solution-6" class="anchor" href="https://community.frontity.org#possible-solution-6"></a>Possible solution</h1>
+
+<p>Quick and dirty implementation:</p>
+<pre><code class="lang-javascript">// in https://github.com/frontity/frontity/blob/dev/packages/core/src/server/index.ts
+const returnInfo = () =&gt; {
+   let data = {};
+   // fill data with `envinfo`
+   // fill data with frontity.settings.js information
+   // fill data with package.json information
+   // ... more info?
+   return data;
+};
+app.use(get("/__frontity_info", returnInfo));
+</code></pre>
+<p>As mentioned in the <strong>Functionalities</strong>, a cached dump could be created at dev/build with Webpack which gets imported and returned when accessing the endpoint.</p>
+          <p><a href="https://community.frontity.org/t/proposal-add-frontity-info-endpoint-in-server-application/4997/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/proposal-add-frontity-info-endpoint-in-server-application/4997/1</link>
+        <pubDate>Fri, 16 Jul 2021 09:27:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4997-1</guid>
+        <source url="https://community.frontity.org/t/proposal-add-frontity-info-endpoint-in-server-application/4997.rss">[Proposal] add __frontity_info endpoint in server application</source>
+      </item>
+  </channel>
+</rss>

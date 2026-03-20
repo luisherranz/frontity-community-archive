@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to improve the performance of https://szinhaz.online/</title>
+    <link>https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472</link>
+    <description>Opening question:
+
+[quote=&quot;koli14, post:9, topic:1321&quot;]
+I would be happy, if you would take a deeper look into my project, specially the Home Page, maybe give advice’s how to improve performance.
+[/quote]
+
+Regarding the performance of the homepage I&#39;ve been taking a quick look. These are my suggestions:
+
+### Improve how you work with fonts
+I can see once you load the home it makes a lot of calls to `fonts.googleapis.com`, as you are loading a lot of fonts. You may want to select the formats you are using and self-host them in your project. 
+
+* [Here](https://www.tunetheweb.com/blog/should-you-self-host-google-fonts/) you have a long article explaining the different options and why it&#39;s important to self-host your fonts in terms of performance.  
+* You can check and example on the `twentytwenty-theme`
+  * We store the fonts we want in a `fonts` folder -&gt; https://github.com/frontity/frontity/tree/dev/packages/twentytwenty-theme/src/fonts
+  * We define them inside the `styles` folder -&gt; https://github.com/frontity/frontity/blob/dev/packages/twentytwenty-theme/src/components/styles/font-faces.js
+* I think you can download all the fonts you are using from https://fonts.google.com/
+
+### Reduce the number of fetches
+I&#39;ve also seen that you are doing a lot of fetches. You may want to give it a thought and try to reduce them.
+
+For example, I can see that you are doing one fetch for each `folder` doing `https://yoursite.com/wp-json/wp/v2/folder?slug=hir`, `https://yoursite.com/wp-json/wp/v2/folder?slug=interju`... You could just fetch `https://yoursite.com/wp-json/wp/v2/folder` and populate `state.source.folder` with all of them (they are just 8 right now).
+
+I can only see you are fetching many times your posts filtering by `folder`: `https://yoursite.com/wp-json/wp/v2/posts?_embed=true&amp;folder=23&amp;order=asc&amp;orderby=menu_order&amp;page=1`, `https://yoursite.com/wp-json/wp/v2/posts?_embed=true&amp;folder=24&amp;order=asc&amp;orderby=menu_order&amp;page=1` ... You could create a Custom Post Type to fetch all these posts, as we are doing with [movies](https://test.frontity.io/wp-json/wp/v2/movies) in our test. If you want to keep them inside `posts`, you could do all the fetchs again in the same call, doing something like this: `https://yoursite.com/wp-json/wp/v2/posts?_embed=true&amp;folder=23,24,25,26...`, 
+
+### Cache your API response
+Not sure if you&#39;re already doing this, but if not I&#39;d recommend you to do so. We&#39;re currently using [this plugin](https://wordpress.org/plugins/wp-rest-cache/) and it works pretty well so far.
+
+### Use a CDN for your images
+I think you&#39;re already doing this, but if not you can use JetPack free CDN, which also converts them into `webp` format, that is the next gen format recommended by Google.
+
+### Use LightHouse perfomance report
+Apart from the things mentioned before, you may want to run a test of your site at https://web.dev/measure/ and follow the suggestions it gives you, they are usually quite interesting.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 02 Apr 2020 11:56:53 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to improve the performance of https://szinhaz.online/</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve splitted the discussion from the original one as it wasn’t related to the original question anymore <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Regarding the handlers, I was referring to the ones in the <a href="https://github.com/frontity/frontity/tree/dev/packages/wp-source/src/libraries/handlers"><code>@frontity/wp-source</code> package</a> and the <a href="https://docs.frontity.org/api-reference-1/wordpress-source#handlers">docs</a> about them, but let’s keep the conversation in the new discussion you opened.</p>
+          <p><a href="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/7</link>
+        <pubDate>Thu, 02 Apr 2020 11:56:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1472-7</guid>
+        <source url="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472.rss">How to improve the performance of https://szinhaz.online/</source>
+      </item>
+      <item>
+        <title>How to improve the performance of https://szinhaz.online/</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="4" data-topic="1472">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>You can take a look at the current handlers.</p>
+</blockquote>
+</aside>
+<p>Which ones?</p>
+<p>I reread and reread your answer, but I can not figure it out, how to solve this.  I created a new post about it: <a href="https://community.frontity.org/t/stucked-with-creating-a-custom-handler/1458" class="inline-onebox">Fetch multiple taxonomy with containing posts at once</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/6</link>
+        <pubDate>Tue, 31 Mar 2020 14:49:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1472-6</guid>
+        <source url="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472.rss">How to improve the performance of https://szinhaz.online/</source>
+      </item>
+      <item>
+        <title>How to improve the performance of https://szinhaz.online/</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I think the problem could be caused because you have to make sure to populate <code>state.source.data</code> in order to use <code>state.source. get()</code> later. You can check in your console if you can find the data at your <code>/folder/slug/</code> urls and if not that could be the problem.</p>
+<p>If that’s the case, you have to make sure to populate <code>state.source.data.folder</code> with each one of the items (<code>/folder/slug</code>) using something like <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign"><code>Object.assign</code></a>, including all the info you need:</p>
+<pre><code>Object.assign(state.source.data[folder-link], {
+    id,
+    total,
+    totalPages,
+    taxonomy: "folder",
+    isArchive: true,
+    isTaxonomy: true,
+    isFolder: true,
+    ...
+});
+</code></pre>
+<p>You may want to add an <code>items</code> field with all the posts of the specific <code>folder</code>. You can take a look at the current handlers.</p>
+          <p><a href="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/4</link>
+        <pubDate>Mon, 16 Mar 2020 10:52:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1472-4</guid>
+        <source url="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472.rss">How to improve the performance of https://szinhaz.online/</source>
+      </item>
+      <item>
+        <title>How to improve the performance of https://szinhaz.online/</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I try to reduce the number of fetches, as you suggested, but I got stuck.<br>
+I created a handler, where I fetch all the folders (Custom Taxonomy for Posts) by their ID-s, and also all the posts in the folders:</p>
+<pre><code>const FoldersHandler = {
+  pattern: "/folders/:ids",
+  priority: 1,
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const { ids } = params;
+
+    const foldersResponse = await libraries.source.api.get({
+      endpoint: "folder",
+      params: {
+        include: ids,
+        per_page: 100,
+        head_tags: false
+      }
+    });
+    libraries.source.populate({ state, foldersResponse });
+
+    const response = await libraries.source.api.get({
+      endpoint: "posts",
+      params: {
+        folder: ids,
+        per_page: 100,
+        _embed: true
+      }
+    });
+    await libraries.source.populate({ state, response });
+
+    const pages = libraries.source.getTotalPages(response);
+    if (pages &gt; 1) {
+      let requests = [];
+      for (let page = 2; page &lt;= pages; page++) {
+        requests.push(
+          libraries.source.api.get({
+            enpoint: "posts",
+            params: {
+              per_page: 100,
+              page
+            }
+          })
+        );
+      }
+      const responses = await Promise.all(requests);
+      await Promise.all(
+        responses.map(response =&gt;
+          libraries.source.populate({ state, response })
+        )
+      );
+    }
+  }
+};
+</code></pre>
+<p>Then in my home.js:</p>
+<pre><code>React.useEffect(() =&gt; {
+  actions.source.fetch("/folders/" + folderIds);
+}, []);
+</code></pre>
+<p>After this, in <code>frontity.state.source</code> I have all the <code>posts</code> and <code>folders</code> as I expected.<br>
+But I do not know, how to get the posts in a folder from <code>state.source</code>.<br>
+I tried it like:</p>
+<pre><code>const data = state.source.get("/folder/"+slug);
+</code></pre>
+<p>But that was not working. The console.log(data) looks like:</p>
+<pre><code>isFetching: false
+isReady: false
+link: "/folder/budapest/"
+page: 1
+query: Object {  }
+route: "/folder/budapest/"
+</code></pre>
+<p>And I also get a <code>TypeError: response is undefined</code> error.<br>
+If I delete these lines from my handler, I still get all the <code>folders</code> and <code>posts</code> in <code>frontity.state.sorce</code>, but without the TypeError:</p>
+<pre><code>const foldersResponse = await libraries.source.api.get({
+      endpoint: "folder",
+      params: {
+        include: ids,
+        per_page: 100,
+        head_tags: false
+      }
+    });
+libraries.source.populate({ state, foldersResponse });
+</code></pre>
+<p>But still don’t know how to get the posts in a Folder.</p>
+          <p><a href="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/3</link>
+        <pubDate>Fri, 13 Mar 2020 15:11:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1472-3</guid>
+        <source url="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472.rss">How to improve the performance of https://szinhaz.online/</source>
+      </item>
+      <item>
+        <title>How to improve the performance of https://szinhaz.online/</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a>!</p>
+<ul>
+<li>I use AWS Bucket for Images at the moment, but it would be probably faster with Jetpack, I will migrate soon…</li>
+<li>Thanks for the REST cahce tip, I activated the plugin!</li>
+<li>I will do your first two tip (fonts, fetch) too soon.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/2</link>
+        <pubDate>Fri, 06 Mar 2020 09:30:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1472-2</guid>
+        <source url="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472.rss">How to improve the performance of https://szinhaz.online/</source>
+      </item>
+      <item>
+        <title>How to improve the performance of https://szinhaz.online/</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Opening question:</p>
+<aside class="quote no-group" data-username="koli14" data-post="9" data-topic="1321">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/koli14/40/691_2.png" class="avatar"><a href="https://community.frontity.org/t/npx-frontity-dev-aborted-core-dumped-javascript-heap-out-of-memory/1321/9">Npx frontity dev - Aborted (core dumped) - JavaScript heap out of memory</a>
+</div>
+<blockquote>
+<p>I would be happy, if you would take a deeper look into my project, specially the Home Page, maybe give advice’s how to improve performance.</p>
+</blockquote>
+</aside>
+<p>Regarding the performance of the homepage I’ve been taking a quick look. These are my suggestions:</p>
+<h3>Improve how you work with fonts</h3>
+<p>I can see once you load the home it makes a lot of calls to <code>fonts.googleapis.com</code>, as you are loading a lot of fonts. You may want to select the formats you are using and self-host them in your project.</p>
+<ul>
+<li>
+<a href="https://www.tunetheweb.com/blog/should-you-self-host-google-fonts/">Here</a> you have a long article explaining the different options and why it’s important to self-host your fonts in terms of performance.</li>
+<li>You can check and example on the <code>twentytwenty-theme</code>
+<ul>
+<li>We store the fonts we want in a <code>fonts</code> folder -&gt; <a href="https://github.com/frontity/frontity/tree/dev/packages/twentytwenty-theme/src/fonts">https://github.com/frontity/frontity/tree/dev/packages/twentytwenty-theme/src/fonts</a>
+</li>
+<li>We define them inside the <code>styles</code> folder -&gt; <a href="https://github.com/frontity/frontity/blob/dev/packages/twentytwenty-theme/src/components/styles/font-faces.js">https://github.com/frontity/frontity/blob/dev/packages/twentytwenty-theme/src/components/styles/font-faces.js</a>
+</li>
+</ul>
+</li>
+<li>I think you can download all the fonts you are using from <a href="https://fonts.google.com/">https://fonts.google.com/</a>
+</li>
+</ul>
+<h3>Reduce the number of fetches</h3>
+<p>I’ve also seen that you are doing a lot of fetches. You may want to give it a thought and try to reduce them.</p>
+<p>For example, I can see that you are doing one fetch for each <code>folder</code> doing <code>https://yoursite.com/wp-json/wp/v2/folder?slug=hir</code>, <code>https://yoursite.com/wp-json/wp/v2/folder?slug=interju</code>… You could just fetch <code>https://yoursite.com/wp-json/wp/v2/folder</code> and populate <code>state.source.folder</code> with all of them (they are just 8 right now).</p>
+<p>I can only see you are fetching many times your posts filtering by <code>folder</code>: <code>https://yoursite.com/wp-json/wp/v2/posts?_embed=true&amp;folder=23&amp;order=asc&amp;orderby=menu_order&amp;page=1</code>, <code>https://yoursite.com/wp-json/wp/v2/posts?_embed=true&amp;folder=24&amp;order=asc&amp;orderby=menu_order&amp;page=1</code> … You could create a Custom Post Type to fetch all these posts, as we are doing with <a href="https://test.frontity.io/wp-json/wp/v2/movies">movies</a> in our test. If you want to keep them inside <code>posts</code>, you could do all the fetchs again in the same call, doing something like this: <code>https://yoursite.com/wp-json/wp/v2/posts?_embed=true&amp;folder=23,24,25,26...</code>,</p>
+<h3>Cache your API response</h3>
+<p>Not sure if you’re already doing this, but if not I’d recommend you to do so. We’re currently using <a href="https://wordpress.org/plugins/wp-rest-cache/">this plugin</a> and it works pretty well so far.</p>
+<h3>Use a CDN for your images</h3>
+<p>I think you’re already doing this, but if not you can use JetPack free CDN, which also converts them into <code>webp</code> format, that is the next gen format recommended by Google.</p>
+<h3>Use LightHouse perfomance report</h3>
+<p>Apart from the things mentioned before, you may want to run a test of your site at <a href="https://web.dev/measure/">https://web.dev/measure/</a> and follow the suggestions it gives you, they are usually quite interesting.</p>
+          <p><a href="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472/1</link>
+        <pubDate>Fri, 06 Mar 2020 09:05:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1472-1</guid>
+        <source url="https://community.frontity.org/t/how-to-improve-the-performance-of-https-szinhaz-online/1472.rss">How to improve the performance of https://szinhaz.online/</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</title>
+    <link>https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334</link>
+    <description>Hi, community,
+
+I keep working on my personal project to learn as much as I can Frontity to be possible to use it in my current job, and I&#39;m facing a new issue that I can&#39;t find a way to fix. I hope you have the experience and knowledge to give me some help.
+
+* **Description of your issue:**
+
+After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position. This component is a D3 graphic.
+
+To reproduce the error:
+- Open the app on Safari or Firefox (Mac).
+- Scroll to the bottom of the page.
+- Filter the graphics by mode or season (there is a sticky bar on top).
+
+You will see the page scrolls a little bit to the top. And always stays there for the next filter changes. Once you scroll down again and try to filter, the page is going scroll too again.
+
+I&#39;m suspecting the D3 is taking &quot;too long&quot; to render and the page is losing its scroll position. I&#39;ve tried to use this (https://gist.github.com/jeffijoe/510f6823ef809e3711ed307823b48c0a) script, but no success.
+
+* **Specific errors you’re getting in the terminal or in the browser’s console:**
+
+None.
+
+* **A repository with the code of your project:**
+
+https://github.com/nandotess/Fortnite-Frontity
+
+* **A deployed version of your site:**
+
+https://fortnite.improovement.com/en/team/tdk/
+
+* **The URL of your WP REST API**
+
+https://grenal.improovement.com/wp-json/wp/v2/team?_embed=true&amp;slug=tdk
+
+Thank you so much,
+Fernando</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 06 Nov 2020 18:52:28 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</title>
+        <dc:creator><![CDATA[nandotess85]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you so much, Michal.</p>
+<p>I have made the changes you recommended on the state part, and it’s working as before, but now using properly React state. Thanks once again.</p>
+<p>But for the scroll part (my original issue), I have implemented the solution I have posted before, where I’m using <code>getSnapshotBeforeUpdate</code>. I prefer this one since I want to avoid have the size of the graphic hardcoded (OR duplicated).</p>
+<p>Thanks once again and have a good weekend!</p>
+<p>Best,<br>
+Fernando</p>
+          <p><a href="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/8</link>
+        <pubDate>Fri, 06 Nov 2020 18:52:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3334-8</guid>
+        <source url="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334.rss">After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</source>
+      </item>
+      <item>
+        <title>After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/nandotess85">@nandotess85</a></p>
+<p>I’ve cloned your repo and looked at your RadarChartD3 component, but I’m afraid that the issue that you’ve facing has nothing to do with Frontity, but rather with the fact that you’re re-creating the <code>innerHTML</code> every time you call <code>createChart()</code>! <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:">  The browser will then scroll up in order to accomodate that space that has been just destroyed.</p>
+<p>You can just add a fixed height of 500px to your wrapper component and it solves the issue:</p>
+<pre><code class="lang-javascript">
+const Wrapper = styled.div`
+  height: 500px;
+  flex: 0 0 auto;
+  margin-top: 30px;
+  text-align: center;
+  width: 100%;
+  
+  ... rest of your styles
+`;
+</code></pre>
+<p>Also, if I may, I really really recommend that you don’t assign to <code>this.state</code> inside of your render functions! Calling setState re-renders your component without the need for calling <code>forceUpdate()</code>.</p>
+<p>To do this you can move your <code>onMouseOver</code> and <code>onMouseOut</code> functions into the component scope and call the setState inside of them like:</p>
+<pre><code class="lang-javascript">class RadarChartD3 extends Component {
+   ... 
+
+    // On legend item mouse over
+    onMouseOver = (event) =&gt; {
+      event.preventDefault();
+
+      // Label hovered
+      const index = Array.from(event.target.parentNode.children).indexOf(event.target);
+
+      this.setState(state =&gt; { 
+        return { highlight: [
+          ...state.highlight.slice(0, index),
+          true,
+          ...state.highlight.slice(index+1)
+        ]}
+      });
+    };
+
+    render() {
+    // .. do the render  
+  }
+
+</code></pre>
+<p>More info: <a href="https://reactjs.org/docs/state-and-lifecycle.html#using-state-correctly">https://reactjs.org/docs/state-and-lifecycle.html#using-state-correctly</a></p>
+          <p><a href="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/7</link>
+        <pubDate>Fri, 06 Nov 2020 18:23:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3334-7</guid>
+        <source url="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334.rss">After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</source>
+      </item>
+      <item>
+        <title>After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</title>
+        <dc:creator><![CDATA[nandotess85]]></dc:creator>
+        <description><![CDATA[
+            <p>Sorry, everyone, I have found the issue. It’s my limitation with React (still learning).</p>
+<p>The lines highlighted below fixed the problem.</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/c/ca530edd448fc12c3f34ca1e738f68268af448e9.png" alt="image" data-base62-sha1="sRQoO1Oeh3hQUJ8kIV9SB3AWMAx" width="556" height="164"></p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/1/1d5d4122153e7d623d14aa6391c45e369c45751c.png" alt="image" data-base62-sha1="4bLDSXxv8MfQXl16pZ7nwTiZswk" width="468" height="181"></p>
+<p>Thank you, Fernando</p>
+          <p><a href="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/6</link>
+        <pubDate>Fri, 06 Nov 2020 17:56:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3334-6</guid>
+        <source url="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334.rss">After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</source>
+      </item>
+      <item>
+        <title>After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</title>
+        <dc:creator><![CDATA[nandotess85]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, community,</p>
+<p>I keep working on my personal project to learn as much as I can Frontity to be possible to use it in my current job, and I’m facing a new issue that I can’t find a way to fix. I hope you have the experience and knowledge to give me some help.</p>
+<ul>
+<li><strong>Description of your issue:</strong></li>
+</ul>
+<p>After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position. This component is a D3 graphic.</p>
+<p>To reproduce the error:</p>
+<ul>
+<li>Open the app on Safari or Firefox (Mac).</li>
+<li>Scroll to the bottom of the page.</li>
+<li>Filter the graphics by mode or season (there is a sticky bar on top).</li>
+</ul>
+<p>You will see the page scrolls a little bit to the top. And always stays there for the next filter changes. Once you scroll down again and try to filter, the page is going scroll too again.</p>
+<p>I’m suspecting the D3 is taking “too long” to render and the page is losing its scroll position. I’ve tried to use this (<a href="https://gist.github.com/jeffijoe/510f6823ef809e3711ed307823b48c0a" rel="noopener nofollow ugc">https://gist.github.com/jeffijoe/510f6823ef809e3711ed307823b48c0a</a>) script, but no success.</p>
+<ul>
+<li><strong>Specific errors you’re getting in the terminal or in the browser’s console:</strong></li>
+</ul>
+<p>None.</p>
+<ul>
+<li><strong>A repository with the code of your project:</strong></li>
+</ul>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/nandotess/Fortnite-Frontity" target="_blank" rel="noopener nofollow ugc">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/2X/9/9dcfce55f8e74ccb27ab9fbeb9fc3a3c52cd9fab.jpeg" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/nandotess/Fortnite-Frontity" target="_blank" rel="noopener nofollow ugc">nandotess/Fortnite-Frontity</a></h3>
+
+<p>Contribute to nandotess/Fortnite-Frontity development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<ul>
+<li><strong>A deployed version of your site:</strong></li>
+</ul>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/0/00cde17bd6fe1bc1f1ccad6834e68f7fbc13428c.png" class="site-icon" width="64" height="64">
+      <a href="https://fortnite.improovement.com/en/team/tdk/" target="_blank" rel="noopener nofollow ugc">TDK App</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/388;"><img src="https://community.frontity.org/uploads/default/original/2X/5/54d971cd48d2cda6f4b06de69731af3fb9f74d53.jpeg" class="thumbnail" width="690" height="388" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/5/54d971cd48d2cda6f4b06de69731af3fb9f74d53_2_10x10.png"></div>
+
+<h3><a href="https://fortnite.improovement.com/en/team/tdk/" target="_blank" rel="noopener nofollow ugc">TDK App</a></h3>
+
+<p>This app is still in development mode. If you have an interest in have your profile and/or your team page here, please send an email to fortnite@improovement.com</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<ul>
+<li><strong>The URL of your WP REST API</strong></li>
+</ul>
+<p><a href="https://grenal.improovement.com/wp-json/wp/v2/team?_embed=true&amp;slug=tdk" class="onebox" target="_blank" rel="noopener nofollow ugc">https://grenal.improovement.com/wp-json/wp/v2/team?_embed=true&amp;slug=tdk</a></p>
+<p>Thank you so much,<br>
+Fernando</p>
+          <p><a href="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334/1</link>
+        <pubDate>Thu, 05 Nov 2020 18:15:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3334-1</guid>
+        <source url="https://community.frontity.org/t/after-a-component-is-updated-on-safari-and-firefox-mac-the-page-changes-its-scroll-position/3334.rss">After a component is updated, on Safari and Firefox (Mac) the page changes its scroll position</source>
+      </item>
+  </channel>
+</rss>

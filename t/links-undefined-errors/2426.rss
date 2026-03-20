@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Links / undefined errors</title>
+    <link>https://community.frontity.org/t/links-undefined-errors/2426</link>
+    <description>Hello, I am making some progress with Frontity (and having some fun on the side). 
+
+1 - How should I process to be able to use the react routers for links in template parts from WP? I have created one for the nav and one for the footer and would like have the Links without any reloading of the page. Is that possible? *:white_check_mark: FIXED -&gt; Used a processor :cowboy_hat_face:*
+
+2 - I am getting this undefined error quite a lot. Any ideas what the problem could be? 
+
+the code:
+
+    import { connect, styled } from &quot;frontity&quot;;
+    import { fixedHeaderStyles, headerStyles } from &quot;./header-styles&quot;;
+    import Link from &quot;./../link&quot;
+    let StyledLogo = styled.img({
+      &#39;max-height&#39;: &#39;120px&#39;,
+      &#39;max-width&#39;: &#39;300px&#39;,
+      &#39;padding-top&#39;: &#39;5px&#39;
+    })
+
+    const FixedHeader = ({ state, libraries }) =&gt; {
+      // Get the header template.
+      const data = state.source.get(&quot;/wp_template_part/navigation/&quot;);
+      const header = state.source[&quot;wp_template_part&quot;][data.id];
+      // Get the component that transform the template to React.
+      const Html2React = libraries.html2react.Component;
+      const { isFixedHeaderVisible } = state.theme;
+      const url = &quot;/&quot;;
+      return (
+        &lt;div css={fixedHeaderStyles({ state, isFixedHeaderVisible })}&gt;
+          {/* Render the template */}
+          &lt;Link link={url}&gt;&lt;StyledLogo src=&quot;http://frontity.hei-schule.ch/wp-content/uploads/2020/07/hei_logo-1.jpg&quot; alt=&quot;logo&quot; /&gt;&lt;/Link&gt;
+          &lt;Html2React html={header.content.rendered} /&gt;
+        &lt;/div&gt;
+      );
+    }
+    export default connect(FixedHeader);
+
+
+the error:
+
+      TypeError: Cannot read property &#39;undefined&#39; of undefined
+          at FixedHeader (webpack-internal:///./packages/hei-theme/src/components/navigation/index.js:9:107)
+          at runAsReaction (webpack-internal:///./node_modules/@frontity/connect/src/reactionRunner.js:16:45)
+          at reaction (webpack-internal:///./node_modules/@frontity/connect/src/observer.js:7:131)
+          at eval (webpack-internal:///./node_modules/@frontity/connect/src/connect.js:21:16)
+          at processChild (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:397:2319)
+          at resolve (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:396:122)
+          at ReactDOMServerRenderer.render (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:1199)
+          at ReactDOMServerRenderer.read (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:55)
+          at renderToString (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:470:116)
+          at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:53:243)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 09 Aug 2020 09:02:56 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/links-undefined-errors/2426.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Links / undefined errors</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, yes that has helped a lot <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/links-undefined-errors/2426/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/links-undefined-errors/2426/8</link>
+        <pubDate>Sun, 09 Aug 2020 09:02:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2426-8</guid>
+        <source url="https://community.frontity.org/t/links-undefined-errors/2426.rss">Links / undefined errors</source>
+      </item>
+      <item>
+        <title>Links / undefined errors</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/phn">@phn</a></p>
+<p>I think you might need to destructure the template object to get the slug, so something like this:</p>
+<pre><code class="lang-javascript">state.theme.templates.map(({ slug }) =&gt;
+...
+),
+</code></pre>
+<p>Let me know if this helps.</p>
+          <p><a href="https://community.frontity.org/t/links-undefined-errors/2426/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/links-undefined-errors/2426/6</link>
+        <pubDate>Thu, 06 Aug 2020 13:39:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2426-6</guid>
+        <source url="https://community.frontity.org/t/links-undefined-errors/2426.rss">Links / undefined errors</source>
+      </item>
+      <item>
+        <title>Links / undefined errors</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>, thanks for the reply.  I am already doing that:</p>
+<pre><code>  beforeSSR: async ({ state, actions }) =&gt; {
+    await Promise.all(
+      [
+        state.theme.templates.map((slug) =&gt;
+          actions.source.fetch(`/wp_template_part/${slug}`)
+        ),
+      ]
+    );
+  },
+</code></pre>
+<p>It should work like I do, doesn’t it?</p>
+          <p><a href="https://community.frontity.org/t/links-undefined-errors/2426/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/links-undefined-errors/2426/5</link>
+        <pubDate>Mon, 20 Jul 2020 18:06:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2426-5</guid>
+        <source url="https://community.frontity.org/t/links-undefined-errors/2426.rss">Links / undefined errors</source>
+      </item>
+      <item>
+        <title>Links / undefined errors</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/phn">@phn</a> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>It looks like the problem is with this line:</p>
+<pre><code class="lang-javascript">const header = state.source["wp_template_part"][data.id];
+</code></pre>
+<p>when both <code>state.source["wp_template_part"]</code> and <code>data.id</code> are <code>undefined</code> this becomes: <code>undefined[undefined]</code>.</p>
+<p>Is it possible that you have forgotten to fetch the headers in the <code>beforeSSR</code> action?</p>
+<p>If I’m not mistaken, you have taken this example from the frontity website repo, correct? <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+<p>So you can take a look at how we fetch the template_parts: in:  <a href="https://github.com/frontity/frontity.org/blob/dev/packages/frontity-org-theme/src/actions.ts#L4">https://github.com/frontity/frontity.org/blob/dev/packages/frontity-org-theme/src/actions.ts#L4</a></p>
+<p>You’ll need to do something like:</p>
+<pre><code class="lang-javascript"> beforeSSR: async ({ state, actions }) =&gt; {
+   await actions.source.fetch(`/wp_template_part/navigation`)
+ }
+</code></pre>
+          <p><a href="https://community.frontity.org/t/links-undefined-errors/2426/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/links-undefined-errors/2426/4</link>
+        <pubDate>Mon, 20 Jul 2020 17:53:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2426-4</guid>
+        <source url="https://community.frontity.org/t/links-undefined-errors/2426.rss">Links / undefined errors</source>
+      </item>
+      <item>
+        <title>Links / undefined errors</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>I did fix the Issue with a simple Link processor:</p>
+<pre><code>import Link from "@frontity/components/link";
+const link = {
+  name: "link",
+  priority: 10,
+  // Only process the node it if it's an image.
+  test: ({ node }) =&gt; node.component === "a",
+  processor: ({ node }) =&gt; {
+    node.props.link = node.props["href"] 
+    node.component = Link;
+    return node;
+  }
+};
+
+export default link ;</code></pre>
+          <p><a href="https://community.frontity.org/t/links-undefined-errors/2426/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/links-undefined-errors/2426/2</link>
+        <pubDate>Sat, 18 Jul 2020 16:50:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2426-2</guid>
+        <source url="https://community.frontity.org/t/links-undefined-errors/2426.rss">Links / undefined errors</source>
+      </item>
+      <item>
+        <title>Links / undefined errors</title>
+        <dc:creator><![CDATA[phn]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello, I am making some progress with Frontity (and having some fun on the side).</p>
+<p>1 - How should I process to be able to use the react routers for links in template parts from WP? I have created one for the nav and one for the footer and would like have the Links without any reloading of the page. Is that possible? <em><img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> FIXED -&gt; Used a processor <img src="https://community.frontity.org/images/emoji/apple/cowboy_hat_face.png?v=9" title=":cowboy_hat_face:" class="emoji" alt=":cowboy_hat_face:"></em></p>
+<p>2 - I am getting this undefined error quite a lot. Any ideas what the problem could be?</p>
+<p>the code:</p>
+<pre><code>import { connect, styled } from "frontity";
+import { fixedHeaderStyles, headerStyles } from "./header-styles";
+import Link from "./../link"
+let StyledLogo = styled.img({
+  'max-height': '120px',
+  'max-width': '300px',
+  'padding-top': '5px'
+})
+
+const FixedHeader = ({ state, libraries }) =&gt; {
+  // Get the header template.
+  const data = state.source.get("/wp_template_part/navigation/");
+  const header = state.source["wp_template_part"][data.id];
+  // Get the component that transform the template to React.
+  const Html2React = libraries.html2react.Component;
+  const { isFixedHeaderVisible } = state.theme;
+  const url = "/";
+  return (
+    &lt;div css={fixedHeaderStyles({ state, isFixedHeaderVisible })}&gt;
+      {/* Render the template */}
+      &lt;Link link={url}&gt;&lt;StyledLogo src="http://frontity.hei-schule.ch/wp-content/uploads/2020/07/hei_logo-1.jpg" alt="logo" /&gt;&lt;/Link&gt;
+      &lt;Html2React html={header.content.rendered} /&gt;
+    &lt;/div&gt;
+  );
+}
+export default connect(FixedHeader);
+</code></pre>
+<p>the error:</p>
+<pre><code>  TypeError: Cannot read property 'undefined' of undefined
+      at FixedHeader (webpack-internal:///./packages/hei-theme/src/components/navigation/index.js:9:107)
+      at runAsReaction (webpack-internal:///./node_modules/@frontity/connect/src/reactionRunner.js:16:45)
+      at reaction (webpack-internal:///./node_modules/@frontity/connect/src/observer.js:7:131)
+      at eval (webpack-internal:///./node_modules/@frontity/connect/src/connect.js:21:16)
+      at processChild (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:397:2319)
+      at resolve (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:396:122)
+      at ReactDOMServerRenderer.render (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:1199)
+      at ReactDOMServerRenderer.read (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:433:55)
+      at renderToString (webpack-internal:///./node_modules/react-dom/cjs/react-dom-server.node.development.js:470:116)
+      at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:53:243)</code></pre>
+          <p><a href="https://community.frontity.org/t/links-undefined-errors/2426/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/links-undefined-errors/2426/1</link>
+        <pubDate>Sat, 18 Jul 2020 01:24:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2426-1</guid>
+        <source url="https://community.frontity.org/t/links-undefined-errors/2426.rss">Links / undefined errors</source>
+      </item>
+  </channel>
+</rss>

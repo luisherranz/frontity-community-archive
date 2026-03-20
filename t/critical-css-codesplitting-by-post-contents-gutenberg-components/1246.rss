@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Import Gutenberg Custom Blocks CSS</title>
+    <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246</link>
+    <description>**--- [Roadmap Card](https://www.notion.so/frontity/Import-Gutenberg-Custom-Blocks-CSS-e10a55a7b2b948918d2811f2cd811c5e)**
+
+## Description
+From what I understand, Styled Components is used in Frontity in order to codesplit critical CSS on a per component basis. 
+
+But the vast majority of content produced via a Wordpress backend will not be determined by the frontity app but by the content within the post itself. 
+
+Most Frontity themes have not yet hit this problem because they&#39;re primarily focused on simple text hierarchies. But the Gutenberg editor introduces much much more possibilities. It is pretty conceivable that Gutenberg editor can eventually be used to essentially build entire pages. Lots and lots of custom gutenberg components and you have lots and lots of CSS styling that gets loaded on every single page and post regardless of if that particular component actually appears in that page or post. 
+
+The total number of lines I use to style the non post-content components in my WIP theme is maybe 20 or 40 lines at most. While the components which are possibly contained in a post&#39;s content are several hundred easily. 
+
+This should be fixed. I don&#39;t know how it, perhaps it will take a Wordpress plugin exposing a list of all components used in a post or something of that sort, and then having Frontity logic for conditionally loading styled components based on the expected post content or something like that?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 02 Apr 2020 11:38:10 +0000</lastBuildDate>
+    <category>Needs Research</category>
+    <atom:link href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Oh, then I think you can achieve that using <a href="https://docs.frontity.org/api-reference-1/frontity-html2react"><code>@frontity/html2react</code> package</a>. You can create your own processors, parse your content with <code>html2react</code>, and if any element match the conditions set in your processors, it applies the logic you define. For example, you could create a processor similar to this one:</p>
+<pre><code>import { css } from "frontity";
+
+export const customElement = {
+  name: "custom-element",
+  test: ({ node }) =&gt;
+    node.props.className.split(" ").includes("custom-element"),
+  processor: ({ node, state }) =&gt; {
+      node.props.css = css`
+        ${node.props.css}
+        background: blue;
+        color: black;
+        //All your styles
+      `;
+
+    return node;
+  },
+};
+
+</code></pre>
+<p>This way, if the <code>html2react</code> package finds an element with the class <code>custom-element</code> it will add that css.</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/16</link>
+        <pubDate>Thu, 02 Apr 2020 11:38:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-16</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="11" data-topic="1246">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>“Import Gutenberg Custom Blocks CSS”. What do you think?</p>
+</blockquote>
+</aside>
+<p>I don’t think this really addresses the issues. The issue is not importing the Gutenerg custom Block CSS. Someone might add a custom block to their WP via a plugin, but they don’t necessarily want their styling determined by the plugin. Maybe someone people will want that CSS auto imported to their Frontity project, but for me, I really would prefer to write my own styles and just let the Gutenberg component add html to the content, that then I can write my own styles for in the Frontity frontend.</p>
+<p>The difficulty here is NOT styling these custom components, it’s identifying if they’re on the page or not so that Frontity can determine whether it needs to load a bunch of codesplit custom css or not.</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/15</link>
+        <pubDate>Sat, 28 Mar 2020 21:02:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-15</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Let’s also keep an eye on the Global Styles proposal for Gutenberg:</p>
+<ul>
+<li><a href="https://github.com/WordPress/gutenberg/issues/19611">https://github.com/WordPress/gutenberg/issues/19611</a></li>
+<li><a href="https://github.com/WordPress/gutenberg/pull/20530">https://github.com/WordPress/gutenberg/pull/20530</a></li>
+</ul>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/14</link>
+        <pubDate>Mon, 16 Mar 2020 11:42:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-14</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="thedonquixotic" data-post="10" data-topic="1246">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Yes the updated description mostly covers what needs to be done. The only caveat is the custom block stuff.</p>
+</blockquote>
+</aside>
+<p>Okay, I have renamed this to “Import Gutenberg Custom Blocks CSS”. What do you think?</p>
+<p>Anyway, we have to keep in mind that the frontend (theme) is mostly managed from the Frontity side, so the styles getting from WordPress should be minimal. Sometimes, it’s a better practice to just add a <code>class</code> to the <code>&lt;div&gt;</code> or attribute you want to modify, and add some css or logic from the Frontity side using <a href="https://docs.frontity.org/api-reference-1/frontity-html2react"><code>@frontity/html2react</code></a> processors. We’ve used this approach in other projects and it’s simple and flexible. You can also pass general classes not supported by default Guteneberg block editor like <code>has-shadow</code> for example.</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/11</link>
+        <pubDate>Wed, 04 Mar 2020 08:56:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-11</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="9" data-topic="1246">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Okay, we can keep this other discussion as a different feature. But I’m not sure if I understood you correctly. I’ve updated the opening post of <a href="https://community.frontity.org/t/gutenberg-css/480">Gutenberg CSS discussion </a> to clarify what’s expected to be solved with this, and that way we can do something similar to write down here what it isn’t included.</p>
+</blockquote>
+</aside>
+<p>Yes the updated description mostly covers what needs to be done. The only caveat is the custom block stuff.</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="9" data-topic="1246">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>If I understood you correctly, loading just the Gutenberg css needed for a specific post/page is not enough for you right? What you miss is the fact that it wouldn’t support the custom blocks you build?</p>
+</blockquote>
+</aside>
+<p>Yes, that is essentially correct. In my understanding the proposed solution is to automatically take the styling used by default wordpress blocks and then load and apply that css based on what components are contained. This is fine, but what if you don’t want your blocks using default styles?</p>
+<p>This is relevant particularly with how Wordpress default CSS works in how it contains text. It puts all elements in a single “content” element div with a max width, while other themes (such as my frontity theme) maintains the width of elements using padding and margin, which is necessary if you want to have images that break from a strict column grid.</p>
+<p>Furthermore, as mentioned before, this is relevant for when you want to use components that are non default gutenberg components. So there needs to be a way to write styles that get processed and attached to specific components so that when they load those specific components they are able to do and still get the CSS code splitting performance advantages.</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/10</link>
+        <pubDate>Mon, 02 Mar 2020 19:10:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-10</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/thedonquixotic">@thedonquixotic</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Okay, we can keep this other discussion as a different feature. But I’m not sure if I understood you correctly. I’ve updated the opening post of <a href="https://community.frontity.org/t/gutenberg-css/480">Gutenberg CSS discussion</a> to clarify what’s expected to be solved with this, and that way we can do something similar to write down here what it isn’t included.</p>
+<p>If I understood you correctly, loading just the Gutenberg css needed for a specific post/page is not enough for you right? What you miss is the fact that it wouldn’t support the custom blocks you build?</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/9</link>
+        <pubDate>Mon, 02 Mar 2020 07:40:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-9</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey Santos,</p>
+<p>Yeah, that thread about the Gutenberg CSS package sorta addresses this feature request. The ability to use a processor to modify selective what critical CSS gets loaded on a per post basis might address this functionality but it doesn’t directly state that in Luis’s post. Furthermore, I believe Luis’ intention with the Gutenberg CSS package is to sync the default stylings of Gutenberg components defined in Wordpress, while this is really more about specifically code splitting styling for a theme based on the contents of a post (which would perhaps include but could also exceeds the definitions of the default Gutenberg component styles espc if you’re talking about adding any custom components to your wordpress installation. )</p>
+<p>Personally I would look at this feature request as a distinct feature that might be covered by a particular package being worked on by Luis but isn’t necessarily. It’s unclear to me to what degree it actually does or does not.</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/7</link>
+        <pubDate>Fri, 21 Feb 2020 22:47:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-7</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for your comments <a class="mention" href="https://community.frontity.org/u/thedonquixotic">@thedonquixotic</a>! I totally agree it would be a great functionality <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> If I understood it correctly, you’d like to load just the css necessary for each post right?</p>
+<p>We are talking about at <a href="https://community.frontity.org/t/gutenberg-css/480/20">this topic</a>. As Luis mentions, we thought of creating a first version of the Gutenberg CSS package to import all the css into <code>&lt;Global /&gt;</code>, and start working on a new version where we can use processors to modify emotion  <code>css</code>  prop. This way, only the css needed for each post would be loaded.</p>
+<p>Could you confirm if that’s what you are asking for? If so, I think the best option would be to continue the conversation <a href="https://community.frontity.org/t/gutenberg-css/480/20">here</a>, that way users can keep track of the whole process.</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/5</link>
+        <pubDate>Fri, 21 Feb 2020 13:18:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-5</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+      <item>
+        <title>Import Gutenberg Custom Blocks CSS</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Import-Gutenberg-Custom-Blocks-CSS-e10a55a7b2b948918d2811f2cd811c5e" rel="nofollow noopener">Roadmap Card</a></strong></p>
+<h2>Description</h2>
+<p>From what I understand, Styled Components is used in Frontity in order to codesplit critical CSS on a per component basis.</p>
+<p>But the vast majority of content produced via a Wordpress backend will not be determined by the frontity app but by the content within the post itself.</p>
+<p>Most Frontity themes have not yet hit this problem because they’re primarily focused on simple text hierarchies. But the Gutenberg editor introduces much much more possibilities. It is pretty conceivable that Gutenberg editor can eventually be used to essentially build entire pages. Lots and lots of custom gutenberg components and you have lots and lots of CSS styling that gets loaded on every single page and post regardless of if that particular component actually appears in that page or post.</p>
+<p>The total number of lines I use to style the non post-content components in my WIP theme is maybe 20 or 40 lines at most. While the components which are possibly contained in a post’s content are several hundred easily.</p>
+<p>This should be fixed. I don’t know how it, perhaps it will take a Wordpress plugin exposing a list of all components used in a post or something of that sort, and then having Frontity logic for conditionally loading styled components based on the expected post content or something like that?</p>
+          <p><a href="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246/1</link>
+        <pubDate>Tue, 18 Feb 2020 03:47:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1246-1</guid>
+        <source url="https://community.frontity.org/t/import-gutenberg-custom-blocks-css/1246.rss">Import Gutenberg Custom Blocks CSS</source>
+      </item>
+  </channel>
+</rss>

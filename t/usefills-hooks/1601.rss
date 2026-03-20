@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>useFills hooks</title>
+    <link>https://community.frontity.org/t/usefills-hooks/1601</link>
+    <description># Description
+
+Right now the only way to add a Slots in a theme is by using the `Slot` component.
+
+That component is great for simple slots, but for more complex slots it&#39;d be nice to receive the fills in an array. We can use a hook for that.
+
+# User stories
+
+&gt; As a **Frontity theme creator**
+&gt; I want to **use a hook instead of a component for Slots**
+&gt; so that I **can have more control of the insides**
+
+# Possible solution
+
+The `useFills` hook could be something like this:
+
+```jsx
+const useFills = name =&gt; {
+  const { state } = useConnect();
+  Object.values(state.fills)
+    // Match only the fills for this name.
+    .find(fill =&gt; fill.name === name)
+    // Sort fills by priority.
+    .sort((a, b) =&gt; a.priority &gt; b.priority)
+    // Add real component to the array.
+    .map(fill =&gt; {
+      const Fill = libraries.fills[fill.library];
+      return {
+        ...fill,
+        Fill
+      };
+    });
+};
+```
+
+And then use that hook instead of the `Slot` component.
+
+For example, a theme can use `useFills` to render the fills in-between `&lt;li&gt;` tags after it has rendered other menu items:
+
+```jsx
+const Menu = ({ state }) =&gt; {
+  const menuItems = state.theme.menu;
+  const menuFills = useFills(&quot;Menu items&quot;);
+
+  return (
+    &lt;&gt;
+      &lt;Slot name=&quot;Before menu&quot; /&gt;
+      &lt;ul&gt;
+        {menuItems.map(item =&gt; (
+          &lt;li&gt;
+            &lt;Link href={item[1]}&gt;{item[0]}&lt;/Link&gt;
+          &lt;/li&gt;
+        ))}
+        {menuFills.map(({ Fill, props }) =&gt; (
+          &lt;li&gt;
+            &lt;Fill {...props} /&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+      &lt;Slot name=&quot;After menu&quot; /&gt;
+    &lt;/&gt;
+  );
+};
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 12 May 2020 08:16:00 +0000</lastBuildDate>
+    <category>Closed</category>
+    <atom:link href="https://community.frontity.org/t/usefills-hooks/1601.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>useFills hooks</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Closed as this is going finally going to be released as part of <a href="https://community.frontity.org/t/slot-and-fill/895" class="inline-onebox">Slot and Fill</a>.</p>
+          <p><a href="https://community.frontity.org/t/usefills-hooks/1601/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/usefills-hooks/1601/2</link>
+        <pubDate>Tue, 12 May 2020 08:16:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1601-2</guid>
+        <source url="https://community.frontity.org/t/usefills-hooks/1601.rss">useFills hooks</source>
+      </item>
+      <item>
+        <title>useFills hooks</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>Right now the only way to add a Slots in a theme is by using the <code>Slot</code> component.</p>
+<p>That component is great for simple slots, but for more complex slots it’d be nice to receive the fills in an array. We can use a hook for that.</p>
+<h1>User stories</h1>
+<blockquote>
+<p>As a <strong>Frontity theme creator</strong><br>
+I want to <strong>use a hook instead of a component for Slots</strong><br>
+so that I <strong>can have more control of the insides</strong></p>
+</blockquote>
+<h1>Possible solution</h1>
+<p>The <code>useFills</code> hook could be something like this:</p>
+<pre><code class="lang-jsx">const useFills = name =&gt; {
+  const { state } = useConnect();
+  Object.values(state.fills)
+    // Match only the fills for this name.
+    .find(fill =&gt; fill.name === name)
+    // Sort fills by priority.
+    .sort((a, b) =&gt; a.priority &gt; b.priority)
+    // Add real component to the array.
+    .map(fill =&gt; {
+      const Fill = libraries.fills[fill.library];
+      return {
+        ...fill,
+        Fill
+      };
+    });
+};
+</code></pre>
+<p>And then use that hook instead of the <code>Slot</code> component.</p>
+<p>For example, a theme can use <code>useFills</code> to render the fills in-between <code>&lt;li&gt;</code> tags after it has rendered other menu items:</p>
+<pre><code class="lang-jsx">const Menu = ({ state }) =&gt; {
+  const menuItems = state.theme.menu;
+  const menuFills = useFills("Menu items");
+
+  return (
+    &lt;&gt;
+      &lt;Slot name="Before menu" /&gt;
+      &lt;ul&gt;
+        {menuItems.map(item =&gt; (
+          &lt;li&gt;
+            &lt;Link href={item[1]}&gt;{item[0]}&lt;/Link&gt;
+          &lt;/li&gt;
+        ))}
+        {menuFills.map(({ Fill, props }) =&gt; (
+          &lt;li&gt;
+            &lt;Fill {...props} /&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+      &lt;Slot name="After menu" /&gt;
+    &lt;/&gt;
+  );
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/usefills-hooks/1601/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/usefills-hooks/1601/1</link>
+        <pubDate>Wed, 22 Apr 2020 08:45:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1601-1</guid>
+        <source url="https://community.frontity.org/t/usefills-hooks/1601.rss">useFills hooks</source>
+      </item>
+  </channel>
+</rss>

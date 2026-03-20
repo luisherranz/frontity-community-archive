@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Get category description and custom fields</title>
+    <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200</link>
+    <description>Hello,
+I&#39;m turning a wp blog into frontity
+The clients want to display the category description on top of the category page, and also to include there the menu of his choice
+So I made a custom field where you can put the menu name
+but IDK how to get this data:
+the category description and the custom field</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 12 Jul 2020 06:59:23 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>, no I didn’t do that, I thought that :category was targeting all the categories as I need to do it for all categories, not for one<br>
+So I understand that first I need to get an array of all the categories archives links<br>
+I found another topic for this<br>
+</p><aside class="quote quote-modified" data-post="3" data-topic="799">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/list-all-categories-as-links/799/3">List all categories as links</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="This “Dev Talks &amp; Questions” is the place for:">🤗 Dev Talk &amp; Questions</span></a>
+  </div>
+  <blockquote>
+    Hey guys, sorry for the lack of documentation on this aspect, we’ll work on improving it. We try to explain what State is and how Frontity works at <a href="https://docs.frontity.org/learning-frontity/state" rel="nofollow noopener">this page</a> of the documentation. 
+State is an object where Frontity exposes all the data needed for the packages. By default, Frontity fetch the common data from WordPress and populate the state.source. This way, you can find all the info about categories, posts, tags, authors, etc. At state.source.data you can access this data using the URL, which ma…
+  </blockquote>
+</aside>
+<br>
+I tried, but handlers is really a concept that I don’t get totally<br>
+so I did that, create a handlers folder in source,<br>
+create this<p></p>
+<pre><code>export const allCategoriesHandler = {
+name: "allCategories",
+priority: 10,
+pattern: "/c/:slug",
+func: async ({ route, params, state, libraries }) =&gt; {
+const { api } = libraries.source;
+
+//1.fetch data from the endpoint page
+const response = await api.get({
+  endpoint: "categories",
+  params: {
+    per_page: 100,
+  },
+});
+//2.get array with each item in json format
+const items = await response.json();
+
+//3. add data to source
+const currentPageData = state.source.data[route];
+
+Object.assign(currentPageData, {
+  items,
+    });
+  },
+};
+</code></pre>
+<p>(the pattern thing is part of the things that I don’t really understand)<br>
+and then in index.js</p>
+<pre><code>actions: {
+    theme: {
+      openMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = true;
+      },
+     closeMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = false;
+     },
+      openSearchModal: ({ state }) =&gt; {
+       state.theme.isSearchModalOpen = true;
+      },
+      closeSearchModal: ({ state }) =&gt; {
+       state.theme.isSearchModalOpen = false;
+     },
+     beforeSSR: ({ actions }) =&gt; async () =&gt; {
+     await actions.source.fetch("all-categories");
+      },
+   },
+  },
+  libraries: {
+    html2react: {
+      processors: [image],
+    },
+    source: {
+      handlers: [allCategoriesHandler],
+    },
+  },
+</code></pre>
+<p>But now if I type frontity.libraries.source.handlers it doesn’t appear in the list</p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/10</link>
+        <pubDate>Sun, 12 Jul 2020 06:50:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-10</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Just to be sure, instead of <code>/:category</code> you need to pass the link of the category that needs the description populated. Is that how you are doing it?</p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/9</link>
+        <pubDate>Tue, 30 Jun 2020 13:14:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-9</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="orballo" data-post="6" data-topic="2200">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<pre><code class="lang-javascript">useEffect(() =&gt; {
+    actions.source.fetch('/:category', {force: true})
+  }, []);
+</code></pre>
+</blockquote>
+</aside>
+<p>I tried to had that in my archive component, and then the page loads, and quickly become blank<br>
+and no special error in the console<br>
+for ACF, I forgot to have the plugin acf to rest</p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/7</link>
+        <pubDate>Sun, 28 Jun 2020 06:59:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-7</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi!</p>
+<p>I had quick look at this. Apparently the <code>acf</code> field is not exposed in the REST API right now, so I guess the solution for that would be in the ACF plugin.</p>
+<p>Regarding the <code>description</code> field, this is a known issue with the WP REST API. You are probably getting the categories data as embedded from the latest posts list when loading the homepage and WP doesn’t include the category’s description when they are embedded.</p>
+<p>You’ll see that if you get to the category page directly from SSR, the <code>description</code> field is populated in the <code>state</code>.</p>
+<p>You can get the category again, fully populated with something like:</p>
+<pre><code class="lang-javascript">const Component = () =&gt; {
+  useEffect(() =&gt; {
+    actions.source.fetch('/:category', {force: true})
+  }, []);
+
+  return &lt;div /&gt;
+}
+</code></pre>
+<p>Docs: <a href="https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch">https://docs.frontity.org/api-reference-1/wordpress-source#source-fetch</a></p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/6</link>
+        <pubDate>Thu, 25 Jun 2020 14:11:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-6</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes it’s here<br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/alexadark/javierlorrente" target="_blank" rel="nofollow noopener">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/5dcf37a9d60609b23a5995e5826261e6ef1f9885.jpeg" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/alexadark/javierlorrente" target="_blank" rel="nofollow noopener">alexadark/javierlorrente</a></h3>
+
+<p>Contribute to alexadark/javierlorrente development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<br>
+thank you <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/5</link>
+        <pubDate>Thu, 25 Jun 2020 12:20:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-5</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/alexaspalato">@alexaspalato</a></p>
+<p>Do you have a repo of this project that we can take a look at and clone?</p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/4</link>
+        <pubDate>Thu, 25 Jun 2020 11:14:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-4</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/ben.wright.dev">@ben.wright.dev</a>,<br>
+thank you.<br>
+Yes I use ACF, and I know how to use it<br>
+the problems is that this data is assign to the category<br>
+and IDK how to get the data from the category, neither native description, neither custom field</p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/3</link>
+        <pubDate>Thu, 25 Jun 2020 08:11:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-3</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[ben.wright.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/alexaspalato">@alexaspalato</a> !</p>
+<p>Are you using ACF or creating your own custom fields in Wordpress?</p>
+<p>Have you have the field accessible via the rest API?</p>
+<p>For my project I am using ACF along with ‘ACF to rest API’ wordpress plugin to ensure data can be accessed.</p>
+<p>To get my acf data I am then doing something like:</p>
+<pre><code>  const data = state.source.get(state.router.link);
+  const post = state.source[data.type][data.id];
+  const contentBlocks = state.source.page[post.id].acf.content_blocks;
+</code></pre>
+<p>Where ‘content_blocks’ is the name of my field.</p>
+<p>Hope this helps!</p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/2</link>
+        <pubDate>Thu, 25 Jun 2020 07:35:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-2</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+      <item>
+        <title>Get category description and custom fields</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,<br>
+I’m turning a wp blog into frontity<br>
+The clients want to display the category description on top of the category page, and also to include there the menu of his choice<br>
+So I made a custom field where you can put the menu name<br>
+but IDK how to get this data:<br>
+the category description and the custom field</p>
+          <p><a href="https://community.frontity.org/t/get-category-description-and-custom-fields/2200/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/get-category-description-and-custom-fields/2200/1</link>
+        <pubDate>Thu, 25 Jun 2020 07:19:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2200-1</guid>
+        <source url="https://community.frontity.org/t/get-category-description-and-custom-fields/2200.rss">Get category description and custom fields</source>
+      </item>
+  </channel>
+</rss>

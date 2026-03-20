@@ -1,0 +1,1163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>AMP package</title>
+    <link>https://community.frontity.org/t/amp-package/388</link>
+    <description># OPENING POST
+---
+
+## Description
+Implement an easy way of implementing AMP in Frontity projects.
+
+## User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **be able to use AMP in my project**
+&gt; so that **I can easily speed up the loading time of web pages on mobile devices**
+
+## Possible solution
+
+We were about to add support to AMP using settings&#39; `mode: &quot;amp&quot;`, but it doesn&#39;t play nice with the current new implementation of entry points.
+
+This is the list of things that need to happen to make Frontity render valid AMP HTML:
+1. The entry points are switched to `amp.js` or `/amp/index.js`.
+*– That is precisely what is happening now when set `mode: &quot;amp&quot;` in the settings.*
+1. There should not be a client bundle, only a server one.
+*– That is not happening right now.*
+1. The HTML template needs to be changed to a AMP-HTML template.
+*– That is hardcoded right now (bad).*
+1. Some setting must be set to `&quot;amp&quot;` so packages can check if AMP is on.
+*– That is done now with `state.frontity.mode` which is populated with the settings `mode`.*
+
+My proposal is to switch to a package that does all these things. It could be called `@frontity/amp`.
+
+We could then remove `mode` from settings, but need to expose both `entryPoints` and `bundles`. This makes it much more hackable and extensible.
+
+Let me explain how it works:
+
+1. People who want to configure a site in AMP need to add the `@frontity/amp` package in their `frontity.settings.js` file:
+
+```javascript
+{
+  name: &quot;my-site-amp&quot;,
+  match: &quot;\\/amp\\/?($|\\?|#)&quot;, // This matches any url ending with /amp/.
+  packages: [
+    &quot;@frontity/amp&quot;,
+    &quot;@frontity/mars-theme&quot;,
+    &quot;@frontity/wp-source&quot;
+  ]
+}
+```
+
+That&#39;s it, people don&#39;t need to do more.
+
+2. Internally, the AMP package uses its own `frontity.config.js` to change the settings of that site:
+
+```javascript
+export default {
+  settings: site =&gt; {
+    // This looks for amp.js entry points if they exist.
+    site.entryPoints = &quot;amp&quot;;  
+    // This avoids the creation of the client bundle for this site.
+    site.bundles = [&quot;server&quot;];
+  }
+}
+```
+
+3. It also adds a `state.frontity.mode` equal to `&quot;amp&quot;` in its `index.js`:
+```javascript
+export default {
+  state: {
+    frontity: {
+      mode: &quot;amp&quot;
+    }
+  }
+}
+```
+
+4. And finally changes the HTML template extending the server in the `koa.js` file.
+*– the name of the koa.js file is yet to be determined.*
+
+```javascript
+import AmpTemplate from &quot;./template&quot;;
+
+export default app =&gt; {
+  app.use(ctx =&gt; {
+    ctx.template = AmpTemplate;
+  });
+}
+```
+
+I think the coolest thing about this approach is that there won&#39;t be anything hardcoded in our AMP support. Any person could have done this package by extending Frontity. So in the future, people can create other packages for other modes following similar patterns.
+
+Any ideas, suggestions or feedback... is welcomed.
+
+---
+# CURRENT STATUS SUMMARY
+---
+&gt; *:warning: Please, bear in mind that this section wasn&#39;t part of the opening post. It has been added afterwards and its purpose is to keep a quick summary with the most relevant information about this FD at the top of the thread.*
+
+**[-- GitHub board](https://github.com/frontity/frontity/projects/5)**
+
+After the research we came up with a proper Implementation Proposal, where we explained the steps that are needed to release this:
+
+https://community.frontity.org/t/amp-package/388/10?u=santosguillamot</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 21 Apr 2021 07:16:31 +0000</lastBuildDate>
+    <category>Currently in Development</category>
+    <atom:link href="https://community.frontity.org/t/amp-package/388.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>You’re totally right. I’ve created a new <a href="https://github.com/frontity/frontity/issues/794">issue to make Frontity components AMP-aware</a>. Thanks Michal <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/73">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/73</link>
+        <pubDate>Wed, 21 Apr 2021 07:16:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-73</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> our <code>Image</code> component from <code>@frontity/components</code> would need some small changes in order to be compatible with AMP but I notice that it’s not currently on the roadmap.</p>
+<p>Do you think it’s something we should also work on?</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/72">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/72</link>
+        <pubDate>Tue, 20 Apr 2021 22:58:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-72</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="70" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>But maybe that’s not a big deal as this is not something that you pass to the frontity state. What do you think <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> ?</p>
+</blockquote>
+</aside>
+<p>Good point, although I’d still go with <code>state.frontity.mode</code> which is already working as we want <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/71">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/71</link>
+        <pubDate>Fri, 09 Apr 2021 10:24:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-71</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="68" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>If, for any reason, users want to use some attributes in the non-AMP version but exclude them in the AMP version because they aren’t valid, they could just create a new processor for that right?</p>
+</blockquote>
+</aside>
+<p>Yup, they could do that. I think we could even recommend that (with an example) in our docs as this might be a relatively common thing to todo.</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="68" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p><strong>Regarding the <code>svg</code></strong>: I think it’s just an error in the content because we’re using something old and I guess that should be changed in WordPress if users encounter the same issue. This is <a href="https://test.frontity.org/2015/test-multiple-blocks/">the post that is returning the error</a> and this is an example of the non-valid HTML:</p>
+</blockquote>
+</aside>
+<p>yep, looks this is not a bug on our side.</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="68" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p><strong>Regarding the <code>amp-audio</code></strong>: I was wrong and the error isn’t caused because I was working on localhost. In <a href="https://test.frontity.org/audio-test/">this page</a>, we aren’t passing the src to the <code>audio</code> attribute but to its children <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source"><code>source</code> element</a>, so that’s why <a href="https://github.com/frontity/frontity/blob/dev/packages/amp/src/processors/audio.tsx#L34-L38">this code</a> is not being applied. I guess we could apply the same logic for the <code>source</code> element right? This is an example of the html of that page:</p>
+</blockquote>
+</aside>
+<p>oh, that’s right. I didn’t take into account that <code>&lt;audio&gt;</code> elements can also have child <code>&lt;source&gt;</code> elements. Actually, the same is true for <code>&lt;video&gt;</code> so we will have to add the same feature to the <code>amp-video</code> processor. Thanks!</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="69" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I’ve never seen a publisher that prefers to keep their users in the AMP version more than what is strictly necessary.</p>
+</blockquote>
+</aside>
+<p>oh, okay great, I didn’t realize this <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="69" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Also, if I am not mistaken, defining <code>mode</code> in your <code>frontity.settings.js</code> file was already working to switch the entrypoint to whatever name you pass. Using <code>amp</code> means it will check for <code>src/amp.js</code>, <code>src/amp/index.js</code>,</p>
+</blockquote>
+</aside>
+<p>About the <code>mode</code>, I’ve also remembered that we’re already using a property called <code>mode</code> to <a href="https://github.com/frontity/frontity/blob/0ad590d6a29eb2f110918a4059a3a071f2b791aa/packages/core/src/scripts/dev.ts#L71-L71">differentiate between the <code>production</code> and <code>development</code> modes of webpack</a></p>
+<p>But maybe that’s not a big deal as this is not something that you pass to the frontity state. What do you think <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> ?</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/70">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/70</link>
+        <pubDate>Wed, 07 Apr 2021 17:58:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-70</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey, great work here!! <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"><img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I’ve seen some AMP webs doing this an other ones just loading the non-AMP version. Any opinion about what we should do about this?</p>
+</blockquote>
+</aside>
+<p>I’ve never seen a publisher that prefers to keep their users in the AMP version more than what is strictly necessary.</p>
+<p>I think that even the AMP team doesn’t expect that and encourages to go from AMP → PWA: <a href="https://amp.dev/documentation/guides-and-tutorials/integrate/amp-to-pwa/" class="inline-onebox">Preload your PWA from your AMP pages</a></p>
+<p>So my opinion is not to worry about this for now and leave it as it is. If someone requests it, a setting can be added in the future <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="67" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+<p>We should also decide on the name for the <code>state.frontity.mode</code>.</p>
+</blockquote>
+</aside>
+<p>Ok, let’s make a decision <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>We have used <code>state.frontity.options.embedded = true</code> for the Embedded mode, so I guess using <code>state.frontity.mode = "amp"</code> is less confusing now.</p>
+<p>Let’s go with that option, which seems like everyone liked at the beginning.</p>
+<p>Also, if I am not mistaken, defining <code>mode</code> in your <code>frontity.settings.js</code> file was already working to switch the entrypoint to whatever name you pass. Using <code>amp</code> means it will check for <code>src/amp.js</code>, <code>src/amp/index.js</code>, <code>src/amp/server.js</code> and so on before checking for <code>src/index.js</code>, so we get that for free <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+<p>The only difference with this method is that we will need to add an extra instruction to the docs: Add <code>mode: "amp"</code> to your <code>frontity.settings.js</code> file:</p>
+<pre><code class="lang-js">const settings = [
+  {
+    name: "main-site",
+    packages: [
+      /*...*/
+    ],
+  },
+  {
+    name: "amp-site",
+    mode: "amp",
+    match: "\\/amp",
+    packages: [
+      "@frontity/amp",
+      /*...*/
+    ],
+  },
+];
+</code></pre>
+<p>EDIT: I think that no PR is needed for this. Only start using the already implemented <code>mode</code> of the <code>frontity.settings.js</code> file.</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/69">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/69</link>
+        <pubDate>Wed, 07 Apr 2021 14:39:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-69</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks a lot for taking a look at it Michal <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> I’ve just opened a <a href="https://github.com/frontity/frontity/issues/772">bug</a> to track this on GitHub and I assigned it to you. If at some point you feel it makes sense to open different bugs for each error just let me know,</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="67" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>My opinion is that we shouldn’t do anything here because there is no good solution <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:">. If we use a <code>blocklist</code> of attributes then we cannot possible cover all “disallowed” attributes. the blocklist would have to be infinite! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"> Conversely, if we use an <code>allowlist</code> then we might delete some attributes that a user needs to put on the element. For example, someone might want to put some <code>data-*</code> attributes or some <code>js-*</code> attributes to use as selectors in e2e tests.</p>
+</blockquote>
+</aside>
+<p>Yes, it makes sense. Moreover, I think the attributes I listed (<code>marginheight</code>, <code>marginwidth</code> and <code>security</code>) are obsolete and they shouldn’t be used, so I guess it’s a problem in the content. If, for any reason, users want to use some attributes in the non-AMP version but exclude them in the AMP version because they aren’t valid, they could just create a new processor for that right?</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="67" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>OK, in order to unblock this would be great to get to the bottom of the issue with SVG and the http error in <code>amp-audio</code>. Could you make a reproduction like a test case or a video?</p>
+</blockquote>
+</aside>
+<p><strong>Regarding the <code>svg</code></strong>: I think it’s just an error in the content because we’re using something old and I guess that should be changed in WordPress if users encounter the same issue. This is <a href="https://test.frontity.org/2015/test-multiple-blocks/">the post that is returning the error</a> and this is an example of the non-valid HTML:</p>
+<pre><code class="lang-javascript">&lt;div class="wp-block-cover__inner-container"&gt;
+  &lt;p class="has-text-align-center has-large-font-size"&gt;
+    This is a
+    &lt;g
+      class="gr_ gr_3 gr-alert gr_spell gr_inline_cards gr_run_anim ContextualSpelling multiReplace"
+      id="3"
+      data-gr-id="3"
+      &gt;full width&lt;/g
+    &gt;
+    cover image with fixed background.
+  &lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<p><strong>Regarding the <code>amp-audio</code></strong>: I was wrong and the error isn’t caused because I was working on localhost. In <a href="https://test.frontity.org/audio-test/">this page</a>, we aren’t passing the src to the <code>audio</code> attribute but to its children <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source"><code>source</code> element</a>, so that’s why <a href="https://github.com/frontity/frontity/blob/dev/packages/amp/src/processors/audio.tsx#L34-L38">this code</a> is not being applied. I guess we could apply the same logic for the <code>source</code> element right? This is an example of the html of that page:</p>
+<pre><code class="lang-javascript">&lt;audio
+  class="wp-audio-shortcode"
+  id="audio-211-1"
+  preload="none"
+  style="width: 100%"
+  controls="controls"
+&gt;
+  &lt;source
+    type="audio/mpeg"
+    src="http://test.frontity.org/wp-content/uploads/2017/06/Peter-Griffin-TADA.mp3?_=1"
+  /&gt;
+  &lt;a
+    href="http://test.frontity.org/wp-content/uploads/2017/06/Peter-Griffin-TADA.mp3"
+    &gt;http://test.frontity.org/wp-content/uploads/2017/06/Peter-Griffin-TADA.mp3&lt;/a
+  &gt;
+&lt;/audio&gt;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/amp-package/388/68">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/68</link>
+        <pubDate>Wed, 07 Apr 2021 07:27:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-68</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> let me reply to your concerns here and thanks for testing this thorougly! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Should we add a default width/height ratio or keep the errors to let the users know they should change that?</p>
+</blockquote>
+</aside>
+<p>I’ve been looking for some ideas around this and I noticed this example in the AMP documentation: <a href="https://amp.dev/documentation/examples/style-layout/how_to_support_images_with_unknown_dimensions/?format=websites" class="inline-onebox">Example: How to support Images with unknown Dimensions</a>. I think that we can use this approach: If the image <strong>does have</strong> width &amp; height: great, use that to get the aspect ratio and we’re done. If not, use the <code>layout="fill"</code> combined with <code>object-fit</code> (described in the article).</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>It seems that, to solve the second issue we just have <code>width="auto"</code>, and to solve the third one <code>allowFullScreen={undefined}</code>.</p>
+<p>Apart from that, to be able to run the scripts of the iframes (the reason why they are not showing), it seems we have to add <a href="https://amp.dev/documentation/components/amp-iframe/#sandbox"><code>sandbox</code> attribute</a>.</p>
+</blockquote>
+</aside>
+<p>Yep, the issue is that for attributes that are booleans, AMP does not like when you pass an actual value like <code>allowFullScreen={true}</code> <strong>even though it’s permitted in the HTML spec</strong>. So we have to resort to passing <code>allowFullScreen={undefined}</code> in those cases which ends up as just <code>allowFullScreen</code> in the HTML (a boolean attribute with no value).</p>
+<p>I’m not sure why <code>width="auto"</code> is required. I don’t think I have seen that issue before and I’m sure I’ve tested the iframes with the <code>layout="fixed-height"</code>. But if that works then yes, I think we can do that!</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<pre><code class="lang-javascript">&lt;amp-iframe
+    {...rest}
+    title={title || ""}
+    src={src}
+    layout="fixed-height"
+    width="auto"
+    allowFullScreen={undefined}
+    sandbox="allow-scripts allow-same-origin"
+    height={parseInt(height, 10) || 150} // This is mimicking the browser default of 150px
+/&gt;
+</code></pre>
+</blockquote>
+</aside>
+<p>Yup, although I think that it’s important that we don’t absolutely override any prop here and just provide the “working” values as defaults that the user can override (even if the user-provided value could lead to AMP problems). So, I think the code should be more like:</p>
+<pre><code class="lang-jsx">&lt;amp-iframe
+    {...rest}
+    title={title || ""}
+    src={src}
+    layout="fixed-height"
+    width="auto"
+    allowFullScreen={props.allowFullScreen || undefined}
+    sandbox={props.sandbox || "allow-scripts allow-same-origin"}
+    height={parseInt(height, 10) || 150} // This is mimicking the browser default of 150px
+/&gt;
+</code></pre>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Moreover, I’ve seen that sometimes we’re sending some attributes that aren’t expected:</p>
+<ul>
+<li>The attribute ‘marginheight’ may not appear in tag ‘amp-iframe’.</li>
+<li>The attribute ‘marginwidth’ may not appear in tag ‘amp-iframe’.</li>
+<li>The attribute ‘security’ may not appear in tag ‘amp-iframe’.</li>
+</ul>
+<p>Should we delete them? Or add some logic to delete all the attributes that don’t match the allowed attributes: <a href="https://amp.dev/documentation/components/amp-iframe/#attributes">iframe-attributes</a> and <a href="https://amp.dev/documentation/guides-and-tutorials/learn/common_attributes/?format=websites">common-attributes</a>?</p>
+</blockquote>
+</aside>
+<p>My opinion is that we shouldn’t do anything here because there is no good solution <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:">. If we use a <code>blocklist</code> of attributes then we cannot possible cover all “disallowed” attributes. the blocklist would have to be infinite! <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"> Conversely, if we use an <code>allowlist</code> then we might delete some attributes that a user needs to put on the element. For example, someone might want to put some <code>data-*</code> attributes or some <code>js-*</code> attributes to use as selectors in e2e tests.</p>
+<p>Plus this “validation error” does not actually stop the AMP page from rendering!</p>
+<p>FYI, in general, my approach when creating the processors was to not try to be “smarter” than the user if they provide invalid content because there is an almost infinite number of ways in which content can be invalid (according to AMP rules) and trying to catch some cases can cause more problems than solve <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<ul>
+<li>The attribute ‘autoplay’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+<li>The attribute ‘loop’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+<li>The attribute ‘muted’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+<li>The attribute ‘controls’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+</ul>
+</blockquote>
+</aside>
+<p>So this is the same problem as for the <code>allowFullscreen</code> prop for the <code>amp-iframe</code> (and elsewhere).</p>
+<p>If the prop is a boolean (and this only works for booleans) I think that we could solve this with something like:</p>
+<pre><code class="lang-jsx">&lt;amp-video
+    autoplay={autoplay ? undefined : null}
+/&gt;
+</code></pre>
+<p>but I have not tested it.</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<ul>
+<li>Invalid URL protocol ‘http:’ for attribute ‘src’ in tag ‘source’.</li>
+</ul>
+<p>I think this is because I was working on localhost. This should be covered by <a href="https://github.com/frontity/frontity/blob/dev/packages/amp/src/processors/audio.tsx#L34-L38">this piece of code</a> right?</p>
+</blockquote>
+</aside>
+<p>I can’t say for sure why that is happening. Yes, the url should have been substituted as you noticed.</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Instead of <a href="https://github.com/frontity/frontity/blob/dev/packages/amp/src/processors/audio.tsx#L24">this way</a> we are using right now:</p>
+<pre><code class="lang-javascript">&lt;amp-audio {...props} controls /&gt;
+</code></pre>
+<p>Use this:</p>
+<pre><code class="lang-javascript">&lt;amp-audio {...props} class={className} controls /&gt;
+</code></pre>
+</blockquote>
+</aside>
+<p>Yep, this is bug and your solution should work. It’s because AMP elements are custom components and they don’t accept the <code>classname</code> attribute!</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>Not sure why we are using the <code>&lt;g&gt;</code> tag for some inline text in a couple of posts. Any idea how if this is common or not expected in a real site?</p>
+</blockquote>
+</aside>
+<p>Also no idea!</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I guess this should be managed by the forms packages like contact form 7? Or do you think we should add a processor for this?</p>
+</blockquote>
+</aside>
+<p>My opinion is that a package like contact form 7 should add that functionality to the processors for <code>&lt;form&gt;</code> in that case because forms do not just work out of the box with Frontity anyway. The user has to install some kind of a plugin in WordPress in order to create forms and each plugin works differently anyway.</p>
+<p>Although that means that every “form” package would have to include some code to explicitly opt-in to being able to handle AMP. Which is not that ideal either, but I don’t think we can provide a one-size-fits-all solution that is guaranteed to work with any Frontity form package so I think it’s better to leave it up to the individual package.</p>
+<aside class="quote group-community-team" data-username="SantosGuillamot" data-post="66" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I guess that with the link processor we could detect if AMP is active and try to reach the amp version first.</p>
+</blockquote>
+</aside>
+<p>Yeah, I think that we could/should do that. If <code>state.frontity.mode === "amp"</code> (PS I think we still have not settled on whether the name should be <code>mode</code> or something else) we can try to redirect to the AMP version of the page.</p>
+<hr>
+<p>OK, in order to unblock this would be great to get to the bottom of the issue with SVG and the http error in <code>amp-audio</code>. Could you make a reproduction like a test case or a video?</p>
+<p>All the other issues I think are clear and actionable.</p>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a></p>
+<p>We should also decide on the name for the <code>state.frontity.mode</code>. As <code>mode</code> is already used to refer to embedded mode or decoupled mode and <code>state.frontity.rendering</code> is <code>"ssr"</code> or <code>"csr"</code> the next best thing to me seems to be <code>state.frontity.renderingMode</code> (I know, it’s a bit of a mouthful <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"> )</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/67">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/67</link>
+        <pubDate>Wed, 07 Apr 2021 00:22:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-67</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Based on the validation I have just explained, I came up with some questions/feedback. I’ve been testing some pieces of code, so after your feedback I can make a Pull Request if necessary.</p>
+<h2>Image</h2>
+<p>Most of the errors in the urls were related to images. As we are using old content, in several posts they don’t show and these are the errors returned:</p>
+<ul>
+<li>The mandatory attribute ‘height’ is missing in tag ‘amp-img’.</li>
+<li>The “height” attribute is missing.</li>
+</ul>
+<p>In amp-img, we have to define an explicit size (as in <code>width</code> / <code>height</code> ) in advance, so that the aspect ratio can be known without fetching the image. Although in new posts it will probably be added by WordPress/Gutenberg by default, there will be a lot of old posts with it. I guess this is related to this other <a href="https://community.frontity.org/t/image-component-avoid-layout-shift-on-image-load/866/30">discussion we were having to avoid the layout shift</a>.</p>
+<p>Should we add a default width/height ratio or keep the errors to let the users know they should change that?</p>
+<p>Apart from that, we might need to make our components AMP-aware because we are using it for the featured image in our themes for example. I had to add a workaround to make it AMP valid.</p>
+<h2>Iframe</h2>
+<p>I found some errors in the iframes in some urls:</p>
+<ul>
+<li>The iframes are not loading.</li>
+<li>Invalid value ‘840’ for attribute ‘width’ in tag ‘amp-iframe’ - for layout ‘FIXED_HEIGHT’, set the attribute ‘width’ to value ‘auto’.</li>
+<li>The attribute ‘allowfullscreen’ in tag ‘amp-iframe’ is set to the invalid value ‘true’.</li>
+</ul>
+<p>It seems that, to solve the second issue we just have <code>width="auto"</code>, and to solve the third one <code>allowFullScreen={undefined}</code>.</p>
+<p>Apart from that, to be able to run the scripts of the iframes (the reason why they are not showing), it seems we have to add <a href="https://amp.dev/documentation/components/amp-iframe/#sandbox"><code>sandbox</code> attribute</a>.</p>
+<p>I’ve tested the following code in the <a href="https://github.com/frontity/frontity/blob/dev/packages/amp/src/processors/iframe.tsx#L45-L51">amp-iframe processor</a> and seems to solve all the issues:</p>
+<pre><code class="lang-jsx">&lt;amp-iframe
+    {...rest}
+    title={title || ""}
+    src={src}
+    layout="fixed-height"
+    width="auto"
+    allowFullScreen={undefined}
+    sandbox="allow-scripts allow-same-origin"
+    height={parseInt(height, 10) || 150} // This is mimicking the browser default of 150px
+/&gt;
+</code></pre>
+<p>What do you think?</p>
+<p>Moreover, I’ve seen that sometimes we’re sending some attributes that aren’t expected:</p>
+<ul>
+<li>The attribute ‘marginheight’ may not appear in tag ‘amp-iframe’.</li>
+<li>The attribute ‘marginwidth’ may not appear in tag ‘amp-iframe’.</li>
+<li>The attribute ‘security’ may not appear in tag ‘amp-iframe’.</li>
+</ul>
+<p>Should we delete them? Or add some logic to delete all the attributes that don’t match the allowed attributes: <a href="https://amp.dev/documentation/components/amp-iframe/#attributes">iframe-attributes</a> and <a href="https://amp.dev/documentation/guides-and-tutorials/learn/common_attributes/?format=websites">common-attributes</a>?</p>
+<h2>Video</h2>
+<p>These are the current errors related to videos:</p>
+<ul>
+<li>The attribute ‘autoplay’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+<li>The attribute ‘loop’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+<li>The attribute ‘muted’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+<li>The attribute ‘controls’ in tag ‘amp-video’ is set to the invalid value ‘true’.</li>
+</ul>
+<p>It seems that right now we are getting the attribute <code>autoPlay</code> (for example), from the REST API. But after processing it in AMP we are returning <code>autoPlay="true"</code>, which it isn’t valid. It should be just <code>autoPlay</code>. It’s the same case for all the issues.</p>
+<p>I’ve checked the code and we are just using <code>...props</code>. Any idea how to solve this?</p>
+<h2>Audio</h2>
+<ul>
+<li>Invalid URL protocol ‘http:’ for attribute ‘src’ in tag ‘source’.</li>
+</ul>
+<p>I think this is because I was working on localhost. This should be covered by <a href="https://github.com/frontity/frontity/blob/dev/packages/amp/src/processors/audio.tsx#L34-L38">this piece of code</a> right?</p>
+<h2>Classnames</h2>
+<p>Error in classnames for videos, audios and iframes:</p>
+<ul>
+<li>The attribute ‘classname’ may not appear in tag ‘amp-iframe’.</li>
+<li>The attribute ‘classname’ may not appear in tag ‘amp-video’.</li>
+<li>The attribute ‘classname’ may not appear in tag ‘amp-audio’.</li>
+</ul>
+<p>This seems to be caused when we are creating a new component and we are using <code>{...props}</code> to send the attributes. I’ve seen that specifying the <code>class</code> the problem is solved.</p>
+<p>Instead of <a href="https://github.com/frontity/frontity/blob/dev/packages/amp/src/processors/audio.tsx#L24">this way</a> we are using right now:</p>
+<pre><code class="lang-js">&lt;amp-audio {...props} controls /&gt;
+</code></pre>
+<p>Use this:</p>
+<pre><code class="lang-javascript">&lt;amp-audio {...props} class={className} controls /&gt;
+</code></pre>
+<p>We are doing the same in <a href="https://github.com/frontity/frontity/blob/dev/packages/html2react/src/libraries/component.tsx#L211">html2react</a>. I’ve tested it and it works. What do you think?</p>
+<h2>Svg</h2>
+<p>In some posts I encountered this error:</p>
+<ul>
+<li>The tag ‘g’ may only appear as a descendant of tag ‘svg’.</li>
+</ul>
+<p>Not sure why we are using the <code>&lt;g&gt;</code> tag for some inline text in a couple of posts. Any idea how if this is common or not expected in a real site?</p>
+<h2>Form</h2>
+<p>In the posts with forms it returns this error:</p>
+<ul>
+<li>The attribute ‘action’ may not appear in tag ‘form’.</li>
+<li>The tag ‘form’ requires including the ‘amp-form’ extension JavaScript.</li>
+</ul>
+<p>I guess this should be managed by the forms packages like contact form 7? Or do you think we should add a processor for this?</p>
+<h2>Navigation</h2>
+<p>I’ve realized that when you arrive to an amp url, an archive or a post, all the links are pointing to the non-AMP version, so when clicking on them, it stops using AMP.</p>
+<p>I guess that with the link processor we could detect if AMP is active and try to reach the amp version first.</p>
+<p>I’ve seen some AMP webs doing this an other ones just loading the non-AMP version. Any opinion about what we should do about this?</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/66">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/66</link>
+        <pubDate>Tue, 23 Mar 2021 13:53:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-66</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been testing the current version of the package against <a href="http://test.frontity.org">test.frontity.org</a> and it works great so far. In that site we have a lot of dummy content prepared to test WordPress themes, so I think that if the package is valid for that content, it will cover most of the use cases. Moreover, the package is really easy to use. Congrats everyone <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+<p>This how I validated the urls, in case it’s useful for someone:</p>
+<h1>How to validate your urls</h1>
+<p>In order to test it against <a href="http://test.frontity.org">test.frontity.org</a>, I came up with a way of validating the content that could be useful for other users validating their webs. I tested it locally with a new Frontity project using <code>mars-theme</code>. This is what I did:</p>
+<h2>1. Install <code>@frontity/amp</code> package</h2>
+<p>In order to test the package I first installed it and add it at the top of the <code>frontity.settings.js</code> file. Apart from that, I created two sites: one for AMP urls and other for not AMP urls. This is how it looks like:</p>
+<pre><code class="lang-js">const settings = [
+  {
+    name: "not-amp",
+    state: {
+      frontity: {
+        url: "http://localhost:3000",
+        title: "Test Frontity Blog",
+        description: "WordPress installation for Frontity development",
+      },
+    },
+    packages: [
+      {
+        name: "@frontity/mars-theme",
+        state: {
+          theme: {
+            menu: [
+              ["Home", "/"],
+              ["Nature", "/category/nature/"],
+              ["Travel", "/category/travel/"],
+              ["Japan", "/tag/japan/"],
+              ["About Us", "/about-us/"],
+            ],
+            featured: {
+              showOnList: true,
+              showOnPost: true,
+            },
+          },
+        },
+      },
+      {
+        name: "@frontity/wp-source",
+        state: {
+          source: {
+            url: "https://test.frontity.org",
+          },
+        },
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react",
+    ],
+  },
+  {
+    name: "amp",
+    match: ["\\/amp\\/?($|\\?|#)"],
+    state: {
+      frontity: {
+        url: "http://localhost:3000",
+        title: "Test Frontity Blog",
+        description: "WordPress installation for Frontity development",
+      },
+    },
+    packages: [
+      "@frontity/amp",
+      {
+        name: "@frontity/mars-theme",
+        state: {
+          theme: {
+            menu: [
+              ["Home", "/"],
+              ["Nature", "/category/nature/"],
+              ["Travel", "/category/travel/"],
+              ["Japan", "/tag/japan/"],
+              ["About Us", "/about-us/"],
+            ],
+            featured: {
+              showOnList: true,
+              showOnPost: true,
+            },
+          },
+        },
+      },
+      {
+        name: "@frontity/wp-source",
+        state: {
+          source: {
+            url: "https://test.frontity.org",
+          },
+        },
+      },
+      "@frontity/tiny-router",
+      "@frontity/html2react",
+    ],
+  },
+];
+
+export default settings;
+
+</code></pre>
+<h2>2. Make <code>mars-theme</code> AMP-aware</h2>
+<p>Right now, mars-theme is not AMP-aware, so I had to do some minor modifications before validating the content of the posts and pages. This is not official, just a workaround to make it work. These are the changes I made:</p>
+<ul>
+<li>Remove <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/post.js#L124">!important from the post css</a>, because it isn’t allowed in AMP.</li>
+<li>Add canonical link to the Head. In the <code>index.js</code> file I added this line:</li>
+</ul>
+<pre><code class="lang-html">&lt;link rel="canonical" href={state.frontity.url + data.link} /&gt;
+</code></pre>
+<ul>
+<li>Pass Featured Image through html. I was having some issues with our Image component so finally I change the <code>&lt;FeaturedMedia /&gt;</code> component and used <code>html2react</code>. I changed <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/featured-media.js#L24-L28">these lines</a> for these ones:</li>
+</ul>
+<pre><code class="lang-javascript">&lt;Html2React
+    html={`&lt;img
+    alt="${media.title.rendered}"
+    src="${media.source_url}"
+    srcSet="${srcset}"
+    width="${media.media_details.width}"
+    height="${media.media_details.height}"
+    layout="responsive"
+    /&gt;`}
+/&gt;
+</code></pre>
+<h2>3. Run AMP validator in bulk through our sitemap.xml</h2>
+<p>In AMP, it’s easy to validate one url with tools like the official <a href="https://validator.ampproject.org/">AMP validator</a>, but going one by one is a pain, so I looked for a way to run the whole sitemap. This is the best I could find:</p>
+<h3>3.1 Start the Frontity project in localhost</h3>
+<p>Once I made the changes needed for <code>mars-theme</code>, I started it in <code>localhost:3000</code>, and just by visiting <code>.../amp/</code> urls, Frontity loads the AMP version of the page.</p>
+<h3>3.2 Install amphtml-validator library in the project</h3>
+<p>The AMP team is mainting <a href="https://www.npmjs.com/package/amphtml-validator">amphtml-library</a>, and it allows you to <a href="https://amp.dev/documentation/guides-and-tutorials/learn/validation-workflow/validate_amp/#command-line-tool">validate urls in the CLI</a>. This means that, after installing the package with <code>npm install amphtml-validator</code>, if you run the following command, you get the result of the url (Pass or the proper error):</p>
+<pre><code class="lang-javascript">npx amphtml-validator http://localhost:3000/my-post/amp/
+</code></pre>
+<h3>3.3 Add sitemap to our project</h3>
+<p>In order to go through all the urls of <a href="http://test.frontity.org">test.frontity.org</a>, I create a new json file at the root of the project, <code>sitemap.json</code>, to easily iterate through the urls. For doing this I followed these steps:</p>
+<ul>
+<li>Go to <code>view-source:https://test.frontity.org/post-sitemap.xml</code> and copy the XML. Here we are taking the posts, but this way is easy to change between the page-sitemap or the category-sitemap.</li>
+<li>Go to <a href="https://www.utilities-online.info/xmltojson">XMLtoJSON tool</a> and paste the XML. I had to remove the first commented line.</li>
+<li>Copy the JSON and paste it in the <code>sitemap.json</code> file of our project.</li>
+<li>Search and replace the url (<a href="https://test.frontity.org">https://test.frontity.org</a> in this case) for <a href="http://localhost:3000">http://localhost:3000</a>.</li>
+</ul>
+<h3>3.4 Create a script to run urls in bulk</h3>
+<p>Now that I was able run that command in our project and I had the sitemap in JSON format, it was a matter of running it for all the urls. For that, I created a <code>validator.js</code> file in the root of the project, which looks like this:</p>
+<pre><code class="lang-js">const util = require("util");
+const exec = util.promisify(require("child_process").exec);
+const sitemap = require("./sitemap.json");
+
+const urls = sitemap.urlset.url;
+let urlsPass = 0;
+let urlsError = 0;
+let listErrorUrls = [];
+
+const validate = async () =&gt; {
+  for (const url of urls) {
+    try {
+      const { stdout } = await exec(
+        "npx amphtml-validator " + url.loc + "amp/"
+      );
+      if (stdout) {
+        urlsPass++;
+        console.log(stdout);
+      }
+    } catch (err) {
+      urlsError++;
+      listErrorUrls.push(url.loc);
+      console.log(err.stderr);
+    }
+  }
+  console.log("Urls pass: " + urlsPass);
+  console.log("Urls error: " + urlsError);
+  console.log("List of error urls: " + listErrorUrls);
+};
+
+validate();
+</code></pre>
+<p>Once you have this script, you can <strong>run <code>node validator.js</code></strong> and it will iterate through the array of urls defined in the sitemap. Depending on the sitemap format the logic may change a bit, but it should be pretty similar.</p>
+<p>Of course, I just added some basic logic to console.log the results, but it could be adapted as well. Maybe you just want the urls that fail for example.</p>
+<p>Once you have the list of urls failing, you can use the console or go to <a href="https://validator.ampproject.org/">https://validator.ampproject.org/</a> to check them one by one.</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/65">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/65</link>
+        <pubDate>Tue, 23 Mar 2021 10:35:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-65</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve finished making the <code>@frontity/comscore</code> package AMP-aware. The PR is ready to review.</p>
+<aside class="onebox githubpullrequest">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/pull/737" target="_blank" rel="noopener">github.com/frontity/frontity</a>
+  </header>
+  <article class="onebox-body">
+    <div class="github-row">
+  <div class="github-icon-container" title="Pull Request">
+    <svg width="60" height="60" class="github-icon" viewBox="0 0 12 16" aria-hidden="true"><path d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path></svg>
+  </div>
+
+  <div class="github-info-container">
+    <h4>
+      <a href="https://github.com/frontity/frontity/pull/737" target="_blank" rel="noopener">Make `@frontity/comscore` package AMP-aware</a>
+    </h4>
+
+    <div class="branches">
+      <code>frontity:dev</code> ← <code>frontity:amp-comscore</code>
+    </div>
+
+    <div class="github-info">
+      <div class="date">
+        opened <span class="discourse-local-date" data-format="ll" data-date="2021-03-02" data-time="18:20:39" data-timezone="UTC">06:20PM - 02 Mar 21 UTC</span>
+      </div>
+
+      <div class="user">
+        <a href="https://github.com/DAreRodz" target="_blank" rel="noopener">
+          <img alt="DAreRodz" src="https://community.frontity.org/uploads/default/original/2X/a/a35a7daf0e57fb9dcfb15a5a52de271049b4b524.jpeg" class="onebox-avatar-inline" width="20" height="20">
+          DAreRodz
+        </a>
+      </div>
+
+      <div class="lines" title="10 commits changed 10 files with 325 additions and 36 deletions">
+        <a href="https://github.com/frontity/frontity/pull/737/files" target="_blank" rel="noopener">
+          <span class="added">+325</span>
+          <span class="removed">-36</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/amp-package/388/64">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/64</link>
+        <pubDate>Sun, 07 Mar 2021 18:06:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-64</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="62" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Any other ideas? <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+</blockquote>
+</aside>
+<p>Not really <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"> Is there any “mode”, apart from AMP, that you have in mind?</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/63">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/63</link>
+        <pubDate>Fri, 05 Mar 2021 09:29:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-63</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="61" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I am wondering that we are also talking about modes with the Embedded and Decoupled approaches for example, and I guess that’s different right?</p>
+</blockquote>
+</aside>
+<p>Yeah, that’s totally right. We have to come up with a name that is not already used and <code>mode</code> is already used for Embedded and Decoupled modes. It would be confusing.</p>
+<p>We cannot use <code>state.frontity.rendering</code> either because it is already used with <code>ssr</code> and <code>csr</code> values.</p>
+<p>Any other ideas? <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/62">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/62</link>
+        <pubDate>Thu, 04 Mar 2021 16:26:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-62</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I like using <code>frontity.mode</code>, you convinced me David <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> .</p>
+<p>Just one thing, if we use it, should we make it more explicit and not use just <code>mode</code>? I am wondering that we are also talking about modes with the Embedded and Decoupled approaches for example, and I guess that’s different right?</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/61">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/61</link>
+        <pubDate>Thu, 04 Mar 2021 13:27:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-61</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="59" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Could you please elaborate this one? I didn’t get it <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+</blockquote>
+</aside>
+<p>Haha, sorry. I think I didn’t choose the right words.</p>
+<p>I just wanted to say that it would be useful that packages could change the Frontity mode on their own. And that behavior could be controlled using package-specific settings.</p>
+<p>Maybe <code>state.apm.ssrFallback</code> is not a good example, I don’t know how that feature is going to be implemented. <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/60">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/60</link>
+        <pubDate>Thu, 04 Mar 2021 10:40:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-60</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Uhm… that is a good way to think about it. Thanks <a class="mention" href="https://community.frontity.org/u/david">@david</a>!</p>
+<p>I agree that if we end up with different modes, it would be nicer to have a common property.</p>
+<p>For example, a package that wants to do something only for the <code>default</code> mode would use:</p>
+<pre><code class="lang-js">if (state.frontity.mode === "default") {
+  // ...
+}
+</code></pre>
+<p>And if not it would have to know about all modes:</p>
+<pre><code class="lang-js">if (!state.frontity.isAmp &amp;&amp; !state.frontity.isAnother &amp;&amp; !state.frontity.isYetAnother) {
+  // ...
+}
+</code></pre>
+<p>That doesn’t scale.</p>
+<p>The only limitation would be if there is a need to have two of those “modes” at the same time.</p>
+<pre><code class="lang-js">state.frontity.isAmp = true;
+state.frontity.isAnother = true;
+</code></pre>
+<p>But I guess that makes less sense because <code>mode</code> will refer to the “rendering mode”, which will usually be only one.</p>
+<aside class="quote group-dev-team" data-username="David" data-post="58" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>In the case we want to implement props like <code>state.amp.ssrFallback</code>, what that property could do is to change the “mode” Frontity works in case some condition is reached.</p>
+</blockquote>
+</aside>
+<p>Could you please elaborate this one? I didn’t get it <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/59">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/59</link>
+        <pubDate>Thu, 04 Mar 2021 10:26:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-59</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>OK, I spent some time thinking about this and, from my point of view, the best option would be to use <code>state.frontity.mode</code>.</p>
+<p>First, because it would be a setting that would change the behavior of all the packages installed; therefore, it makes sense to include it in the <code>frontity</code> namespace.</p>
+<p>Second, because if we add different “modes” in the future, for me it’s not a good idea to have a different property or flag for each of them, as it should not be possible to have two different modes working at the same time, right? The <code>state.frontity.mode</code> prop would ensure that only a single mode is active.</p>
+<p>In the case we want to implement props like <code>state.amp.ssrFallback</code>, what that property could do is to change the “mode” Frontity works in case some condition is reached.</p>
+<p>And this is my opinion. <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/58">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/58</link>
+        <pubDate>Thu, 04 Mar 2021 09:28:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-58</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>What do you think about this guys?</p>
+<aside class="quote quote-modified" data-post="49" data-topic="388">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/amp-package/388/49">AMP package</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/feature-discussions/in-progress/39"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Included and planned to be developed in the current sprint.">Currently in Development</span></a>
+  </div>
+  <blockquote>
+    By the way, I was thinking that maybe doing the AMP-aware logic based on state.amp is not safe enough. 
+If a user uses by mistake some AMP settings in his main site it will break the site. For example: 
+const settings = {
+  name: "main",
+  state: {
+    frontity: {
+      url: "https://domain.com",
+    },
+    amp: {
+      ssrFallback: true // &lt;- Breaks the site because `state.amp` is truthy
+    }
+  },
+  packages: [
+    // ...
+  ],
+}
+
+What about state.amp?.isAmp: 
+const Image = ({ state, src }) =&gt; …
+  </blockquote>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/amp-package/388/57">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/57</link>
+        <pubDate>Wed, 03 Mar 2021 08:30:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-57</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>Got it <a class="mention" href="https://community.frontity.org/u/david">@David</a>. Yeah, I think that would be great to avoid the bloat.</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/56">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/56</link>
+        <pubDate>Wed, 03 Mar 2021 08:23:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-56</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Well, not custom components but a different implementation of the same component. If I remember correctly, in the past we did that for complex components like carousel galleries and such that needed a different implementation for AMP.</p>
+<p>And, I guess it would be better if you don’t add the AMP code to the bundle as it’s only needed in SSR, right? For me, the easiest way to do so is having a different entry point. That’s my point.</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/55">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/55</link>
+        <pubDate>Tue, 02 Mar 2021 12:46:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-55</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <blockquote>
+<p>In the case of AMP components, what would be the way of separate the AMP logic from the non-AMP logic? Or are developers forced to ship the same code for AMP and non-AMP components?</p>
+</blockquote>
+<p><img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"> Someone who wants to have a amp website, will have to define a different set of settings, for that website. So, the codebase will be the same, but the processors and delivery will be different. Or is it allowed to include custom amp components as such the main website has different content than the amp one? AMP noob here <img src="https://community.frontity.org/images/emoji/apple/grinning_face_with_smiling_eyes.png?v=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+<p>I’ve always imagined that if one wants to have an AMP aware website, by using our amp package, amp processors, and such, including custom components should not be something that would be possible?</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/54">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/54</link>
+        <pubDate>Tue, 02 Mar 2021 11:03:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-54</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>No problem <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/53">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/53</link>
+        <pubDate>Tue, 02 Mar 2021 10:48:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-53</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="51" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>So for now add the logic to the <code>src/server.js</code> file and once we have that feature we will move it to the <code>src/amp.js</code> file if necessary.</p>
+</blockquote>
+</aside>
+<p>Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> for the clarification, I’ll do that. <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/52">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/52</link>
+        <pubDate>Tue, 02 Mar 2021 10:47:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-52</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>The “entry points setting” is part of the AMP IP, but it is not in the tasks for the beta.</p>
+<p>So for now add the logic to the <code>src/server.js</code> file and once we have that feature we will move it to the <code>src/amp.js</code> file if necessary.</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/51">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/51</link>
+        <pubDate>Tue, 02 Mar 2021 10:45:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-51</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="48" data-topic="388">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Do you mean having both a <code>src/index.js</code> for React and a <code>src/amp.js</code> for AMP?</p>
+</blockquote>
+</aside>
+<p>Yes, I mean exactly that. <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>I already implemented the changes using a <code>src/amp.js</code> file for the AMP version of the component but, after reading again the implementation proposal, I think that’s not the way of doing it. <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>Also, reading the docs is like there are only two entry points: <code>client.js</code> and <code>server.js</code> (apart from <code>index.js</code>). In the case of AMP components, what would be the way of separate the AMP logic from the non-AMP logic? Or are developers forced to ship the same code for AMP and non-AMP components?</p>
+<p>Well, we could still create two different components, one for <code>client.js</code> and another one for <code>server.js</code>, and add the AMP logic only to the <code>server.js</code>'s component. Is this the expected approach?</p>
+          <p><a href="https://community.frontity.org/t/amp-package/388/50">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/50</link>
+        <pubDate>Tue, 02 Mar 2021 10:19:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-50</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+      <item>
+        <title>AMP package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>By the way, I was thinking that maybe doing the AMP-aware logic based on <code>state.amp</code> is not safe enough.</p>
+<p>If a user uses by mistake some AMP settings in his main site it will break the site. For example:</p>
+<pre><code class="lang-js">const settings = {
+  name: "main",
+  state: {
+    frontity: {
+      url: "https://domain.com",
+    },
+    amp: {
+      ssrFallback: true // &lt;- Breaks the site because `state.amp` is truthy
+    }
+  },
+  packages: [
+    // ...
+  ],
+}
+</code></pre>
+<p>What about <code>state.amp?.isAmp</code>:</p>
+<pre><code class="lang-js">const Image = ({ state, src }) =&gt; {
+  if (state.amp?.isAmp) {
+    return &lt;amp-img src={src} /&gt;;
+  } else {
+    return &lt;img src={src} /&gt;;
+  }
+};
+</code></pre>
+<p>We could also use a <code>mode</code> setting in the <code>frontity</code> namespace:</p>
+<pre><code class="lang-js">const Image = ({ state, src }) =&gt; {
+  if (state.frontity.mode === "amp") {
+    return &lt;amp-img src={src} /&gt;;
+  } else {
+    return &lt;img src={src} /&gt;;
+  }
+};
+</code></pre>
+<p>Or just populate <code>isAmp</code> in the <code>frontity</code> namespace:</p>
+<pre><code class="lang-js">const Image = ({ state, src }) =&gt; {
+  if (state.frontity.isAmp) {
+      return &lt;amp-img src={src} /&gt;;
+        } else {
+            return &lt;img src={src} /&gt;;
+              }
+              };
+              ```</code></pre>
+          <p><a href="https://community.frontity.org/t/amp-package/388/49">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/amp-package/388/49</link>
+        <pubDate>Tue, 02 Mar 2021 09:46:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-388-49</guid>
+        <source url="https://community.frontity.org/t/amp-package/388.rss">AMP package</source>
+      </item>
+  </channel>
+</rss>

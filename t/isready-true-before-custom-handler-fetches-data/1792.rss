@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>isReady === true, before custom handler fetches data</title>
+    <link>https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792</link>
+    <description>isReady condition satisfies before custom handler is able to fetch the data. What am I missing?
+
+```
+// src/index.js
+const topArticleHandler = {
+  pattern: &quot;top-article-handler&quot;,
+  func: async ({ route, state, libraries }) =&gt; {
+    const handlerResponse = {};
+    const categoriesId = Object.keys(topArticleCategories);
+
+    const allPosts = {};
+    new Promise((resolve) =&gt; {
+      categoriesId.forEach(async (id) =&gt; {
+        const response = await libraries.source.api.get({
+          endpoint: `/wp/v2/posts?categories=${id}&amp;per_page=3`,
+        });
+        const posts = await response.json();
+        allPosts[id] = posts;
+        if (Object.keys(allPosts).length === 3) {
+          resolve(allPosts);
+        }
+      });
+    }).then((allPosts) =&gt; {
+      new Promise((resolve) =&gt; {
+        categoriesId.forEach(async (id) =&gt; {
+          const categoryData = [];
+          const categoryPosts = allPosts[id];
+          categoryPosts.forEach(async (post) =&gt; {
+            const publishDate = post.date_gmt;
+            const title = post.title.rendered;
+            const featureMediaResponse = await libraries.source.api.get({
+              endpoint: `/wp/v2/media/${post.featured_media}`,
+            });
+            const featureMediaJSON = await featureMediaResponse.json();
+            const postSrc = featureMediaJSON.guid.rendered;
+            let postSrcSet = [];
+            for (let [key, value] of Object.entries(featureMediaJSON.media_details.sizes)) {
+              postSrcSet.push([value.source_url, value.width]);
+            }
+            const authorResponse = await libraries.source.api.get({
+              endpoint: `/wp/v2/users/${post.author}`,
+            });
+            const authorJSON = await authorResponse.json();
+            const postAuthor = authorJSON.name;
+            categoryData.push({
+              title,
+              src: postSrc,
+              date: publishDate,
+              author: postAuthor,
+              srcSet: postSrcSet,
+              category: topArticleCategories[id],
+            });
+            if (categoryData.length === 3) {
+              handlerResponse[id] = categoryData;
+              if (Object.keys(handlerResponse).length === 3) {
+                resolve(handlerResponse);
+              }
+            }
+          });
+        });
+      }).then((handlerResponse) =&gt; {
+        const data = state.source.get(route);
+        Object.assign(data, { ...handlerResponse });
+      });
+    });
+  },
+};
+
+actions: {
+    theme: {
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await actions.source.fetch(&quot;top-article-handler&quot;);
+      },
+    },
+  },
+
+// topArticle.js
+const topArticleData = state.source.get(&quot;top-article-handler&quot;);
+if (topArticleData.isReady){
+ return &lt;&gt;&lt;/&gt;
+}
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 11 Feb 2021 08:14:21 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>isReady === true, before custom handler fetches data</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sarang">@sarang</a>,</p>
+<p>Sorry for the delay in the answer. We lost track of this post  from all the posts we (Frontity Team) moderate</p>
+<p>Did you manage to solve this issue?</p>
+          <p><a href="https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792/2</link>
+        <pubDate>Thu, 11 Feb 2021 08:14:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1792-2</guid>
+        <source url="https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792.rss">isReady === true, before custom handler fetches data</source>
+      </item>
+      <item>
+        <title>isReady === true, before custom handler fetches data</title>
+        <dc:creator><![CDATA[sarang]]></dc:creator>
+        <description><![CDATA[
+            <p>isReady condition satisfies before custom handler is able to fetch the data. What am I missing?</p>
+<pre><code class="lang-javascript">// src/index.js
+const topArticleHandler = {
+  pattern: "top-article-handler",
+  func: async ({ route, state, libraries }) =&gt; {
+    const handlerResponse = {};
+    const categoriesId = Object.keys(topArticleCategories);
+
+    const allPosts = {};
+    new Promise((resolve) =&gt; {
+      categoriesId.forEach(async (id) =&gt; {
+        const response = await libraries.source.api.get({
+          endpoint: `/wp/v2/posts?categories=${id}&amp;per_page=3`,
+        });
+        const posts = await response.json();
+        allPosts[id] = posts;
+        if (Object.keys(allPosts).length === 3) {
+          resolve(allPosts);
+        }
+      });
+    }).then((allPosts) =&gt; {
+      new Promise((resolve) =&gt; {
+        categoriesId.forEach(async (id) =&gt; {
+          const categoryData = [];
+          const categoryPosts = allPosts[id];
+          categoryPosts.forEach(async (post) =&gt; {
+            const publishDate = post.date_gmt;
+            const title = post.title.rendered;
+            const featureMediaResponse = await libraries.source.api.get({
+              endpoint: `/wp/v2/media/${post.featured_media}`,
+            });
+            const featureMediaJSON = await featureMediaResponse.json();
+            const postSrc = featureMediaJSON.guid.rendered;
+            let postSrcSet = [];
+            for (let [key, value] of Object.entries(featureMediaJSON.media_details.sizes)) {
+              postSrcSet.push([value.source_url, value.width]);
+            }
+            const authorResponse = await libraries.source.api.get({
+              endpoint: `/wp/v2/users/${post.author}`,
+            });
+            const authorJSON = await authorResponse.json();
+            const postAuthor = authorJSON.name;
+            categoryData.push({
+              title,
+              src: postSrc,
+              date: publishDate,
+              author: postAuthor,
+              srcSet: postSrcSet,
+              category: topArticleCategories[id],
+            });
+            if (categoryData.length === 3) {
+              handlerResponse[id] = categoryData;
+              if (Object.keys(handlerResponse).length === 3) {
+                resolve(handlerResponse);
+              }
+            }
+          });
+        });
+      }).then((handlerResponse) =&gt; {
+        const data = state.source.get(route);
+        Object.assign(data, { ...handlerResponse });
+      });
+    });
+  },
+};
+
+actions: {
+    theme: {
+      beforeSSR: async ({ state, actions }) =&gt; {
+        await actions.source.fetch("top-article-handler");
+      },
+    },
+  },
+
+// topArticle.js
+const topArticleData = state.source.get("top-article-handler");
+if (topArticleData.isReady){
+ return &lt;&gt;&lt;/&gt;
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792/1</link>
+        <pubDate>Sat, 09 May 2020 04:34:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1792-1</guid>
+        <source url="https://community.frontity.org/t/isready-true-before-custom-handler-fetches-data/1792.rss">isReady === true, before custom handler fetches data</source>
+      </item>
+  </channel>
+</rss>

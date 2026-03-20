@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to set up nginx + docker + frontity?</title>
+    <link>https://community.frontity.org/t/how-to-set-up-nginx-docker-frontity/6660</link>
+    <description>Hi сommunity Frontity I have a problem - I can&#39;t install nginx along with frontity
+
+My docker-compose.yml
+```
+version: &#39;3.7&#39;
+
+services:
+  sample:
+    container_name: frontity_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - &#39;.:/app&#39;
+      - &#39;/app/node_modules&#39;
+    ports:
+      - 3000:3000
+    environment:
+      FRONTITY_URL: &#39;http://localhost&#39;
+      WP_URL: &#39;https://....&#39;
+  
+  nginx:
+    container_name: &quot;nginx&quot;
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - sample
+
+```
+
+My Dockerfile
+```
+FROM node:13.12.0-alpine
+
+# set working directory
+WORKDIR /app
+
+ENV PATH /app/node_modules/.bin:$PATH
+
+# install app dependencies
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install
+
+# add app
+COPY . ./
+RUN npx frontity build
+
+RUN apk add --no-cache --upgrade bash
+
+CMD [&quot;npx&quot;, &quot;frontity&quot;, &quot;dev&quot;]
+```
+
+My nginx.conf
+```
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection &#39;upgrade&#39;;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Can you tell me where my mistake is or throw off the guide for running docker + nginx + frontity, I tried to repeat from this article (https://community.frontity.org/t/deploy-frontity-on-nginx-server/296) but my app is not running
+
+Thank you in advance</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 28 Feb 2023 14:22:36 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-set-up-nginx-docker-frontity/6660.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to set up nginx + docker + frontity?</title>
+        <dc:creator><![CDATA[maksim.liakh.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi сommunity Frontity I have a problem - I can’t install nginx along with frontity</p>
+<p>My docker-compose.yml</p>
+<pre><code class="lang-javascript">version: '3.7'
+
+services:
+  sample:
+    container_name: frontity_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    ports:
+      - 3000:3000
+    environment:
+      FRONTITY_URL: 'http://localhost'
+      WP_URL: 'https://....'
+  
+  nginx:
+    container_name: "nginx"
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - sample
+
+</code></pre>
+<p>My Dockerfile</p>
+<pre><code class="lang-javascript">FROM node:13.12.0-alpine
+
+# set working directory
+WORKDIR /app
+
+ENV PATH /app/node_modules/.bin:$PATH
+
+# install app dependencies
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install
+
+# add app
+COPY . ./
+RUN npx frontity build
+
+RUN apk add --no-cache --upgrade bash
+
+CMD ["npx", "frontity", "dev"]
+</code></pre>
+<p>My nginx.conf</p>
+<pre><code class="lang-javascript">server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+</code></pre>
+<p>Can you tell me where my mistake is or throw off the guide for running docker + nginx + frontity, I tried to repeat from this article (<a href="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296" class="inline-onebox">Deploy Frontity on NGINX Server</a>) but my app is not running</p>
+<p>Thank you in advance</p>
+          <p><a href="https://community.frontity.org/t/how-to-set-up-nginx-docker-frontity/6660/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-set-up-nginx-docker-frontity/6660/1</link>
+        <pubDate>Tue, 28 Feb 2023 14:22:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-6660-1</guid>
+        <source url="https://community.frontity.org/t/how-to-set-up-nginx-docker-frontity/6660.rss">How to set up nginx + docker + frontity?</source>
+      </item>
+  </channel>
+</rss>

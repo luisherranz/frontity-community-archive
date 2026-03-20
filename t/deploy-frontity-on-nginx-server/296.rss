@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Deploy Frontity on NGINX Server</title>
+    <link>https://community.frontity.org/t/deploy-frontity-on-nginx-server/296</link>
+    <description>Hi, i saw the guide on how to deply on Now, but what should i do if i have to deploy on port 3001 on NGINX in a VPS?
+
+Thanks</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 05 Jun 2022 14:47:46 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Deploy Frontity on NGINX Server</title>
+        <dc:creator><![CDATA[F34R]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you for your help.</p>
+<p>My bad, I guess I didn’t use forever properly.</p>
+<p>This one, however, can’t work on frontity:</p>
+<pre><code class="lang-javascript">forever start node_modules/frontity/dist/commands.js serve --port 3001
+</code></pre>
+<p>For future references, I managed to get it up and running by running:</p>
+<pre><code class="lang-javascript">forever start -c "npx frontity serve" /full-path/to-frontity-folder/
+
+</code></pre>
+<p>(Use “<code>./</code>” for current folder)</p>
+<p>This is however, simple solution which I couldn’t find nowhere.</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-on-nginx-server/296/7</link>
+        <pubDate>Sun, 05 Jun 2022 14:47:46 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-296-7</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296.rss">Deploy Frontity on NGINX Server</source>
+      </item>
+      <item>
+        <title>Deploy Frontity on NGINX Server</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Frontity is a regular Node app, so you can follow any guide written for Node, like this one:<br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://stackfame.com/wp-content/themes/voice/favicon.ico" class="site-icon" width="16" height="16">
+      <a href="https://stackfame.com/deploy-nodejs-app-on-ubuntu-with-forever-and-nginx" target="_blank" title="01:15PM - 20 September 2017">StackFAME - Programming Tutorials – 20 Sep 17</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:550/350;"><img src="https://i0.wp.com/stackfame.com/wp-content/uploads/2017/06/nodejs.png?fit=550%2C350&amp;ssl=1" class="thumbnail" width="550" height="350"></div>
+
+<h3><a href="https://stackfame.com/deploy-nodejs-app-on-ubuntu-with-forever-and-nginx" target="_blank">How To Deploy Node.js App on Ubuntu with Forever and Nginx</a></h3>
+
+<p>Detailed Guide to Deploy NodeJS app on Ubuntu (Linux) with Nginx and Forever NPM Module. To deploy Nodejs app on Digital Ocean, AWS EC2, Google cloud etc</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>If you just start the server using <code>npm run serve</code>, it won’t restart if it crashes, or when the server reboots. For that reason, we recommend you to use either <a href="https://github.com/foreversd/forever">forever</a> or <a href="https://pm2.io/doc/en/runtime/overview/">pm2</a>.</p>
+<p>The alternative to <code>npm run serve</code> when using a node file is:</p>
+<pre><code class="lang-bash">node node_modules/frontity/dist/commands.js serve --port 3001
+</code></pre>
+<h2>Forever</h2>
+<p>So you can start <code>forever</code> using:</p>
+<pre><code class="lang-bash">forever start node_modules/frontity/dist/commands.js serve --port 3001
+</code></pre>
+<h2>pm2 (alternative)</h2>
+<p>With <code>pm2</code> that is:</p>
+<pre><code class="lang-bash">pm2 start node_modules/frontity/dist/commands.js -- serve --port 3001
+</code></pre>
+<p>or using <code>npm</code> to run a npm script:</p>
+<pre><code class="lang-bash">pm2 start npm --name "frontity" -- run serve -- --port 3001
+</code></pre>
+<hr>
+<p>You can test both <code>forever</code> or <code>pm2</code> in your machine first.</p>
+<h2>Nginx</h2>
+<p>For Nginx, nothing fancy either. Any copy-paste configuration of a Node configuration for Nginx should work fine:</p>
+<pre><code class="lang-javascript">server {
+    listen 80;
+    server_name yoursitename.com;
+
+    location / {
+        root /home/nodeuser/app   
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+</code></pre>
+<p>EDIT: Sorry, I forgot to add port 3001</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-on-nginx-server/296/5</link>
+        <pubDate>Mon, 17 Jun 2019 14:41:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-296-5</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296.rss">Deploy Frontity on NGINX Server</source>
+      </item>
+      <item>
+        <title>Deploy Frontity on NGINX Server</title>
+        <dc:creator><![CDATA[Ucan]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi, i saw the guide on how to deply on Now, but what should i do if i have to deploy on port 3001 on NGINX in a VPS?</p>
+<p>Thanks</p>
+          <p><a href="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/deploy-frontity-on-nginx-server/296/1</link>
+        <pubDate>Sat, 15 Jun 2019 19:24:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-296-1</guid>
+        <source url="https://community.frontity.org/t/deploy-frontity-on-nginx-server/296.rss">Deploy Frontity on NGINX Server</source>
+      </item>
+  </channel>
+</rss>

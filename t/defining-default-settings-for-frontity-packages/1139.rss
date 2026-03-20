@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Defining default settings for Frontity packages</title>
+    <link>https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139</link>
+    <description>**--- [Roadmap Card](https://www.notion.so/frontity/Defining-default-settings-for-Frontity-packages-5ac0df1b1cb040cc9a1afce321587c9e)**
+
+&lt;!-- Please, follow this template in order to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+## Description
+We need some default settings for a Frontity package for two scenarios:
+- When we add the package using `npx frontity create`.
+- When we add the package using `npx frontity install-package` (in the future).
+
+Right now, the [settings of `mars-theme` are hardcoded](https://github.com/frontity/frontity/blob/beta/packages/frontity/src/steps/index.ts#L135-L149) but that obviously doesn&#39;t scale.
+
+## User Stories
+
+&gt; As a **Frontity package developer**
+&gt; I want to **expose my desired default settings somewhere**
+&gt; so that **when other devs install my package, they start with those settings in their frontity.settings.js file**
+
+## Possible solution
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+
+We could get the settings from the package itself after installing, something like this:
+```js
+installPackage(&quot;@frontity/mars-theme&quot;);
+const pkg = require(&quot;@frontity/mars-theme&quot;);
+const settings = pkg.state;
+```
+
+but that won&#39;t be ideal because:
+1. It won&#39;t include arrays, which are not populated in the internal state:
+```js
+      state: {
+        theme: {
+          menu: []
+        }
+      }
+```
+versus
+```js
+      state: {
+        theme: {
+          menu: [
+            [&quot;Home&quot;, &quot;/&quot;],
+            [&quot;Nature&quot;, &quot;/category/nature/&quot;],
+            [&quot;Travel&quot;, &quot;/category/travel/&quot;],
+            [&quot;Japan&quot;, &quot;/tag/japan/&quot;],
+            [&quot;About Us&quot;, &quot;/about-us/&quot;]
+          ]
+        }
+      }
+```
+2. It will include parts that are not meant to be settings. For example, the twentytwenty-theme has things like `isMobileMenuOpen: false` or `isSearchModalOpen: false` in the state.
+
+My proposal is that we use the `frontity.config.js` file for that:
+
+```js
+// frontity.config.js
+export const defaultState = {
+        theme: {
+          menu: [
+            [&quot;Home&quot;, &quot;/&quot;],
+            [&quot;Nature&quot;, &quot;/category/nature/&quot;],
+            [&quot;Travel&quot;, &quot;/category/travel/&quot;],
+            [&quot;Japan&quot;, &quot;/tag/japan/&quot;],
+            [&quot;About Us&quot;, &quot;/about-us/&quot;]
+          ],
+          featured: {
+            showOnList: true,
+            showOnPost: true
+          }
+        }
+      }
+```
+
+The `frontity.config.js` file is meant to be used for other configurations that live outside of webpack, for example babel or webpack because it won&#39;t be affected by the `entryPoints`, so I think it&#39;s a good place to store this.
+
+Obviously, it can be optional.
+
+It will be something like this:
+
+```js
+installPackage(&quot;@frontity/mars-theme&quot;);
+const { defaultState } = require(&quot;@frontity/mars-theme/frontity.config&quot;);
+```
+
+If it exists, we add it along with the name of the package:
+```js
+// frontity.settings.js generated
+  packages: [
+    {
+      name: &quot;@frontity/mars-theme&quot;,
+      state: {
+       theme: { /* desired default settings... */ }
+      }
+    }
+  ]
+``` 
+
+If it doesn&#39;t exist, we just add the name:
+```js
+// frontity.settings.js generated
+  packages: [
+    &quot;@frontity/mars-theme&quot;
+  ]
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 28 Jan 2020 18:29:51 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Defining default settings for Frontity packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="2" data-topic="1139">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I think you meant “create a project” here, right?</p>
+</blockquote>
+</aside>
+<p>Yes.</p>
+<aside class="quote group-development-team" data-post="2" data-topic="1139">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Where is this <code>frontity.config.js</code> supposed to be located? Is the idea that is it will be part of a theme (for example it would be located in <code>packages/mars-theme/frontity.config.js</code> ) and published on npm together with theme? And then the <code>create</code> command would read the contents of this file when we create a new project?</p>
+</blockquote>
+</aside>
+<p>In the root. Yes. And yes.</p>
+<aside class="quote group-development-team quote-modified" data-post="2" data-topic="1139">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<ol start="2">
+<li>on’t quite understand what you were trying to say here:</li>
+</ol>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/83e425ec56a0bcb1c07fe59b76e8d9722f92cb68.jpeg" alt="" data-base62-sha1="iOLlVQGyBQXyqnJC9h199GGgfiM" width="20" height="20"> luisherranz:</p>
+<blockquote>
+<p>The <code>frontity.config.js</code> file is meant to be used for other configurations that live outside of webpack, for example babel or webpack because it won’t be affected by the <code>entryPoints</code> , so I think it’s a good place to store this.</p>
+</blockquote>
+</blockquote>
+</aside>
+<p>We already have plans to use the <code>frontity.config.js</code> file for other things, like for example when a package wants to extend babel or webpack.</p>
+<aside class="quote group-development-team" data-post="2" data-topic="1139">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Why can’t the theme come with those settings by default and then we would not have to copy them into the <code>frontity.settings.js</code> file?</p>
+</blockquote>
+</aside>
+<p>Yes, it works that way: if you remove some settings from your <code>frontity.settings.js</code> file then the default setting (the one included in the <code>src/index.js</code> file) is used. We thought that having your <code>frontity.settings.js</code> file populated with some settings would be more useful and intuitive to start learning what you can do with a package than having an empty file. But we are not adding all the settings, only some of them. People can always explore the settings of a package in the documentation. WpSource is a good example: <a href="https://docs.frontity.org/api-reference-1/wordpress-source#settings">https://docs.frontity.org/api-reference-1/wordpress-source#settings</a>. Apart from that, we can add some settings for the <code>frontity.settings.js</code> file that are tied to the initial project (pointing to <a href="http://test.frontity.io">test.frontity.io</a> for example) that I don’t think it would make sense to have as a default because if you delete a settings that is required from your <code>frontity.settings.js</code> file the package should throw an error or a warning, not go back to some default pointing to <a href="http://test.frontity.io">test.frontity.io</a> (I know we are not doing that for state.source.api but we should). And finally, when we merge the state, we had to choose between substituting arrays and merging arrays. We choose merging arrays because it is much more useful for most scenarios, but it means that the arrays of the default state (the one of <code>src/index.js</code>) must be empty.</p>
+          <p><a href="https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139/3</link>
+        <pubDate>Tue, 28 Jan 2020 18:29:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1139-3</guid>
+        <source url="https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139.rss">Defining default settings for Frontity packages</source>
+      </item>
+      <item>
+        <title>Defining default settings for Frontity packages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I think the general idea sounds fine to me <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> Just a few points were not entirely clear:</p>
+<ol>
+<li>I think you meant “create a project” here, right?</li>
+</ol>
+<aside class="quote group-development-team" data-post="1" data-topic="1139">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<ul>
+<li>When we add the package using <code>npx frontity create</code> .</li>
+</ul>
+</blockquote>
+</aside>
+<ol start="2">
+<li>
+<p>Where is this <code>frontity.config.js</code> supposed to be located? Is the idea that is it will be part of a theme (for example it would be located in <code>packages/mars-theme/frontity.config.js</code>) and published on npm together with theme? And then the <code>create</code> command would read the contents of this file when we create a new project?</p>
+</li>
+<li>
+<p>I don’t quite understand what you were trying to say here:</p>
+</li>
+</ol>
+<aside class="quote group-development-team" data-post="1" data-topic="1139">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>The <code>frontity.config.js</code> file is meant to be used for other configurations that live outside of webpack, for example babel or webpack because it won’t be affected by the <code>entryPoints</code> , so I think it’s a good place to store this.</p>
+</blockquote>
+</aside>
+<ol start="4">
+<li>It’s not clear to me actually why we do the following:</li>
+</ol>
+<p>In the <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/mars-theme, we put the following in the state in the top-level <code>index.js</code>:</p>
+<pre><code>state: {
+    theme: {
+      menu: [],
+      isMobileMenuOpen: false,
+      featured: {
+        showOnList: false,
+        showOnPost: false
+      }
+    }
+  },
+</code></pre>
+<p>But then, when we actually “use” the theme, for example in <code>mars-theme-example</code>, we add some additional configuration for the menu, etc. in the <code>frontity.settings.js</code> like:</p>
+<pre><code>packages: [
+    {
+      name: "@frontity/mars-theme",
+      state: {
+        theme: {
+          menu: [
+            ["Home", "/"],
+            ["Nature", "/category/nature/"],
+            ["Travel", "/category/travel/"],
+            ["Japan", "/tag/japan/"],
+            ["About Us", "/about-us/"]
+          ],
+          featured: {
+            showOnList: true,
+            showOnPost: true
+          }
+        }
+      }
+    },
+</code></pre>
+<p>Why can’t the theme come with those settings by default and then we would not have to copy them into the <code>frontity.settings.js</code> file?</p>
+          <p><a href="https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139/2</link>
+        <pubDate>Tue, 28 Jan 2020 01:42:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1139-2</guid>
+        <source url="https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139.rss">Defining default settings for Frontity packages</source>
+      </item>
+      <item>
+        <title>Defining default settings for Frontity packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Defining-default-settings-for-Frontity-packages-5ac0df1b1cb040cc9a1afce321587c9e">Roadmap Card</a></strong></p>
+
+<h2>Description</h2>
+<p>We need some default settings for a Frontity package for two scenarios:</p>
+<ul>
+<li>When we add the package using <code>npx frontity create</code>.</li>
+<li>When we add the package using <code>npx frontity install-package</code> (in the future).</li>
+</ul>
+<p>Right now, the <a href="https://github.com/frontity/frontity/blob/beta/packages/frontity/src/steps/index.ts#L135-L149">settings of <code>mars-theme</code> are hardcoded</a> but that obviously doesn’t scale.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity package developer</strong><br>
+I want to <strong>expose my desired default settings somewhere</strong><br>
+so that <strong>when other devs install my package, they start with those settings in their frontity.settings.js file</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+
+<p>We could get the settings from the package itself after installing, something like this:</p>
+<pre><code class="lang-js">installPackage("@frontity/mars-theme");
+const pkg = require("@frontity/mars-theme");
+const settings = pkg.state;
+</code></pre>
+<p>but that won’t be ideal because:</p>
+<ol>
+<li>It won’t include arrays, which are not populated in the internal state:</li>
+</ol>
+<pre><code class="lang-js">      state: {
+        theme: {
+          menu: []
+        }
+      }
+</code></pre>
+<p>versus</p>
+<pre><code class="lang-js">      state: {
+        theme: {
+          menu: [
+            ["Home", "/"],
+            ["Nature", "/category/nature/"],
+            ["Travel", "/category/travel/"],
+            ["Japan", "/tag/japan/"],
+            ["About Us", "/about-us/"]
+          ]
+        }
+      }
+</code></pre>
+<ol start="2">
+<li>It will include parts that are not meant to be settings. For example, the twentytwenty-theme has things like <code>isMobileMenuOpen: false</code> or <code>isSearchModalOpen: false</code> in the state.</li>
+</ol>
+<p>My proposal is that we use the <code>frontity.config.js</code> file for that:</p>
+<pre><code class="lang-js">// frontity.config.js
+export const defaultState = {
+        theme: {
+          menu: [
+            ["Home", "/"],
+            ["Nature", "/category/nature/"],
+            ["Travel", "/category/travel/"],
+            ["Japan", "/tag/japan/"],
+            ["About Us", "/about-us/"]
+          ],
+          featured: {
+            showOnList: true,
+            showOnPost: true
+          }
+        }
+      }
+</code></pre>
+<p>The <code>frontity.config.js</code> file is meant to be used for other configurations that live outside of webpack, for example babel or webpack because it won’t be affected by the <code>entryPoints</code>, so I think it’s a good place to store this.</p>
+<p>Obviously, it can be optional.</p>
+<p>It will be something like this:</p>
+<pre><code class="lang-js">installPackage("@frontity/mars-theme");
+const { defaultState } = require("@frontity/mars-theme/frontity.config");
+</code></pre>
+<p>If it exists, we add it along with the name of the package:</p>
+<pre><code class="lang-js">// frontity.settings.js generated
+  packages: [
+    {
+      name: "@frontity/mars-theme",
+      state: {
+       theme: { /* desired default settings... */ }
+      }
+    }
+  ]
+</code></pre>
+<p>If it doesn’t exist, we just add the name:</p>
+<pre><code class="lang-js">// frontity.settings.js generated
+  packages: [
+    "@frontity/mars-theme"
+  ]
+</code></pre>
+          <p><a href="https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139/1</link>
+        <pubDate>Mon, 27 Jan 2020 20:00:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1139-1</guid>
+        <source url="https://community.frontity.org/t/defining-default-settings-for-frontity-packages/1139.rss">Defining default settings for Frontity packages</source>
+      </item>
+  </channel>
+</rss>

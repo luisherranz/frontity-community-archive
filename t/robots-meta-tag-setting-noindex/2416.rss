@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Robots meta tag (setting noindex)</title>
+    <link>https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416</link>
+    <description>Hi there,
+
+I was just wondering if anyone has successfully configured a `robots` meta tag on their Frontity site? I&#39;m currently in the position where I have set up a staging site that I would like to block from being indexed by google, as I don&#39;t want the staging site to cause a duplicate content issue with the live website. I am trying to do this by setting the value of the robots meta tag to `noindex` across the website, which should prevent most search engines from indexing the site.
+
+For reference, my WordPress install has the [REST API - Head Tags](https://docs.frontity.org/frontity-plugins/rest-api-head-tags) plugin, and my Frontity installation is using the `@frontity/head-tags` package.
+
+I have tried the following:
+
+### Adding additional `robots` tag to the Frontity `&lt;Head&gt;` component
+
+My first attempt to solve this issue involved me adding the `&lt;meta name=&quot;robots&quot; content=&quot;noindex&quot; /&gt;` meta tag to the header of my site by importing the `&lt;Head&gt;` component in my `components/index.js` file.
+
+This solution seems to work fine when running my site in development mode, but once run in production mode, this meta value is overwritten by the value pulled in via the `@frontity/head-tags` package.
+
+### Setting the &quot;Discourage search engines from indexing this site&quot; WordPress setting
+
+Setting this value on my CMS does not seem to override the `robots` meta value. I believe that this value is not returned as part of the REST API - Head Tags plugin.
+
+### Disabling `@frontity/head-tags`
+
+This solution does resolve the issue, but with the result of removing all meta tag pulling from WordPress, resulting in just the meta values that I have specified in the `&lt;Head&gt;` component being served.
+
+This is a temporary solution that I suppose I could extend by optionally including the package depending on the environment I&#39;m running.
+
+## Ideal Solution
+
+My ideal solution to this issue would be either to always respect the values specified in the `&lt;Head&gt;` component of the Frontity application, or extending the REST API - Head Tags plugin to respect the value of the &quot;Discourage search engines from indexing this site&quot; WordPress setting.
+
+Has anyone else experience this issue, or found a solution to this problem?
+
+Cheers,
+Sean</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 21 Jul 2020 13:02:54 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Robots meta tag (setting noindex)</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Incidentally, the <code>add_action</code> hook takes a <code>priority</code> parameter, like this for example:</p>
+<p><code>add_action('wp_head', 'add_meta_robots_noindex', 10); </code></p>
+<p>If it doesn’t work by default then it might be worth experimenting with the priority - lower numbers correspond with earlier execution.</p>
+          <p><a href="https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416/4</link>
+        <pubDate>Tue, 21 Jul 2020 13:02:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2416-4</guid>
+        <source url="https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416.rss">Robots meta tag (setting noindex)</source>
+      </item>
+      <item>
+        <title>Robots meta tag (setting noindex)</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sean">@sean</a></p>
+<p>Try adding the following to the <code>functions.php</code> file in your WordPress theme:</p>
+<pre><code class="lang-javascript">function add_meta_robots_noindex()
+{
+    echo '&lt;meta name="robots" content="noindex,nofollow" /&gt;', "\n";
+}
+add_action('wp_head', 'add_meta_robots_noindex'); 
+</code></pre>
+<p>Let me know if that does the trick.</p>
+          <p><a href="https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416/3</link>
+        <pubDate>Tue, 21 Jul 2020 12:59:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2416-3</guid>
+        <source url="https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416.rss">Robots meta tag (setting noindex)</source>
+      </item>
+      <item>
+        <title>Robots meta tag (setting noindex)</title>
+        <dc:creator><![CDATA[sean]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi there,</p>
+<p>I was just wondering if anyone has successfully configured a <code>robots</code> meta tag on their Frontity site? I’m currently in the position where I have set up a staging site that I would like to block from being indexed by google, as I don’t want the staging site to cause a duplicate content issue with the live website. I am trying to do this by setting the value of the robots meta tag to <code>noindex</code> across the website, which should prevent most search engines from indexing the site.</p>
+<p>For reference, my WordPress install has the <a href="https://docs.frontity.org/frontity-plugins/rest-api-head-tags" rel="nofollow noopener">REST API - Head Tags</a> plugin, and my Frontity installation is using the <code>@frontity/head-tags</code> package.</p>
+<p>I have tried the following:</p>
+<h3>Adding additional <code>robots</code> tag to the Frontity <code>&lt;Head&gt;</code> component</h3>
+<p>My first attempt to solve this issue involved me adding the <code>&lt;meta name="robots" content="noindex" /&gt;</code> meta tag to the header of my site by importing the <code>&lt;Head&gt;</code> component in my <code>components/index.js</code> file.</p>
+<p>This solution seems to work fine when running my site in development mode, but once run in production mode, this meta value is overwritten by the value pulled in via the <code>@frontity/head-tags</code> package.</p>
+<h3>Setting the “Discourage search engines from indexing this site” WordPress setting</h3>
+<p>Setting this value on my CMS does not seem to override the <code>robots</code> meta value. I believe that this value is not returned as part of the REST API - Head Tags plugin.</p>
+<h3>Disabling <code>@frontity/head-tags</code>
+</h3>
+<p>This solution does resolve the issue, but with the result of removing all meta tag pulling from WordPress, resulting in just the meta values that I have specified in the <code>&lt;Head&gt;</code> component being served.</p>
+<p>This is a temporary solution that I suppose I could extend by optionally including the package depending on the environment I’m running.</p>
+<h2>Ideal Solution</h2>
+<p>My ideal solution to this issue would be either to always respect the values specified in the <code>&lt;Head&gt;</code> component of the Frontity application, or extending the REST API - Head Tags plugin to respect the value of the “Discourage search engines from indexing this site” WordPress setting.</p>
+<p>Has anyone else experience this issue, or found a solution to this problem?</p>
+<p>Cheers,<br>
+Sean</p>
+          <p><a href="https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416/1</link>
+        <pubDate>Fri, 17 Jul 2020 07:51:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2416-1</guid>
+        <source url="https://community.frontity.org/t/robots-meta-tag-setting-noindex/2416.rss">Robots meta tag (setting noindex)</source>
+      </item>
+  </channel>
+</rss>

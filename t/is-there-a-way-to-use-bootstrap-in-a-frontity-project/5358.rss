@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Is there a way to use bootstrap in a Frontity project?</title>
+    <link>https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358</link>
+    <description>Hi everyone, 
+I&#39;m starting out my Frontity journey attempting to build out my first front end. I&#39;ve seen this asked before in the community and it didn&#39;t seem to get a final conclusive answer.
+
+Is there a way to include bootstrap in a Frontity project. There is obviously react-bootstrap, can this be included? I know Frontity&#39;s reliance on styled components causes an issue with bootstrap, but having researched whether styled components can be used with bootstrap, it seems they can ([https://stackoverflow.com/questions/45895416/styled-components-and-react-bootstrap](https://stackoverflow.com/questions/45895416/styled-components-and-react-bootstrap)). Is there a way to use something like [https://bootstrap-styled.github.io/v4/#/Introduction](https://bootstrap-styled.github.io/v4/#/Introduction).
+
+Or has anyone a way to include it any other way?
+
+Or can anyone advise how to use this demo theme? [https://github.com/frontity-demos/bootstrap-theme-demo](https://github.com/frontity-demos/bootstrap-theme-demo)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 06 Oct 2021 05:30:39 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Is there a way to use bootstrap in a Frontity project?</title>
+        <dc:creator><![CDATA[santoshdevnath15]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mckenna.niall">@mckenna.niall</a>, welcome to the Frontity Community, hope you are enjoying Frontity Framework.</p>
+<p>After some research, I found a way to use <strong>Bootstrap</strong> with frontity. And it is really working great. Here you can see the screenshot where I have used the <strong>Bootstrap Table in Frontity</strong>.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/4/4ef52cf0058010728df9d26d5c2bb836da0b4f1b.png" data-download-href="https://community.frontity.org/uploads/default/4ef52cf0058010728df9d26d5c2bb836da0b4f1b" title="Screenshot from 2021-10-06 10-35-32"><img src="https://community.frontity.org/uploads/default/optimized/2X/4/4ef52cf0058010728df9d26d5c2bb836da0b4f1b_2_690x388.png" alt="Screenshot from 2021-10-06 10-35-32" data-base62-sha1="bguwMWtCnHLNBAj5JbMMxxlXcOT" width="690" height="388" srcset="https://community.frontity.org/uploads/default/optimized/2X/4/4ef52cf0058010728df9d26d5c2bb836da0b4f1b_2_690x388.png, https://community.frontity.org/uploads/default/optimized/2X/4/4ef52cf0058010728df9d26d5c2bb836da0b4f1b_2_1035x582.png 1.5x, https://community.frontity.org/uploads/default/original/2X/4/4ef52cf0058010728df9d26d5c2bb836da0b4f1b.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/4/4ef52cf0058010728df9d26d5c2bb836da0b4f1b_2_10x10.png"></a></div><p></p>
+<p>So here are the steps to use <strong>Bootstrap in Frontity</strong></p>
+<ol>
+<li>Wee need the bootstrap library so that we can add them on the top of the page, that is after the Header.</li>
+<li>You can not directly add a script file in frontity, so we need a function or component that will help us.</li>
+<li>create a file <strong>script.tsx</strong> and paste the below code</li>
+</ol>
+<pre><code class="lang-javascript">import { useEffect } from "react";
+import * as React from "react";
+
+/**
+ * Props passed to the {@link Script} component.
+ */
+interface ScriptProps extends React.HTMLProps&lt;HTMLScriptElement&gt; {
+  /**
+   * Specifies the URI of an external script. Same as the `src` attribute of the
+   * HTML &lt;script&gt; element.
+   *
+   * @example
+   * ```
+   * &lt;Script src="https://my.site.org/static/some-script.js" /&gt;
+   * ```
+   */
+  src?: string;
+
+  /**
+   * Script code in string format. If this prop is used, the code is evaluated
+   * once React has ended the hydration.
+   *
+   * @remarks If this prop is used, `src` is ignored.
+   *
+   * @example
+   * ```
+   * &lt;Script code={"alert('hi!')"} /&gt;
+   * ```
+   */
+  code?: string;
+
+  /**
+   * The `id` attribute of any HTML element.
+   *
+   * @example
+   * ```
+   * &lt;Script id="hi-script" code={"alert('hi!')"} /&gt;
+   * ```
+   */
+  id?: string;
+
+  /**
+   * Any other `prop`.
+   *
+   * @example
+   * ```
+   * &lt;Script className='className' data-value='3' /&gt;
+   * ```
+   */
+  [propName: string]: any;
+}
+
+/**
+ * Simple component for running the content of `&lt;script&gt;` tags.
+ *
+ * @param props - Object of type {@link ScriptProps}.
+ * - `src`: Specifies the URI of an external script.
+ * - `code`: Script code in string format (overrides the `src` prop).
+ * - `id`: The `id` attribute of any HTML element.
+ * - `props`: Any other `prop` passed to the Script will be added to the internal &lt;script&gt; tag.
+ *
+ * @returns React element.
+ */
+const Script: React.FC&lt;ScriptProps&gt; = ({ src, code, id, ...props }) =&gt; {
+  useEffect(() =&gt; {
+    if (code) {
+      // Just evaluate the code if passed.
+      eval(code);
+    } else if (src) {
+      // Creates an HTML &lt;script&gt; element.
+      const script = window.document.createElement("script");
+      script.src = src;
+      script.async = true;
+
+      // Add the ID if specified.
+      if (id) script.id = id;
+
+      // Add any other props to the internal &lt;script&gt; tag.
+      for (let key in props) {
+        const value = props[key];
+
+        // If this is an event handler, lowercase the key
+        if (/^on/g.test(key)) {
+          key = key.toLowerCase();
+        }
+
+        // If the current key exists in the `dom` interface
+        // we can assign the value.
+        if (key in script) {
+          if (key !== "children") {
+            script[key] = value;
+          }
+        } else if (typeof value !== "function" &amp;&amp; typeof value !== "object") {
+          // Otherwise treat it as an attribute if this is not a function or an object.
+          script.setAttribute(key, value);
+        }
+      }
+
+      // Append the script at the end of `&lt;body&gt;`.
+      window.document.body.appendChild(script);
+
+      return () =&gt; {
+        if (script) window.document.body.removeChild(script);
+      };
+    }
+    // Scripts shouldn't be loaded nor executed more than once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
+};
+
+export default Script;**strong text**
+</code></pre>
+<ol start="4">
+<li>Now we have a  component that will help us to import external javascript files. So now paste the below code in your main <strong>index.js</strong> file usually you will find this file inside src/components/index.js if you installed mars theme</li>
+</ol>
+<pre><code class="lang-javascript">&lt;Script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js" integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/" crossorigin="anonymous"&gt;&lt;/Script&gt;
+</code></pre>
+<ol start="5">
+<li>Now import the bootstrap CSS file. Paste the below code in the previous file inside the <code>&lt;Head&gt;</code> tag</li>
+</ol>
+<pre><code class="lang-javascript">&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous"&gt;&lt;/link&gt;
+</code></pre>
+<ol start="6">
+<li>After following the step 4 and step 5 your code will look like this</li>
+</ol>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/c34a24cfcf08bbd4c95c3a110e69f54d31908abe.png" data-download-href="https://community.frontity.org/uploads/default/c34a24cfcf08bbd4c95c3a110e69f54d31908abe" title="Screenshot from 2021-10-06 10-49-23"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/c34a24cfcf08bbd4c95c3a110e69f54d31908abe_2_690x119.png" alt="Screenshot from 2021-10-06 10-49-23" data-base62-sha1="rRBXsJrQwq3XRy5ypcdlCit5kx8" width="690" height="119" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/c34a24cfcf08bbd4c95c3a110e69f54d31908abe_2_690x119.png, https://community.frontity.org/uploads/default/optimized/2X/c/c34a24cfcf08bbd4c95c3a110e69f54d31908abe_2_1035x178.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/c/c34a24cfcf08bbd4c95c3a110e69f54d31908abe_2_1380x238.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/c34a24cfcf08bbd4c95c3a110e69f54d31908abe_2_10x10.png"></a></div><p></p>
+<ol start="7">
+<li>So now you can use any bootstrap code inside the frontity, just don’t forget to change the bootstrap HTML code to JSX. Like change class to className. You can simply do this from here <a href="https://magic.reactjs.net/htmltojsx.htm" class="inline-onebox" rel="noopener nofollow ugc">HTML to JSX</a>
+</li>
+</ol>
+<h2>
+<a name="tips-and-advice-bulb-1" class="anchor" href="https://community.frontity.org#tips-and-advice-bulb-1"></a>Tips and Advice <img src="https://community.frontity.org/images/emoji/apple/bulb.png?v=10" title=":bulb:" class="emoji" alt=":bulb:">
+</h2>
+<ol>
+<li>As you know frontity work well with styled CSS, but if you feel comfortable with bootstrap then you can use this.</li>
+<li>When you will develop your website, you may get a bit irritated because every time you make any changes to the code, the styles will go away and you have to refresh the page to see the actual changes. But do not worry, this should not happen on the production site.</li>
+</ol>
+<p>I hope you got the solution with this answer. Anyway, you can ask questions if you still have any issues with the above process.</p>
+          <p><a href="https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358/2</link>
+        <pubDate>Wed, 06 Oct 2021 05:30:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5358-2</guid>
+        <source url="https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358.rss">Is there a way to use bootstrap in a Frontity project?</source>
+      </item>
+      <item>
+        <title>Is there a way to use bootstrap in a Frontity project?</title>
+        <dc:creator><![CDATA[mckenna.niall]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi everyone,<br>
+I’m starting out my Frontity journey attempting to build out my first front end. I’ve seen this asked before in the community and it didn’t seem to get a final conclusive answer.</p>
+<p>Is there a way to include bootstrap in a Frontity project. There is obviously react-bootstrap, can this be included? I know Frontity’s reliance on styled components causes an issue with bootstrap, but having researched whether styled components can be used with bootstrap, it seems they can (<a href="https://stackoverflow.com/questions/45895416/styled-components-and-react-bootstrap" rel="noopener nofollow ugc">https://stackoverflow.com/questions/45895416/styled-components-and-react-bootstrap</a>). Is there a way to use something like <a href="https://bootstrap-styled.github.io/v4/#/Introduction" rel="noopener nofollow ugc">https://bootstrap-styled.github.io/v4/#/Introduction</a>.</p>
+<p>Or has anyone a way to include it any other way?</p>
+<p>Or can anyone advise how to use this demo theme? <a href="https://github.com/frontity-demos/bootstrap-theme-demo" rel="noopener nofollow ugc">https://github.com/frontity-demos/bootstrap-theme-demo</a></p>
+          <p><a href="https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358/1</link>
+        <pubDate>Tue, 05 Oct 2021 19:51:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5358-1</guid>
+        <source url="https://community.frontity.org/t/is-there-a-way-to-use-bootstrap-in-a-frontity-project/5358.rss">Is there a way to use bootstrap in a Frontity project?</source>
+      </item>
+  </channel>
+</rss>

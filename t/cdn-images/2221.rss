@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>CDN Images</title>
+    <link>https://community.frontity.org/t/cdn-images/2221</link>
+    <description>Hello,
+my client doesn&#39;t want to use jetpack for images, what can I propose him instead?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 29 Jun 2020 04:21:45 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/cdn-images/2221.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>CDN Images</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you, will look that</p>
+          <p><a href="https://community.frontity.org/t/cdn-images/2221/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cdn-images/2221/3</link>
+        <pubDate>Mon, 29 Jun 2020 04:21:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2221-3</guid>
+        <source url="https://community.frontity.org/t/cdn-images/2221.rss">CDN Images</source>
+      </item>
+      <item>
+        <title>CDN Images</title>
+        <dc:creator><![CDATA[mosamlife]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/alexaspalato">@alexaspalato</a></p>
+<p>You can offload WordPress images to amazon s3 and serve via amazon CloudFront with the help of this plugin <strong>WP OFFLOAD MEDIA</strong> [<a href="https://wordpress.org/plugins/amazon-s3-and-cloudfront/" rel="nofollow noopener">https://wordpress.org/plugins/amazon-s3-and-cloudfront/</a>] for already uploaded images you need purchase premium plan depending upon how much images you want to offload [<a href="https://deliciousbrains.com/wp-offload-media/pricing/" rel="nofollow noopener">https://deliciousbrains.com/wp-offload-media/pricing/</a>].</p>
+<p>for .webp support, you can generate only .webp images using EWWW image optimizer plugin and it really works well with <strong>WP OFFLOAD MEDIA</strong> then you can create aws lambda function to serve .webp images using HTTP content negotiation here is the code for aws lambda viewer request function</p>
+<pre><code>'use strict';
+
+const {
+    ValueTuple,
+    awsPerformEncodingNegotiation,
+    awsPerformTypeNegotiation } = require('./webp');
+
+const SERVER_ENCODINGS = [
+    new ValueTuple('br', new Map([['q', 1]])),
+    new ValueTuple('gzip', new Map([['q', 0.9]])),
+    new ValueTuple('identity', new Map([['q', 0.1]]))];
+
+const SERVER_IMAGE_TYPES = [
+    new ValueTuple('image/webp', new Map([['q', 1]])),
+    new ValueTuple('image/jpeg', new Map([['q', 0.5]]))];
+
+const SERVER_IMAGE_WHITELIST = new Set([
+    'image/jpeg',
+]);
+
+exports.handler = (event, context, callback) =&gt; {
+    const request = event.Records[0].cf.request;
+
+    if (request.uri.endsWith('.jpg')) {
+        const type = awsPerformTypeNegotiation(
+            request.headers, SERVER_IMAGE_TYPES, SERVER_IMAGE_WHITELIST);
+        if (type) {
+            // const uriWithoutExtension = request.uri.slice(0, -3);
+            switch (type.value) {
+                case 'image/webp':
+                    request.uri = request.uri + '.webp';
+                    break;
+
+                case 'image/jpeg':
+                    // Nothing to do
+                    break;
+            }
+        }
+    } else if (!request.uri.startsWith('/gzip/') &amp;&amp;
+            !request.uri.startsWith('/br/')) {
+        const encoding = awsPerformEncodingNegotiation(request.headers, SERVER_ENCODINGS);
+        if (encoding &amp;&amp; encoding.value !== 'identity') {
+            request.uri = '/' + encoding.value + request.uri;
+        }
+    }
+
+    callback(null, request);
+};</code></pre>
+          <p><a href="https://community.frontity.org/t/cdn-images/2221/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cdn-images/2221/2</link>
+        <pubDate>Sun, 28 Jun 2020 15:51:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2221-2</guid>
+        <source url="https://community.frontity.org/t/cdn-images/2221.rss">CDN Images</source>
+      </item>
+      <item>
+        <title>CDN Images</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,<br>
+my client doesn’t want to use jetpack for images, what can I propose him instead?</p>
+          <p><a href="https://community.frontity.org/t/cdn-images/2221/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/cdn-images/2221/1</link>
+        <pubDate>Sun, 28 Jun 2020 07:41:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2221-1</guid>
+        <source url="https://community.frontity.org/t/cdn-images/2221.rss">CDN Images</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Weird behaviour on state.source.url when using WordPress installation in a folder</title>
+    <link>https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121</link>
+    <description>Hey everyone
+
+I&#39;m using a WordPress installation that lives inside of a folder. It&#39;s temporary whilst I have the site on a development server.
+
+You can visit the working site here:
+https://dev.theliftagency.com/martonmills/
+https://dev.theliftagency.com/martonmills/wp-json/wp/v2/posts
+(note the folder)
+
+But when I use this in state.source.url, like this, I&#39;m getting some unexpected behaviour:
+```js
+const settings = {
+  name: &#39;frontity&#39;,
+  state: {
+    frontity: {
+      url: &#39;https://dev.theliftagency.com/martonmills/&#39;,
+      title: &#39;Marton Mills&#39;,
+      description: &#39;Description here&#39;,
+    },
+  },
+  packages: [
+    {
+      name: &#39;marton-new&#39;,
+    },
+    {
+      name: &#39;@frontity/wp-source&#39;,
+      state: {
+        source: {
+          url: &#39;https://dev.theliftagency.com/martonmills/&#39;,
+          homepage: &#39;/homepage&#39;,
+          postsPage: &#39;/latest-news&#39;,
+        },
+      },
+    },
+    &#39;@frontity/tiny-router&#39;,
+    &#39;@frontity/html2react&#39;,
+  ],
+};
+
+export default settings;
+```
+
+Firstly, when I visit `http://localhost:3000` I get a 404 error like so:
+https://www.dropbox.com/s/iti3zbr25apztzx/Screenshot%202021-08-12%20at%2012.13.29.png?dl=0
+
+If I visit one of the pages, I get the same error (this time with a `&lt;Loading /&gt;` but this is expected from my code):
+https://www.dropbox.com/s/lnb5rrasi0y8avu/Screenshot%202021-08-12%20at%2012.14.15.png?dl=0
+
+If I change the URL to be `http://localhost:3000/martonmills/stockists` the data loads:
+https://www.dropbox.com/s/8w7n6q6t3ez8b9t/Screenshot%202021-08-12%20at%2012.15.06.png?dl=0
+
+So by that logic, I&#39;d expect visiting `http://localhost:3000/martonmills` would give me the homepage, but I get the same 404 error as before (I tried `martonmills/homepage` too but same thing):
+https://www.dropbox.com/s/1f6x7ctacks9dav/Screenshot%202021-08-12%20at%2012.15.53.png?dl=0
+
+Any ideas what might be going on here? Previously I had the exact same WordPress instance (same database, etc) on another server but it wasn&#39;t in a folder, and it was all working fine.
+
+**Edit:** If it helps, the hosted URL is doing the same thing:
+https://marton-mills-qmky6.ondigitalocean.app/martonmills/stockists/</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 12 Aug 2021 14:25:25 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Weird behaviour on state.source.url when using WordPress installation in a folder</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks as always <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> but unfortunately this doesn’t seem to have made a difference. I’m still getting the same 404 error as in the screenshots above.</p>
+<pre><code class="lang-js">const settings = {
+  name: 'frontity',
+  state: {
+    frontity: {
+      url: 'https://dev.theliftagency.com', // 👇🏻
+      subdirectory: '/martonmills', // added here just to test -- tried it with and without
+      title: 'Marton Mills',
+      description: 'Description here',
+    },
+  },
+  packages: [
+    {
+      name: 'marton-new',
+    },
+    {
+      name: '@frontity/wp-source',
+      state: {
+        source: {
+          url: 'https://dev.theliftagency.com',
+          subdirectory: '/martonmills',
+          homepage: '/homepage',
+          postsPage: '/latest-news',
+        },
+      },
+    },
+    '@frontity/tiny-router',
+    '@frontity/html2react',
+  ],
+};
+
+export default settings;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/4</link>
+        <pubDate>Thu, 12 Aug 2021 14:25:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5121-4</guid>
+        <source url="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121.rss">Weird behaviour on state.source.url when using WordPress installation in a folder</source>
+      </item>
+      <item>
+        <title>Weird behaviour on state.source.url when using WordPress installation in a folder</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Did you try setting a subdirectory? Like in the docs: <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#state-source-subdirectory" class="inline-onebox" rel="noopener nofollow ugc">@frontity/wp-source - API Reference</a></p>
+<pre><code class="lang-js">const settings = {
+  name: 'frontity',
+  state: {
+    frontity: {
+      url: 'https://dev.theliftagency.com/martonmills/',
+      title: 'Marton Mills',
+      description: 'Description here',
+    },
+  },
+  packages: [
+    {
+      name: 'marton-new',
+    },
+    {
+      name: '@frontity/wp-source',
+      state: {
+        source: {
+          url: 'https://dev.theliftagency.com',
+          subdirectory: '/martonmills',   // &lt;--
+          homepage: '/homepage',
+          postsPage: '/latest-news',
+        },
+      },
+    },
+    '@frontity/tiny-router',
+    '@frontity/html2react',
+  ],
+};
+
+export default settings;
+</code></pre>
+<p>This should enable you from running WP from a subdirectory.</p>
+          <p><a href="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/3</link>
+        <pubDate>Thu, 12 Aug 2021 14:11:26 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5121-3</guid>
+        <source url="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121.rss">Weird behaviour on state.source.url when using WordPress installation in a folder</source>
+      </item>
+      <item>
+        <title>Weird behaviour on state.source.url when using WordPress installation in a folder</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Anyone have any ideas here? Supposed to be sharing a demo of this today <img src="https://community.frontity.org/images/emoji/apple/roll_eyes.png?v=10" title=":roll_eyes:" class="emoji" alt=":roll_eyes:"></p>
+          <p><a href="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/2</link>
+        <pubDate>Thu, 12 Aug 2021 14:10:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5121-2</guid>
+        <source url="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121.rss">Weird behaviour on state.source.url when using WordPress installation in a folder</source>
+      </item>
+      <item>
+        <title>Weird behaviour on state.source.url when using WordPress installation in a folder</title>
+        <dc:creator><![CDATA[modg]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey everyone</p>
+<p>I’m using a WordPress installation that lives inside of a folder. It’s temporary whilst I have the site on a development server.</p>
+<p>You can visit the working site here:<br>
+<a href="https://dev.theliftagency.com/martonmills/" class="onebox" target="_blank" rel="noopener nofollow ugc">https://dev.theliftagency.com/martonmills/</a><br>
+<a href="https://dev.theliftagency.com/martonmills/wp-json/wp/v2/posts" class="onebox" target="_blank" rel="noopener nofollow ugc">https://dev.theliftagency.com/martonmills/wp-json/wp/v2/posts</a><br>
+(note the folder)</p>
+<p>But when I use this in state.source.url, like this, I’m getting some unexpected behaviour:</p>
+<pre><code class="lang-js">const settings = {
+  name: 'frontity',
+  state: {
+    frontity: {
+      url: 'https://dev.theliftagency.com/martonmills/',
+      title: 'Marton Mills',
+      description: 'Description here',
+    },
+  },
+  packages: [
+    {
+      name: 'marton-new',
+    },
+    {
+      name: '@frontity/wp-source',
+      state: {
+        source: {
+          url: 'https://dev.theliftagency.com/martonmills/',
+          homepage: '/homepage',
+          postsPage: '/latest-news',
+        },
+      },
+    },
+    '@frontity/tiny-router',
+    '@frontity/html2react',
+  ],
+};
+
+export default settings;
+</code></pre>
+<p>Firstly, when I visit <code>http://localhost:3000</code> I get a 404 error like so:<br>
+                    <a href="https://dl.dropboxusercontent.com/s/iti3zbr25apztzx/Screenshot%202021-08-12%20at%2012.13.29.png?dl=0" target="_blank" rel="noopener nofollow ugc" class="onebox">
+            <img src="https://community.frontity.org/uploads/default/original/2X/0/0737ffffe7b20c1c452afcd6b0dcc80a8fdfcb42.png" width="689" height="418">
+          </a>
+
+</p>
+<p>If I visit one of the pages, I get the same error (this time with a <code>&lt;Loading /&gt;</code> but this is expected from my code):<br>
+                    <a href="https://dl.dropboxusercontent.com/s/lnb5rrasi0y8avu/Screenshot%202021-08-12%20at%2012.14.15.png?dl=0" target="_blank" rel="noopener nofollow ugc" class="onebox">
+            <img src="https://community.frontity.org/uploads/default/original/2X/d/d4b66143e9ae00e0de2bba1671653ad573debecf.png" width="690" height="416">
+          </a>
+
+</p>
+<p>If I change the URL to be <code>http://localhost:3000/martonmills/stockists</code> the data loads:<br>
+                    <a href="https://dl.dropboxusercontent.com/s/8w7n6q6t3ez8b9t/Screenshot%202021-08-12%20at%2012.15.06.png?dl=0" target="_blank" rel="noopener nofollow ugc" class="onebox">
+            <img src="https://community.frontity.org/uploads/default/original/2X/d/d949e4ae22b7a0ed84c8560a7f89a871b1d6f2da.png" width="690" height="397">
+          </a>
+
+</p>
+<p>So by that logic, I’d expect visiting <code>http://localhost:3000/martonmills</code> would give me the homepage, but I get the same 404 error as before (I tried <code>martonmills/homepage</code> too but same thing):<br>
+                    <a href="https://dl.dropboxusercontent.com/s/1f6x7ctacks9dav/Screenshot%202021-08-12%20at%2012.15.53.png?dl=0" target="_blank" rel="noopener nofollow ugc" class="onebox">
+            <img src="https://community.frontity.org/uploads/default/original/2X/d/db7040f2a300654e598552f25051adf02c388bc0.png" width="690" height="416">
+          </a>
+
+</p>
+<p>Any ideas what might be going on here? Previously I had the exact same WordPress instance (same database, etc) on another server but it wasn’t in a folder, and it was all working fine.</p>
+<p><strong>Edit:</strong> If it helps, the hosted URL is doing the same thing:<br>
+<a href="https://marton-mills-qmky6.ondigitalocean.app/martonmills/stockists/" class="onebox" target="_blank" rel="noopener nofollow ugc">https://marton-mills-qmky6.ondigitalocean.app/martonmills/stockists/</a></p>
+          <p><a href="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121/1</link>
+        <pubDate>Thu, 12 Aug 2021 11:17:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5121-1</guid>
+        <source url="https://community.frontity.org/t/weird-behaviour-on-state-source-url-when-using-wordpress-installation-in-a-folder/5121.rss">Weird behaviour on state.source.url when using WordPress installation in a folder</source>
+      </item>
+  </channel>
+</rss>

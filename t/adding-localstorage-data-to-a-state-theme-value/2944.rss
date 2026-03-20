@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Adding localStorage data to a state.theme value</title>
+    <link>https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944</link>
+    <description>i have a component that allows a user to select an option from a dropdown menu. The user’s selected is being set to localStorage, but i am wanting that localStorage value to be accessible to all other components in the project. I am thinking the way to make it globally accessible is to set a state.theme value equal to the value of the localStorage value. do you think this is an appropriate way of accomplishing the goal, and if so, how would i set a state.theme value to the localStorage value?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 21 Mar 2021 16:43:02 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Adding localStorage data to a state.theme value</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/meaghan1">@meaghan1</a>,</p>
+<p>You could set an action to modify that value in the state while writing that value in <code>localStorage</code>.</p>
+<p><a href="https://docs.frontity.org/learning-frontity/actions" class="onebox" target="_blank">https://docs.frontity.org/learning-frontity/actions</a></p>
+<p>You also have to take into account that every time a page is reload the values stored in memory will be erased. So, you can use some of the “Actions triggered by Frontity” (afterCSR → afterClientSideRendering) to recover this data eery time a page is loaded</p>
+<p><a href="https://docs.frontity.org/learning-frontity/actions#actions-triggered-by-frontity" class="onebox" target="_blank">https://docs.frontity.org/learning-frontity/actions#actions-triggered-by-frontity</a></p>
+<p>The code could be something like this…</p>
+<pre><code class="lang-javascript">import Theme from "./components";
+
+const marsTheme = {
+  name: "@frontity/mars-theme",
+  roots: {
+    theme: Theme
+  },
+  state: {
+    theme: {
+      menu: [], 
+      dropDownValue: 'none'
+    }
+  },
+  actions: {
+    theme: {
+      beforeSSR: before,
+      beforeCSR: before,
+      afterCSR: ({ actions }) =&gt; {
+        const dropDownValue = window.localStorage.getItem('dropDownValue')
+        if (dropDownValue) actions.theme.setDropDownValue(dropDownValue);
+      },
+      setDropDownValue: ({state}) =&gt; value =&gt; {
+        state.theme.dropDownValue = value;
+        window.localStorage.setItem('dropDownValue', value)
+      }
+    }
+  }
+};
+
+...
+</code></pre>
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944/2</link>
+        <pubDate>Mon, 21 Sep 2020 14:00:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2944-2</guid>
+        <source url="https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944.rss">Adding localStorage data to a state.theme value</source>
+      </item>
+      <item>
+        <title>Adding localStorage data to a state.theme value</title>
+        <dc:creator><![CDATA[meaghan1]]></dc:creator>
+        <description><![CDATA[
+            <p>i have a component that allows a user to select an option from a dropdown menu. The user’s selected is being set to localStorage, but i am wanting that localStorage value to be accessible to all other components in the project. I am thinking the way to make it globally accessible is to set a state.theme value equal to the value of the localStorage value. do you think this is an appropriate way of accomplishing the goal, and if so, how would i set a state.theme value to the localStorage value?</p>
+          <p><a href="https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944/1</link>
+        <pubDate>Mon, 21 Sep 2020 12:59:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2944-1</guid>
+        <source url="https://community.frontity.org/t/adding-localstorage-data-to-a-state-theme-value/2944.rss">Adding localStorage data to a state.theme value</source>
+      </item>
+  </channel>
+</rss>

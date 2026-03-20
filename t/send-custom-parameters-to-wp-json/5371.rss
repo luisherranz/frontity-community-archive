@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Send custom parameters to wp-json</title>
+    <link>https://community.frontity.org/t/send-custom-parameters-to-wp-json/5371</link>
+    <description>We are trying to add custom URL params to the wp-json request similar to this post that got abandoned. It does not look like there was ever a solution.
+https://community.frontity.org/t/custom-url-query-parameters/3341/
+
+The goal is to include variable parameters like industry=healthcare or industry=construction in the request to Wordpress.
+
+We found this github repo that is potentially what we need - using handlers
+https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/index.js
+
+We have adopted it as such:
+const project = {
+  priority: 10,
+  pattern: &quot;/project/:slug&quot;,
+  func: async ({ route, params, state, libraries }) =&gt; {
+    // 1. get page with that slug.
+    const response = await libraries.source.api.get({
+      endpoint: &quot;project&quot;,
+      params: { test: &#39;test parameter&#39; }
+    });
+
+    // 2. add it to the state.
+    const [project] = await libraries.source.populate({ response, state });
+
+    // 3. add info to data
+    Object.assign(state.source.data[route], {
+      type: project.type,
+        id: project.id,
+        link: project.link
+    });
+  }
+};
+
+
+const before = async ({ libraries, actions }) =&gt; {
+  // Add handlers for both /project/:name.
+  libraries.source.handlers.push(project);
+  console.log(project)
+
+  // Fetch all the projects.
+  await actions.source.fetch(&quot;/project&quot;);
+};
+
+
+and the &quot;before&quot; function is set in the actions -&gt; theme as:
+beforeSSR: before,
+beforeCSR: before
+
+But this does not seem to do anything. Can we get some clarification? 
+Like the other forum post mentioned, it is very unclear in documentation what needs to be done here. We&#39;re spinning our wheels on something that should be easy, I think.
+
+We don&#39;t have a public site/repo yet since the project is just getting started.
+
+Thank you.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 10 Oct 2021 17:07:40 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/send-custom-parameters-to-wp-json/5371.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Send custom parameters to wp-json</title>
+        <dc:creator><![CDATA[matsukeira]]></dc:creator>
+        <description><![CDATA[
+            <p>We are trying to add custom URL params to the wp-json request similar to this post that got abandoned. It does not look like there was ever a solution.</p><aside class="quote quote-modified" data-post="1" data-topic="3341">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/jack.templeman.user1/40/1875_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/custom-url-query-parameters/3341/">Custom URL query parameters</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="The “Get Help” category is the place for asking generic technical questions about Frontity
+or about how to solve a specific issue you’re having in your Frontity project.
+You can contribute to the project by providing support to these current unanswered questions">🙋Get Help</span></a>
+  </div>
+  <blockquote>
+    Hello Frontity! Im having a bit of a love/hate relationship with you atm. Some things are super easy and work well, others not so much. 
+Im trying to do something I thought would be incredibly easy, add a custom URL query parameter to my actions.source.fetch request. Its proving to be extremely frustrating. 
+I have a custom rest query hook (<a href="https://developer.wordpress.org/reference/hooks/rest_this-post_type_query/" rel="noopener nofollow ugc">https://developer.wordpress.org/reference/hooks/rest_this-post_type_query/</a>) set up on wordpress that I would like to use to filter a custom post type endpoin…
+  </blockquote>
+</aside>
+
+<p>The goal is to include variable parameters like industry=healthcare or industry=construction in the request to Wordpress.</p>
+<p>We found this github repo that is potentially what we need - using handlers</p><aside class="onebox githubblob" data-onebox-src="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/index.js">
+  <header class="source">
+
+      <a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/index.js" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+
+  <article class="onebox-body">
+    <h4><a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/index.js" target="_blank" rel="noopener nofollow ugc">annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/index.js</a></h4>
+
+
+    <pre><code class="lang-js">import image from "@frontity/html2react/processors/image";
+import Theme from "./components";
+import { players, player } from "./utils/handlers";
+
+const before = async ({ libraries, actions }) =&gt; {
+  // We use html2react to process the &lt;img&gt; tags inside the content HTML.
+  libraries.html2react.processors.push(image);
+
+  // Add handlers for both /players/ and /players/:name.
+  libraries.source.handlers.push(players, player);
+
+  // Fetch all the players.
+  await actions.source.fetch("/players");
+};
+
+const marsTheme = {
+  name: "@frontity/mars-theme",
+  roots: {
+    theme: Theme
+  },
+</code></pre>
+
+
+  This file has been truncated. <a href="https://github.com/annabranco/three-bunnies/blob/master/packages/three-bunnies-theme/src/index.js" target="_blank" rel="noopener nofollow ugc">show original</a>
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>We have adopted it as such:<br>
+const project = {<br>
+priority: 10,<br>
+pattern: “/project/:slug”,<br>
+func: async ({ route, params, state, libraries }) =&gt; {<br>
+// 1. get page with that slug.<br>
+const response = await libraries.source.api.get({<br>
+endpoint: “project”,<br>
+params: { test: ‘test parameter’ }<br>
+});</p>
+<pre><code>// 2. add it to the state.
+const [project] = await libraries.source.populate({ response, state });
+
+// 3. add info to data
+Object.assign(state.source.data[route], {
+  type: project.type,
+    id: project.id,
+    link: project.link
+});
+</code></pre>
+<p>}<br>
+};</p>
+<p>const before = async ({ libraries, actions }) =&gt; {<br>
+// Add handlers for both /project/:name.<br>
+libraries.source.handlers.push(project);<br>
+console.log(project)</p>
+<p>// Fetch all the projects.<br>
+await actions.source.fetch("/project");<br>
+};</p>
+<p>and the “before” function is set in the actions → theme as:<br>
+beforeSSR: before,<br>
+beforeCSR: before</p>
+<p>But this does not seem to do anything. Can we get some clarification?<br>
+Like the other forum post mentioned, it is very unclear in documentation what needs to be done here. We’re spinning our wheels on something that should be easy, I think.</p>
+<p>We don’t have a public site/repo yet since the project is just getting started.</p>
+<p>Thank you.</p>
+          <p><a href="https://community.frontity.org/t/send-custom-parameters-to-wp-json/5371/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/send-custom-parameters-to-wp-json/5371/1</link>
+        <pubDate>Sun, 10 Oct 2021 17:07:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5371-1</guid>
+        <source url="https://community.frontity.org/t/send-custom-parameters-to-wp-json/5371.rss">Send custom parameters to wp-json</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Reverse Proxy on OpenLiteSpeed</title>
+    <link>https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750</link>
+    <description>I have Cyberpanel + Openlitespeed/Litespeed, 
+How to make these following lines work with **Openlitespeed/Litespeed** ? (Not Nginx / Apache)
+
+&gt; I am about to deploy, waiting for this please
+
+    # Main server block.
+    server {
+  
+	# Set default backend.
+	set $backend &quot;WordPress&quot;;
+
+	# 1. Use WordPress for all the URLs that start with `/wp-`.
+	location /wp- {
+		try_files $uri $uri/ /index.php$is_args$args;
+	}
+
+	# 2. Use WordPress for all the TXT and XML files.
+	location ~ \.(txt|xml|xsl)$ {
+		try_files $uri $uri/ /index.php$is_args$args;
+	}
+
+	# 3. Use Frontity for all the URLs that start with `/static`.
+	location /static {
+		set $backend &quot;Frontity&quot;;
+		proxy_pass http://localhost:3000;
+	}
+
+	# 4. The rest of the URLs.
+	location / {
+		# 4.1 Use Frontity if there is no WordPress auth cookie.
+		if ($http_cookie !~* &quot;wordpress_logged_in&quot;) {
+			set $backend &quot;Frontity&quot;;
+			proxy_pass http://localhost:3000;
+		}
+		# 4.2 Use WordPress with Embedded mode if there is an auth cookie.
+		try_files $uri $uri/ /index.php$is_args$args;
+	}
+
+	add_header &quot;X-Backend&quot; $backend;  }`</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 15 Jan 2021 08:26:55 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Reverse Proxy on OpenLiteSpeed</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It seems like a reverse proxy can be configured with Apache-like syntax (<a href="https://openlitespeed.org/kb/advanced-reverse-proxy/">https://openlitespeed.org/kb/advanced-reverse-proxy/</a>), which I am not familiar with to, but I am sure you can find much more information <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/11</link>
+        <pubDate>Fri, 15 Jan 2021 08:26:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3750-11</guid>
+        <source url="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750.rss">Reverse Proxy on OpenLiteSpeed</source>
+      </item>
+      <item>
+        <title>Reverse Proxy on OpenLiteSpeed</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/furrysmile2">@furrysmile2</a> I have never used LiteSpeed, sorry.</p>
+          <p><a href="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/7</link>
+        <pubDate>Thu, 14 Jan 2021 16:51:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3750-7</guid>
+        <source url="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750.rss">Reverse Proxy on OpenLiteSpeed</source>
+      </item>
+      <item>
+        <title>Reverse Proxy on OpenLiteSpeed</title>
+        <dc:creator><![CDATA[furrysmile2]]></dc:creator>
+        <description><![CDATA[
+            <p>its been almost a week, since you wrote the code can you please help.</p>
+          <p><a href="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/2</link>
+        <pubDate>Mon, 11 Jan 2021 00:23:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3750-2</guid>
+        <source url="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750.rss">Reverse Proxy on OpenLiteSpeed</source>
+      </item>
+      <item>
+        <title>Reverse Proxy on OpenLiteSpeed</title>
+        <dc:creator><![CDATA[furrysmile2]]></dc:creator>
+        <description><![CDATA[
+            <p>I have Cyberpanel + Openlitespeed/Litespeed,<br>
+How to make these following lines work with <strong>Openlitespeed/Litespeed</strong> ? (Not Nginx / Apache)</p>
+<blockquote>
+<p>I am about to deploy, waiting for this please</p>
+</blockquote>
+<pre><code># Main server block.
+server {
+
+# Set default backend.
+set $backend "WordPress";
+
+# 1. Use WordPress for all the URLs that start with `/wp-`.
+location /wp- {
+	try_files $uri $uri/ /index.php$is_args$args;
+}
+
+# 2. Use WordPress for all the TXT and XML files.
+location ~ \.(txt|xml|xsl)$ {
+	try_files $uri $uri/ /index.php$is_args$args;
+}
+
+# 3. Use Frontity for all the URLs that start with `/static`.
+location /static {
+	set $backend "Frontity";
+	proxy_pass http://localhost:3000;
+}
+
+# 4. The rest of the URLs.
+location / {
+	# 4.1 Use Frontity if there is no WordPress auth cookie.
+	if ($http_cookie !~* "wordpress_logged_in") {
+		set $backend "Frontity";
+		proxy_pass http://localhost:3000;
+	}
+	# 4.2 Use WordPress with Embedded mode if there is an auth cookie.
+	try_files $uri $uri/ /index.php$is_args$args;
+}
+
+add_header "X-Backend" $backend;  }`</code></pre>
+          <p><a href="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750/1</link>
+        <pubDate>Thu, 07 Jan 2021 00:44:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3750-1</guid>
+        <source url="https://community.frontity.org/t/reverse-proxy-on-openlitespeed/3750.rss">Reverse Proxy on OpenLiteSpeed</source>
+      </item>
+  </channel>
+</rss>

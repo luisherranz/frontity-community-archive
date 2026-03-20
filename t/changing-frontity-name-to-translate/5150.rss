@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</title>
+    <link>https://community.frontity.org/t/changing-frontity-name-to-translate/5150</link>
+    <description>On line 22 in node_modules/@frontity/core/src/server/middlewares/settings-and-store.ts
+
+Im able to change 
+`const nameOption = ctx.query.frontity_name;`
+To
+`const nameOption = ctx.query.translate;`
+
+This allows me to implement my language switcher and switch Frontity&#39;s settings with the URL argument localhost:3000?translate=en
+
+Is there any way I can have these changes persist? as any changes made to node_moduels will be lost when I clone my repo and deploy it elsewhere.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 19 Aug 2021 11:06:10 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/changing-frontity-name-to-translate/5150.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <pre><code class="lang-javascript">export default [
+{
+   // default, will be used if no other site matches
+   name: 'mysite-en',
+   state: { ... },
+   packages: [ ... ]
+},
+{
+   // different language path
+   name: 'mysite-cy',
+   match: ['/cy'],
+   state: { ... },
+   packages: [ ... ]
+}
+];
+</code></pre>
+<p>Alternatively it could be that your regex isn’t correct…<br>
+This is the one I use and works without a problem.</p>
+<pre><code class="lang-javascript">match: ["https:\/\/example.com\/nl(\/.*)?$"],
+</code></pre>
+          <p><a href="https://community.frontity.org/t/changing-frontity-name-to-translate/5150/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/changing-frontity-name-to-translate/5150/4</link>
+        <pubDate>Thu, 19 Aug 2021 11:06:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5150-4</guid>
+        <source url="https://community.frontity.org/t/changing-frontity-name-to-translate/5150.rss">Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</source>
+      </item>
+      <item>
+        <title>Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</title>
+        <dc:creator><![CDATA[leogardner12]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="Johan" data-post="2" data-topic="5150">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/johan/40/2611_2.png" class="avatar"> Johan:</div>
+<blockquote>
+<p><code>translate</code></p>
+</blockquote>
+</aside>
+<p>Thanks for the response.</p>
+<p>Just to clarify what I’m trying to achieve. I have two sites, one for each language one with the name en and the other cy.</p>
+<p>here is a section of my settings that uses the lang param to only get English content.</p>
+<pre><code class="lang-javascript">name: '@frontity/wp-source',
+state: {
+  source: {
+    api: 'https://myWpSite/subDirectory/wp-json',
+    params: {
+      lang: 'en'
+    },
+    subdirectory: 'subDirectory'
+  }
+}
+</code></pre>
+<p>My problem is that on the deployed version of my site the match property for my settings isn’t working so to be able to change settings to implement the translations I need to use this ?frontity_name= argument. I just wondered if it was possible to change frontity_name so it looks better in the URL.</p>
+<p>If it’s not possible any ideas why the match property isn’t switching my settings on my deployed site? (its working fine on localhost)</p>
+<pre><code class="lang-javascript">    name: 'en',
+    match: [
+      '.*https:\\/\\/myDeployedSite\\/subDirectory(\\/.*)?$',
+      '.*http:\\/\\/localhost:3000\\/subDirectory(\\/.*)?$'
+    ],
+</code></pre>
+<pre><code class="lang-javascript">    name: 'cy',
+    match: [
+      '.*https:\\/\\/myDeployedSite\\/subDirectory\\/cy(\\/.*)?$',
+      '.*http:\\/\\/localhost:3000\\/subDirectory\\/cy(\\/.*)?$'
+    ],
+</code></pre>
+          <p><a href="https://community.frontity.org/t/changing-frontity-name-to-translate/5150/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/changing-frontity-name-to-translate/5150/3</link>
+        <pubDate>Thu, 19 Aug 2021 10:07:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5150-3</guid>
+        <source url="https://community.frontity.org/t/changing-frontity-name-to-translate/5150.rss">Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</source>
+      </item>
+      <item>
+        <title>Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>That is probably not a good idea to do, since a lot of things depend on that key/value…</p>
+<p>You should be able to pass custom parameters to the API:</p>
+<pre><code class="lang-js">// part of frontity.settings.js
+module.exports = {
+  packages: [
+    {
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          api: "https://site.com/wp-json",
+          params: {
+            translate: "en",  // &lt;--
+          },
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>If I’m correct the <code>params</code> array will be added to all requests made to the API.</p>
+          <p><a href="https://community.frontity.org/t/changing-frontity-name-to-translate/5150/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/changing-frontity-name-to-translate/5150/2</link>
+        <pubDate>Thu, 19 Aug 2021 09:30:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5150-2</guid>
+        <source url="https://community.frontity.org/t/changing-frontity-name-to-translate/5150.rss">Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</source>
+      </item>
+      <item>
+        <title>Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</title>
+        <dc:creator><![CDATA[leogardner12]]></dc:creator>
+        <description><![CDATA[
+            <p>On line 22 in node_modules/<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/core/src/server/middlewares/settings-and-store.ts</p>
+<p>Im able to change<br>
+<code>const nameOption = ctx.query.frontity_name;</code><br>
+To<br>
+<code>const nameOption = ctx.query.translate;</code></p>
+<p>This allows me to implement my language switcher and switch Frontity’s settings with the URL argument localhost:3000?translate=en</p>
+<p>Is there any way I can have these changes persist? as any changes made to node_moduels will be lost when I clone my repo and deploy it elsewhere.</p>
+          <p><a href="https://community.frontity.org/t/changing-frontity-name-to-translate/5150/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/changing-frontity-name-to-translate/5150/1</link>
+        <pubDate>Thu, 19 Aug 2021 09:00:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5150-1</guid>
+        <source url="https://community.frontity.org/t/changing-frontity-name-to-translate/5150.rss">Changing &#39;?frontity_name=&#39; to &#39;?translate=&#39;</source>
+      </item>
+  </channel>
+</rss>

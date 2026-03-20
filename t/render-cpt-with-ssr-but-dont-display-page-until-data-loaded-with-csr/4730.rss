@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Render CPT with SSR, but don&#39;t display page until data loaded with CSR</title>
+    <link>https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730</link>
+    <description>Hi,
+
+I&#39;m trying to render some shortcode  on my page and delay display of the page until they&#39;re loaded. (We can treat them as any CPT though. they come from a custom plugin that creates a &quot;shortcode&quot; CPT)
+
+I understand I can pass these in `beforeSSR` in my theme setup and this will make them available in my source...
+```
+beforeSSR: async ({ state, actions }) =&gt; {
+  await Promise.all([
+    actions.source.fetch(&quot;/shortcode/address/&quot;),
+    actions.source.fetch(&quot;/shortcode/telephone/&quot;)
+  ]);
+},
+```
+
+but for client-side rendering I have to do another fetch in my `useEffect`
+
+this seems to work I think but feels wrong though
+
+```
+
+const data = state.source.get(state.router.link);
+const post = state.source[data.type][data.id];
+
+const addressData = state.source.get(&quot;/shortcode/address/&quot;)
+const telData = state.source.get(&quot;/shortcode/telephone/&quot;)
+
+// fetch our data client-side.. do these cause a re-render?
+useEffect(() =&gt; {
+  actions.source.fetch(&quot;/shortcode/address/&quot;)
+  actions.source.fetch(&quot;/shortcode/telephone/&quot;)
+},[])
+
+// I thought this should be in useEffect and set address/telephone as states 
+// rather than just variables, but the only way I could get the SSR working
+let address, telephone, 
+if(addressData?.isReady) 
+   address = state.source[&quot;shortcode&quot;][addressData.id].content.rendered
+if(telData?.isReady) 
+   telephone = state.source[&quot;shortcode&quot;][telData.id].content.rendered
+
+// Load the post, but only if the data &amp; shortcode data is ready.
+  return (data.isReady &amp;&amp; addressData.isReady &amp;&amp; telData.isReady) ? (
+```
+
+thanks for any help understanding this properly
+
+thanks
+J</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 11 Jun 2021 05:55:16 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Render CPT with SSR, but don&#39;t display page until data loaded with CSR</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>Actually <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> I still have a separate question around the original subject of the post.</p>
+<p>I’m loading an /events page (ie has an actual Page entry in WP) which then also loads my events-archive CPT data (or alternatively I could have an events archive that then loaded content from the events page in WP)</p>
+<p>What would be the preferred strategy for auto fetching in this case where I want both the data for the page and the archive available?</p>
+<p>Essentially I just want to preload both sets of data when the user clicks or rolls over my “Events” menu link.</p>
+<p>Would it be simplest to do a fetch in init() for this route? (ie both beforessr and beforecsr)</p>
+<p>Is there any other pattern that works well?</p>
+<p>Currently I just go to the /events page and then do a fetch on the events-archive in useEffect() and just display the Loading component again until all data isReady, before showing my whole page … however I’m having trouble working out API routes (wanted) vs browser routes (not wanted) for an archive… see below</p>
+<p>Thanks for any suggestions<br>
+J</p>
+<p>See also:</p>
+<ul>
+<li>
+<p><a href="https://community.frontity.org/t/retrieve-posts-of-custom-post-type-on-homepage/2319/8" class="inline-onebox">Retrieve posts of custom post type on homepage - #8 by codemonkeynorth</a></p>
+</li>
+<li>
+<p><a href="https://community.frontity.org/t/holding-page-for-cpt-including-posts-of-that-cpt-eg-events/4762" class="inline-onebox">Holding page for CPT including posts of that CPT (eg /events)</a>)</p>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/5</link>
+        <pubDate>Thu, 10 Jun 2021 20:21:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4730-5</guid>
+        <source url="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730.rss">Render CPT with SSR, but don&#39;t display page until data loaded with CSR</source>
+      </item>
+      <item>
+        <title>Render CPT with SSR, but don&#39;t display page until data loaded with CSR</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>if anyone’s interested, I use this</p><aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://s.w.org/favicon.ico?2" class="site-icon" width="32" height="32">
+
+      <a href="https://wordpress.org/plugins/custom-content-shortcode/" target="_blank" rel="noopener nofollow ugc">WordPress.org</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/223;"><img src="https://community.frontity.org/uploads/default/optimized/2X/e/e49c6008bbc213ede714d9a6a70be0e55002dd32_2_690x223.jpeg" class="thumbnail" width="690" height="223" srcset="https://community.frontity.org/uploads/default/optimized/2X/e/e49c6008bbc213ede714d9a6a70be0e55002dd32_2_690x223.jpeg, https://community.frontity.org/uploads/default/original/2X/e/e49c6008bbc213ede714d9a6a70be0e55002dd32.jpeg 1.5x, https://community.frontity.org/uploads/default/original/2X/e/e49c6008bbc213ede714d9a6a70be0e55002dd32.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/e/e49c6008bbc213ede714d9a6a70be0e55002dd32_2_10x10.png"></div>
+
+<h3><a href="https://wordpress.org/plugins/custom-content-shortcode/" target="_blank" rel="noopener nofollow ugc">Custom Content Shortcode</a></h3>
+
+  <p>Display posts, pages, custom post types, fields, attachments, comments, images, users, menus, sidebars</p>
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>You can add the shortcodes (specifically the rendered output) to the REST API with some custom code that I add as a plugin</p>
+<pre><code class="lang-javascript">// https://scottbolinger.com/custom-post-types-wp-api-v2/
+function sb_add_cpts_to_api( $args, $post_type ) {
+
+  if(is_admin()) return $args;
+
+  if ( "shortcode" === $post_type ) {
+    $args["show_in_rest"] = true;
+  }
+  return $args;
+}
+add_filter( "register_post_type_args", "sb_add_cpts_to_api", 10, 2 );
+</code></pre>
+<p>I like CCS because you can do all sorts of serverside functionality quite easily - including post loops,  conditionals and dynamic args but at a basic level…</p>
+<pre><code class="lang-javascript">// get the content field from a post called hello-world
+[content name=hello-world]
+
+// get a custom field from a custom post type
+[content type=apartment name=lux-suite-22 field=rent-per-day]
+</code></pre>
+<p>not the best examples as you can likely get the data via Frontity some other way easily enough</p>
+<p>however for my site I’m using my own CCS shortcode <code>[instagram_feed]</code> - which I can grab the final rendered content from via my <code>/shortcodes/instagram_feed/</code> endpoint in frontity.</p>
+<p>This actually runs another shortcode in CCS: <code>[global][instagram-feed num=3 cols=3 showfollow=false][/global]</code> (Smashballoon’s Social Feed plugin)</p>
+<p>I’m not sure how I’d pass the params to smashballoon’s shortcode via the rest API directly, so this is a simple workaround, since I don’t need to alter the params themselves</p>
+<p>hope that’s useful to someone anyway</p>
+<p>J</p>
+          <p><a href="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/4</link>
+        <pubDate>Wed, 09 Jun 2021 13:30:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4730-4</guid>
+        <source url="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730.rss">Render CPT with SSR, but don&#39;t display page until data loaded with CSR</source>
+      </item>
+      <item>
+        <title>Render CPT with SSR, but don&#39;t display page until data loaded with CSR</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi the above works , I was just wrapping my head around the fetch/get process and why we have the useEffect</p>
+<p>Actually since I added the beforeSSR injection of shortcode rendered data for all routes I think that useEffect might be redundant now. Will check it again</p>
+<p>And sorry yes just to clarify the shortcodes aren’t used in my content field. I use them to grab the content elsewhere in components that don’t render the main post content</p>
+<p>Thanks<br>
+J</p>
+          <p><a href="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/3</link>
+        <pubDate>Tue, 08 Jun 2021 17:08:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4730-3</guid>
+        <source url="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730.rss">Render CPT with SSR, but don&#39;t display page until data loaded with CSR</source>
+      </item>
+      <item>
+        <title>Render CPT with SSR, but don&#39;t display page until data loaded with CSR</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/codemonkeynorth">@codemonkeynorth</a></p>
+<p>After you’ve done the fetch in <code>beforeSSR</code> is the content not then in the state ready for you to use?</p>
+<p>Shortcode functions will execute server-side in WordPress and will add any content to the REST API, so the content will appear in the <code>content.rendered</code> property for whatever post or page contains the shortcode.</p>
+<p>For plugins that create a CPT and add them to the REST API using <code>"show_in_rest" =&gt; true</code> in the <code>args</code> array the shortcode function is immaterial to Frontity as the data can be fetched from the CPTs endpoint - which is what it looks like you’re doing.</p>
+<p>Can you post a link to a repo please.</p>
+          <p><a href="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/2</link>
+        <pubDate>Tue, 08 Jun 2021 15:21:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4730-2</guid>
+        <source url="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730.rss">Render CPT with SSR, but don&#39;t display page until data loaded with CSR</source>
+      </item>
+      <item>
+        <title>Render CPT with SSR, but don&#39;t display page until data loaded with CSR</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>I’m trying to render some shortcode  on my page and delay display of the page until they’re loaded. (We can treat them as any CPT though. they come from a custom plugin that creates a “shortcode” CPT)</p>
+<p>I understand I can pass these in <code>beforeSSR</code> in my theme setup and this will make them available in my source…</p>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions }) =&gt; {
+  await Promise.all([
+    actions.source.fetch("/shortcode/address/"),
+    actions.source.fetch("/shortcode/telephone/")
+  ]);
+},
+</code></pre>
+<p>but for client-side rendering I have to do another fetch in my <code>useEffect</code></p>
+<p>this seems to work I think but feels wrong though</p>
+<pre><code class="lang-javascript">
+const data = state.source.get(state.router.link);
+const post = state.source[data.type][data.id];
+
+const addressData = state.source.get("/shortcode/address/")
+const telData = state.source.get("/shortcode/telephone/")
+
+// fetch our data client-side.. do these cause a re-render?
+useEffect(() =&gt; {
+  actions.source.fetch("/shortcode/address/")
+  actions.source.fetch("/shortcode/telephone/")
+},[])
+
+// I thought this should be in useEffect and set address/telephone as states 
+// rather than just variables, but the only way I could get the SSR working
+let address, telephone, 
+if(addressData?.isReady) 
+   address = state.source["shortcode"][addressData.id].content.rendered
+if(telData?.isReady) 
+   telephone = state.source["shortcode"][telData.id].content.rendered
+
+// Load the post, but only if the data &amp; shortcode data is ready.
+  return (data.isReady &amp;&amp; addressData.isReady &amp;&amp; telData.isReady) ? (
+</code></pre>
+<p>thanks for any help understanding this properly</p>
+<p>thanks<br>
+J</p>
+          <p><a href="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730/1</link>
+        <pubDate>Sat, 05 Jun 2021 19:03:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4730-1</guid>
+        <source url="https://community.frontity.org/t/render-cpt-with-ssr-but-dont-display-page-until-data-loaded-with-csr/4730.rss">Render CPT with SSR, but don&#39;t display page until data loaded with CSR</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>404 Not Found The page you were looking for could not be found</title>
+    <link>https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419</link>
+    <description>Hello,
+
+we are trying out Frontity to see if we should use it in a project. We get this page when we try to browse to our site in Chrome:
+
+![Screen Shot 2021-04-15 at 11.56.43 AM|690x323](upload://qafdN1cjHXtR21YIz285uEZ0oVU.png) 
+
+we have a Dockerized setup consisting of 4 containers:
+
+* myapp-ui: the container running frontity. this was setup using the boilerplate described in https://docs.frontity.org/getting-started/quick-start-guide and is running `npx frontity dev`
+* myapp-nginx: the container to which myapp-ui forwards requests
+* myapp-wordpress: the container to which myapp-nginx forwards requests. this is an alpine container running wordpress on PHP-FPM (7.4-php-fpm-alpine)
+* myapp-mysql: the MySQL container
+
+The good thing is that we have tested there is no networking issue. The containers are all able to reach each other. We also don&#39;t see any errors in the logs.
+
+myapp-nginx shows this:
+
+```
+2021/04/14 21:30:49 [notice] 7#7: *2 &quot;/wp-admin$&quot; does not match &quot;/wp-json/wp/v2/posts&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+2021/04/14 21:30:49 [notice] 7#7: *2 &quot;^(/[^/]+)?(/wp-.*)&quot; matches &quot;/wp-json/wp/v2/posts&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+2021/04/14 21:30:49 [notice] 7#7: *2 rewritten data: &quot;/wp-json/wp/v2/posts&quot;, args: &quot;_embed=true&amp;slug=myapp&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+172.23.0.2 - - [14/Apr/2021:21:30:50 +0000] &quot;GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1&quot; 200 12 &quot;-&quot; &quot;node-fetch/1.0 (+https://github.com/bitinn/node-fetch)&quot;
+2021/04/14 21:30:50 [notice] 7#7: *4 &quot;/wp-admin$&quot; does not match &quot;/wp-json/wp/v2/pages&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+2021/04/14 21:30:50 [notice] 7#7: *4 &quot;^(/[^/]+)?(/wp-.*)&quot; matches &quot;/wp-json/wp/v2/pages&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+2021/04/14 21:30:50 [notice] 7#7: *4 rewritten data: &quot;/wp-json/wp/v2/pages&quot;, args: &quot;_embed=true&amp;slug=myapp&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+172.23.0.2 - - [14/Apr/2021:21:30:50 +0000] &quot;GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1&quot; 200 12 &quot;-&quot; &quot;node-fetch/1.0 (+https://github.com/bitinn/node-fetch)&quot;
+2021/04/14 21:30:50 [notice] 7#7: *6 &quot;/wp-admin$&quot; does not match &quot;/wp-json/wp/v2/media&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+2021/04/14 21:30:50 [notice] 7#7: *6 &quot;^(/[^/]+)?(/wp-.*)&quot; matches &quot;/wp-json/wp/v2/media&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+2021/04/14 21:30:50 [notice] 7#7: *6 rewritten data: &quot;/wp-json/wp/v2/media&quot;, args: &quot;_embed=true&amp;slug=myapp&quot;, client: 172.23.0.2, server: , request: &quot;GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1&quot;, host: &quot;myapp-nginx&quot;
+172.23.0.2 - - [14/Apr/2021:21:30:50 +0000] &quot;GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1&quot; 200 12 &quot;-&quot; &quot;node-fetch/1.0 (+https://github.com/bitinn/node-fetch)&quot;
+```
+
+myapp-wordpress shows:
+
+```
+172.23.0.5 -  14/Apr/2021:21:47:55 +0000 &quot;GET /index.php&quot; 200
+```
+
+further if we make a curl request from myapp-ui we get this:
+
+```
+/home/node # curl http://myapp-nginx/wp-json/wp/v2/posts?_embed=true&amp;slug=myapp
+/home/node # [{&quot;id&quot;:1,&quot;date&quot;:&quot;2021-04-12T17:10:57&quot;,&quot;date_gmt&quot;:&quot;2021-04-12T17:10:57&quot;,&quot;guid&quot;:{&quot;rendered&quot;:&quot;https:\/\/local.mysite.com\/myapp\/?p=1&quot;},&quot;modified&quot;:&quot;2021-04-12T17:10:57&quot;,&quot;modified_gmt&quot;:&quot;2021-04-12T17:10:57&quot;,&quot;slug&quot;:&quot;hello-world&quot;,&quot;status&quot;:&quot;publish&quot;,&quot;type&quot;:&quot;post&quot;,&quot;link&quot;:&quot;https:\/\/local.mysite.com\/myapp\/hello-world\/&quot;,&quot;title&quot;:{&quot;rendered&quot;:&quot;Hello world!&quot;},&quot;content&quot;:{&quot;rendered&quot;:&quot;\n&lt;p&gt;Welcome to WordPress. This is your first post. Edit or delete it, then start writing!&lt;\/p&gt;\n&quot;,&quot;protected&quot;:false},&quot;excerpt&quot;:{&quot;rendered&quot;:&quot;&lt;p&gt;Welcome to WordPress. This is your first post. Edit or delete it, then start writing!&lt;\/p&gt;\n&quot;,&quot;protected&quot;:false},&quot;author&quot;:1,&quot;featured_media&quot;:0,&quot;comment_status&quot;:&quot;open&quot;,&quot;ping_status&quot;:&quot;open&quot;,&quot;sticky&quot;:false,&quot;template&quot;:&quot;&quot;,&quot;format&quot;:&quot;standard&quot;,&quot;meta&quot;:[],&quot;categories&quot;:[1],&quot;tags&quot;:[],&quot;_links&quot;:{&quot;self&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts\/1&quot;}],&quot;collection&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts&quot;}],&quot;about&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/types\/post&quot;}],&quot;author&quot;:[{&quot;embeddable&quot;:true,&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/users\/1&quot;}],&quot;replies&quot;:[{&quot;embeddable&quot;:true,&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/comments?post=1&quot;}],&quot;version-history&quot;:[{&quot;count&quot;:0,&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts\/1\/revisions&quot;}],&quot;wp:attachment&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/media?parent=1&quot;}],&quot;wp:term&quot;:[{&quot;taxonomy&quot;:&quot;category&quot;,&quot;embeddable&quot;:true,&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/categories?post=1&quot;},{&quot;taxonomy&quot;:&quot;post_tag&quot;,&quot;embeddable&quot;:true,&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/tags?post=1&quot;}],&quot;curies&quot;:[{&quot;name&quot;:&quot;wp&quot;,&quot;href&quot;:&quot;https:\/\/api.w.org\/{rel}&quot;,&quot;templated&quot;:true}]},&quot;_embedded&quot;:{&quot;author&quot;:[{&quot;id&quot;:1,&quot;name&quot;:&quot;sjain68&quot;,&quot;url&quot;:&quot;https:\/\/local.mysite.com\/myapp&quot;,&quot;description&quot;:&quot;&quot;,&quot;link&quot;:&quot;https:\/\/local.mysite.com\/myapp\/author\/sjain68\/&quot;,&quot;slug&quot;:&quot;sjain68&quot;,&quot;avatar_urls&quot;:{&quot;24&quot;:&quot;http:\/\/0.gravatar.com\/avatar\/05ce5b0acb996948a553fe18edde87fc?s=24&amp;d=mm&amp;r=g&quot;,&quot;48&quot;:&quot;http:\/\/0.gravatar.com\/avatar\/05ce5b0acb996948a553fe18edde87fc?s=48&amp;d=mm&amp;r=g&quot;,&quot;96&quot;:&quot;http:\/\/0.gravatar.com\/avatar\/05ce5b0acb996948a553fe18edde87fc?s=96&amp;d=mm&amp;r=g&quot;},&quot;_links&quot;:{&quot;self&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/users\/1&quot;}],&quot;collection&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/users&quot;}]}}],&quot;replies&quot;:[[{&quot;id&quot;:1,&quot;parent&quot;:0,&quot;author&quot;:0,&quot;author_name&quot;:&quot;A WordPress Commenter&quot;,&quot;author_url&quot;:&quot;https:\/\/wordpress.org\/&quot;,&quot;date&quot;:&quot;2021-04-12T17:10:57&quot;,&quot;content&quot;:{&quot;rendered&quot;:&quot;&lt;p&gt;Hi, this is a comment.&lt;br \/&gt;\nTo get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.&lt;br \/&gt;\nCommenter avatars come from &lt;a href=\&quot;https:\/\/gravatar.com\&quot;&gt;Gravatar&lt;\/a&gt;.&lt;\/p&gt;\n&quot;},&quot;link&quot;:&quot;https:\/\/local.mysite.com\/myapp\/hello-world\/#comment-1&quot;,&quot;type&quot;:&quot;comment&quot;,&quot;author_avatar_urls&quot;:{&quot;24&quot;:&quot;http:\/\/1.gravatar.com\/avatar\/d7a973c7dab26985da5f961be7b74480?s=24&amp;d=mm&amp;r=g&quot;,&quot;48&quot;:&quot;http:\/\/1.gravatar.com\/avatar\/d7a973c7dab26985da5f961be7b74480?s=48&amp;d=mm&amp;r=g&quot;,&quot;96&quot;:&quot;http:\/\/1.gravatar.com\/avatar\/d7a973c7dab26985da5f961be7b74480?s=96&amp;d=mm&amp;r=g&quot;},&quot;_links&quot;:{&quot;self&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/comments\/1&quot;}],&quot;collection&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/comments&quot;}],&quot;up&quot;:[{&quot;embeddable&quot;:true,&quot;post_type&quot;:&quot;post&quot;,&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts\/1&quot;}]}}]],&quot;wp:term&quot;:[[{&quot;id&quot;:1,&quot;link&quot;:&quot;https:\/\/local.mysite.com\/myapp\/category\/uncategorized\/&quot;,&quot;name&quot;:&quot;Uncategorized&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;taxonomy&quot;:&quot;category&quot;,&quot;_links&quot;:{&quot;self&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/categories\/1&quot;}],&quot;collection&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/categories&quot;}],&quot;about&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/taxonomies\/category&quot;}],&quot;wp:post_type&quot;:[{&quot;href&quot;:&quot;https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts?categories=1&quot;}],&quot;curies&quot;:[{&quot;name&quot;:&quot;wp&quot;,&quot;href&quot;:&quot;https:\/\/api.w.org\/{rel}&quot;,&quot;templated&quot;:true}]}}],[]]}}]
+```
+
+can anyone help us fix this? not sure what is the problem. If it matters we are running v5.4 of wordpress
+
+```
+bash-5.0# wp core version --allow-root
+5.4
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 15 Apr 2021 21:40:03 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>404 Not Found The page you were looking for could not be found</title>
+        <dc:creator><![CDATA[siddjain]]></dc:creator>
+        <description><![CDATA[
+            <p>In fact what we are observing is that <code>state.frontity.url</code> <em>does not seem to matter at all.</em> we can set it to whatever in:</p>
+<pre><code class="lang-javascript">const settings: Settings = {
+  "name": "app-ui",
+  "state": {
+    "frontity": {
+      "url": "https://does-not-matter",
+      "title": "Test Frontity Blog",
+      "description": "WordPress installation for Frontity development"
+    }
+  },
+</code></pre>
+<p>and the result is the same.</p>
+          <p><a href="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/5</link>
+        <pubDate>Thu, 15 Apr 2021 21:40:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4419-5</guid>
+        <source url="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419.rss">404 Not Found The page you were looking for could not be found</source>
+      </item>
+      <item>
+        <title>404 Not Found The page you were looking for could not be found</title>
+        <dc:creator><![CDATA[siddjain]]></dc:creator>
+        <description><![CDATA[
+            <p>there is a very long thread I found at <a href="https://community.frontity.org/t/make-the-backend-url-a-global-setting/2381/28" class="inline-onebox">Make the backend URL a global setting - #28 by mburridge</a> but over there they are saying:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/3339762ec0ed23c95ba0bc664d74cbee72a85dd0.png" data-download-href="https://community.frontity.org/uploads/default/3339762ec0ed23c95ba0bc664d74cbee72a85dd0" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/3339762ec0ed23c95ba0bc664d74cbee72a85dd0_2_690x99.png" alt="image" data-base62-sha1="7j9sDYrdysUAnstaw2uQgTnGz4c" width="690" height="99" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/3339762ec0ed23c95ba0bc664d74cbee72a85dd0_2_690x99.png, https://community.frontity.org/uploads/default/optimized/2X/3/3339762ec0ed23c95ba0bc664d74cbee72a85dd0_2_1035x148.png 1.5x, https://community.frontity.org/uploads/default/original/2X/3/3339762ec0ed23c95ba0bc664d74cbee72a85dd0.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/3339762ec0ed23c95ba0bc664d74cbee72a85dd0_2_10x10.png"></a></div><p></p>
+<p>and even though we set <code>state.frontity.url</code> to <code>https://mydomain.com/myapp</code>, Frontity drops the <code>/myapp</code> from the base url it uses for its assets.</p>
+          <p><a href="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/4</link>
+        <pubDate>Thu, 15 Apr 2021 20:54:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4419-4</guid>
+        <source url="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419.rss">404 Not Found The page you were looking for could not be found</source>
+      </item>
+      <item>
+        <title>404 Not Found The page you were looking for could not be found</title>
+        <dc:creator><![CDATA[siddjain]]></dc:creator>
+        <description><![CDATA[
+            <p>we found the reason for this error. It happens because the URLs frontity sends back to the browser for AJAX requests are not correctly prefixed. In my post I said we have 4 containers but its actually more complicated than that. We also have a frontend container:</p>
+<ul>
+<li>
+<code>frontend</code>: this container forwards requests of the form <a href="http://mydomain.com/myapp" rel="noopener nofollow ugc">mydomain.com/myapp</a> to the frontity container.</li>
+</ul>
+<p>Our initial request to <a href="http://mydomain.com/myapp" rel="noopener nofollow ugc">mydomain.com/myapp</a> gets forwarded to Frontity but from there Frontity sends back an XHR to the browser to load <code>mydomain.com/static/myapp.module.js</code>. <strong>This call fails.</strong></p>
+<p>The fix is that Frontity should set the URL to <code>mydomain.com/**myapp**/static/myapp.module.js</code>. This URL will be correctly forwarded by our <code>frontend</code> to the Frontity container. Can anyone tell us how to do this?</p>
+<p>In the settings file there is <code>state.frontity.url</code> but setting it to <code>https://mydomain.com/myapp</code> does not prefix the Frontity URLs with <code>/myapp</code></p>
+          <p><a href="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/3</link>
+        <pubDate>Thu, 15 Apr 2021 20:37:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4419-3</guid>
+        <source url="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419.rss">404 Not Found The page you were looking for could not be found</source>
+      </item>
+      <item>
+        <title>404 Not Found The page you were looking for could not be found</title>
+        <dc:creator><![CDATA[siddjain]]></dc:creator>
+        <description><![CDATA[
+            <p>further we have set <code>state.frontity.url</code> and <code>state.source.url</code> to both <code>http://myapp-nginx</code> in <code>frontity.settings.js</code>. We also verified that if we run the app without using frontity we get normal WordPress screen of a freshly installed site.</p>
+          <p><a href="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/2</link>
+        <pubDate>Thu, 15 Apr 2021 19:10:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4419-2</guid>
+        <source url="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419.rss">404 Not Found The page you were looking for could not be found</source>
+      </item>
+      <item>
+        <title>404 Not Found The page you were looking for could not be found</title>
+        <dc:creator><![CDATA[siddjain]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,</p>
+<p>we are trying out Frontity to see if we should use it in a project. We get this page when we try to browse to our site in Chrome:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/b/b76102d7e28d379fc2f532b7d8aa2b3ec02c1236.png" data-download-href="https://community.frontity.org/uploads/default/b76102d7e28d379fc2f532b7d8aa2b3ec02c1236" title="Screen Shot 2021-04-15 at 11.56.43 AM"><img src="https://community.frontity.org/uploads/default/optimized/2X/b/b76102d7e28d379fc2f532b7d8aa2b3ec02c1236_2_690x323.png" alt="Screen Shot 2021-04-15 at 11.56.43 AM" data-base62-sha1="qafdN1cjHXtR21YIz285uEZ0oVU" width="690" height="323" srcset="https://community.frontity.org/uploads/default/optimized/2X/b/b76102d7e28d379fc2f532b7d8aa2b3ec02c1236_2_690x323.png, https://community.frontity.org/uploads/default/optimized/2X/b/b76102d7e28d379fc2f532b7d8aa2b3ec02c1236_2_1035x484.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/b/b76102d7e28d379fc2f532b7d8aa2b3ec02c1236_2_1380x646.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/b/b76102d7e28d379fc2f532b7d8aa2b3ec02c1236_2_10x10.png"></a></div><p></p>
+<p>we have a Dockerized setup consisting of 4 containers:</p>
+<ul>
+<li>myapp-ui: the container running frontity. this was setup using the boilerplate described in <a href="https://docs.frontity.org/getting-started/quick-start-guide" class="inline-onebox" rel="noopener nofollow ugc">Quick start guide - Frontity Docs</a> and is running <code>npx frontity dev</code>
+</li>
+<li>myapp-nginx: the container to which myapp-ui forwards requests</li>
+<li>myapp-wordpress: the container to which myapp-nginx forwards requests. this is an alpine container running wordpress on PHP-FPM (7.4-php-fpm-alpine)</li>
+<li>myapp-mysql: the MySQL container</li>
+</ul>
+<p>The good thing is that we have tested there is no networking issue. The containers are all able to reach each other. We also don’t see any errors in the logs.</p>
+<p>myapp-nginx shows this:</p>
+<pre><code class="lang-javascript">2021/04/14 21:30:49 [notice] 7#7: *2 "/wp-admin$" does not match "/wp-json/wp/v2/posts", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+2021/04/14 21:30:49 [notice] 7#7: *2 "^(/[^/]+)?(/wp-.*)" matches "/wp-json/wp/v2/posts", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+2021/04/14 21:30:49 [notice] 7#7: *2 rewritten data: "/wp-json/wp/v2/posts", args: "_embed=true&amp;slug=myapp", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+172.23.0.2 - - [14/Apr/2021:21:30:50 +0000] "GET /wp-json/wp/v2/posts?_embed=true&amp;slug=myapp HTTP/1.1" 200 12 "-" "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)"
+2021/04/14 21:30:50 [notice] 7#7: *4 "/wp-admin$" does not match "/wp-json/wp/v2/pages", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+2021/04/14 21:30:50 [notice] 7#7: *4 "^(/[^/]+)?(/wp-.*)" matches "/wp-json/wp/v2/pages", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+2021/04/14 21:30:50 [notice] 7#7: *4 rewritten data: "/wp-json/wp/v2/pages", args: "_embed=true&amp;slug=myapp", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+172.23.0.2 - - [14/Apr/2021:21:30:50 +0000] "GET /wp-json/wp/v2/pages?_embed=true&amp;slug=myapp HTTP/1.1" 200 12 "-" "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)"
+2021/04/14 21:30:50 [notice] 7#7: *6 "/wp-admin$" does not match "/wp-json/wp/v2/media", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+2021/04/14 21:30:50 [notice] 7#7: *6 "^(/[^/]+)?(/wp-.*)" matches "/wp-json/wp/v2/media", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+2021/04/14 21:30:50 [notice] 7#7: *6 rewritten data: "/wp-json/wp/v2/media", args: "_embed=true&amp;slug=myapp", client: 172.23.0.2, server: , request: "GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1", host: "myapp-nginx"
+172.23.0.2 - - [14/Apr/2021:21:30:50 +0000] "GET /wp-json/wp/v2/media?_embed=true&amp;slug=myapp HTTP/1.1" 200 12 "-" "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)"
+</code></pre>
+<p>myapp-wordpress shows:</p>
+<pre><code class="lang-javascript">172.23.0.5 -  14/Apr/2021:21:47:55 +0000 "GET /index.php" 200
+</code></pre>
+<p>further if we make a curl request from myapp-ui we get this:</p>
+<pre><code class="lang-javascript">/home/node # curl http://myapp-nginx/wp-json/wp/v2/posts?_embed=true&amp;slug=myapp
+/home/node # [{"id":1,"date":"2021-04-12T17:10:57","date_gmt":"2021-04-12T17:10:57","guid":{"rendered":"https:\/\/local.mysite.com\/myapp\/?p=1"},"modified":"2021-04-12T17:10:57","modified_gmt":"2021-04-12T17:10:57","slug":"hello-world","status":"publish","type":"post","link":"https:\/\/local.mysite.com\/myapp\/hello-world\/","title":{"rendered":"Hello world!"},"content":{"rendered":"\n&lt;p&gt;Welcome to WordPress. This is your first post. Edit or delete it, then start writing!&lt;\/p&gt;\n","protected":false},"excerpt":{"rendered":"&lt;p&gt;Welcome to WordPress. This is your first post. Edit or delete it, then start writing!&lt;\/p&gt;\n","protected":false},"author":1,"featured_media":0,"comment_status":"open","ping_status":"open","sticky":false,"template":"","format":"standard","meta":[],"categories":[1],"tags":[],"_links":{"self":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts\/1"}],"collection":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts"}],"about":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/types\/post"}],"author":[{"embeddable":true,"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/users\/1"}],"replies":[{"embeddable":true,"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/comments?post=1"}],"version-history":[{"count":0,"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts\/1\/revisions"}],"wp:attachment":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/media?parent=1"}],"wp:term":[{"taxonomy":"category","embeddable":true,"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/categories?post=1"},{"taxonomy":"post_tag","embeddable":true,"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/tags?post=1"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]},"_embedded":{"author":[{"id":1,"name":"sjain68","url":"https:\/\/local.mysite.com\/myapp","description":"","link":"https:\/\/local.mysite.com\/myapp\/author\/sjain68\/","slug":"sjain68","avatar_urls":{"24":"http:\/\/0.gravatar.com\/avatar\/05ce5b0acb996948a553fe18edde87fc?s=24&amp;d=mm&amp;r=g","48":"http:\/\/0.gravatar.com\/avatar\/05ce5b0acb996948a553fe18edde87fc?s=48&amp;d=mm&amp;r=g","96":"http:\/\/0.gravatar.com\/avatar\/05ce5b0acb996948a553fe18edde87fc?s=96&amp;d=mm&amp;r=g"},"_links":{"self":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/users\/1"}],"collection":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/users"}]}}],"replies":[[{"id":1,"parent":0,"author":0,"author_name":"A WordPress Commenter","author_url":"https:\/\/wordpress.org\/","date":"2021-04-12T17:10:57","content":{"rendered":"&lt;p&gt;Hi, this is a comment.&lt;br \/&gt;\nTo get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.&lt;br \/&gt;\nCommenter avatars come from &lt;a href=\"https:\/\/gravatar.com\"&gt;Gravatar&lt;\/a&gt;.&lt;\/p&gt;\n"},"link":"https:\/\/local.mysite.com\/myapp\/hello-world\/#comment-1","type":"comment","author_avatar_urls":{"24":"http:\/\/1.gravatar.com\/avatar\/d7a973c7dab26985da5f961be7b74480?s=24&amp;d=mm&amp;r=g","48":"http:\/\/1.gravatar.com\/avatar\/d7a973c7dab26985da5f961be7b74480?s=48&amp;d=mm&amp;r=g","96":"http:\/\/1.gravatar.com\/avatar\/d7a973c7dab26985da5f961be7b74480?s=96&amp;d=mm&amp;r=g"},"_links":{"self":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/comments\/1"}],"collection":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/comments"}],"up":[{"embeddable":true,"post_type":"post","href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts\/1"}]}}]],"wp:term":[[{"id":1,"link":"https:\/\/local.mysite.com\/myapp\/category\/uncategorized\/","name":"Uncategorized","slug":"uncategorized","taxonomy":"category","_links":{"self":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/categories\/1"}],"collection":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/categories"}],"about":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/taxonomies\/category"}],"wp:post_type":[{"href":"https:\/\/local.mysite.com\/myapp\/wp-json\/wp\/v2\/posts?categories=1"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}}],[]]}}]
+</code></pre>
+<p>can anyone help us fix this? not sure what is the problem. If it matters we are running v5.4 of wordpress</p>
+<pre><code class="lang-javascript">bash-5.0# wp core version --allow-root
+5.4
+</code></pre>
+          <p><a href="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419/1</link>
+        <pubDate>Thu, 15 Apr 2021 19:07:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4419-1</guid>
+        <source url="https://community.frontity.org/t/404-not-found-the-page-you-were-looking-for-could-not-be-found/4419.rss">404 Not Found The page you were looking for could not be found</source>
+      </item>
+  </channel>
+</rss>

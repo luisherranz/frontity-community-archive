@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Custom post type fetches data with 200, but frontify returns 404</title>
+    <link>https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832</link>
+    <description>**Description**
+
+I&#39;m trying to set up a custom post type with some taxonomies.
+
+My state settings are 
+
+```js
+{
+      &quot;name&quot;: &quot;@frontity/wp-source&quot;,
+      &quot;state&quot;: {
+        &quot;source&quot;: {
+          &quot;api&quot;: &quot;https://www.defining-perspective.com/wp-json&quot;,
+          &quot;postTypes&quot;: [
+            {
+              &quot;type&quot;: &quot;avada_portfolio&quot;,
+              &quot;endpoint&quot;: &quot;avada_portfolio&quot;,
+              &quot;archive&quot;: &quot;/portfolio&quot;
+            }
+          ],
+          &quot;taxonomies&quot;: [
+            {
+              &quot;taxonomy&quot;: &quot;portfolio_category&quot;,
+              &quot;endpoint&quot;: &quot;portfolio_category&quot;,
+              &quot;postTypeEndpoint&quot;: &quot;avada_portfolio&quot;
+            }
+          ]
+        }
+      }
+    }
+```
+
+and I&#39;ve tried these menus
+
+```js
+&quot;menu&quot;: [
+            [
+              &quot;Home&quot;,
+              &quot;/&quot;
+            ],
+            [
+              &quot;Portfolio&quot;,
+              &quot;/portfolio/&quot;
+            ],
+            [
+              &quot;Design&quot;,
+              &quot;/portfolio_category/design/&quot;
+            ]
+          ],
+```
+
+What works?
+- the `/portfolio/` page lists the items under my custom post type as expected
+- I can open items from that list as expected
+
+What does not work?
+- the `/portfolio_category/design/` page errors on the frontend, but it actually fetches the data as expected
+
+![Képernyőfotó 2020-09-07 - 23.30.27|690x228](upload://72cGg89hCbzMbOcep0cSO4vZOKk.png) 
+
+An example URL that shows these contents is at https://www.defining-perspective.com/hu/portfolio_category/design/
+
+The JSON API can be accessed at https://www.defining-perspective.com/wp-json
+
+What do I screw up?
+
+Nota bene, I don&#39;t have a component to render the custom post type yet.
+
+**Frontity info**
+
+```zsh
+➜ npx frontity info
+
+## System:
+ - OS: macOS 10.15.6
+ - CPU: (8) x64 Intel(R) Core(TM) i7-8569U CPU @ 2.80GHz
+ - Memory: 1.06 GB / 16.00 GB
+ - Shell: 5.7.1 - /bin/zsh
+## Binaries:
+ - Node: 12.18.1 - /usr/local/opt/node@12/bin/node
+ - npm: 6.14.5 - /usr/local/opt/node@12/bin/npm
+## Browsers:
+ - Chrome: 85.0.4183.83
+ - Edge: Not Found
+ - Firefox: 80.0.1
+ - Safari: 13.1.2
+## npmPackages:
+ - @frontity/core: ^1.8.0 =&gt; 1.8.0 
+ - @frontity/html2react: ^1.3.5 =&gt; 1.3.5 
+ - @frontity/mars-theme: ./packages/mars-theme =&gt; 1.4.3 
+ - @frontity/tiny-router: ^1.2.1 =&gt; 1.2.1 
+ - @frontity/wp-source: ^1.8.1 =&gt; 1.8.1 
+ - frontity: ^1.11.0 =&gt; 1.11.0 
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+
+  
+  System info copied in the clipboard!
+  You can now paste it in the Frontity Community or GitHub issue.
+```
+
+**Browser stacktrace**
+
+```
+ServerError: You have tried to access content at route: /portfolio_category/design/ but it does not exist
+    ServerError server-error.ts:8
+    _ref3 taxonomy.ts:139
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    _asyncToGenerator taxonomy.ts:4
+    _asyncToGenerator taxonomy.ts:4
+    taxonomyHandler taxonomy.ts:65
+    fetch actions.ts:79
+    asyncGeneratorStep actions.ts:9
+    _next actions.ts:9
+    _asyncToGenerator actions.ts:9
+    _asyncToGenerator actions.ts:9
+react_devtools_backend.js:2273:24
+```
+
+**Terminal output**
+
+There are no errors shown in the terminal
+
+```zsh
+➜ npx frontity dev 
+
+
+SERVER STARTED -- Listening @ http://localhost:3000
+  - mode: development
+  - target: module
+  - public-path: /static/
+
+
+webpack built client e77955bfdcfea1720b6b in 2970ms
+ℹ ｢wdm｣: Child client:
+                     Asset      Size        Chunks             Chunk Names
+    dpp-frontend.module.js  4.82 MiB  dpp-frontend  [emitted]  dpp-frontend
+            list.module.js  46.9 KiB          list  [emitted]  list
+     + 1 hidden asset
+Child server:
+        Asset     Size  Chunks             Chunk Names
+    server.js  7.3 MiB    main  [emitted]  main
+ℹ ｢wdm｣: Compiled successfully.
+Importing `URL` from Frontity has been deprecated. Please use `new URL()` instead.
+Visit https://community.frontity.org for help! 🙂
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 08 Sep 2020 19:15:20 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Custom post type fetches data with 200, but frontify returns 404</title>
+        <dc:creator><![CDATA[viktor.nagy]]></dc:creator>
+        <description><![CDATA[
+            <p>The problem was the setting of Polylang. Setting it to “language is set from content”, removed the language prefix from the various links, and frontity started to work as expected.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/4/478a3c18e7454f75943b47ff61a060f6afaa3eef.png" data-download-href="https://community.frontity.org/uploads/default/478a3c18e7454f75943b47ff61a060f6afaa3eef" title="Screenshot_2020-09-08 Settings ‹ Defining Perspective — WordPress"><img src="https://community.frontity.org/uploads/default/optimized/2X/4/478a3c18e7454f75943b47ff61a060f6afaa3eef_2_690x230.png" alt="Screenshot_2020-09-08 Settings ‹ Defining Perspective — WordPress" data-base62-sha1="acS49xDalNxF4XONzClTwV24LIH" width="690" height="230" srcset="https://community.frontity.org/uploads/default/optimized/2X/4/478a3c18e7454f75943b47ff61a060f6afaa3eef_2_690x230.png, https://community.frontity.org/uploads/default/optimized/2X/4/478a3c18e7454f75943b47ff61a060f6afaa3eef_2_1035x345.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/4/478a3c18e7454f75943b47ff61a060f6afaa3eef_2_1380x460.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/4/478a3c18e7454f75943b47ff61a060f6afaa3eef_2_10x10.png"></a></div><p></p>
+<p>I’m currently setting it up as multiple sites for each language following the example at <a href="https://codesandbox.io/s/frontity-two-sites-multilingual-vt3f6?file=/frontity.settings.js" rel="nofollow noopener">https://codesandbox.io/s/frontity-two-sites-multilingual-vt3f6?file=/frontity.settings.js</a></p>
+          <p><a href="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/5</link>
+        <pubDate>Tue, 08 Sep 2020 19:15:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2832-5</guid>
+        <source url="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832.rss">Custom post type fetches data with 200, but frontify returns 404</source>
+      </item>
+      <item>
+        <title>Custom post type fetches data with 200, but frontify returns 404</title>
+        <dc:creator><![CDATA[viktor.nagy]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> Could this be the consequence of running a multi-language WordPress in the backend?</p>
+<p>Looking at ´frontitiy.state.source.data´, I see that the keys start with the language ´tag´, like: ´/hu/portfolio_category/design/´.</p>
+          <p><a href="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/4</link>
+        <pubDate>Tue, 08 Sep 2020 15:37:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2832-4</guid>
+        <source url="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832.rss">Custom post type fetches data with 200, but frontify returns 404</source>
+      </item>
+      <item>
+        <title>Custom post type fetches data with 200, but frontify returns 404</title>
+        <dc:creator><![CDATA[viktor.nagy]]></dc:creator>
+        <description><![CDATA[
+            <p>Dear <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>,</p>
+<p>yes I did. It helped me understanding the postTypes[].archive property, and I’ve managed to get that working. I’ve watched both the video and went through the example source code. Actually, I can’t figure out what I made differently.</p>
+          <p><a href="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/3</link>
+        <pubDate>Tue, 08 Sep 2020 15:06:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2832-3</guid>
+        <source url="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832.rss">Custom post type fetches data with 200, but frontify returns 404</source>
+      </item>
+      <item>
+        <title>Custom post type fetches data with 200, but frontify returns 404</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/viktor.nagy">@viktor.nagy</a></p>
+<p>Welcome to the Community!</p>
+<p>Heve you checked this Frontity Talk where we explain from scratch how to use Custom Post Types with Frontity?</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://i0.wp.com/frontity.org/wp-content/uploads/2020/04/cropped-frontity-shape.png?fit=32%2C32&amp;ssl=1" class="site-icon" width="32" height="32">
+      <a href="https://frontity.org/blog/frontity-talk-custom-post-types/" target="_blank" title="05:17PM - 25 August 2020">Frontity – 25 Aug 20</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/388;"><img src="https://i0.wp.com/frontity.org/wp-content/uploads/2020/08/Frontity-Slides-Youtube-thumbnails.png?fit=960%2C540&amp;ssl=1" class="thumbnail" width="690" height="388"></div>
+
+<h3><a href="https://frontity.org/blog/frontity-talk-custom-post-types/" target="_blank">Frontity Talks: Custom Post Types</a></h3>
+
+<p>In this episode of Frontity Talks we show you how to use Custom Post Types with headless WordPress in your React-based Frontity project.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Here you have the code of the demo we explain in the video</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d.png" class="thumbnail onebox-avatar" width="256" height="256">
+
+<h3><a href="https://github.com/frontity-demos/frontity-examples/tree/master/custom-post-types" target="_blank">frontity-demos/frontity-examples</a></h3>
+
+<p>Contribute to frontity-demos/frontity-examples development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/2</link>
+        <pubDate>Tue, 08 Sep 2020 13:35:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2832-2</guid>
+        <source url="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832.rss">Custom post type fetches data with 200, but frontify returns 404</source>
+      </item>
+      <item>
+        <title>Custom post type fetches data with 200, but frontify returns 404</title>
+        <dc:creator><![CDATA[viktor.nagy]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>Description</strong></p>
+<p>I’m trying to set up a custom post type with some taxonomies.</p>
+<p>My state settings are</p>
+<pre><code class="lang-js">{
+      "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "api": "https://www.defining-perspective.com/wp-json",
+          "postTypes": [
+            {
+              "type": "avada_portfolio",
+              "endpoint": "avada_portfolio",
+              "archive": "/portfolio"
+            }
+          ],
+          "taxonomies": [
+            {
+              "taxonomy": "portfolio_category",
+              "endpoint": "portfolio_category",
+              "postTypeEndpoint": "avada_portfolio"
+            }
+          ]
+        }
+      }
+    }
+</code></pre>
+<p>and I’ve tried these menus</p>
+<pre><code class="lang-js">"menu": [
+            [
+              "Home",
+              "/"
+            ],
+            [
+              "Portfolio",
+              "/portfolio/"
+            ],
+            [
+              "Design",
+              "/portfolio_category/design/"
+            ]
+          ],
+</code></pre>
+<p>What works?</p>
+<ul>
+<li>the <code>/portfolio/</code> page lists the items under my custom post type as expected</li>
+<li>I can open items from that list as expected</li>
+</ul>
+<p>What does not work?</p>
+<ul>
+<li>the <code>/portfolio_category/design/</code> page errors on the frontend, but it actually fetches the data as expected</li>
+</ul>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/3/314f037250baecad5e3f922e7b1d77e03a261a08.png" data-download-href="https://community.frontity.org/uploads/default/314f037250baecad5e3f922e7b1d77e03a261a08" title="Képernyőfotó 2020-09-07 - 23.30.27"><img src="https://community.frontity.org/uploads/default/optimized/2X/3/314f037250baecad5e3f922e7b1d77e03a261a08_2_690x228.png" alt="Képernyőfotó 2020-09-07 - 23.30.27" data-base62-sha1="72cGg89hCbzMbOcep0cSO4vZOKk" width="690" height="228" srcset="https://community.frontity.org/uploads/default/optimized/2X/3/314f037250baecad5e3f922e7b1d77e03a261a08_2_690x228.png, https://community.frontity.org/uploads/default/optimized/2X/3/314f037250baecad5e3f922e7b1d77e03a261a08_2_1035x342.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/3/314f037250baecad5e3f922e7b1d77e03a261a08_2_1380x456.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/3/314f037250baecad5e3f922e7b1d77e03a261a08_2_10x10.png"></a></div><p></p>
+<p>An example URL that shows these contents is at <a href="https://www.defining-perspective.com/hu/portfolio_category/design/" rel="nofollow noopener">https://www.defining-perspective.com/hu/portfolio_category/design/</a></p>
+<p>The JSON API can be accessed at <a href="https://www.defining-perspective.com/wp-json" rel="nofollow noopener">https://www.defining-perspective.com/wp-json</a></p>
+<p>What do I screw up?</p>
+<p>Nota bene, I don’t have a component to render the custom post type yet.</p>
+<p><strong>Frontity info</strong></p>
+<pre><code class="lang-javascript">➜ npx frontity info
+
+## System:
+ - OS: macOS 10.15.6
+ - CPU: (8) x64 Intel(R) Core(TM) i7-8569U CPU @ 2.80GHz
+ - Memory: 1.06 GB / 16.00 GB
+ - Shell: 5.7.1 - /bin/zsh
+## Binaries:
+ - Node: 12.18.1 - /usr/local/opt/node@12/bin/node
+ - npm: 6.14.5 - /usr/local/opt/node@12/bin/npm
+## Browsers:
+ - Chrome: 85.0.4183.83
+ - Edge: Not Found
+ - Firefox: 80.0.1
+ - Safari: 13.1.2
+## npmPackages:
+ - @frontity/core: ^1.8.0 =&gt; 1.8.0 
+ - @frontity/html2react: ^1.3.5 =&gt; 1.3.5 
+ - @frontity/mars-theme: ./packages/mars-theme =&gt; 1.4.3 
+ - @frontity/tiny-router: ^1.2.1 =&gt; 1.2.1 
+ - @frontity/wp-source: ^1.8.1 =&gt; 1.8.1 
+ - frontity: ^1.11.0 =&gt; 1.11.0 
+## npmGlobalPackages:
+ - frontity: Not Found
+ - npx: Not Found
+
+  
+  System info copied in the clipboard!
+  You can now paste it in the Frontity Community or GitHub issue.
+</code></pre>
+<p><strong>Browser stacktrace</strong></p>
+<pre><code class="lang-javascript">ServerError: You have tried to access content at route: /portfolio_category/design/ but it does not exist
+    ServerError server-error.ts:8
+    _ref3 taxonomy.ts:139
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    apply scheduler.js:42
+    asyncGeneratorStep taxonomy.ts:4
+    _next taxonomy.ts:4
+    _asyncToGenerator taxonomy.ts:4
+    _asyncToGenerator taxonomy.ts:4
+    taxonomyHandler taxonomy.ts:65
+    fetch actions.ts:79
+    asyncGeneratorStep actions.ts:9
+    _next actions.ts:9
+    _asyncToGenerator actions.ts:9
+    _asyncToGenerator actions.ts:9
+react_devtools_backend.js:2273:24
+</code></pre>
+<p><strong>Terminal output</strong></p>
+<p>There are no errors shown in the terminal</p>
+<pre><code class="lang-javascript">➜ npx frontity dev 
+
+
+SERVER STARTED -- Listening @ http://localhost:3000
+  - mode: development
+  - target: module
+  - public-path: /static/
+
+
+webpack built client e77955bfdcfea1720b6b in 2970ms
+ℹ ｢wdm｣: Child client:
+                     Asset      Size        Chunks             Chunk Names
+    dpp-frontend.module.js  4.82 MiB  dpp-frontend  [emitted]  dpp-frontend
+            list.module.js  46.9 KiB          list  [emitted]  list
+     + 1 hidden asset
+Child server:
+        Asset     Size  Chunks             Chunk Names
+    server.js  7.3 MiB    main  [emitted]  main
+ℹ ｢wdm｣: Compiled successfully.
+Importing `URL` from Frontity has been deprecated. Please use `new URL()` instead.
+Visit https://community.frontity.org for help! 🙂
+</code></pre>
+          <p><a href="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832/1</link>
+        <pubDate>Mon, 07 Sep 2020 21:36:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2832-1</guid>
+        <source url="https://community.frontity.org/t/custom-post-type-fetches-data-with-200-but-frontify-returns-404/2832.rss">Custom post type fetches data with 200, but frontify returns 404</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>State.route.link as a variable</title>
+    <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881</link>
+    <description>Hi I am new in frontity so do not judge me harshly :grinning:.
+I am trying to use variable for state.route.link but it does not work at least for me.
+````
+const List = ({ state, libraries }) =&gt; {
+  //   const data = state.source.get(state.router.link);
+  const city = &quot;/mycity/stock/&quot;;
+  const data = state.source.get(city);
+  const Html2React = libraries.html2react.Component;
+  const page = state.source[data.type][data.id];
+  console.log(&quot;page: &quot;, page);
+  ...
+`````
+I got error as usual &quot;Cannot read property &#39;undefined&#39; of undefined&quot; for `const page`. Probably it&#39;s because I have `isReady: false` in `const data`. Any suggestions?
+
+Or how can I get the page from WP not using URL? I mean I have page -&gt; &quot;city&quot; and need to get several different pages (London/Stockholm etc) on localhost/mycity/stock according my city-params .</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 28 Jun 2021 08:39:30 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[vova.champion]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/codemonkeynorth">@codemonkeynorth</a> Thanks!</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/9</link>
+        <pubDate>Mon, 28 Jun 2021 08:39:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-9</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes only going from the example provided (your city was <code>const</code>)</p>
+<p>For readability you can create a function (possibly even imported from an external file) eg<br>
+<code>const before = …</code></p>
+<p>and then do <code>beforeSSR: before,</code></p>
+<p>You’ll just need to parse your route for the dynamic part and do the same in your component</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/8</link>
+        <pubDate>Sat, 26 Jun 2021 14:28:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-8</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[vova.champion]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/codemonkeynorth">@codemonkeynorth</a> Thanks for the solution. It kind of works, but does not look for dynamically changeable cities <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> Thanks anyway!</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/7</link>
+        <pubDate>Sat, 26 Jun 2021 13:59:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-7</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p>something like this… I’ve not checked it fully though</p>
+<p><strong>index.js</strong></p>
+<pre><code class="lang-javascript">beforeSSR: async ({ state, actions, libraries }) =&gt; {
+  // for a specific route (or set of routes) rather than all of them
+  if(state.router.link.startsWith('/whatever/')) {
+    // fetch the city/stock data
+    await actions.source.fetch("/mycity/stock/")
+  }
+}
+</code></pre>
+<p><strong>list.js</strong></p>
+<pre><code class="lang-javascript">const List = ({ state, actions, libraries }) =&gt; {
+  
+  // get data for this route
+  const data = state.source.get(state.router.link)
+  
+  // get data for city (available from SSR)
+  const city = "/mycity/stock/"
+  const stock_data = state.source.get(city)
+
+ // fetch data if navigating clientside
+ // (not sure if this is required)
+  useEffect(() =&gt; {
+    actions.source.fetch(city)  
+  },[])
+
+  // once both sets of data ready, render component
+  return (data.isReady &amp;&amp; stock_data.isReady) &amp;&amp; (
+  ...
+  )
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/6</link>
+        <pubDate>Fri, 25 Jun 2021 15:51:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-6</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[vova.champion]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks  I’ll try it!</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/5</link>
+        <pubDate>Fri, 25 Jun 2021 14:29:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-5</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>OK, in that case you probably need to pre-fetch the data using a <a href="https://docs.frontity.org/learning-frontity/actions#beforessr-server-only"><code>beforeSSR</code></a> function. You will also need to add logic to your component to check that the data exists before trying to access it.</p>
+<p>Take a look at <a href="https://github.com/frontity-demos/frontity-examples/tree/master/fetch-menu-from-wp">this repo</a> for an example of using a <code>beforeSSR</code> function to fetch data from WP - in particular the <a href="https://github.com/frontity-demos/frontity-examples/blob/master/fetch-menu-from-wp/packages/mars-theme/src/index.js"><code>index.js</code> file</a> (lines 45-47).</p>
+<p>BTW: CPT = <a href="https://wordpress.org/support/article/post-types/#custom-post-types">Custom Post Type</a>.</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/4</link>
+        <pubDate>Fri, 25 Jun 2021 14:25:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-4</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[vova.champion]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for answer! What is CTP? <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"><br>
+If I use <code>const data = state.source.get(state.router.link);</code> and I am on that page <code>/mycity/stock/</code> it works fine.</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/3</link>
+        <pubDate>Fri, 25 Jun 2021 14:19:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-3</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/vova.champion">@vova.champion</a></p>
+<p>Welcome to the Frontity community.</p>
+<p>Is <code>mycity</code> a CPT? If so is it available in the WP REST API? And if that is the case then have you configured it in <code>frontity.settings.js</code> - see <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#custom-post-types">here</a>?</p>
+<p>If the above doesn’t help you to resolve the problem then please provide a link to a repo or a codesandbox. Please <a href="https://community.frontity.org/t/about-the-get-help-category/2/3">see here</a> for the kind of info that you can provide that will help the community to help you.</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/2</link>
+        <pubDate>Fri, 25 Jun 2021 13:58:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-2</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+      <item>
+        <title>State.route.link as a variable</title>
+        <dc:creator><![CDATA[vova.champion]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi I am new in frontity so do not judge me harshly <img src="https://community.frontity.org/images/emoji/apple/grinning.png?v=9" title=":grinning:" class="emoji" alt=":grinning:">.<br>
+I am trying to use variable for state.route.link but it does not work at least for me.</p>
+<pre><code class="lang-javascript">const List = ({ state, libraries }) =&gt; {
+  //   const data = state.source.get(state.router.link);
+  const city = "/mycity/stock/";
+  const data = state.source.get(city);
+  const Html2React = libraries.html2react.Component;
+  const page = state.source[data.type][data.id];
+  console.log("page: ", page);
+  ...
+</code></pre>
+<p>I got error as usual “Cannot read property ‘undefined’ of undefined” for <code>const page</code>. Probably it’s because I have <code>isReady: false</code> in <code>const data</code>. Any suggestions?</p>
+<p>Or how can I get the page from WP not using URL? I mean I have page → “city” and need to get several different pages (London/Stockholm etc) on localhost/mycity/stock according my city-params .</p>
+          <p><a href="https://community.frontity.org/t/state-route-link-as-a-variable/4881/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/state-route-link-as-a-variable/4881/1</link>
+        <pubDate>Fri, 25 Jun 2021 10:45:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4881-1</guid>
+        <source url="https://community.frontity.org/t/state-route-link-as-a-variable/4881.rss">State.route.link as a variable</source>
+      </item>
+  </channel>
+</rss>

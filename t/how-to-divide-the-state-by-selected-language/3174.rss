@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to divide the state by selected language?</title>
+    <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174</link>
+    <description>Hello developers!
+
+I translate my Frontity site using the Polylang plugin, and create a separate version of each post for each language.
+In order not to load all posts in all languages in the initial state, I need to filter them on the backend by some parameter in $ _REQUEST / $ _COOKIE.
+
+Is there some way to pass the selected language from the user localStorage or cookies on the client to the initial request on the server?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 09 Feb 2021 07:54:07 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>The approach is very intersting indeed <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote no-group" data-username="veliky.dev" data-post="13" data-topic="3174">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/veliky.dev/40/1986_2.png" class="avatar"> veliky.dev:</div>
+<blockquote>
+<p>So I don’t need prefixes. In your opinion, this solution has weak points?</p>
+</blockquote>
+</aside>
+<p>If I am not mistaken, the cookie needs to be processed by the server, which means that you cannot cache and serve the same HTML to all the users, can you?</p>
+<p>Why not use the <code>polylang_current_lang</code> prop of your posts to send the correct language?</p>
+<p>You can wait until <code>data.isReady</code> is true in your <code>beforeSSR</code>, although is a bit tricky right now because we don’t have nice APIs for that. But it is possible using <code>observe</code>:</p>
+<pre><code class="lang-js">import { observe } from "frontity";
+
+const when = (fn) =&gt; new Promise((resolve) =&gt; observe(() =&gt; fn() &amp;&amp; resolve()));
+
+const beforeSSR = async ({ state }) =&gt; {
+  // Wait until data is ready.
+  await when(() =&gt; {
+    const data = state.source.get(state.router.link);
+    return data.isReady;
+  });
+
+  // Extract language from `polylang_current_lang` and do the logic...
+};
+</code></pre>
+<p><em><a href="https://codesandbox.io/s/fervent-pine-w0hsf?file=/packages/mars-theme/src/index.js">– CodeSandbox</a></em></p>
+<p>But that won’t work for the home because they use the same URL so maybe you would need to use <code>/en</code> or <code>/ru</code> after all…</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/15</link>
+        <pubDate>Mon, 04 Jan 2021 16:58:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-15</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[furrysmile2]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="veliky.dev" data-post="8" data-topic="3174">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/veliky.dev/40/1986_2.png" class="avatar"> veliky.dev:</div>
+<blockquote>
+<pre><code class="lang-javascript"> await Promise.all([
+          loadAnyway(ctx, state, actions),
+          parseCookie(ctx, state, actions),
+          actions.source.fetch('wpAssets')
+        ])
+</code></pre>
+</blockquote>
+</aside>
+<p>You should do two instance &amp; switch, if you have a instance primarily RU, It’ll rank higher than other sites who are in EN, that’s SEO trick. I can expand on this but you can look it up for now.</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/14</link>
+        <pubDate>Sat, 19 Dec 2020 17:45:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-14</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hope this is a compliment <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"><br>
+I use cookies because I want the state to reload with posts in a different language when I click on the language switch button. This is the only way to transfer the selected language that I found.<br>
+I have different URLs, because the slugs of my posts are different in different languages. for example:</p>
+<p></p><aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/b/bf331ea816264b004b381732000edc9ce44ec957.png" class="site-icon" width="32" height="32">
+      <a href="https://datcoder.com/%D1%82%D0%BE%D0%BF-7-deep-house-%D1%81%D0%B5%D1%82%D0%BE%D0%B2/" target="_blank" rel="noopener nofollow ugc">datcoder.com</a>
+  </header>
+  <article class="onebox-body">
+    <img src="" class="thumbnail" width="" height="">
+
+<h3><a href="https://datcoder.com/%D1%82%D0%BE%D0%BF-7-deep-house-%D1%81%D0%B5%D1%82%D0%BE%D0%B2/" target="_blank" rel="noopener nofollow ugc">Топ 7 Deep House Сетов - Evhen Veliky - Full Stack Web Dev</a></h3>
+
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<br>
+<p></p><aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/b/bf331ea816264b004b381732000edc9ce44ec957.png" class="site-icon" width="32" height="32">
+      <a href="https://datcoder.com/top-7-deep-house-sets/" target="_blank" rel="noopener nofollow ugc">datcoder.com</a>
+  </header>
+  <article class="onebox-body">
+    <img src="" class="thumbnail" width="" height="">
+
+<h3><a href="https://datcoder.com/top-7-deep-house-sets/" target="_blank" rel="noopener nofollow ugc">Top 7 Deep House Sets - Evhen Veliky - Full Stack Web Dev</a></h3>
+
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>So I don’t need prefixes. In your opinion, this solution has weak points?</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/13</link>
+        <pubDate>Sat, 19 Dec 2020 10:23:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-13</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Very interesting indeed <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p><a class="mention" href="https://community.frontity.org/u/veliky.dev">@veliky.dev</a> why do you use cookies? Do the different versions need to share the same URL?</p>
+<p>I mean, does it have to load <a href="https://domain.com/some-post">https://domain.com/some-post</a> in different languages, as opposed to using something like <a href="https://domain.com/en/some-post">https://domain.com/en/some-post</a> for English and <a href="https://domain.com/ru/some-post">https://domain.com/ru/some-post</a> for Russian?</p>
+<p>I ask this because for Google is usually better to have different URLs, and if you do that I think you should be able to use two different sites, one for English and the other for Russian.</p>
+<p>Remember that Frontity is multisite if you use array in your frontity.settings.js file, and each site can have its own settings.</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/12</link>
+        <pubDate>Sat, 19 Dec 2020 09:58:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-12</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/veliky.dev">@veliky.dev</a>, nice solution to handle languages in a Frontity project <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<p>In case you want to check alternative solutions here you some related threads to implementing languages in a Frontity project:</p>
+<ul>
+<li><a href="https://community.frontity.org/t/multi-language-website-with-frontity/869/2" class="inline-onebox">Multi-language website with frontity</a></li>
+<li><a href="https://community.frontity.org/t/multilanguage-site-and-polylang-wpml-support/3128" class="inline-onebox">Multilanguage site and Polylang/WPML support</a></li>
+</ul>
+<p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> any thoughts on how to do this without the need of using cookies?</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/10</link>
+        <pubDate>Wed, 09 Dec 2020 11:05:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-10</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>The essence of my solution is to parse cookies on the server side and passing the selected language to the request:</p>
+<pre><code>    beforeSSR: ({ state, libraries, actions }) =&gt; {
+    . . .
+      const parseCookie = (ctx, state, actions) =&gt; {
+
+        state.source.params.lang = ctx.cookies.get('dc_lang') || 'en_US'
+        actions.theme.i18nInit(state.source.params.lang.slice(0, 2))
+      }
+
+      return async ({ ctx }) =&gt; {
+        await Promise.all([
+          loadAnyway(ctx, state, actions),
+          parseCookie(ctx, state, actions),
+          actions.source.fetch('wpAssets')
+        ])
+      }
+</code></pre>
+<p>Then on WP side I filter posts by the selected language:</p>
+<pre><code>public function __construct() {
+	add_action( 'pre_get_posts', [$this, 'filter']);
+}
+
+/**
+ * @param \WP_Query &amp;$query
+ */
+public function filter ( &amp;$query ) {
+
+	if (isset($_GET['lang']) and $_GET['lang'] == 'ru_RU') {
+		$query-&gt;query['lang']      = 'ru';
+		$query-&gt;query_vars['lang'] = 'ru';
+	}
+
+	if (isset($_GET['lang']) and $_GET['lang'] == 'en_US') {
+		$query-&gt;query['lang']      = 'en';
+		$query-&gt;query_vars['lang'] = 'en';
+	}
+}</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/8</link>
+        <pubDate>Thu, 03 Dec 2020 15:07:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-8</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi! I’ll be glad to help.</p>
+<pre><code>import Theme from './components'
+import image from '@frontity/html2react/processors/image'
+import iframe from '@frontity/html2react/processors/iframe'
+import actions from './actions'
+
+const theme = {
+  name: 'dc-theme',
+  roots: {
+    /**
+     *  In Frontity, any package can add React components to the site.
+     *  We use roots for that, scoped to the `theme` namespace.
+     */
+    theme: Theme,
+  },
+  state: {
+    /**
+     * State is where the packages store their default settings and other
+     * relevant state. It is scoped to the `theme` namespace.
+     */
+    theme: {
+      lang: 'en_US',
+      autoPrefetch: 'no',
+      resumeUrl: '/Evhen-Veliky-Resume.pdf',
+      featured: {
+        showOnList: false,
+        showOnPost: false,
+      },
+      loadedLanguages: {
+        ru_RU: false,
+        en_US: false,
+      },
+      messageInput: '',
+      contactForm: {
+        endpoint: '/dcma/v1/proceed',
+        sending: false,
+        success: false,
+        error: false,
+        fields: {
+          contacts: '',
+          message: ''
+        }
+      },
+      counter: {
+        endpoint: '/dcma/v1/counter/increment_visits',
+      },
+      playing: false
+    },
+  },
+  /**
+   * Actions are functions that modify the state or deal with other parts of
+   * Frontity like libraries.
+   */
+  actions: actions,
+  libraries: {
+    html2react: {
+      /**
+       * Add a processor to `html2react` so it processes the `&lt;img&gt;` tags
+       * inside the content HTML. You can add your own processors too
+       */
+      processors: [image, iframe],
+    },
+  },
+}
+
+export default theme</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/7</link>
+        <pubDate>Thu, 03 Dec 2020 14:56:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-7</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[leogardner12]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,</p>
+<p>I’m trying to build a multilingual theme but having the problem where both English and Welsh posts are loaded into the state.<br>
+Your problem sounds very similar to mine however I’m unable to get your solution working.<br>
+Is there any chance you could give a bit more detail on your solution? if I could see your index.js that would be very helpful.</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/6</link>
+        <pubDate>Wed, 02 Dec 2020 12:22:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-6</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Found a solution <img src="https://community.frontity.org/images/emoji/apple/partying_face.png?v=9" title=":partying_face:" class="emoji" alt=":partying_face:"><br>
+Cookies can be obtained from Koa ctx in beforeSSR, then I pass language to request</p>
+<pre><code>state.source.params.lang = ctx.cookies.get('abc_lang');</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/5</link>
+        <pubDate>Fri, 16 Oct 2020 14:59:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-5</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>I see that it is possible to pass the language through “?frontity_lang” get parameter and get it on the server as follows.</p>
+<pre><code>beforeSSR: async ({ state, libraries, actions }) =&gt; {
+
+  state.source.params.lang = typeof state.frontity.options.lang !== 'undefined' ? state.frontity.options.lang : 'en_US';
+</code></pre>
+<p>It remains to figure out how to transfer the language to this property programmatically.</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/4</link>
+        <pubDate>Fri, 16 Oct 2020 14:15:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-4</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>No, it doesn’t work <img src="https://community.frontity.org/images/emoji/apple/confused.png?v=9" title=":confused:" class="emoji" alt=":confused:"></p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/3</link>
+        <pubDate>Fri, 16 Oct 2020 14:06:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-3</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Sorry but it seems I’ve found solution <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<pre><code>beforeCSR: ({ state, actions }) =&gt; {
+
+  if (typeof window !== 'undefined' &amp;&amp; typeof window.localStorage['frontity_lang'] !== 'undefined') {
+    state.source.params.lang = window.localStorage['frontity_lang']
+  }
+},</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/2</link>
+        <pubDate>Fri, 16 Oct 2020 13:58:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-2</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+      <item>
+        <title>How to divide the state by selected language?</title>
+        <dc:creator><![CDATA[veliky.dev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello developers!</p>
+<p>I translate my Frontity site using the Polylang plugin, and create a separate version of each post for each language.<br>
+In order not to load all posts in all languages in the initial state, I need to filter them on the backend by some parameter in $ _REQUEST / $ _COOKIE.</p>
+<p>Is there some way to pass the selected language from the user localStorage or cookies on the client to the initial request on the server?</p>
+          <p><a href="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174/1</link>
+        <pubDate>Fri, 16 Oct 2020 13:25:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3174-1</guid>
+        <source url="https://community.frontity.org/t/how-to-divide-the-state-by-selected-language/3174.rss">How to divide the state by selected language?</source>
+      </item>
+  </channel>
+</rss>

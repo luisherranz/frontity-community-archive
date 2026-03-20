@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Extend source&#39;s Data interface with types from new handlers - Released - Frontity Community Forum</title>
+    <meta name="description" content="OPENING POST
+
+Description
+People using TypeScript needs to extend Data when they add a new handler. Right now, there’s no easy way to do so, because they need to extend both the BaseData and add new interfaces to Data. 
+T&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Extend source&#39;s Data interface with types from new handlers&#39;" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/extend-sources-data-interface-with-types-from-new-handlers/1187" />
+<meta name="twitter:url" content="/t/extend-sources-data-interface-with-types-from-new-handlers/1187" />
+<meta property="og:title" content="Extend source&#39;s Data interface with types from new handlers" />
+<meta name="twitter:title" content="Extend source&#39;s Data interface with types from new handlers" />
+<meta property="og:description" content="OPENING POST  Description People using TypeScript needs to extend Data when they add a new handler. Right now, there’s no easy way to do so, because they need to extend both the BaseData and add new interfaces to Data.  This is Data, they need to add other types/interfaces here:   And this is BaseData, they need to add new properties here:   User Stories  As a Frontity developer  I want to add TypeScript for new handlers  so that I can keep using TypeScript in my theme/package   Possible solutio..." />
+<meta name="twitter:description" content="OPENING POST  Description People using TypeScript needs to extend Data when they add a new handler. Right now, there’s no easy way to do so, because they need to extend both the BaseData and add new interfaces to Data.  This is Data, they need to add other types/interfaces here:   And this is BaseData, they need to add new properties here:   User Stories  As a Frontity developer  I want to add TypeScript for new handlers  so that I can keep using TypeScript in my theme/package   Possible solutio..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Released" />
+<meta property="og:article:section:color" content="D3ABFF" />
+<meta property="og:article:tag" content="types" />
+<meta property="og:article:tag" content="packages" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="15 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="6 ❤" />
+<meta property="article:published_time" content="2020-02-04T14:40:53+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187?page=2">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Extend source's Data interface with types from new handlers","mainEntity":{"@type":"Question","name":"Extend source's Data interface with types from new handlers","text":"OPENING POST\n\nDescription\n\nPeople using TypeScript needs to extend Data when they add a new handler. Right now, there’s no easy way to do so, because they need to extend both the BaseData and add new interfaces to Data.\n\nThis is Data, they need to add other types/interfaces here:\n\n<a href=\"https://github.com/frontity/frontity/blob/fe7119f3de9239a471c68ed68dbe9ec9262e1351/packages/source/src/data.ts#L13-L27\" target=\"_blank\" rel=\"noopener\">frontity/fro&hellip;<\/a>","upvoteCount":0,"answerCount":0,"dateCreated":"2020-02-04T14:40:53.495Z","author":{"@type":"Person","name":"Luis Herranz"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">Extend source&#39;s Data interface with types from new handlers</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/released/40" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #D3ABFF'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Released</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/types' class='discourse-tag' rel="tag">types</a>, 
+            <a href='/tag/packages' class='discourse-tag' rel="tag">packages</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Extend source&#39;s Data interface with types from new handlers'>
+        <meta itemprop='articleSection' content='Released'>
+      <meta itemprop='keywords' content='types, packages'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-04T14:40:53Z' class='post-time'>
+                    4 February 2020 14:40
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-04T12:13:30Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <h1>OPENING POST</h1>
+<hr>
+<h2>Description</h2>
+<p>People using TypeScript needs to extend <code>Data</code> when they add a new handler. Right now, there’s no easy way to do so, because they need to extend both the <code>BaseData</code> and add new interfaces to <code>Data</code>.</p>
+<p>This is <code>Data</code>, they need to add other types/interfaces here:</p><aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/fe7119f3de9239a471c68ed68dbe9ec9262e1351/packages/source/src/data.ts#L13-L27" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/fe7119f3de9239a471c68ed68dbe9ec9262e1351/packages/source/src/data.ts#L13-L27" target="_blank" rel="noopener">frontity/frontity/blob/fe7119f3de9239a471c68ed68dbe9ec9262e1351/packages/source/src/data.ts#L13-L27</a></h4>
+<pre class="onebox"><code class="lang-ts"><ol class="start lines" start="13" style="counter-reset: li-counter 12 ;">
+<li>export type Data =</li>
+<li>  | BaseData</li>
+<li>  | NotFoundData</li>
+<li>  | ArchiveData</li>
+<li>  | TaxonomyData</li>
+<li>  | CategoryData</li>
+<li>  | TagData</li>
+<li>  | AuthorData</li>
+<li>  | PostTypeArchiveData</li>
+<li>  | PostArchiveData</li>
+<li>  | DateData</li>
+<li>  | PostTypeData</li>
+<li>  | PostData</li>
+<li>  | PageData</li>
+<li>  | AttachmentData;</li>
+</ol></code></pre>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>And this is <code>BaseData</code>, they need to add new properties here:</p><aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/fe7119f3de9239a471c68ed68dbe9ec9262e1351/packages/source/src/data.ts#L32-L52" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/fe7119f3de9239a471c68ed68dbe9ec9262e1351/packages/source/src/data.ts#L32-L52" target="_blank" rel="noopener">frontity/frontity/blob/fe7119f3de9239a471c68ed68dbe9ec9262e1351/packages/source/src/data.ts#L32-L52</a></h4>
+<pre class="onebox"><code class="lang-ts"><ol class="start lines" start="32" style="counter-reset: li-counter 31 ;">
+<li>export type BaseData = {</li>
+<li>  type?: string;</li>
+<li>  id?: number;</li>
+<li>  taxonomy?: string;</li>
+<li>  isFetching: boolean;</li>
+<li>  isReady: boolean;</li>
+<li>  is404?: false;</li>
+<li>  isArchive?: false;</li>
+<li>  isTaxonomy?: false;</li>
+<li>  isCategory?: false;</li>
+<li>  isTag?: false;</li>
+<li>  isAuthor?: false;</li>
+<li>  isPostTypeArchive?: false;</li>
+<li>  isPostArchive?: false;</li>
+<li>  isDate?: false;</li>
+<li>  isPostType?: false;</li>
+<li>  isPost?: false;</li>
+<li>  isPage?: false;</li>
+<li>  isAttachment?: false;</li>
+<li>  isHome?: boolean;</li>
+<li>};</li>
+</ol></code></pre>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>add TypeScript for new handlers</strong><br>
+so that <strong>I can keep using TypeScript in my theme/package</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+
+<p><a class="mention" href="/u/mmczaplinski">@mmczaplinski</a> proposed a generic that gets the new types.</p>
+<p>Maybe something like:</p>
+<pre><code class="lang-js">import { Package, Derived } from "frontity/types";
+import { Data } from "@frontity/source";
+
+// Define D your custom post types...
+type CustomTypeData = {
+ isCustomType: true;
+ otherProps: ...
+}
+
+// Create a new Data with that custom post type...
+type MyData = Data&lt;CustomTypeData&gt;;
+
+interface MyPackage extends Package {
+ state: {
+   source: {
+     // Use state.source.get with the correct Data.
+     get: Derived&lt;MyPackage, (link: string) =&gt; MyData&gt;;
+
+}
+</code></pre>
+<hr>
+<h1>SUMMARY</h1>
+<hr>
+<blockquote>
+<p><em><img src="/images/emoji/apple/warning.png?v=9" title=":warning:" class="emoji" alt=":warning:">  Please, bear in mind that this section wasn’t part of the opening post. It has been added afterwards and its purpose is to keep a quick summary with the most relevant information about this FD at the top of the thread.</em></p>
+</blockquote>
+<h2>Relevant links</h2>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/pull/449">Pull Request</a>.</li>
+<li>
+<a href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187"><code>state.source.entity()</code> deprecation</a>.</li>
+</ul>
+<h2>Final Implementation</h2>
+<aside class="quote quote-modified" data-post="38" data-topic="1187">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar">
+    <a href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">Extend source's Data interface with types from new handlers</a> <a class="badge-wrapper  box" href="/c/feature-discussions/released/40"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Features that are ready!">Released</span></a>
+  </div>
+  <blockquote>
+    Final implementation
+I’m going to do a recap with the changes that were made in <a href="https://github.com/frontity/frontity/pull/449">Update to TypeScript 4.0 #449</a>. 
+TypeScript interfaces
+
+All types are exported from @frontity/source/types.
+Every <a href="https://github.com/frontity/frontity/blob/966609523f/packages/source/types/data.ts">data interface</a> inherits from Data with all the common properties, and have Data appended to its name.import { PostData, PageData } from "@frontity/source/types";
+
+
+Every <a href="https://github.com/frontity/frontity/blob/966609523f/packages/source/types/entities.ts">entity interface</a> inherits from Entity, which is basically a map of unknown properties, and have Entity appended to its name. Also, they w…
+  </blockquote>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-8-smart-adserver-package-released/3294">Sprint 8: Smart AdServer package released</a>
+                        <meta itemprop='position' content='4'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-9-backend-url-new-setting/3518">Sprint 9: Backend url new setting</a>
+                        <meta itemprop='position' content='5'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-04T15:42:02Z' class='post-time'>
+                    4 February 2020 15:42
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-04T18:07:16Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I couldn’t get to implement a solution like the one described in the OP, because there is no way to select only the <code>isSomething</code> fields from a type to add to the <code>Base</code>.</p>
+<p>It could be done if <a href="https://github.com/microsoft/TypeScript/issues/6579">https://github.com/microsoft/TypeScript/issues/6579</a> becomes real, because we could match the keys with a regex.</p>
+<p>I think it might be possible to build something creating a base type only with the <code>boolean</code> properties extracted from every data type, but this is not ideal either.</p>
+<p>Creating a base with every single field makes no sense because then no matter what data object you were using, TypeScript would think every single field of every single data type would be present in that object, and that’s not useful.</p>
+<p>The only solution I could think of is the following:</p>
+<pre><code>// source.ts
+
+export type BaseData&lt;T = {}&gt; = {
+  isFetching: boolean;
+  isReady: boolean;
+  isArchive?: false;
+  isPostType?: false;
+};
+
+type ArchiveData&lt;T&gt; = T &amp; {
+    isArchive: true;
+    items: EntityData[];
+    total?: number;
+    totalPages?: number;
+  };
+
+type PostTypeData&lt;T&gt; = T &amp; {
+  isPostType: true;
+  type: string;
+  id: number;
+};
+
+type Datas&lt;T&gt; = ArchiveData&lt;T&gt; | PostTypeData&lt;T&gt;;
+
+export type Data&lt;CustomBase = BaseData, CustomData = Datas&lt;CustomBase&gt;&gt; =
+    CustomData extends Datas&lt;CustomBase&gt;
+    ? Datas&lt;CustomBase&gt;
+    : Datas&lt;CustomBase&gt; | CustomData;
+
+</code></pre>
+<pre><code>// theme.ts
+
+import { BaseData as SourceBaseData, Data as SourceData } from '@frontity/source';
+
+type BaseData = SourceBaseData&lt;{
+  isMyCustomPostType?: false;
+  isMyOtherCustomPostType?: false;
+}&gt;;
+
+type MyCustomPostTypeData = BaseData &amp; {
+  type: 'my-custom-post-type',
+  isMyCustomPostType: true
+}
+
+type MyOtherCustomPostTypeData = BaseData &amp; {
+  type: 'my-other-custom-post-type',
+  isMyOtherCustomPostType: true
+};
+
+type Data = SourceData&lt;BaseData, MyCustomPostTypeData | MyOtherCustomPostTypeData&gt;;
+
+interface Theme extends Package {
+  state: {
+   source?: Merge&lt;
+      WpSource["state"]["source"],
+      {
+        get: Derived&lt;Theme, (link: string) =&gt; Data&gt;;
+        data: Record&lt;string, Data&gt;;
+      }
+  }
+};
+</code></pre>
+<p>Here is a <a href="http://www.typescriptlang.org/play/#code/PTAEBUHtQSwWwA4BsCmcUDsAusOgAYACAZgE6TYxYCewAzpAK6kDGK+AdAFBcoAeCSKRw0EKUACEAhnRQAecKAC8oAN4BfAHzKIoAGRquoY7DoBBAPwAuUMSlJZAbiMmYdCddv2nXdc66i4mYK2iqKBqouxoE2AORSsc4mpmY2WKSMKEkmZJBwqaB06TAYAObOfjyBkiE64YbJMaCxAEaJUaYSaRlZHblwXYXFZRUB1GKgACJSWDK1KsHg2gA+NUv+-ILCoNXTs3IAwoxFedKyOmcoADSgRydwe1I6j3SHx1inMiiaoR13Hw8Zk9+FhMAATOhTIGvf6fWSaDoWKGzGHvOHfDo2F5ve6XFa3NGA2b+VA4MFAnQaUAyZFSfwwYigAAU5NmHDcZgAlA0TKypBx+mZssY+QLyANRlwGczRW4JNzIslRYLhaBleKJJKQBBoPBkGhMDgSjsABbiY4oUigBBSFgAaykpRQ3DGE1hAy+Fy+ckVrjoB08dgcvS0-mqBx07su+h50XGKDiLFiVw6bgO3UyKeS-XT1Iw1El4cJj2eQJxAMuNwOmn8LAoRVALGLFJUVJp7se9MZTKb90e7PMCo6vYB-ZVw+bbP6monfaBYryB0l0p7k-5cqHyRHeTH4qFs9H8+nqu3RP5OeX3dP-bTm5M16Pe5Pa4XEoPO8fi4qQA">small playground</a> with the concept to play.</p>
+<p><strong>NOTE</strong>: I got rid of the <code>Merge</code> function because on the playground didn’t seem necessary and it simplified the error messages from TypeScript, but I don’t know if that’s something we can do or if <code>Merge</code> is actually needed for some reason I couldn’t see. What I understood is that <code>Merge</code> was removing the shared properties between the base and the data, from the base type, and them doing the union. I can’t understand whats the difference between that and doing just the union that overrides the shared properties.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-04T22:28:54Z' class='post-time'>
+                    4 February 2020 22:28
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-04T22:28:54Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>That solution looks fine to me <img src="/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<p>Could you do this? (extend <code>PostTypeData</code> instead of <code>BaseData</code>)</p>
+<pre><code>type MyCustomPostTypeData = PostTypeData &amp; {
+  type: 'my-custom-post-type',
+  isMyCustomPostType: true
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-04T22:36:01Z' class='post-time'>
+                    4 February 2020 22:36
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-04T22:36:01Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I think you need to do</p>
+<pre><code>type MyCustomPostTypeData = PostTypeData&lt;BaseData&gt; &amp; {
+  type: 'my-custom-post-type',
+  isMyCustomPostType: true
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-24T18:13:30Z' class='post-time'>
+                    24 February 2020 18:13
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T08:06:02Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I went back to <a href="https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types">https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types</a> and I think there may be a way to not need to define all the booleans in false in a <code>BaseData</code> type by using type guards functions like this:</p>
+<pre><code>function isFish(pet: Fish | Bird): pet is Fish {
+    return (pet as Fish).swim !== undefined;
+}
+</code></pre>
+<p>I assumed that these functions didn’t had any advantage over a boolean like <code>pet.isFish</code>, but I was wrong. They have, because inside the function you can do a <strong>manual cast</strong> that it’d be ugly to do outside:</p>
+<pre><code>(pet as Fish).swim
+</code></pre>
+<p>I’ve done a <a href="https://www.typescriptlang.org/play/?ssl=1&amp;ssc=1&amp;pln=4&amp;pc=2#code/C4TwDgpgBAwghsCBzA9gJxFAvFA3gKCigEsBnAFTgA8UA7FAWxAC4pg0BXCAbkJNPiJUGVuy68iwanUYsopdsVpJeAX175QkKJSTY8fMpRr0mozj0MU4Sc+L5STs1grRKV+dfk3hoABRQFfQIiMgCFcl87S1DScOBotQ0tfxtoHBD+eMjIRKs-NLyvH21jGSZ9QWR0TAAfHRteFKhs3314qHqCpEtmgBEEOH0y0zqWwOAcy3wAYzoggBNB1gAlCDm0BYAeV3cAGigBqQA+YOKlqQBtACIZhGqMa4BdYL4AOg+LuBuUYAALCBoAC0-3czz2VhGzjYFghsSqwjkYggng0AHo0To-mQoAsUBBSLQAOTAKAAd3QAGtmPhiAAzKAACi+N1IjAgQN2ymebyM0lGAEo8KpvHSOLQZsBiHR+FCmMzlodBgLWF9+Ey5SAhZk0BBgBw0LQmWq4KQNfzZAKBbzrE4KgBCLA4cULCB0pQQBZqbwYqAAIQ4pNBZrxBJp9KZfLtIAVV2ubIYHK5SGeVoMRBZ8fZnMU3Keb0c5UwOGu129QA">small example in the TS playground</a> and seems to be working fine.</p>
+<p>This is the key:</p>
+<pre><code>function isTaxonomy(data: Data): data is (Taxonomy) {
+  return (data as Taxonomy).isTaxonomy === true;
+}
+</code></pre>
+<p>I guess we could leave <code>data</code> as it is for JavaScript:</p>
+<pre><code>if (data.isTaxonomy) {
+  // ...
+}
+</code></pre>
+<p>And expose a slightly different API for TypeScript:</p>
+<pre><code>import { isTaxonomy } from "@frontity/source";
+
+if (isTaxonomy(data)) {
+  // ...
+}
+</code></pre>
+<p>People extending <code>Data</code> would have to create their own type guard functions:</p>
+<pre><code>// packages/some-package/types.ts
+import { Package } from "frontity/types";
+import { Data } from "@frontity/source";
+
+// Create your new type.
+type NewThing = {
+  isNewThing: true
+}
+
+// Add it to the possibilities already existing in source.
+type MyData = Data | NewThing;
+
+// Create your type guard function
+export function isNewThing(data: Data): data is NewThing {
+  return (data as NewThing).isNewThing === true;
+}
+
+export interface SomePackage extends Package {
+  state: {
+    source?: {
+      get: Derived&lt;SomePackage, (link: string) =&gt; MyData&gt;;
+    }
+  }
+  //...
+}
+</code></pre>
+<p>Then, import your type guard function in your code:</p>
+<pre><code>// packages/some-package/src/components/index.ts
+import { isNewThing } from "../../types";
+import { isArchive } from "@frontity/source";
+
+const MyTheme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+  if (isNewThing(data)) {
+    // data: NewThing !!
+  } else if (isArchive(data)) {
+    // data: ArchiveData !!
+  }
+};
+
+</code></pre>
+<hr>
+<p><a class="mention" href="/u/mmczaplinski">@mmczaplinski</a> is going to explore if this can be solved with classes/interfaces inheritance. Let’s wait until we see what he discovers!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-24T18:37:07Z' class='post-time'>
+                    24 February 2020 18:37
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-24T18:37:07Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I like this</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-24T21:35:02Z' class='post-time'>
+                    24 February 2020 21:35
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-24T21:35:02Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve spent a moment playing with an <a href="http://www.typescriptlang.org/play/?strictPropertyInitialization=false#code/MYGwhgzhAEBCkFMAiYAuZoG8CwAoa0AlhAEoJgAmAngFzQBGA9oyOQHYDceBxAYgqmAALQmwDmdAGZgQEBHgC+ePKEgwAogCdNjTSnRZuRCFp2a6qTQFcEXfNAC2CKGDEI6ES6LF2luFeBQ0AAqYAAejGyMDlTQCGGoCGwUMPBy+hg49sShEVExFta2Ruh50bTQnprevsq4qkGhYnEJSSkh4ZHlWMZNhTYc0Ap2DTAAwmgIYrqx8YnJMLldMT3EE4nTmhWWA0N2AWrQAAqMnsFUAA4ILfPtachomcYnZ5fu0Du2ewdBR67XczaMBeqHOV1WED+bn6X2GP2Bp1QNyBx0RYOumGeiJhgzh-lwqDe0Ay0AAvKjPNAAD7Hf7Uimgok09ZTGb0prszr5WI00y6DJ1YCRSkUR50MhCzQUAA8VW8ABpiY8AHxkrB4vCi9AAbQARMBJpsqLqALpqrIEAB01q1YD1jFQQgQmgAtI7vKb5UYclzyjCvdkICyjf7FPt8XgAPTRmMhEQwGQgaAAd10AGsIDQozHo9AAJIfERsNMp66pqwgCjQIRgABu11QjGgwjA4muQkYydLzc05ESheutsLjCsYiElSbdUIkmgAApbXrEp4AIymohsTyt4AIRgz4MzACUhnsC91S9Qq5NlrWhpmRgXAHJz8uH1efWUVvfHtqn84L6-r0hRFoFzaRCFkRQ8GnOdT3PAAmNdRE3Nht13BkjwtaBH3ggDiBBaAvx1X9PDg3CgNeK5INwaD52-YjUAAZlfddkNQmc+T0R4MMIu16KYt8TG0XQqLqOogA">implementation based on classes</a></p>
+<p>I’m not actually 100% sure if this is a valid approach. I think that the problem with it is that we would have to explicitly create class instances for <code>taxonomy</code>, <code>category</code>, etc. in each handler.</p>
+<p>I will leave this here in case we want to revisit the implementation, but I’m in favour of Luis’s implementation! <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T08:43:34Z' class='post-time'>
+                    25 February 2020 08:43
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T08:43:34Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I didn’t know that this was possible, but it is:</p>
+<pre><code>interface TaxonomySearch extends Taxonomy, Search { }
+</code></pre>
+<p>So I have modified the <a href="https://www.typescriptlang.org/play/#code/JYOwLgpgTgZghgYwgAgCpwB4HsRYLYCeyA3gFDLLADO62uhAXMmFAK4QDc5zmO+BTKi1ABzLgF9SpUJFiIUAZQhwoCABYlu1JSvVMW7LhSrLVagIrsoA5EKiiJUmdHhI0vegR1nkEDJBAAEyp3On4AGmRvdRJkSWlwF3lkAGE4SBEsa19-CCCQ2j5CTQpqNIysmwNOUnEuBNlXFHKITOtojT8A4NT01srIjtj45zk3dBEc7oKPfhLKGjgRfTYauqdEsZQJoa68nonB0xjiOI3G5IAFLCFUAgAHFDJSqmvbh4gVw1rzpLc3sBTfYhAF3R7zagAr5reqjJrIS5LFB7fIIm5gMFPLSvJHQiT1MAfZAAEXScGQAF5QkUiAAfKLHDT0wqeIb0lptOm9CrtRnIZlLfnuERstHvcH0gFCxEiGqkBA4ITIQJkpgAJQgCqggQAPHZRJFSWA4AA+SkkdakFXGgDaACIEH1OXaALrm57IAB03utcHtWDAamgAFpA6JXeFsSz+NDavUAPTxtBqajKrAQKggADkgIA7lkANYMaQwZAACl99qo+Agwf1IBErs91GjhAAlMMpDBWCAEGBgDgFq2CBXVSSyW2mL6FuXhx2PVAIGBWFAQOXp3AQmW523m4swsUKUfmKtHKRu73+4PtIzR8amEa4JPlWSZ2WOvPuIvl6v16-N+WH67jeugaEeVLVGeibIAAQqwgJhiEgTplQxYKiASrVngECPualZ2lhtYFhABCurCpZli2syEGWhGPm2n7GDWj6esaB5EFSdp2mewAUSBZi0cxE6MbYQnGp6JigZY0AccgXE8Xx+40oJ2H0cgABk6kLB0Kk4cJ8x0WSrHUbJ8ncIZ4mSWY0nZJx3E-EAA">playground example</a> to work with interfaces and inheritance and it works great!</p>
+<p>You can do this:</p>
+<pre><code>interface Taxonomy {
+  isTaxonomy: true;
+  taxonomy: string;
+}
+
+interface Search {
+  isSearch: true;
+  searchQuery: string;
+}
+
+interface TaxonomySearch extends Taxonomy, Search { }
+
+interface Category extends Taxonomy {
+  isCategory: true;
+};
+
+interface CategorySearch extends Category, Search { }
+
+type Data = Taxonomy | Search | TaxonomySearch | Category | CategorySearch ...
+</code></pre>
+<p>create type guard functions for each interface:</p>
+<pre><code>function isTaxonomy(data: Data): data is (Taxonomy) {
+  return (data as (Taxonomy)).isTaxonomy === true;
+}
+
+function isSearch(data: Data): data is (Search) {
+  return (data as (Search)).isSearch === true;
+}
+
+function isCategory(data: Data): data is (Category) {
+  return (data as (Category)).isCategory === true;
+}
+</code></pre>
+<p>and everything works fine:</p>
+<pre><code>const someData = data["some-key"];
+
+if (isTaxonomy(someData)) {
+  someData.taxonomy = "";
+}
+
+if (isSearch(someData)) {
+  someData.searchQuery = "";
+}
+
+if (isTaxonomy(someData) &amp;&amp; isSearch(someData)) {
+  someData.taxonomy = "";
+  someData.searchQuery = "";
+}
+</code></pre>
+<p>People extending <code>Data</code> could also use inheritance when necessary:</p>
+<pre><code>interface NewThing extends Taxonomy {
+  isNewThing: true
+}
+</code></pre>
+<hr>
+<p>I’m going to try <a class="mention" href="/u/mmczaplinski">@mmczaplinski</a>’s approach with classes and <code>instanceOf</code>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T09:05:46Z' class='post-time'>
+                    25 February 2020 09:05
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T09:05:46Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It seems like this works well:</p>
+<pre><code>class Taxonomy {
+  isTaxonomy: true = true;
+  taxonomy: string = "";
+}
+
+class Category extends Taxonomy {
+  isCategory: true = true;
+};
+
+if (someData instanceof Taxonomy) {
+  someData.taxonomy = "";
+}
+</code></pre>
+<p>and requires less code.</p>
+<p>But this doesn’t work:</p>
+<pre><code>class Search {
+  isSearch: true = true;
+  searchQuery: string = "";
+}
+
+// class cannot extend two classes
+class TaxonomySearch extends Taxonomy, Search { }
+</code></pre>
+<p>Interfaces work:</p>
+<pre><code>interface TaxonomySearch extends Taxonomy, Search { }
+</code></pre>
+<p>but you cannot use <code>interfaceOf</code> with them:</p>
+<pre><code>// instanceof cannot be used with types/interfaces
+if (someData instanceof TaxonomySearch) {
+  someData.taxonomy = "";
+  someData.searchQuery = "";
+}
+</code></pre>
+<p>but… for some reason, you can join two different types at runtime.</p>
+<p>For example, declaring <code>Data</code> like this:</p>
+<pre><code>class Taxonomy {
+  isTaxonomy: true = true;
+  taxonomy: string = "";
+}
+
+class Search {
+  isSearch: true = true;
+  searchQuery: string = "";
+}
+
+type Data = Taxonomy | Search;
+
+const data: Record&lt;string, Data&gt; = {};
+</code></pre>
+<p>You can do <code>instanceOf</code> of both <code>Taxonomy</code> and <code>Search</code> at the same time, even though a <code>TaxonomySearch</code> type doesn’t exist.</p>
+<pre><code>// This works fine.
+if (someData instanceof Taxonomy &amp;&amp; someData instanceof Search) {
+  someData.taxonomy = "";
+  someData.searchQuery = "";
+}
+</code></pre>
+<p>I would never have predicted that, as the merge between <code>Taxonomy</code> and <code>Search</code> is not present in <code>Data</code>. I would have expected to be one or the other.</p>
+<p><a href="https://www.typescriptlang.org/play/?ssl=42&amp;ssc=2&amp;pln=39&amp;pc=1#code/MYGwhgzhAEAqYA8D2A7JBbAntA3gKGmgEsJ5k0sAuaAFwCcBXAU2gF5bGmBuA2xVDJmoR6RFAHM20AETSeAXzx5QkGAGUmYOsAAWuXiQ1bd1esylnuvCJu06AiszpDoIumMntZCpSqjQAYTAaJnEkZ2gmBBCUABMYMgEsfUISIJCw51NOC04FHjwaTAAHFgARYLApRIpsAB9oIztoOoAC9NDwzALgVBFoWMrqACUmXrpYgB43DwAaaAqaMAA+KRx5AsGlgG1pYGDO52kAXTXeADpLrbBdpBodJjoAWnuPE9mDUn5a7OYP1IgHUyLkseA2SgA9BC4DoSAMkEwICgAOQ0aAAd3CAGtKHgiAAzaAACmuuwgGCYTxmEhO5xINUEAEpcNBFHgodAAEIMNGvGCxBEQXG9FD9cnoJiLKrsUnScWUrFMTAnAoE4nyqXEUVLFDAJhIQkMrDM-CEDWVc5LciCKTeMFKNVE81LLUiMC6-WEpq6E3WClS842YwOJzYLxye14wlO-2VV06vUGuDfG0AMlTrljLrEbo9Se9Ol9ZqzYEtKeS4Z4xYlAaDdkcjzDMgjiiAA">This is the playground with the working example</a>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T09:58:02Z' class='post-time'>
+                    25 February 2020 09:58
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T09:58:02Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Let’s try more things.</p>
+<h3>Always-present props</h3>
+<p>I’ve tried adding always-present props, like <code>isReady</code> or <code>isFetching</code> and it looks like, as long as every member of <code>Data</code> extends from the base type (directly or indirectly), it works without a type guard:</p>
+<pre><code>class BaseData {
+  isReady: boolean;
+  isFetching: boolean;
+}
+
+class Taxonomy extends BaseData {
+  isTaxonomy: true;
+  taxonomy: string;
+}
+
+class Search extends BaseData {
+  isSearch: true;
+  searchQuery: string;
+}
+
+class Category extends Taxonomy {
+  isCategory: true;
+};
+
+type Data = Taxonomy | Search | Category;
+
+// This works fine without type guards:
+someData.isFetching = true;
+</code></pre>
+<h3>Mix between different types</h3>
+<p>If we don’t need to add things like <code>TaxonomySearch</code> to <code>Data</code> because it’s enough with separate <code>Taxonomy</code> and <code>Search</code>, then let’s see if we can still mix two types in a single check:</p>
+<p>It looks like it can be done with the type guard functions implementation:</p>
+<pre><code>type Data = Taxonomy | Search;
+
+function isTaxonomySearch(data: Data): data is Taxonomy &amp; Search {
+  const d = data as Taxonomy &amp; Search;
+  return d.isTaxonomy === true &amp;&amp; d.isSearch === true;
+}
+
+if (isTaxonomySearch(someData)) {
+  someData.taxonomy = "";
+  someData.searchQuery = "";
+}
+</code></pre>
+<p>For classes, it doesn’t work with a single <code>instanceOf</code> check because it complains that <code>"taxonomy"</code> is not present on type <code>Search</code>. This is what I would have expected:</p>
+<pre><code>// This doesn't work
+if (someData instanceof Taxonomy &amp;&amp; Search) {
+  someData.taxonomy = ""; // taxonomy doesn't exist on type Search
+  someData.searchQuery = "";
+}
+</code></pre>
+<p>But, surprisingly, it works with two checks or a type guard function:</p>
+<pre><code>if (someData instanceof Taxonomy &amp;&amp; someData instanceof Search) {
+  someData.taxonomy = "";
+  someData.searchQuery = "";
+}
+
+function isTaxonomySearch(data: Data): data is Taxonomy &amp; Search {
+  return data instanceof Taxonomy &amp;&amp; data instanceof Search;
+}
+
+if (isTaxonomySearch(someData)) {
+  someData.taxonomy = "";
+  someData.searchQuery = "";
+}
+</code></pre>
+<h3>Overwrite a property type</h3>
+<p>Let’s see what happens if we try to extend from a type, but overwrite one property.</p>
+<p>You cannot use an interface to extend a type that is not compatible:</p>
+<pre><code>// This doesn't work
+interface TaxonomyById extends Taxonomy {
+  isTaxonomyById: true;
+  taxonomy: number;
+}
+</code></pre>
+<p>You can use types to merge them:</p>
+<pre><code>type TaxonomyById = Taxonomy &amp; {
+  isTaxonomyById: true;
+  taxonomy: number;
+}
+</code></pre>
+<p>But then, you cannot use the property <code>taxonomy</code> anymore, because in the merged type <code>TaxonomyById</code> it gets assigned to the type <code>never</code>:</p>
+<pre><code>function isTaxonomyById(data: Data): data is TaxonomyById {
+  return (data as TaxonomyById).isTaxonomyById === true;
+}
+
+// This doesn't work
+if (isTaxonomyById(someData)) {
+  someData.taxonomy = 123;
+}
+</code></pre>
+<p>There is a workaround though, using <code>Omit</code> while extending:</p>
+<pre><code>interface TaxonomyById extends Omit&lt;Taxonomy, "taxonomy"&gt; {
+  taxonomy: number;
+}
+
+// This works now and taxonomy type is number
+if (isTaxonomyById(someData)) {
+  someData.taxonomy = 123;
+}
+</code></pre>
+<p>Adn if you do this, it goes back to <code>never</code>:</p>
+<pre><code>// This doesn't work
+if (isTaxonomy(someData) &amp;&amp; isTaxonomyById(someData)) {
+  someData.taxonomy = 123;
+}
+</code></pre>
+<p>So I guess the workaround is valid.</p>
+<p>For classes, it looks like you have to first declare an interface and then use <code>implements</code> to attach the type, like this:</p>
+<pre><code>interface TaxonomyById extends Omit&lt;Taxonomy, "taxonomy"&gt; {}; 
+
+class TaxonomyById implements TaxonomyById {
+  taxonomy: number;
+}
+</code></pre>
+<p>and then <code>interfaceOf</code> works fine:</p>
+<pre><code>if (someData instanceof TaxonomyById) {
+  someData.taxonomy = 123;
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T10:14:07Z' class='post-time'>
+                    25 February 2020 10:14
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T10:14:07Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve just realized two more things while playing with this.</p>
+<h4>1. <code>implements</code> can extend from an interface that extends two classes</h4>
+<p>You cannot extend from two different classes:</p>
+<pre><code>class TaxonomySearch extends Taxonomy, Search {}
+</code></pre>
+<p>but you can create a interface and implement it:</p>
+<pre><code>interface TaxonomySearch extends Taxonomy, Search { }
+class TaxonomySearch implements TaxonomySearch { }
+</code></pre>
+<p>and this works:</p>
+<pre><code>if (someData instanceof TaxonomySearch) {
+  someData.taxonomy = "";
+  someData.searchQuery = "";
+}
+</code></pre>
+<h4>2. <code>instanceOf</code> doesn’t require a union</h4>
+<p><a href="https://www.typescriptlang.org/play/?strictPropertyInitialization=false&amp;ssl=1&amp;ssc=1&amp;pln=19&amp;pc=2#code/MYGwhgzhAEBiCWAnCAXaBvAUNa8IORQC5oVEBXAUwG5toAzJVE1ReAOwHNaBfTTUJBgBlSsAD27ACYY6eUROkkyVWjghjJUlmQ7dMfAZNTQpYFGBIETAXlk4814qQqUANHUaESAIh8H+eHpoAAozC1x2VDB2YEpxYIUtAEp7U3MwADovW2g-NXSLTI1FGTt8gyA">This code</a> doesn’t produce any TypeScript errors:</p>
+<pre><code>class First {
+  isFirst: true;
+  first: string;
+}
+
+class Second {
+  isSecond: true;
+  second: string;
+}
+
+const data: First = {
+  isFirst: true,
+  first: ""
+}
+
+if (data instanceof Second) {
+  data.first = "";
+  data.second = "";
+}
+</code></pre>
+<p>This may mean that:</p>
+<ul>
+<li>Package creators don’t need to pass anything to extend <code>Data</code>.</li>
+<li>We don’t need a union of types in <code>Data</code>, we can use <code>BaseData</code> for <code>state.source.data</code>.</li>
+</ul>
+<p>This is only true for classes because <a href="https://www.typescriptlang.org/play/?strictPropertyInitialization=false&amp;ssl=23&amp;ssc=2&amp;pln=1&amp;pc=1#code/JYOwLgpgTgZghgYwgAgGLCgZzMg3gKGWWE3SzAC5kwoBXCAbkORg2yuylAHMmBffPlCRYiFAGUICAPYgAJnmYlJM+VRr0mRTFNlyONHv0GrsyOXDBwqZMwF5FRErcrU6EADTNW5KgCI-fAF8GFoQBDBgWWJMFT0ACgsrGzYcAB9kOPkASiokuBjM3XlHZCgIMFooEGREywK4TCLVOWyAOmVihTset00gwWAYWs6Wuqts7NL8tp97ZACtc3q2nRbkB0WgoA">with interfaces you need the union</a> to create the type guard functions:</p>
+<pre><code>interface First {
+  isFirst: true;
+  first: string;
+}
+
+interface Second {
+  isSecond: true;
+  second: string;
+}
+
+const data: First = {
+  isFirst: true,
+  first: ""
+}
+
+// You need the union for the data argument
+function isSecond(data: First | Second): data is Second {
+  return (data as Second).isSecond === true;
+}
+
+if (isSecond(data)) {
+  data.first = "";
+  data.second = "";
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T10:45:41Z' class='post-time'>
+                    25 February 2020 10:45
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T10:45:41Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>At this point I’m more inclined to <a class="mention" href="/u/mmczaplinski">@mmczaplinski</a>’s approach of classes and <code>instanceOf</code>.</p>
+<p>People using TypeScript would have to do this:</p>
+<pre><code>import { Taxonomy } from "@frontity/source/types";
+
+if (data instanceOf Taxonomy) {
+  // ...
+}
+</code></pre>
+<p>People extending <code>Data</code> would have to do this:</p>
+<pre><code>// packages/some-package/types.ts
+import { Package } from "frontity/types";
+import Source, { BaseData, Taxonomy } from "@frontity/source/types";
+
+// Just create a class.
+export class NewThing extends BaseData {
+  isNewThing: true
+}
+
+// Or it can extend other types.
+export class NewThing extends Taxonomy {
+  isNewThing: true
+}
+
+export interface SomePackage extends Package {
+  state: {
+    // No need for anything special here:
+    source?: Source["state"]["source"]
+  }
+  //...
+}
+</code></pre>
+<pre><code>// packages/some-package/src/components/index.ts
+import { NewThing } from "../../types";
+import { Archive } from "@frontity/source/types";
+
+const MyTheme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+  if (data instanceOf NewThing) {
+    // data: NewThing !!
+  } else if (data instanceOf Archive) {
+    // data: ArchiveData !!
+  }
+};
+</code></pre>
+<hr>
+<p>In our side:</p>
+<p><code>state.source.data</code> could be simply an array of <code>BaseData</code>:</p>
+<pre><code>  state: {
+    source: {
+      data: Record&lt;string, BaseData&gt;;
+</code></pre>
+<p>and <code>BaseData</code> could have only the types injected by <code>source</code> on all data objects:</p>
+<pre><code>interface BaseData {
+  isReady: boolean;
+  isFetching: boolean;
+  link: string;
+  // ...
+}
+</code></pre>
+<p>Those would be the only ones accessible without an <code>interfaceOf</code> check:</p>
+<pre><code>if (data.isReady) {
+  const link = data.link;
+  // ...
+}
+</code></pre>
+<p>For Source v2 handlers I was thinking about returning the data object (or an array of data objects), instead of assigning it yourself:</p>
+<pre><code>import { Handler, Taxonomy, BaseData } from "@frontity/source/types";
+
+type TaxonomyBase = Omit&lt;Taxonomy, keyof BaseData&gt;;
+
+const handler: Handler = async ({ link }) =&gt; {
+  const response = await fetch(link).then(r =&gt; r.json());
+  const { items, entities } = normalize(response);
+  const data: TaxonomyBase = {
+    isTaxonomy: true;
+    items,
+    taxonomy: response.taxonomy,
+    id: response.id
+  }
+  return { data, entities };
+};
+</code></pre>
+<p>So, if the <code>Handler</code> type is permissive enough, we won’t need the union here as well.</p>
+<p>The only problem would be that you have to use <code>Omit</code> to get rid of the properties of <code>BaseData</code>.</p>
+<p>Basically, we either use <code>Omit</code> like this:</p>
+<pre><code>export class Base {
+  isReady: boolean;
+}
+
+export class Taxonomy extends Base {
+  isTaxonomy: true;
+}
+
+type TaxonomyBase = Omit&lt;Taxonomy, keyof Base&gt;;
+
+const tax: TaxonomyBase = {
+  isTaxonomy: true
+}
+</code></pre>
+<p>Or we export both classes with different names:</p>
+<pre><code>class Base {
+  isReady: boolean;
+}
+
+export class Taxonomy {
+  isTaxonomy: true;
+}
+
+interface TaxonomyData extends Taxonomy, Base { }
+export class TaxonomyData implements TaxonomyData { }
+
+const tax: Taxonomy = {
+  isTaxonomy: true
+}
+</code></pre>
+<p>I guess the first one is fine because if not it would require a lot of almost duplicate exports.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T11:07:54Z' class='post-time'>
+                    25 February 2020 11:07
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T11:29:51Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Is it this a TypeScript thing? I mean, when you are using <code>instanceof</code> (which is JavaScript) to check if something is <code>Taxonomy</code>, that will search <code>Taxonomy</code> in the prototype chain, right? So, the <code>data</code> object needs to be created using <code>new Taxonomy()</code>. If not, <code>instanceof</code> will return <code>false</code>.</p>
+<p>I mean, you cannot use classes as types here, you need to create instances of classes.</p>
+<p>Or am I missing something?</p>
+<hr>
+<p>EDIT: taking the example <a class="mention" href="/u/luisherranz">@luisherranz</a> shared, I think the <code>instanceof</code> assertions would never be <code>true</code></p>
+<pre><code>data["category"] = {
+  ...data["other-thing"],
+  isTaxonomy: true,
+  isCategory: true,
+};
+
+// All of these would return `false`
+if (someData instanceof Taxonomy) {}
+if (someData instanceof Search) {}
+if (someData instanceof Taxonomy &amp;&amp; someData instanceof Search) {}
+</code></pre>
+<p>unless you do something like</p>
+<pre><code>data["category"] = new Category();
+
+// This would be `true`
+if (someData instanceof Taxonomy) {}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T11:48:56Z' class='post-time'>
+                    25 February 2020 11:48
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T12:37:08Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Well, if we use classes and inheritance, I guess we can implement <code>BaseData</code>'s constructor in a way that the properties passed as argument are merged properly and so there’s no need to use <code>Omit</code>.</p>
+<p>Then, you could do something like this:</p>
+<pre><code>import { Handler, Taxonomy } from "@frontity/source/types";
+
+const handler: Handler = async ({ link }) =&gt; {
+  const response = await fetch(link).then(r =&gt; r.json());
+  const { items, entities } = normalize(response);
+  // data.isTaxonomy would be added by default,
+  // as well as other inherited props
+  const data = new Taxonomy({
+    items,
+    taxonomy: response.taxonomy,
+    id: response.id
+  });
+  return { data, entities };
+};
+</code></pre>
+<p>In the case you want to instantiate something more specific, you could do it as well without passing the inherited props to the constructor.</p>
+<pre><code>import { Handler, Category } from "@frontity/source/types";
+
+const handler: Handler = async ({ link }) =&gt; {
+  const response = await fetch(link).then(r =&gt; r.json());
+  const { items, entities } = normalize(response);
+  // data.taxonomy would be added by default,
+  // as well as other inherited props
+  const data = new Category({
+    items,
+    id: response.id
+  });
+  return { data, entities };
+};
+</code></pre>
+<p>Anyway, we need to check if it’s possible to do this with TypeScript (I guess so).</p>
+<hr>
+<p>EDIT: I did a quick test and it think it’s not possible (at least in a simple way), e.g. this code:</p>
+<pre><code>class Data {
+  isReady: boolean = false;
+  isFetching: boolean = false;
+
+  constructor(props: any) {
+    Object.assign(this, props);
+  }
+}
+
+class Taxonomy extends Data {
+  isTaxonomy: true = true;
+  taxonomy: string = "";
+}
+</code></pre>
+<p>is compiled into</p>
+<pre><code>"use strict";
+class Data {
+    constructor(props) {
+        this.isReady = false;
+        this.isFetching = false;
+        Object.assign(this, props);
+    }
+}
+class Taxonomy extends Data {
+    constructor() {
+        super(...arguments);
+        this.isTaxonomy = true;
+        this.taxonomy = "";
+    }
+}
+</code></pre>
+<p>The default <code>Taxonomy</code> values would overwrite those values passed to props, so you would have to extend the constructor in every subclass to set the correct values…</p>
+<pre><code>class Data {
+  isReady: boolean = false;
+  isFetching: boolean = false;
+
+  constructor(props: any) {
+    Object.assign(this, props);
+  }
+}
+
+class Taxonomy extends Data {
+  isTaxonomy: true = true;
+  taxonomy: string = "";
+
+  constructor(props: any) {
+    super(props);
+    this.taxonomy = props.taxonomy;
+  }
+}
+</code></pre>
+<p>That would work, but… <img src="/images/emoji/apple/man_shrugging.png?v=9" title=":man_shrugging:" class="emoji" alt=":man_shrugging:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T13:00:32Z' class='post-time'>
+                    25 February 2020 13:00
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T13:00:32Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="David" data-post="13" data-topic="1187">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>the <code>data</code> object needs to be created using <code>new Taxonomy()</code> . If not, <code>instanceof</code> will return <code>false</code> .</p>
+</blockquote>
+</aside>
+<p>Not really, you can use the class as a type for an object with the same props:</p>
+<pre><code>class Base {
+  isReady = false;
+  isFetching = false;
+}
+
+const base: Base = {
+  isReady: true,
+  isFetching: false
+}
+</code></pre>
+<p>And you can do an <code>instanceOf</code> of anything, no matter the type:</p>
+<pre><code>class Base {
+  isReady = false;
+  isFetching = false;
+}
+
+const noType = {}
+
+if (noType instanceof Base) {
+  noType.isFetching = true;
+}
+</code></pre>
+<p><a href="https://www.typescriptlang.org/play/?strictPropertyInitialization=false&amp;ssl=15&amp;ssc=2&amp;pln=1&amp;pc=1#code/MYGwhgzhAEBCkFNoG8BQ1oEsICUFgBMBPaAXmgDMwQIEBudLCAMQQBdgALTAOwHMylarQYBfVKmAB7HhDbQARogBccRILQZseQkVVsATgFcEAGkbZWHbv1VUaCVOMky50HlIAqRAA5JyyM6YFNAAFB7efliybGA8wAhSIfC0AJQojBG+CAB0luxcvALkhiZiEkA">Playground for this here.</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T13:15:26Z' class='post-time'>
+                    25 February 2020 13:15
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T13:15:26Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="David" data-post="14" data-topic="1187">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Well, if we use classes and inheritance, I guess we can implement <code>BaseData</code> 's constructor in a way that the properties passed as argument are merged properly and so there’s no need to use <code>Omit</code> .</p>
+</blockquote>
+</aside>
+<p>Good idea, we can do that.</p>
+<p>I think it’s not that ugly. And for handlers, it can be great to use <code>new Category({ ... })</code>.</p>
+<p>I think we can avoid having <code>any</code> in props and this is not that complex (I guess):</p>
+<pre><code>class Base {
+  isReady = false;
+  isFetching = false;
+}
+
+class Taxonomy extends Base {
+  isTaxonomy: true = true;
+  taxonomy: string;
+  id: number;
+
+  constructor(props: { taxonomy: Taxonomy["taxonomy"]; id: Taxonomy["id"]}) {
+    super();
+    Object.assign(this, props);
+  }
+}
+
+class Category extends Taxonomy {
+  isCategory: true = true;
+  taxonomy: "category";
+
+  constructor(props: { id: Taxonomy["id"] }) {
+    super({ taxonomy: "category", id: props.id })
+  }
+}
+
+const tax = new Taxonomy({
+  taxonomy: "some-taxonomy",
+  id: 123
+});
+
+const cat = new Category({
+  id: 123
+});
+</code></pre>
+<p><a href="https://www.typescriptlang.org/play/?strictPropertyInitialization=false&amp;ssl=34&amp;ssc=1&amp;pln=1&amp;pc=1#code/MYGwhgzhAEBCkFNoG8BQ1oEsICUFgBMBPaAXmgDMwQIEBudLCAMQQBdgALTAOwHMylarQYBfVKlCQYAFTAAPAPY9FAWxIJ5bBDwIx4tFI2xylK9QC5obAE4BXJOVsOGGNguVqiViLd59XLAIrHjtVACMEGwZGYGVfe2A2RRsACgAHG0V0iCtkaw9zb2hTT3UAbQAidzMvSoBdOiCrUqKqzAIG0QBKIwwMCDt0qNTuwIwAeXCAKwQkgDppTD4eVLZuCAAaaEzsiDHGcXFJcChoAGEwbT4UjS0dPRLCrz6mS+vbq2dHa3t6RhqZWKlWAVwQNxsREqMQwcR4CTsSRSGSyOTyzSetQqlQ6DWgPVeAyGI3ygKKVhBYIhUO2HSsuxy8w6+O6h1QxzhvgK8kEPAQAHdMUDUmg3M9LNBKhA1AgALRkuqbYzBaAARgATABmdkHSTxNjQUEG8h8wXvcG3EXKqwa7U9BhAA">This is the playground.</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T13:20:45Z' class='post-time'>
+                    25 February 2020 13:20
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T13:20:45Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>We can also use <code>Pick</code> for the constructor type, which is the opposite of <code>Omit</code>:</p>
+<pre><code>class Taxonomy extends Base {
+  isTaxonomy: true = true;
+  taxonomy: string;
+  id: number;
+
+  constructor({ taxonomy, id }: Pick&lt;Taxonomy, "taxonomy" | "id"&gt;) {
+    super();
+    this.taxonomy = taxonomy;
+    this.id = id;
+  }
+}
+
+class Category extends Taxonomy {
+  isCategory: true = true;
+  taxonomy: "category";
+
+  constructor({ id }: Pick&lt;Category, "id"&gt;) {
+    super({ taxonomy: "category", id })
+  }
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T13:52:31Z' class='post-time'>
+                    25 February 2020 13:52
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T13:52:31Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-username="luisherranz" data-post="15" data-topic="1187">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>Not really, you can use the class as a type for an object with the same props:</p>
+<pre><code>class Base {
+  isReady = false;
+  isFetching = false;
+}
+
+const base: Base = {
+  isReady: true,
+  isFetching: false
+}
+</code></pre>
+</blockquote>
+</aside>
+<p>I think that TypeScript could work in that case, but if you run later</p>
+<pre><code>if (base instanceof Base) {
+  ...
+}
+</code></pre>
+<p>any code inside the <code>if</code> would never be reached, because Typescript’s <code>instanceof</code> is compiled to JavaScript’s <code>instanceof</code>, and that would check if <code>base</code> (which is actually compiled as a plain object) is an instance of <code>Base</code>, i.e. it would look for <code>Base</code> in its prototype chain.</p>
+<p>That would fail, right? <img src="/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T14:37:43Z' class='post-time'>
+                    25 February 2020 14:37
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T14:37:43Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>You are absolutely right <img src="/images/emoji/apple/sweat.png?v=9" title=":sweat:" class="emoji" alt=":sweat:"> <img src="/images/emoji/apple/persevere.png?v=9" title=":persevere:" class="emoji" alt=":persevere:"> <img src="/images/emoji/apple/persevere.png?v=9" title=":persevere:" class="emoji" alt=":persevere:"> <img src="/images/emoji/apple/persevere.png?v=9" title=":persevere:" class="emoji" alt=":persevere:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-02-25T15:38:44Z' class='post-time'>
+                    25 February 2020 15:38
+                  </time>
+                  <meta itemprop='dateModified' content='2020-02-25T15:38:44Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I feel stupid <img src="/images/emoji/apple/laughing.png?v=9" title=":laughing:" class="emoji" alt=":laughing:"></p>
+<p>We’re back to functional type guards then <img src="/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<p>To summarize, people using TypeScript would have to do this:</p>
+<pre><code>import { isTaxonomy } from "@frontity/source";
+
+if (isTaxonomy(data)) {
+  // ...
+}
+</code></pre>
+<p>People extending <code>Data</code> would have to do this:</p>
+<pre><code>// packages/some-package/types.ts
+import { Package } from "frontity/types";
+import Source, { BaseData, Taxonomy, Data } from "@frontity/source/types";
+
+// Just create a class.
+export interface NewThing extends BaseData {
+  isNewThing: true
+}
+
+// Or it can extend other types.
+export interface NewThing extends Taxonomy {
+  isNewThing: true
+}
+
+type ExtendedData = Data | NewThing;
+
+export function isNewThing(data: ExtendedData): data is NewThing {
+  return (data as NewThing).isNewThing === true;
+}
+
+export interface SomePackage extends Package {
+  state: {
+    source?: Source&lt;ExtendedData&gt;["state"]["source"]
+  }
+  //...
+}
+</code></pre>
+<p>We can use generics in the <code>Source</code> type to allow for a different Data, like this <code>Source&lt;ExtendedData&gt;</code>;</p>
+<pre><code>// packages/some-package/src/components/index.ts
+import { isNewThing } from "../../types";
+import { isArchive } from "@frontity/source";
+
+const MyTheme = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+  if (isNewThing(data)) {
+    // data: NewThing !!
+  } else if (isArchive(data)) {
+    // data: ArchiveData !!
+  }
+};
+</code></pre>
+<hr>
+<p>In our side:</p>
+<p><code>state.source.data</code> could be simply an array of <code>BaseData</code>:</p>
+<pre><code>interface Source&lt;D = Data&gt; extends Package {
+  state: {
+    source: {
+      data: Record&lt;string, D&gt;;
+</code></pre>
+<p><code>BaseData</code> would have only the types injected by <code>source</code> on all data objects:</p>
+<pre><code>interface BaseData {
+  isReady: boolean;
+  isFetching: boolean;
+  link: string;
+  // ...
+}
+</code></pre>
+<p>Those would be the only ones accessible without a type guard check:</p>
+<pre><code>if (data.isReady) {
+  const link = data.link;
+  // ...
+}
+</code></pre>
+<p>And finally for Source v2 handlers we can use generics too:</p>
+<pre><code>import { Handler, Taxonomy } from "@frontity/source/types";
+import { ExtendedData, NewThing } from "../../types";
+
+type NewThingBase = Omit&lt;NewThing, keyof Taxonomy&gt;;
+
+const handler: Handler&lt;ExtendedData&gt; = async ({ link }) =&gt; {
+  const response = await fetch(link).then(r =&gt; r.json());
+  const { entities } = normalize(response);
+  const data: NewThingBase = {
+    isNewThing: true;
+    // ...
+  }
+  return { data, entities };
+};
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/getting-started-with-typescript/1664">Getting started with TypeScript</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/extend-sources-data-interface-with-types-from-new-handlers/1187?page=2">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

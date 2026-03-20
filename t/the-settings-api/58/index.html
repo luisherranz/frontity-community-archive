@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>The Settings API - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="Ok, the first thing we need is a package system for the settings. 
+There may be different packages in the future, depending on where the settings are stored: 
+
+
+file-settings: save settings in a setting.json file in your&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="./" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;The Settings API&#39;" href="58.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png" />
+<meta property="og:image" content="/uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png" />
+<meta property="og:url" content="/t/the-settings-api/58" />
+<meta name="twitter:url" content="/t/the-settings-api/58" />
+<meta property="og:title" content="The Settings API" />
+<meta name="twitter:title" content="The Settings API" />
+<meta property="og:description" content="Ok, the first thing we need is a package system for the settings.  There may be different packages in the future, depending on where the settings are stored:    file-settings: save settings in a setting.json file in your project folder.  wp-org-settings: save settings in wp mysql database  mongo-settings: save settings in mongo  graphql-settings: save settings using graphql  and so on…  I think it’s ok if users need to define their settings package in the frontity.config.js file. I also think it..." />
+<meta name="twitter:description" content="Ok, the first thing we need is a package system for the settings.  There may be different packages in the future, depending on where the settings are stored:    file-settings: save settings in a setting.json file in your project folder.  wp-org-settings: save settings in wp mysql database  mongo-settings: save settings in mongo  graphql-settings: save settings using graphql  and so on…  I think it’s ok if users need to define their settings package in the frontity.config.js file. I also think it..." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="9 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="4 ❤" />
+<meta property="article:published_time" content="2019-02-28T12:17:14+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/the-settings-api/58">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"The Settings API","mainEntity":{"@type":"Question","name":"The Settings API","text":"Ok, the first thing we need is a package system for the settings.\n\nThere may be different packages in the future, depending on where the settings are stored:\n\nfile-settings: save settings in a setting.json file in your project folder.\n\nwp-org-settings: save settings in wp mysql database\n\nmongo-set&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2019-02-28T12:17:14.305Z","author":{"@type":"Person","name":"Luis Herranz"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">The Settings API</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='The Settings API'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+                <link itemprop="image" href="../../../uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-02-28T12:17:14Z' class='post-time'>
+                    28 February 2019 12:17
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-03T15:15:04Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>Ok, the first thing we need is a package system for the settings.</p>
+<p>There may be different packages in the future, depending on where the settings are stored:</p>
+<ul>
+<li>
+<code>file-settings</code>: save settings in a <code>setting.json</code> file in your project folder.</li>
+<li>
+<code>wp-org-settings</code>: save settings in wp mysql database</li>
+<li>
+<code>mongo-settings</code>: save settings in mongo</li>
+<li>
+<code>graphql-settings</code>: save settings using graphql</li>
+</ul>
+<p>and so on…</p>
+<p>I think it’s ok if users need to define their settings package in the <code>frontity.config.js</code> file. I also think it’s ok that there’s only one settings package activated at a time.</p>
+<pre><code class="lang-auto">// frontity.config.js
+module.exports = {
+  settingsPackage: '@frontity/file-settings' 
+}
+</code></pre>
+<p>The first package we are going to develop is <code>file-settings</code> and it’s going to be the default one. This means there’s no need for a <code>frontity.config.js</code> to start using Frontity.</p>
+<p>I’ve done a quick draft of the server architecture:</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="../../../uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png" data-download-href="/uploads/default/fe610bcdd172db0efd698f5aa701757948c13ca0" title="Screen Shot 2019-02-28 at 13.00.49.png"><img src="../../../uploads/default/optimized/1X/fe610bcdd172db0efd698f5aa701757948c13ca0_2_578x500.png" alt="49" width="578" height="500" srcset="../../../uploads/default/optimized/1X/fe610bcdd172db0efd698f5aa701757948c13ca0_2_578x500.png, ../../uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png 1.5x, ../../uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png 2x" data-small-upload="/uploads/default/optimized/1X/fe610bcdd172db0efd698f5aa701757948c13ca0_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">Screen Shot 2019-02-28 at 13.00.49.png</span><span class="informations">807×697 37.6 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>Frontity must import the correct package and use their <code>getSettings</code> method.</p>
+<hr>
+<p>Ok, the first problem is: <strong>Frontity must import the correct package</strong>. I’ve opened a new thread about that because it’s important and we also need it for the “App Packages”: <a href="/t/how-to-resolve-dynamic-imports-in-webpack/59" class="inline-onebox">How to resolve dynamic imports in Webpack</a></p>
+<p>Now, I’ll continue assuming we’ve solved that <img src="../../../images/emoji/apple/slight_smile.png%3Fv=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<h2>Constrains</h2>
+<ul>
+<li>The settings must be serializable, they cannot contain code.<br>
+This is not very important for <code>file-settings</code> but it is for packages that save them to a database.</li>
+<li>The developer must be able to force the use of another site using a query <code>?site=my-other-site</code>.</li>
+</ul>
+<hr>
+<p>I’ll continue working on this tomorrow.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/development-micro-updates-or-whos-working-on-what/45">:white_check_mark: Beta Roadmap &amp; Progress</a>
+                        <meta itemprop='position' content='3'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/type-packages/72">Typings and Versions</a>
+                        <meta itemprop='position' content='4'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-06T08:58:57Z' class='post-time'>
+                    6 March 2019 08:58
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-08T07:49:17Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>All yours <a class="mention" href="/u/orballo">@orballo</a>.</p>
+<p>I’d work first on the constrains of this design <img src="../../../images/emoji/apple/+1.png%3Fv=6" title=":+1:" class="emoji" alt=":+1:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-06T09:14:20Z' class='post-time'>
+                    6 March 2019 09:14
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-06T09:14:20Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m afraid I don’t know the constrains nor the features.</p>
+<p>The only thing I could understand from the things I read is that you want something like:</p>
+<pre><code class="lang-auto">{
+   	name: "example-name",
+   	url: "https://mysite.com",
+   	mode: {
+		default: "*",
+   		amp: "\/amp\/?$"
+   	},
+  	packages: [
+  		{
+  			name: "@frontity/theme",
+  			namespace: "theme",
+ 			mode: "default",
+            settings: {}
+   		}
+   	]
+}
+</code></pre>
+<p>I’m completely blocked on this issue.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-06T09:24:24Z' class='post-time'>
+                    6 March 2019 09:24
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-06T09:24:24Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="3" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I’m afraid I don’t know the constrains nor the features.</p>
+</blockquote>
+</aside>
+<p><strong>Features</strong>: things we want the settings API to have.<br>
+<strong>Constrains</strong>: things that must be done in a certain way for some reason and may limit the design.</p>
+<aside class="quote group-development-team" data-post="3" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>from the things I read is that you want something like</p>
+</blockquote>
+</aside>
+<p>It’s not what I want. Think about what we need and what would make a good settings API that follows our design principles. Use the experience we have from the old framework and the new things we want to achieve with this one.</p>
+<p><a href="https://github.com/wp-pwa/wp-pwa/issues/93" rel="nofollow noopener">This issue</a> may be helpful as well. I’ve been writing about some features and constraints that directly relate to the settings API.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-06T14:57:40Z' class='post-time'>
+                    6 March 2019 14:57
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-06T14:57:40Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, this is the way I imagine the settings being used:</p>
+<p>The settings need to be serializable, and can be an <code>array</code> or an <code>object</code>. The settings being an array is useful to store the settings of different sites in just one file.</p>
+<p>The API should be as follows:</p>
+<pre><code class="lang-auto">module.exports = {
+  name: "example-name", // Useful only when there is more than one site.
+  mode: {
+    pwa: "*", // Default.
+    amp: "\/amp\/?$", // Default.
+    // More modes can be defined here.
+  },
+  bundle: {
+    babel: "old useragent match", // Default.
+    es6: "new useragent match", // Default.
+  },
+  packages: [
+    {
+      name: "@frontity/theme",
+      settings: {
+    	color: "#FFF",
+    	mode: {
+    	  amp: {
+            color: "#000",
+    	  }
+        }
+      }
+    }
+  ]
+}
+</code></pre>
+<p>If we remove the default values the API would be as follows:</p>
+<pre><code class="lang-auto">module.exports = {
+  packages: [
+    {
+      name: "@frontity/theme",
+      settings: {
+    	color: "#FFF",
+    	mode: {
+    	  amp: {
+            color: "#000",
+    	  }
+        }
+      }
+    }
+  ]
+}
+</code></pre>
+<h3><code>name</code></h3>
+<p>The name of the settings that you want to use in your current app. This is an useful identifier in case you are developing one theme for many different sites. Setting it as a query param will identify which are the required settings. If this param is not provided, the first settings in the array should be used.</p>
+<h3><code>mode</code></h3>
+<p>The different modes that Frontity supports and it’s patterns to identify them in the url.</p>
+<h3><code>bundle</code></h3>
+<p>The different bundles that can be served and the pattern to identify them in the <code>user-agent</code> of the request.</p>
+<h3><code>packages</code></h3>
+<p>An array of the packages used in the Frontity app.</p>
+<ul>
+<li>
+<code>name</code> the name of the package declared.</li>
+<li>
+<code>settings</code> the settings of the declared package.</li>
+<li>
+<code>mode</code> specific settings if needed for the different modes.</li>
+</ul>
+<h2>Some notes</h2>
+<p>I can’t think of a use for the <code>url</code> field and I think the WP API url should be defined inside the <code>wp-source</code> package settings.</p>
+<p>I also think that developers shouldn’t need to be mindful of the <code>namespaces</code> exposed by the packages they use and shouldn’t need to define them here, if there is a way to avoid it. But I’m not sure what’s the use of <code>namespaces</code> here, I’m assuming it’s to avoid including stores for those namespaces if they are not used in the app.</p>
+<p>Please let me know what do you think and what I’m missing.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-06T18:08:14Z' class='post-time'>
+                    6 March 2019 18:08
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-06T18:08:14Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="5" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I also think that developers shouldn’t need to be mindful of the <code>namespaces</code> exposed by the packages they use and shouldn’t need to define them here, if there is a way to avoid it.</p>
+</blockquote>
+</aside>
+<p>The problem (that you actually pointed out when I was working on this) is that, without a namespace, we don’t know where those settings are going to end up. For example:</p>
+<pre><code class="lang-auto">    {
+      name: "@frontity/some-theme",
+      settings: {
+    	aThemeSetting: "#FFF",
+        aRouterSetting: true
+      }
+    }
+</code></pre>
+<p>How do we know that <code>aThemeSetting</code> goes to <code>settings.theme</code> and that <code>aRouterSetting</code> goes to <code>settings.router</code>?</p>
+<hr>
+<p>As I <a href="/t/the-packages-export-api/64">commented here</a>, I don’t like the <code>pwa</code> name. It doesn’t make sense anymore. I don’t quite like <code>default</code> either. We need to find something better <img src="../../../images/emoji/apple/slight_smile.png%3Fv=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<hr>
+<aside class="quote group-development-team" data-post="5" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I can’t think of a use for the <code>url</code> field and I think the WP API url should be defined inside the <code>wp-source</code> package settings.</p>
+</blockquote>
+</aside>
+<p>In our old framework the URL was used by several packages. I think it’s important. But I agree with you with the  WP REST API URL. That should go in the <code>wp-source</code> package.</p>
+<p>I think we need a way to store general settings. Not only the URL but things that are needed by all the extensions like the timezone or the language.</p>
+<hr>
+<p>Last two things:</p>
+<ul>
+<li>I don’t quite understand what you are trying to accomplish with <code>bundle</code>.</li>
+<li>We need a way to distinguish between different sites. Remember, now the domain can point directly to Node, so no <code>siteId</code> is involved. I proposed to use a <code>match</code> field that contains regexps for the URL:</li>
+</ul>
+<pre><code class="lang-auto">exports default [{
+  name: "main",
+  match: "https://site.com/.*"
+  ...
+}, {
+  name: "blog",
+  match: "https://blog.site.com/.*"
+  ...
+}]
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-07T08:34:50Z' class='post-time'>
+                    7 March 2019 08:34
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-07T08:34:50Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve been think a lot about what you said and I think you’re right, we should not require a <code>frontity.package.js</code> file. That information is already in the <code>frontity.settings.js</code> anyway.</p>
+<p>I don’t know if you’ve already thought about the API of the settings packages but in my head it was something like :</p>
+<ul>
+<li>
+<strong><code>getSettings({ url, site })</code></strong>: retrieves the single settings for a site, using either its url or its site name.</li>
+<li>
+<strong><code>getPackages({ url, site })</code></strong>: retrieves all the packages of a site, using either its url or its site name.</li>
+</ul>
+<p>We would need to add another one:</p>
+<ul>
+<li>
+<strong><code>getAllPackages()</code></strong>: retrieves all the packages of all the sites.</li>
+</ul>
+<p>Then use that <code>getAllPackages()</code> function to create our <code>frontity.packages.js</code> file internally before Webpack runs.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/how-to-resolve-dynamic-imports-in-webpack/59">How to resolve dynamic imports in Webpack</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-07T09:15:23Z' class='post-time'>
+                    7 March 2019 09:15
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-07T09:15:23Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>How do we know that <code>aThemeSetting</code> goes to <code>settings.theme</code> and that <code>aRouterSetting</code> goes to <code>settings.router</code> ?</p>
+</blockquote>
+</aside>
+<p>If we follow our design principles, this field, somehow, should have a default value. Maybe the package should be the responsible of defining those namespaces? Even if it can be overridden in the settings later. Don’t know if is something that can be achieved by overmind’s <code>namespaced</code>, for example, I don’t actually know what that function does <img src="../../../images/emoji/apple/expressionless.png%3Fv=6" title=":expressionless:" class="emoji" alt=":expressionless:"></p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>In our old framework the URL was used by several packages. I think it’s important.</p>
+</blockquote>
+</aside>
+<p>It seems to me that the <code>url</code> value can be known in the request, and also is something that belongs more to <code>build</code> maybe? I see <code>build</code> like <code>derived</code> state, so if we can get these values from somewhere else, maybe we should avoid to define them in <code>settings</code>.</p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I think we need a way to store general settings. Not only the URL but things that are needed by all the extensions like the timezone or the language.</p>
+</blockquote>
+</aside>
+<p>I agree. I didn’t think of any but, yes, I think they should just go in the root level.<br>
+I’m worried here about mixing content-related settings with Frontity settings. I think we should try to have a separation of concerns. Not sure if this makes sense, though.</p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I don’t quite understand what you are trying to accomplish with <code>bundle</code> .</p>
+</blockquote>
+</aside>
+<p>I know, it makes no sense. I thought that maybe the dev would like to change the <code>user-agent</code> match that determines what bundle to send, but the best option should be used whenever possible.</p>
+<aside class="quote group-development-team" data-post="6" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I proposed to use a <code>match</code> field that contains regexps for the URL</p>
+</blockquote>
+</aside>
+<p>Yes, you are right. I missed that one.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-07T09:19:01Z' class='post-time'>
+                    7 March 2019 09:19
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-07T09:19:01Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="7" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><strong><code>getAllPackages()</code></strong> : retrieves all the packages of all the sites.</p>
+</blockquote>
+</aside>
+<p>I didn’t know that different sites could use different packages. That way the bundle will be bigger than neccessary, right?</p>
+<p>I’m OK with that API.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-07T13:32:51Z' class='post-time'>
+                    7 March 2019 13:32
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-07T13:32:51Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Are the settings packages some kind of <em>special</em> package? Or are they treated exactly the same than other packages. I mean, for example, in the way the package is used by Frontity.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+                <link itemprop="image" href="../../../uploads/default/original/1X/d4b1f0c19c8eb9e95e64c4caff9071d2b217e5a9.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-08T07:42:54Z' class='post-time'>
+                    8 March 2019 07:42
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-08T07:42:54Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Maybe the package should be the responsible of defining those namespaces?</p>
+</blockquote>
+</aside>
+<p>They export them, but they can export several.</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>If we follow our design principles, this field, somehow, should have a default value.</p>
+</blockquote>
+</aside>
+<p>Sure. Let us know if you come up with a solution!</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Don’t know if is something that can be achieved by overmind’s <code>namespaced</code> , for example, I don’t actually know what that function does <img src="../../../images/emoji/apple/expressionless.png%3Fv=6" title=":expressionless:" class="emoji" alt=":expressionless:"></p>
+</blockquote>
+</aside>
+<p>Each Frontity namespace will end up in an Overmind namespace, but that doesn’t help us know what settings go to what namespace:<br>
+<a href="https://overmindjs.org/api/config?view=react&amp;typescript=false#config-namespaced" class="onebox" target="_blank" rel="nofollow noopener">https://overmindjs.org/api/config?view=react&amp;typescript=false#config-namespaced</a></p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>It seems to me that the <code>url</code> value can be known in the request, and also is something that belongs more to <code>build</code> maybe? I see <code>build</code> like <code>derived</code> state, so if we can get these values from somewhere else, maybe we should avoid to define them in <code>settings</code> .</p>
+</blockquote>
+</aside>
+<p>Where would derive the URL from?</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I’m worried here about mixing content-related settings with Frontity settings. I think we should try to have a separation of concerns. Not sure if this makes sense, though.</p>
+</blockquote>
+</aside>
+<p>I think one file/place for all the settings of a site is better than two, so my vote goes for keeping the general settings in the <code>frontity.settings.js</code> file. It seems too complex:</p>
+<pre><code class="lang-auto">// frontity.settings.js
+{
+  name: "my-site",
+  settings: {
+    "my-theme": {
+    ...
+    },
+    "wp-source": {
+    ...
+    }
+  }
+}
+// frontity.general.settings.js
+{
+  name: "my-site",
+  settings: {
+    url: "https://www.my-site.com",
+    language: "en",
+    timezone: "+2"
+  }
+}
+</code></pre>
+<p>The configuration of the server itself (webpack, babel…) already goes to the <code>frontity.config.js</code> file.</p>
+<aside class="quote group-development-team" data-post="8" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I thought that maybe the dev would like to change the <code>user-agent</code> match that determines what bundle to send, but the best option should be used whenever possible.</p>
+</blockquote>
+</aside>
+<p>Oh, both esModules and es5 are always included in the HTML because it’s the browser the one who chooses the right one <img src="../../../images/emoji/apple/slight_smile.png%3Fv=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"><br>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <a href="https://jakearchibald.com/2017/es-modules-in-browsers/#nomodule-for-backwards-compatibility" target="_blank" rel="nofollow noopener">jakearchibald.com</a>
+  </header>
+  <article class="onebox-body">
+    <img src="../../../uploads/default/original/1X/d4b1f0c19c8eb9e95e64c4caff9071d2b217e5a9.png" class="thumbnail onebox-avatar" width="500" height="500">
+
+<h3><a href="https://jakearchibald.com/2017/es-modules-in-browsers/#nomodule-for-backwards-compatibility" target="_blank" rel="nofollow noopener">ECMAScript modules in browsers</a></h3>
+
+<p>ES modules are landing in browsers! Here are the HTML-specific differences you need to be aware of.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+</p>
+<aside class="quote group-development-team" data-post="9" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I didn’t know that different sites could use different packages. That way the bundle will be bigger than neccessary, right?</p>
+</blockquote>
+</aside>
+<p>Yes, that problem is explained here in detail: <a href="/t/how-to-resolve-dynamic-imports-in-webpack/59" class="inline-onebox">How to resolve dynamic imports in Webpack</a></p>
+<aside class="quote group-development-team" data-post="10" data-topic="58" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Are the settings packages some kind of <em>special</em> package? Or are they treated exactly the same than other packages. I mean, for example, in the way the package is used by Frontity.</p>
+</blockquote>
+</aside>
+<p>Yes, they are not regular Frontity packages because they are consumed by the server before the SSR starts.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-08T07:48:39Z' class='post-time'>
+                    8 March 2019 07:48
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-08T07:53:51Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>An update of the constrains:</p>
+<h3>Constrains</h3>
+<ul>
+<li>Settings can be retrieved by either the URL or the “site name”.</li>
+<li>A site configuration can contain “general settings” as well, not belonging to any package.</li>
+<li>Different modes can be defined for each site.</li>
+<li>Different modes can have different packages and/or settings configuration.</li>
+<li>There must be a way to know which settings belong to which namespace of a package.</li>
+<li>The settings must be serializable, they cannot contain code.</li>
+</ul>
+<p>I’d remove this constrain because it has nothing to do with this API:</p>
+<ul>
+<li>The developer must be able to force the use of another site using a query ?site=my-other-site.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-08T15:50:44Z' class='post-time'>
+                    8 March 2019 15:50
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T09:52:15Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, after what we talk in the meeting, I think this is the final (at least for now) API schema that we are going to use:</p>
+<pre><code class="lang-javascript">export default [
+  {
+    // The name of the settings. Only needs to be populated in case there is more than one site. Defaults `null`.
+    name: "settings-name-1",
+    // The url of the site. Defaults to `null`.
+    url: "https://site.com/",
+    // Match used against the url passed in `getSettings` to identify the needed settings.
+    match: "/https:\/\/site.com\//",
+    // Matches used against the url passed in `getSettings` to identify the render mode.
+    mode: {
+      pwa: "*", // This name should be changed. This is the default value.
+      amp: "/\/amp\/?$/", // This is the default value.
+    },
+    // Number defining the offset from UTC. Defaults to 0.
+    timezone: 2,
+    // Defaults to "en".
+    language: "en",
+    // Defaults to `null`.
+    title: "Awesome Title",
+    // Used packages and it's settings. Defaults to [].
+    packages: [
+      {
+        // Package name in `npm`. This field is mandatory.
+        name: "@frontity/theme",
+        // Allows for the dev to deactivate a package without removing its settings. Defaults to `true`.
+        active: true,
+        // Mode in which this package is used. It can be a string or a string[]. Defaults to ["pwa", "amp"].
+        modes: "amp",
+        // Namespaces used. Defaults to an array containing all the namespaces ["theme", "comments", "h2r"].
+        namespaces: "theme",
+        // Settings for this package.
+        settings: {
+          color: "#FFF",
+          // Specific mode settings that override the general package settings.
+          mode: {
+            amp: {
+              color: "#000",
+            }
+          }
+        }
+      }
+    ]
+  }
+]
+</code></pre>
+<p>[WIP] There are some things missing yet.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T09:01:29Z' class='post-time'>
+                    11 March 2019 09:01
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T09:01:29Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve been thinking that it’d be great if both <code>frontity.config.js</code> and the default settings of each package could have typings. It is only useful for <code>file-settings</code>. Other settings package will have to find a way to type their own settings if they want.</p>
+<p>This is just an idea:</p>
+<pre><code class="lang-auto">import Settings from "@frontity/types-settings" // Base typings
+import { Settings as ThemeSettings } from "my-theme"
+import { Settings as WpSourceSettings } from "@frontity/wp-source"
+
+const settings: Settings&lt;ThemeSettings, WpSourceSettings&gt; = {
+  name: "my-site",
+  url: "https://site.com",
+  packages: [
+    {
+      name: "my-theme",
+      settings: {
+        // this has typings now!
+      }
+    },
+    {
+      name: "@frontity/wp-source",
+      settings: {
+        // and this!
+      }
+    }
+  ]
+};
+
+export default settings;
+</code></pre>
+<p>And let the packages export their default settings (the same typing is used):</p>
+<pre><code class="lang-auto">type ThemeSettings = {
+  color: "white" | "black";
+  featuredImage: boolean;
+}
+
+const defaultSettings: ThemeSettings = {
+  color: "white",
+  featuredImage: false
+};
+
+const theme = {
+  root: ThemeRoot,
+  store: ThemeStore,
+  Settings: ThemeSettings, // These are the types
+  settings: defaultSettings, // These are the defaults
+};
+
+export default {
+  theme
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T09:10:31Z' class='post-time'>
+                    11 March 2019 09:10
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T09:10:31Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Two additional constrains:</p>
+<h3>Constrains</h3>
+<ul>
+<li>Settings can be retrieved by either the URL or the “site name”.</li>
+<li>A site configuration can contain “general settings” as well, not belonging to any package.</li>
+<li>Different modes can be defined for each site.</li>
+<li>Different modes can have different packages and/or settings configuration.</li>
+<li>There must be a way to know which settings belong to which namespace of a package.</li>
+<li>Settings must be serializable, they cannot contain code.</li>
+<li>Packages can be either “active” or “inactive”.</li>
+<li>Namespaces of a package can be either “active” or “inactive”.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T12:00:38Z' class='post-time'>
+                    11 March 2019 12:00
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T12:00:38Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Quick idea: what if we remove the <code>modes</code> regexp and use <code>match</code> to distinguish between them?</p>
+<pre><code class="lang-auto">export default {
+  "my-site": [
+    {
+      mode: "amp",
+      match: "https://my-site.*/amp$",
+      settings: {...},
+      packages: [ ... ]
+    },
+    {
+      mode: "html",
+      match: "https://my-site.*",
+      settings: {...},
+      packages: [ ... ]
+    }
+  ]
+}
+</code></pre>
+<p>Is it simpler or more complex?</p>
+<p>Default mode is <code>"html"</code> and default match is <code>".*"</code>:</p>
+<pre><code class="lang-auto">export default {
+  "my-site": {
+    settings: {...},
+    packages: [ ... ]
+  }
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T12:02:07Z' class='post-time'>
+                    11 March 2019 12:02
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T12:02:07Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It may be more work if most of the settings are the same but it is clearer when they are not. We also reduce from two configurations (regexp for mode, regexp for site) to one.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T13:39:44Z' class='post-time'>
+                    11 March 2019 13:39
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T13:39:44Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I don’t dislike the idea, but I’d aim for the simplest case to look like:</p>
+<pre><code class="lang-auto">export default {
+  settings: { ... }, // Optional
+  packages: [ ... ]
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T16:01:06Z' class='post-time'>
+                    11 March 2019 16:01
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T16:01:06Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="18" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I don’t dislike the idea</p>
+</blockquote>
+</aside>
+<p>And do you like it? <img src="../../../images/emoji/apple/laughing.png%3Fv=6" title=":laughing:" class="emoji" alt=":laughing:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T16:06:57Z' class='post-time'>
+                    11 March 2019 16:06
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T16:06:57Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="19" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>And do you like it? <img src="../../../images/emoji/apple/laughing.png%3Fv=6" title=":laughing:" class="emoji" alt=":laughing:"></p>
+</blockquote>
+</aside>
+<p>You know is not the same <img src="../../../images/emoji/apple/joy.png%3Fv=6" title=":joy:" class="emoji" alt=":joy:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/the-settings-api/58">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

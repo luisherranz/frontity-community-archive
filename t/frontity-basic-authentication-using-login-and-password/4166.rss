@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity basic authentication using login and password</title>
+    <link>https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166</link>
+    <description>Hey guys,
+
+I didn&#39;t find any resources how to implement basic authentication using frontity. 
+I&#39;d like to extend server functionality and use something like [koa-basic-auth](https://www.npmjs.com/package/koa-basic-auth). According to my quick research it&#39;s not possible yet.
+
+I decided to use `beforeSSR` function to solve that:
+
+```
+beforeSSR: ({ state, libraries }) =&gt; async ({ ctx }) =&gt; {
+
+        const { header } = ctx.request;
+
+        const credsFit = (authHeader) =&gt; {
+          const parts = authHeader.split(&#39; &#39;)[1].split(&#39;;&#39;)
+          const [login, lVal] = parts[0].split(&#39;=&#39;);
+          const [pw, pVal] = parts[1].split(&#39;=&#39;);
+
+          if (login === &#39;login&#39; &amp;&amp; lVal === &#39;admin&#39; &amp;&amp; pw === &#39;password&#39; &amp;&amp; pVal === &#39;p4$$w0rd&#39;) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+
+        if (!header.authorization) {
+          return;
+        }
+
+        if (header.authorization &amp;&amp; credsFit(header.authorization)) {
+          return ctx.res.send({ authorized: true });
+        } else {
+          return ctx.res.send({ authorized: false });
+        }
+      }
+```
+
+and my `protector` HOC with function :
+```
+const handleSubmit = async (e) =&gt; {
+    e.preventDefault();
+
+    const { login, pw } = creds;
+
+    if (login?.length &amp;&amp; pw?.length) {
+
+      try {
+        const res = await fetch(&#39;/&#39;, {
+          headers: {
+            &#39;Authorization&#39;: `Basic login=${login};password=${pw}`
+          }
+        })
+
+        const data = await res.json();
+
+        if (data.authorized) {
+          setAuthorized(true);
+        } else {
+          alert(&#39;wrong login and/or password&#39;)
+          setAuthorized(false);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+
+    } else {
+      alert(&#39;set login and password&#39;);
+
+    }
+  }
+```
+
+this ad-hoc solution works well if I start frontity using `frontity dev` but as soon as I build project and start serving using `frontity serve --port $PORT` I can&#39;t access `node res` object in `ctx` and use it&#39;s `send` or `json` method.
+
+I am getting: `TypeError: e.res.send is not a function`.
+
+**1. Can you help me how to secure whole site using simple login and password** - its not ready yet and I want to give access only to my client - for review purposes.
+**2. What&#39;s wrong with my solution?** Why is it working in `dev` and not if its built &amp; served.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 03 Apr 2021 14:46:16 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity basic authentication using login and password</title>
+        <dc:creator><![CDATA[novakjano33]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="7" data-topic="4166">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>o, if you’re not worried about that I would just hardcode a check directly in a top-level react component wit</p>
+</blockquote>
+</aside>
+<p>thank you for your reply! Correct I didn’t needed complete solution so I did it as you mentioned - top level component checking authorized state. Hopefully server extensibility will come soon, lookin forward to have it asap.</p>
+          <p><a href="https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166/9</link>
+        <pubDate>Sat, 03 Apr 2021 14:46:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4166-9</guid>
+        <source url="https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166.rss">Frontity basic authentication using login and password</source>
+      </item>
+      <item>
+        <title>Frontity basic authentication using login and password</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/novakjano33">@novakjano33</a> ! <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>I think that you problem is that Koa <a href="https://github.com/koajs/koa/blob/master/docs/api/response.md">does not support handling the node Response directly using <code>ctx.res.send()</code> API</a>. You might be able to access the native node response and request objects by <a href="https://koajs.com/#context">setting <code>ctx.respond = false</code>, but it’s not recommended</a>.</p>
+<p>So I wonder why does this seem to work fine in <code>dev</code> I think that it should not work in either… <img src="https://community.frontity.org/images/emoji/apple/thinking.png?v=9" title=":thinking:" class="emoji" alt=":thinking:"></p>
+<p>However, with your current approach you do not actually need to add any code in the <code>beforeSSR</code> because the “authorization” is done entirely on the client side using the <code>setAuthorized()</code> function. I deduce that <code>setAuthorized()</code> is setting a boolean in react state or in Frontity state which could then be accessed by anybody with Chrome DevTools. So, if you’re not worried about that I would just hardcode a check directly in a top-level react component without making any request to the backend. Again, this approach is not “secure” at all but perhaps you only need a little bit of obscurity and not a complete solution.</p>
+<p>If this is not sufficient then unfortunately there is not a good way to add basic authentication to Frontity at the moment until we merge <a href="https://community.frontity.org/t/server-extensibility/2810" class="inline-onebox">Server Extensibility</a> into the framework.</p>
+          <p><a href="https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166/7</link>
+        <pubDate>Mon, 15 Mar 2021 20:57:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4166-7</guid>
+        <source url="https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166.rss">Frontity basic authentication using login and password</source>
+      </item>
+      <item>
+        <title>Frontity basic authentication using login and password</title>
+        <dc:creator><![CDATA[novakjano33]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey guys,</p>
+<p>I didn’t find any resources how to implement basic authentication using frontity.<br>
+I’d like to extend server functionality and use something like <a href="https://www.npmjs.com/package/koa-basic-auth" rel="noopener nofollow ugc">koa-basic-auth</a>. According to my quick research it’s not possible yet.</p>
+<p>I decided to use <code>beforeSSR</code> function to solve that:</p>
+<pre><code class="lang-javascript">beforeSSR: ({ state, libraries }) =&gt; async ({ ctx }) =&gt; {
+
+        const { header } = ctx.request;
+
+        const credsFit = (authHeader) =&gt; {
+          const parts = authHeader.split(' ')[1].split(';')
+          const [login, lVal] = parts[0].split('=');
+          const [pw, pVal] = parts[1].split('=');
+
+          if (login === 'login' &amp;&amp; lVal === 'admin' &amp;&amp; pw === 'password' &amp;&amp; pVal === 'p4$$w0rd') {
+            return true;
+          } else {
+            return false;
+          }
+        }
+
+        if (!header.authorization) {
+          return;
+        }
+
+        if (header.authorization &amp;&amp; credsFit(header.authorization)) {
+          return ctx.res.send({ authorized: true });
+        } else {
+          return ctx.res.send({ authorized: false });
+        }
+      }
+</code></pre>
+<p>and my <code>protector</code> HOC with function :</p>
+<pre><code class="lang-javascript">const handleSubmit = async (e) =&gt; {
+    e.preventDefault();
+
+    const { login, pw } = creds;
+
+    if (login?.length &amp;&amp; pw?.length) {
+
+      try {
+        const res = await fetch('/', {
+          headers: {
+            'Authorization': `Basic login=${login};password=${pw}`
+          }
+        })
+
+        const data = await res.json();
+
+        if (data.authorized) {
+          setAuthorized(true);
+        } else {
+          alert('wrong login and/or password')
+          setAuthorized(false);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+
+    } else {
+      alert('set login and password');
+
+    }
+  }
+</code></pre>
+<p>this ad-hoc solution works well if I start frontity using <code>frontity dev</code> but as soon as I build project and start serving using <code>frontity serve --port $PORT</code> I can’t access <code>node res</code> object in <code>ctx</code> and use it’s <code>send</code> or <code>json</code> method.</p>
+<p>I am getting: <code>TypeError: e.res.send is not a function</code>.</p>
+<p><strong>1. Can you help me how to secure whole site using simple login and password</strong> - its not ready yet and I want to give access only to my client - for review purposes.<br>
+<strong>2. What’s wrong with my solution?</strong> Why is it working in <code>dev</code> and not if its built &amp; served.</p>
+          <p><a href="https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166/1</link>
+        <pubDate>Wed, 03 Mar 2021 12:17:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4166-1</guid>
+        <source url="https://community.frontity.org/t/frontity-basic-authentication-using-login-and-password/4166.rss">Frontity basic authentication using login and password</source>
+      </item>
+  </channel>
+</rss>

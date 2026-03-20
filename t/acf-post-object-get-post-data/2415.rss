@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>ACF Post Object: Get post data</title>
+    <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415</link>
+    <description>I&#39;m having trouble understanding how to get data from posts, configured in an ACF Post Object field. It&#39;s possible to configure the Post Object field to return it&#39;s value as post IDs or Post Objects. But the Post Object doesn&#39;t contain all needed information, like the featured image.
+
+I want to build a slider for my front-page, the slides should contain the link to the configured post and show the title and featured image. The title is passed with ACF, the link I&#39;m able to generate using `post_name`, but the featured-image isn&#39;t available. 
+
+So I need to fetch the whole post, I guess. But I can&#39;t figure out how to retrieve more data, when I&#39;m working in a component.
+
+This is the wp-json endpoint:
+https://frontity.noesteprojecten.nl/wp-json/acf/v3/options/options
+
+This is my slider component
+
+```
+import React from &quot;react&quot;;
+import { connect, styled } from &quot;frontity&quot;;
+import SwipeableViews from &#39;react-swipeable-views&#39;;
+import { autoPlay, bindKeyboard } from &#39;react-swipeable-views-utils&#39;;
+
+const AutoPlaySwipeableViews = bindKeyboard(autoPlay(SwipeableViews));
+
+const styles = {
+   ...
+};
+
+const Slider = ({ state, actions }) =&gt; {
+   const options = state.source.get(&quot;acf/options&quot;);
+   const sliderItems = options.acf.home_slider_items;
+
+   let slides = [];
+   for (let i = 0; i &lt; sliderItems.length; i++) {
+      const postLinkPrefix = (sliderItems[i].post_type != &#39;post&#39;) ? &#39;/&#39; + sliderItems[i].post_type : &#39;&#39;;
+
+      slides.push(&lt;Slide href={postLinkPrefix + &quot;/&quot; + sliderItems[i].post_name} style={Object.assign({}, styles.slide, styles[&#39;slide&#39; + i % 3])}&gt;slide n°{i}: {sliderItems[i].post_title}&lt;/Slide&gt;);
+   }
+
+   return (
+      &lt;AutoPlaySwipeableViews enableMouseEvents&gt;
+         {slides}
+      &lt;/AutoPlaySwipeableViews&gt;
+   );
+}
+
+export default connect(Slider);
+```
+
+Here&#39;s a link to my repository: https://bitbucket.org/noesteijver/frontity/src/master/</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 25 Mar 2021 18:52:56 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[jeffceriello]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi all,</p>
+<p>I’ve managed to resolve my own issue. It was easier than I thought…! In case anyone else has the same problem I post the answer below.</p>
+<p>I’ve put the postTypes arguments in the wrong place, they should go under “source” and not under “state”, like so</p>
+<pre><code>"state": {
+        "source": {
+          "url": "http://wwt.local",
+          "homepage": "/home",
+          "postTypes": [
+            {
+              "type": "case_studies",
+              "endpoint": "case_studies",
+              "archive": "/case_studies"
+            }
+          ]
+        },
+      }
+</code></pre>
+<p>and I can retrieve the individual posts like so</p>
+<pre><code>&lt;CaseStudiesWrapper&gt;
+    {caseStudies &amp;&amp; caseStudies.map((caseStudy, index) =&gt; {
+        const caseStudyType = caseStudy.post_type;
+        const caseStudyData = state.source[caseStudyType][caseStudy.ID];
+        return (
+            &lt;CaseStudy key={index}&gt;&lt;/CaseStudy&gt;
+        );
+    })}
+&lt;/CaseStudiesWrapper&gt;</code></pre>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/18</link>
+        <pubDate>Thu, 25 Mar 2021 18:52:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-18</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[jeffceriello]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi guys,</p>
+<p>I’m also trying to get data from an ACF Post Object field of a Custom Post Type.</p>
+<p>I have this Post Object field on the Homepage. This field lets display two posts from a custom post type.</p>
+<p>I am not sure how to retrieve the data from these two posts. The custom post type is called “case_studies”.</p>
+<p>I have added the postTypes reference in frontity.settings.js, like so</p>
+<pre><code>"packages": [
+    {
+      "name": "wwt-theme",
+    },
+    {
+      "name": "@frontity/wp-source",
+      "state": {
+        "source": {
+          "url": "http://wwt.local",
+          "homepage": "/home"
+        },
+        "postTypes": [
+          {
+            "type": "case_studies",
+            "endpoint": "case_studies",
+            "archive": "case_studies"
+          }
+        ]
+      }
+    },
+</code></pre>
+<p>Now, in my CaseStudies component I can console.log the Post Object field, which returns this array</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/6/6d52d55d4ef5c156df45a295b800fb4939f53408.png" alt="Screenshot 2021-03-25 at 19.17.21" data-base62-sha1="fB7vSlrFhr8MKrsiTLT2d67sWcE" width="427" height="420"></p>
+<p>I need to get the data from the post with post_type: “case_studies” and id of 89 but I can’t figure out how to do that.</p>
+<p>This is what I’ve tried so far but with no success.</p>
+<pre><code>&lt;CaseStudiesWrapper&gt;
+                {caseStudies &amp;&amp; caseStudies.map((caseStudy, index) =&gt; {
+                    // const caseStudyType = caseStudy.post_type;
+                    const caseStudyID = `/case_studies/${caseStudy.ID}`;
+                    const caseStudyData = state.source.get(caseStudyID);
+
+                    useEffect(() =&gt; {
+                        actions.source.fetch(caseStudyID);
+                    }, []);
+
+                    return (
+                        &lt;CaseStudy key={index}&gt;&lt;/CaseStudy&gt;
+                    );
+                })}
+            &lt;/CaseStudiesWrapper&gt;
+</code></pre>
+<p>Am I missing something and/or what am I doing wrong? Many thanks!</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/17</link>
+        <pubDate>Thu, 25 Mar 2021 18:20:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-17</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a>, glad you managed to get this working in the end. <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/15</link>
+        <pubDate>Fri, 24 Jul 2020 11:23:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-15</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a>,</p>
+<p>I looked at the documentation of <code>fetch</code> before and tried to use it, but I couldn’t get it working the way I needed to.</p>
+<p>After reading your post I tried one more time and low and behold: it worked! The posts are now being fetched and the images are being shown. I’m not sure what I’m doing different then before, but of course there must be a difference.</p>
+<p>Thanks for encouraging me to try it once more!</p>
+<p>For future reference for others, here’s the code for my slider:</p>
+<pre><code class="lang-javascript">const Slider = ({ state, actions }) =&gt; {
+   const options = state.source.get("acf/options");
+   const sliderItems = options.acf.home_slider_items;
+
+   let slides = [];
+   for (let i = 0; i &lt; sliderItems.length; i++) {
+      const postLinkPrefix = (sliderItems[i].post_type != 'post') ? '/' + sliderItems[i].post_type : '';
+      const postLink = postLinkPrefix + "/" + sliderItems[i].post_name;
+
+      useEffect(() =&gt; {
+         actions.source.fetch(postLink);
+      }, []);
+
+      const dataPost = state.source.get(postLink);
+
+      const featuredImageID = (dataPost.isReady) ? state.source[sliderItems[i].post_type][sliderItems[i].ID].featured_media : null;
+
+      slides.push(&lt;Slide href={postLinkPrefix + "/" + sliderItems[i].post_name} style={Object.assign({}, styles.slide, styles['slide' + i % 3])}&gt;slide n°{i}: {sliderItems[i].post_title}&lt;FeaturedMedia id={featuredImageID} /&gt;&lt;/Slide&gt;)
+   }
+
+   return (
+      &lt;AutoPlaySwipeableViews enableMouseEvents&gt;
+         {slides}
+      &lt;/AutoPlaySwipeableViews&gt;
+   );
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/14</link>
+        <pubDate>Fri, 24 Jul 2020 09:59:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-14</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Not sure if I understood the case 100%, but if you have the ids or the slugs of the posts you want, wouldn’t be better to use something like <a href="https://docs.frontity.org/api-reference-1/wordpress-source#actions-source-fetch">fetch</a> to populate the <code>state</code> with all the info about each post? This way, you would have any info like the title or the featured image in <code>state.source.post[id]</code>.</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/13</link>
+        <pubDate>Fri, 24 Jul 2020 07:52:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-13</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>Sorry for the failure to communicate, I’ve cloned your repo locally and am working on trying to find a solution. I’ll let you know when I have anything to share.</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/12</link>
+        <pubDate>Thu, 23 Jul 2020 14:11:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-12</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a></p>
+<p>I’m very sorry for being so rude, but do you have any more ideas about what’s going on here and how to solve it?</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/11</link>
+        <pubDate>Thu, 23 Jul 2020 13:51:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-11</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>,</p>
+<p>This is my beforeSSR, the fetch that you mentioned was already in it:</p>
+<pre><code class="lang-javascript">...
+beforeSSR: async ({ state, actions }) =&gt; {
+        // getNameAndDescription,
+        await Promise.all(
+          [
+            actions.source.fetch("acf/options"),
+            actions.source.fetch("acf/identity"),
+            actions.source.fetch("getWPConfig"),
+
+            state.theme.templates.map((slug) =&gt;
+              actions.source.fetch(`/wp_template_part/${slug}`)
+            ),
+          ]
+        );
+      },
+...
+</code></pre>
+<p>The ACF options are not the problem, otherwise the slides would not be visible. It’s the attachments that aren’t available to Frontity at the moment of visiting the front-page.</p>
+<p>When visiting the blogs page, apparently they are being fetched, but not when visiting the front page. The slider will only show images that are being loaded on the blogs page, so if the image is not in one of the articles on the blogs page, they won’t show up in the front-page slider either.</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/9</link>
+        <pubDate>Tue, 21 Jul 2020 10:32:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-9</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>You may need to prefetch the items using a beforeSSR action, so you could try adding something like this to your theme’s <code>index.js</code> file:</p>
+<pre><code class="lang-javascript">beforeSSR: async ({actions}) =&gt; {
+   await actions.source.fetch("/acf/options");
+}
+</code></pre>
+<p><strong><a href="https://docs.frontity.org/learning-frontity/actions#beforessr-server-only-__">Here</a></strong> is the documentation for <code>beforeSSR</code>.</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/8</link>
+        <pubDate>Tue, 21 Jul 2020 10:08:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-8</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I am bumping my way through this, and got a bit further now.</p>
+<p>I’ve added this filter to my WordPress installation:</p>
+<pre><code class="lang-javascript">function get_featured_image_of_post_object( $item, $request ) {
+	if ( isset( $item['acf']['home_slider_items'] ) ) {
+		foreach ( $item['acf']['home_slider_items'] as $key =&gt; $post_object ) {
+
+      $post_object_id = $post_object-&gt;ID;
+      $featured = wp_get_attachment_image_src( get_post_thumbnail_id( $post_object_id ), 'full' );
+      $featured_image_id = get_post_thumbnail_id($post_object_id);
+
+			if ( $featured_image_id ) {
+				$item['acf']['home_slider_items'][ $key ]-&gt;featured_media = $featured_image_id;
+			}
+		}
+	}
+
+	return $item;
+}
+add_filter('acf/rest_api/option/get_fields', 'get_featured_image_of_post_object', 10, 2);
+</code></pre>
+<p>This results in having the ID of the featured-image in the REST output. And I can use this in my slider.js file. However, the featured-image is not being rendered on the front-page. When I visit ‘Blogs’ and return to the front-page, it is being rendered. So it looks like it isn’t fetched when visiting the front-page.</p>
+<p>To replicate:</p>
+<ol>
+<li>Visit: <a href="https://frontity-test-98427dzn9.vercel.app/" rel="nofollow noopener">https://frontity-test-98427dzn9.vercel.app/</a>
+</li>
+<li>Then click ‘Blogs’ in the nav bar;</li>
+<li>Return to ‘Home’, now the slider contains images.</li>
+</ol>
+<p>I’ve updated my repository with the current code (<a href="https://bitbucket.org/noesteijver/frontity/src/master/" rel="nofollow noopener">https://bitbucket.org/noesteijver/frontity/src/master/</a>).</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/7</link>
+        <pubDate>Tue, 21 Jul 2020 09:42:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-7</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a>, for this specific case I guess it would be sufficient to just add the featured-image to the output of ACF. Thanks for the link. I think I can solve this problem that way.</p>
+<p>But still, I am wondering how to retrieve information of a specific post/term in a component. Because there are so much more fragments of data which you’d want to use, than that ACF is handing over by default. I don’t think it should be that way that you’d need to manually add this data to ACF, while the data is available if you’d be able to retrieve the whole post.</p>
+<p>Think about data like:</p>
+<ul>
+<li>featured image</li>
+<li>excerpt (ACF only outputs it if you’ve manually set it)</li>
+<li>rendered content (ACF only outputs unrendered post-content)</li>
+<li>post template</li>
+<li>attached ACF fields</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/6</link>
+        <pubDate>Mon, 20 Jul 2020 17:22:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-6</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a></p>
+<p>There’s a couple of approaches we could take here. The first is to try adding featured images to the REST API. I found this code snippet that you could add to <code>functions.php</code> or in a custom plugin: <a href="https://fancysquares.blog/wordpress-rest-api-add-featured-image-to-acf-relationship-post-object">https://fancysquares.blog/wordpress-rest-api-add-featured-image-to-acf-relationship-post-object</a></p>
+<p>The other way would be to get the ID of the post that you want and fetch it separately. Let me know how you get on with the first solution and if that fails then we can look at doing this.</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/4</link>
+        <pubDate>Mon, 20 Jul 2020 16:19:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-4</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Anyone? <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+<p>Is any information missing?</p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/2</link>
+        <pubDate>Mon, 20 Jul 2020 15:28:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-2</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+      <item>
+        <title>ACF Post Object: Get post data</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m having trouble understanding how to get data from posts, configured in an ACF Post Object field. It’s possible to configure the Post Object field to return it’s value as post IDs or Post Objects. But the Post Object doesn’t contain all needed information, like the featured image.</p>
+<p>I want to build a slider for my front-page, the slides should contain the link to the configured post and show the title and featured image. The title is passed with ACF, the link I’m able to generate using <code>post_name</code>, but the featured-image isn’t available.</p>
+<p>So I need to fetch the whole post, I guess. But I can’t figure out how to retrieve more data, when I’m working in a component.</p>
+<p>This is the wp-json endpoint:<br>
+<a href="https://frontity.noesteprojecten.nl/wp-json/acf/v3/options/options" class="onebox" target="_blank" rel="nofollow noopener">https://frontity.noesteprojecten.nl/wp-json/acf/v3/options/options</a></p>
+<p>This is my slider component</p>
+<pre><code class="lang-javascript">import React from "react";
+import { connect, styled } from "frontity";
+import SwipeableViews from 'react-swipeable-views';
+import { autoPlay, bindKeyboard } from 'react-swipeable-views-utils';
+
+const AutoPlaySwipeableViews = bindKeyboard(autoPlay(SwipeableViews));
+
+const styles = {
+   ...
+};
+
+const Slider = ({ state, actions }) =&gt; {
+   const options = state.source.get("acf/options");
+   const sliderItems = options.acf.home_slider_items;
+
+   let slides = [];
+   for (let i = 0; i &lt; sliderItems.length; i++) {
+      const postLinkPrefix = (sliderItems[i].post_type != 'post') ? '/' + sliderItems[i].post_type : '';
+
+      slides.push(&lt;Slide href={postLinkPrefix + "/" + sliderItems[i].post_name} style={Object.assign({}, styles.slide, styles['slide' + i % 3])}&gt;slide n°{i}: {sliderItems[i].post_title}&lt;/Slide&gt;);
+   }
+
+   return (
+      &lt;AutoPlaySwipeableViews enableMouseEvents&gt;
+         {slides}
+      &lt;/AutoPlaySwipeableViews&gt;
+   );
+}
+
+export default connect(Slider);
+</code></pre>
+<p>Here’s a link to my repository: <a href="https://bitbucket.org/noesteijver/frontity/src/master/" rel="nofollow noopener">https://bitbucket.org/noesteijver/frontity/src/master/</a></p>
+          <p><a href="https://community.frontity.org/t/acf-post-object-get-post-data/2415/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/acf-post-object-get-post-data/2415/1</link>
+        <pubDate>Thu, 16 Jul 2020 18:32:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2415-1</guid>
+        <source url="https://community.frontity.org/t/acf-post-object-get-post-data/2415.rss">ACF Post Object: Get post data</source>
+      </item>
+  </channel>
+</rss>

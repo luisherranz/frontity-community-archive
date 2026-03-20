@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Render Component Based on Media Query</title>
+    <link>https://community.frontity.org/t/render-component-based-on-media-query/4299</link>
+    <description>Hi all,
+I&#39;m trying to do what I feel like should be simple. I&#39;ve looked at a few threads but nothing seems to work nicely. I have a
+
+`&lt;DesktopNav/&gt; and a &lt;MobileNav/&gt; component`
+
+I want to render &lt;MobileNav/&gt; when screen size is &lt; 500px and render &lt;DesktopNav/&gt; when screen size is greater than say 768px. The numbers are kind of irrelevant. I was using the useEffect hook and window.matchMedia to do this.
+
+Here is the code for my mobile-nav component:
+
+    import React, { useEffect } from &quot;react&quot;;
+    import { css, connect, useConnect, styled } from &quot;frontity&quot;;
+    import { getDisplayType } from &quot;./../../../util/util&quot;;
+
+    const MobileNav = (props) =&gt; {
+
+    	const { state, actions } = useConnect();
+
+    	useEffect(() =&gt; {
+    		const windowResized = () =&gt; {
+    			if(props.type === getDisplayType()) {
+    				actions.theme.setShowMobile(true);
+    			} else {
+    				actions.theme.setShowMobile(false);
+    			}
+    		};
+
+    		document.defaultView.addEventListener(&#39;resize&#39;, windowResized);
+    		windowResized();
+
+    		return () =&gt; {
+    			document.removeEventListener(&#39;click&#39;, windowResized);
+    		};
+    	});
+
+    	return (
+    		&lt;Header visible={state.theme.showMobile}&gt;
+    		Mobile Nav
+    		&lt;/Header&gt;
+    	);
+    };
+
+    export default connect(MobileNav,{ injectProps: false });
+
+    const Header = styled.header`
+        display: ${props =&gt; props.visible === true ? &#39;flex&#39; : &#39;none&#39;};
+        align-items: center;
+        justify-content: space-between;
+        height: 60px !important;
+        width: auto;
+        position: fixed;
+        top: 0px;
+        right: 0;
+        left: 0;
+        z-index: 99999;
+        background-color: #FFFFFF;
+        padding: 0 15px;
+    `;
+
+I have similar code in my DesktopNav and then in my index.js:
+
+    state: {
+        /**
+         * State is where the packages store their default settings and other
+         * relevant state. It is scoped to the `theme` namespace.
+         */
+        theme: {
+          autoPrefetch: &quot;in-view&quot;,
+          menu: [],
+          showMobile: false,
+          showDesktop: false,
+          isMobileMenuOpen: false,
+          featured: {
+            showOnList: false,
+            showOnPost: false,
+          },
+        },
+      },
+
+      /**
+       * Actions are functions that modify the state or deal with other parts of
+       * Frontity like libraries.
+       */
+      actions: {
+        theme: {
+          // special Frontity action fired to prepare the state for the React render made in the server
+          beforeSSR: async ({actions}) =&gt; {
+            // All received data are populated in state.source and are accessible using the methods like the handler in libraries.source
+            // await actions.source.fetch(&#39;http://ripple-web.lndo.site/wp-json/menus/v1/menus/footer-about-us&#39;) // this invokes our footerMenuHandler
+            await actions.source.fetch(&#39;menus/footer-menu&#39;) // /menus/v1/menus/&lt;slug&gt; data for a specific menu location.
+            await actions.source.fetch(&#39;all-categories&#39;)
+          },
+          setShowMobile: ({ state }) =&gt; value =&gt; {
+            state.theme.showMobile = value;
+          },
+          setShowDesktop: ({ state }) =&gt; value =&gt; {
+            state.theme.showDesktop = value;
+          },
+          toggleMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+          },
+          closeMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = false;
+          },
+        },
+      },
+
+Basically I&#39;m updating some state variables to show either menu, you can see that I&#39;m altering the css display property based on the state value which I&#39;m passing as a prop. This works but each time I load the page / refresh the browser the component flickers from invisible to visible. 
+
+I guess this leads to the bigger question of is there a way to do this on the server side? What I&#39;m trying to do with useEffect won&#39;t work on the server because I can&#39;t access the window which is needed by my calls to matchMedia.
+
+I feel like I&#39;m spending lots of time on what should be simple things with Frontity. Anyone else have any thoughts on this?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 17 Jun 2021 11:30:59 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/render-component-based-on-media-query/4299.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Render Component Based on Media Query</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>In my opinion the more performant way to do anything is always without JS, but in case you necessarily need to stop rendering a component, or run some JS depending on the device, then you should use the <code>matchMedia</code> API.</p>
+<p>Glad you found a solution that worked for you <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/render-component-based-on-media-query/4299/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-component-based-on-media-query/4299/8</link>
+        <pubDate>Wed, 24 Mar 2021 23:47:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4299-8</guid>
+        <source url="https://community.frontity.org/t/render-component-based-on-media-query/4299.rss">Render Component Based on Media Query</source>
+      </item>
+      <item>
+        <title>Render Component Based on Media Query</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>,<br>
+Thank you for responding also. I ended up doing exactly what you suggested. Something like this:</p>
+<pre><code>const Nav = styled(animated.nav)`
+  @media (max-width: 768px) {
+	display: block;
+}
+@media (min-width: 769px) {
+	display: none;
+}
+  position: fixed;
+top: 60px;
+right: 0;
+left: 0;
+z-index: 99999;
+overflow-y: auto;
+</code></pre>
+<p>`;</p>
+<p>I knew that I could use this method all along but was wondering if there is a better more performant way.</p>
+<p>Cheers!</p>
+          <p><a href="https://community.frontity.org/t/render-component-based-on-media-query/4299/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-component-based-on-media-query/4299/7</link>
+        <pubDate>Wed, 24 Mar 2021 23:00:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4299-7</guid>
+        <source url="https://community.frontity.org/t/render-component-based-on-media-query/4299.rss">Render Component Based on Media Query</source>
+      </item>
+      <item>
+        <title>Render Component Based on Media Query</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>,<br>
+Sorry for my slow response. I really appreciate your quick feedback. Sorry that I forgot to share the matchMedia code. Here it is for posterity:</p>
+<pre><code>export function getDisplayType() {
+const mq = window.matchMedia( "(max-width: 570px)" );
+if (mq.matches) {
+	return "mobile";
+} else {
+	return "desktop";
+}
+</code></pre>
+<p>}</p>
+<p>I think I was looking for the “correct” way to do media queries, maybe what is the best for performance. In the end I went with just media queries in my styled components - like this:</p>
+<pre><code>const Nav = styled(animated.nav)`
+  @media (max-width: 768px) {
+	display: block;
+}
+@media (min-width: 769px) {
+	display: none;
+}
+  position: fixed;
+top: 60px;
+right: 0;
+left: 0;
+z-index: 99999;
+overflow-y: auto;
+</code></pre>
+<p>`;</p>
+<p>I knew I could do this all along but again was wondering if it’s more performant or possible to render a component based on the media query. It sounds like it’s doable by getting the user-agent as you mentioned in the beforeSSR action. I may look back into doing it that way when I have some time.</p>
+<p>Thanks again for your help!</p>
+          <p><a href="https://community.frontity.org/t/render-component-based-on-media-query/4299/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-component-based-on-media-query/4299/6</link>
+        <pubDate>Wed, 24 Mar 2021 22:58:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4299-6</guid>
+        <source url="https://community.frontity.org/t/render-component-based-on-media-query/4299.rss">Render Component Based on Media Query</source>
+      </item>
+      <item>
+        <title>Render Component Based on Media Query</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/sattley">@sattley</a>,</p>
+<p>I think a simpler approach is the one used in <code>mars-theme</code> that uses media queries to display a different NavBar and Menu on mobile devices</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/menu.js" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/menu.js" target="_blank" rel="noopener">frontity/frontity/blob/dev/packages/mars-theme/src/components/menu.js</a></h4>
+<pre><code class="lang-js">import { styled, connect, Global } from "frontity";
+import { CloseIcon, HamburgerIcon } from "./menu-icon";
+import MenuModal from "./menu-modal";
+
+function MobileMenu({ state, actions }) {
+  const { isMobileMenuOpen } = state.theme;
+  return (
+    &lt;&gt;
+      &lt;MenuToggle onClick={actions.theme.toggleMobileMenu}&gt;
+        {isMobileMenuOpen ? (
+          &lt;&gt;
+            {/* Add some style to the body when menu is open,
+            to prevent body scroll */}
+            &lt;Global styles={{ body: { overflowY: "hidden" } }} /&gt;
+            &lt;CloseIcon color="white" size="20px" /&gt;
+          &lt;/&gt;
+        ) : (
+          &lt;HamburgerIcon color="white" size="24px" /&gt;
+        )}
+      &lt;/MenuToggle&gt;
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/menu.js" target="_blank" rel="noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/nav.js" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/nav.js" target="_blank" rel="noopener">frontity/frontity/blob/dev/packages/mars-theme/src/components/nav.js</a></h4>
+<pre><code class="lang-js">import { connect, styled } from "frontity";
+import Link from "./link";
+
+/**
+ * Navigation Component
+ *
+ * It renders the navigation links
+ */
+const Nav = ({ state }) =&gt; (
+  &lt;NavContainer&gt;
+    {state.theme.menu.map(([name, link]) =&gt; {
+      // Check if the link matched the current page url
+      const isCurrentPage = state.router.link === link;
+      return (
+        &lt;NavItem key={name}&gt;
+          {/* If link url is the current page, add `aria-current` for a11y */}
+          &lt;Link link={link} aria-current={isCurrentPage ? "page" : undefined}&gt;
+            {name}
+          &lt;/Link&gt;
+        &lt;/NavItem&gt;
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/nav.js" target="_blank" rel="noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Hope this helps</p>
+          <p><a href="https://community.frontity.org/t/render-component-based-on-media-query/4299/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-component-based-on-media-query/4299/4</link>
+        <pubDate>Wed, 24 Mar 2021 07:19:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4299-4</guid>
+        <source url="https://community.frontity.org/t/render-component-based-on-media-query/4299.rss">Render Component Based on Media Query</source>
+      </item>
+      <item>
+        <title>Render Component Based on Media Query</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi! I think that in order to know better what might be causing the issue you could share the code where you are using <code>window.matchMedia</code>.</p>
+<p>Regarding the device detection on SSR, after a quick search, apparently the way to achieve this is to analyse the <code>use-agent</code> header of the request. To do this with frontity you can use the <a href="https://docs.frontity.org/learning-frontity/actions#beforessr-server-only-__"><code>beforeSSR</code> action</a> like in the example:</p>
+<pre><code class="lang-javascript">{
+  actions: {
+    beforeSSR: ({ state }) =&gt; async ({ ctx }) =&gt; {
+      const userAgent = ctx.header["user-agent"];
+
+      if (userAgent.match(/something/) {
+        // update the needed state.
+      }
+    },
+  }
+}
+</code></pre>
+<p>Hope this is of help <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/render-component-based-on-media-query/4299/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-component-based-on-media-query/4299/2</link>
+        <pubDate>Tue, 23 Mar 2021 05:56:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4299-2</guid>
+        <source url="https://community.frontity.org/t/render-component-based-on-media-query/4299.rss">Render Component Based on Media Query</source>
+      </item>
+      <item>
+        <title>Render Component Based on Media Query</title>
+        <dc:creator><![CDATA[sattley]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi all,<br>
+I’m trying to do what I feel like should be simple. I’ve looked at a few threads but nothing seems to work nicely. I have a</p>
+<p><code>&lt;DesktopNav/&gt; and a &lt;MobileNav/&gt; component</code></p>
+<p>I want to render  when screen size is &lt; 500px and render  when screen size is greater than say 768px. The numbers are kind of irrelevant. I was using the useEffect hook and window.matchMedia to do this.</p>
+<p>Here is the code for my mobile-nav component:</p>
+<pre><code>import React, { useEffect } from "react";
+import { css, connect, useConnect, styled } from "frontity";
+import { getDisplayType } from "./../../../util/util";
+
+const MobileNav = (props) =&gt; {
+
+	const { state, actions } = useConnect();
+
+	useEffect(() =&gt; {
+		const windowResized = () =&gt; {
+			if(props.type === getDisplayType()) {
+				actions.theme.setShowMobile(true);
+			} else {
+				actions.theme.setShowMobile(false);
+			}
+		};
+
+		document.defaultView.addEventListener('resize', windowResized);
+		windowResized();
+
+		return () =&gt; {
+			document.removeEventListener('click', windowResized);
+		};
+	});
+
+	return (
+		&lt;Header visible={state.theme.showMobile}&gt;
+		Mobile Nav
+		&lt;/Header&gt;
+	);
+};
+
+export default connect(MobileNav,{ injectProps: false });
+
+const Header = styled.header`
+    display: ${props =&gt; props.visible === true ? 'flex' : 'none'};
+    align-items: center;
+    justify-content: space-between;
+    height: 60px !important;
+    width: auto;
+    position: fixed;
+    top: 0px;
+    right: 0;
+    left: 0;
+    z-index: 99999;
+    background-color: #FFFFFF;
+    padding: 0 15px;
+`;
+</code></pre>
+<p>I have similar code in my DesktopNav and then in my index.js:</p>
+<pre><code>state: {
+    /**
+     * State is where the packages store their default settings and other
+     * relevant state. It is scoped to the `theme` namespace.
+     */
+    theme: {
+      autoPrefetch: "in-view",
+      menu: [],
+      showMobile: false,
+      showDesktop: false,
+      isMobileMenuOpen: false,
+      featured: {
+        showOnList: false,
+        showOnPost: false,
+      },
+    },
+  },
+
+  /**
+   * Actions are functions that modify the state or deal with other parts of
+   * Frontity like libraries.
+   */
+  actions: {
+    theme: {
+      // special Frontity action fired to prepare the state for the React render made in the server
+      beforeSSR: async ({actions}) =&gt; {
+        // All received data are populated in state.source and are accessible using the methods like the handler in libraries.source
+        // await actions.source.fetch('http://ripple-web.lndo.site/wp-json/menus/v1/menus/footer-about-us') // this invokes our footerMenuHandler
+        await actions.source.fetch('menus/footer-menu') // /menus/v1/menus/&lt;slug&gt; data for a specific menu location.
+        await actions.source.fetch('all-categories')
+      },
+      setShowMobile: ({ state }) =&gt; value =&gt; {
+        state.theme.showMobile = value;
+      },
+      setShowDesktop: ({ state }) =&gt; value =&gt; {
+        state.theme.showDesktop = value;
+      },
+      toggleMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+      },
+      closeMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = false;
+      },
+    },
+  },
+</code></pre>
+<p>Basically I’m updating some state variables to show either menu, you can see that I’m altering the css display property based on the state value which I’m passing as a prop. This works but each time I load the page / refresh the browser the component flickers from invisible to visible.</p>
+<p>I guess this leads to the bigger question of is there a way to do this on the server side? What I’m trying to do with useEffect won’t work on the server because I can’t access the window which is needed by my calls to matchMedia.</p>
+<p>I feel like I’m spending lots of time on what should be simple things with Frontity. Anyone else have any thoughts on this?</p>
+          <p><a href="https://community.frontity.org/t/render-component-based-on-media-query/4299/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/render-component-based-on-media-query/4299/1</link>
+        <pubDate>Mon, 22 Mar 2021 23:19:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4299-1</guid>
+        <source url="https://community.frontity.org/t/render-component-based-on-media-query/4299.rss">Render Component Based on Media Query</source>
+      </item>
+  </channel>
+</rss>

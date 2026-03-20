@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Best practices on caching Frontity</title>
+    <link>https://community.frontity.org/t/best-practices-on-caching-frontity/5138</link>
+    <description>Here&#39;s a question for the Frontity/React experts and/or DevOps in the community:
+
+**What are the best practices for caching your Frontity website?**
+
+
+As a PHP and WordPress developer I&#39;m well aware of proper caching, both on the server and client, and I know how to set it up. And one of my favorite server stacks is:
+- Nginx 
+- Varnish 
+- Apache 
+- PHP-FPM 
+- Opcache
+- Memcached
+- Redis
+
+And in combination with browser cache (setting cache headers), a CDN (either through Nginx or externally) and external tools like Cloudflare the client will have a lightning fast website.
+
+However Frontity works completely different than WordPress or PHP, and since a lot of logic is handled on the client it&#39;s not possible to handle the cache on the server (other than the REST requests to WordPress). And since none of tools above (other than Nginx) are suitable for caching static files (like the Javascripts which Frontity/React generates) I am wondering if their are other methods available to increase the speed of Frontity projects for the visitors. Not to mention that Frontity itself does not have any internal caching or packages which implement it (yet?).
+
+I can imagine that for example implementing Redis into Frontity to cache the fetch results could be done, but I&#39;m sure there are other, less technical, solutions.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 17 Aug 2021 18:19:57 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/best-practices-on-caching-frontity/5138.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Best practices on caching Frontity</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> for the link.</p>
+<p>I did read it before but unfortunately it only talks about client-side caching (cache headers and CDN), and of course caching WordPress.</p>
+<p>However Frontity uses SSR, meaning the server is handling a lot of logic before sending it to the client. And this is the part which I’m wondering about.<br>
+So Memcache(d) or Redis would be viable solution to speed this, or a more simpler memory cache when none available.</p>
+<p>In short; when a request comes in it will reach <code>beforeSSR</code>, check cache, and if it hits go directly to <code>afterSSR</code> without rendering.<br>
+See: <a href="https://docs.frontity.org/learning-frontity/actions#frontity-lifecycle-initialization-actions" class="inline-onebox" rel="noopener nofollow ugc">6. Actions - Frontity Docs</a></p>
+          <p><a href="https://community.frontity.org/t/best-practices-on-caching-frontity/5138/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/best-practices-on-caching-frontity/5138/3</link>
+        <pubDate>Tue, 17 Aug 2021 18:19:57 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5138-3</guid>
+        <source url="https://community.frontity.org/t/best-practices-on-caching-frontity/5138.rss">Best practices on caching Frontity</source>
+      </item>
+      <item>
+        <title>Best practices on caching Frontity</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a></p>
+<p>There’s this documentation section that tries to answer that question (Best practices on caching Frontity)</p>
+<aside class="onebox allowlistedgeneric" data-onebox-src="https://docs.frontity.org/performance/caching">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d.png" class="site-icon" width="256" height="256">
+
+      <a href="https://docs.frontity.org/performance/caching" target="_blank" rel="noopener">docs.frontity.org</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://community.frontity.org/uploads/default/optimized/2X/a/a7c8a726a4e591b1d91bad775fbcab2f44c920c6_2_690x362.png" class="thumbnail" width="690" height="362" srcset="https://community.frontity.org/uploads/default/optimized/2X/a/a7c8a726a4e591b1d91bad775fbcab2f44c920c6_2_690x362.png, https://community.frontity.org/uploads/default/optimized/2X/a/a7c8a726a4e591b1d91bad775fbcab2f44c920c6_2_1035x543.png 1.5x, https://community.frontity.org/uploads/default/original/2X/a/a7c8a726a4e591b1d91bad775fbcab2f44c920c6.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/a/a7c8a726a4e591b1d91bad775fbcab2f44c920c6_2_10x10.png"></div>
+
+<h3><a href="https://docs.frontity.org/performance/caching" target="_blank" rel="noopener">Caching</a></h3>
+
+
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>Also, depending on the Frontity mode used, the caching strategy should be faced diferently:</p>
+<ul>
+<li><a href="https://docs.frontity.org/architecture/decoupled-mode#caching-in-decoupled-mode">Caching in Decoupled Mode</a></li>
+<li><a href="https://docs.frontity.org/architecture/embedded-mode#caching-in-embedded-mode">Caching in Embedded Mode</a></li>
+</ul>
+<p>Hope this helps!</p>
+          <p><a href="https://community.frontity.org/t/best-practices-on-caching-frontity/5138/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/best-practices-on-caching-frontity/5138/2</link>
+        <pubDate>Tue, 17 Aug 2021 17:05:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5138-2</guid>
+        <source url="https://community.frontity.org/t/best-practices-on-caching-frontity/5138.rss">Best practices on caching Frontity</source>
+      </item>
+      <item>
+        <title>Best practices on caching Frontity</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Here’s a question for the Frontity/React experts and/or DevOps in the community:</p>
+<p><strong>What are the best practices for caching your Frontity website?</strong></p>
+<p>As a PHP and WordPress developer I’m well aware of proper caching, both on the server and client, and I know how to set it up. And one of my favorite server stacks is:</p>
+<ul>
+<li>Nginx</li>
+<li>Varnish</li>
+<li>Apache</li>
+<li>PHP-FPM</li>
+<li>Opcache</li>
+<li>Memcached</li>
+<li>Redis</li>
+</ul>
+<p>And in combination with browser cache (setting cache headers), a CDN (either through Nginx or externally) and external tools like Cloudflare the client will have a lightning fast website.</p>
+<p>However Frontity works completely different than WordPress or PHP, and since a lot of logic is handled on the client it’s not possible to handle the cache on the server (other than the REST requests to WordPress). And since none of tools above (other than Nginx) are suitable for caching static files (like the Javascripts which Frontity/React generates) I am wondering if their are other methods available to increase the speed of Frontity projects for the visitors. Not to mention that Frontity itself does not have any internal caching or packages which implement it (yet?).</p>
+<p>I can imagine that for example implementing Redis into Frontity to cache the fetch results could be done, but I’m sure there are other, less technical, solutions.</p>
+          <p><a href="https://community.frontity.org/t/best-practices-on-caching-frontity/5138/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/best-practices-on-caching-frontity/5138/1</link>
+        <pubDate>Tue, 17 Aug 2021 16:23:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5138-1</guid>
+        <source url="https://community.frontity.org/t/best-practices-on-caching-frontity/5138.rss">Best practices on caching Frontity</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity release: A bunch of enhancements and bug fixes</title>
+    <link>https://community.frontity.org/t/frontity-release-a-bunch-of-enhancements-and-bug-fixes/4476</link>
+    <description># Enhancements
+
+* Improve the [Frontity Embedded Mode plugin](https://github.com/frontity/frontity-embedded) to make it more secure and easy to use. Moreover, we have released a **[full explanation of the Embedded Mode implementation in the Frontity docs](https://api.frontity.org/frontity-plugins/embedded-mode)**.
+  * Add UI to set Frontity Server URL. [#15](https://github.com/frontity/frontity-embedded/pull/15)
+     ![Frontity_Embedded_Mode_‹_embedded_—_WordPress|690x336, 75%](upload://ypeFmW8KLLB1R9YMssFY1u1C2OB.png)
+  * Check if user can edit post before previewing it. [#12](https://github.com/frontity/frontity-embedded/pull/12)  
+  * Restrict token capabilities. [#16](https://github.com/frontity/frontity-embedded/pull/16)
+  * Avoid using glob to load files. [#18](https://github.com/frontity/frontity-embedded/pull/18)
+  * Handle errors properly. [#17](https://github.com/frontity/frontity-embedded/pull/17)
+  * Add `frontity_embedded` query to Frontity request. [#11](https://github.com/frontity/frontity-embedded/pull/11)
+
+* Migrate `@frontity/connect` to be a thin layer on top of `react-easy-state`. This means that in the future, taking advantage of the bug fixes and other improvements from `react-easy-state` will be much easier. [#415](https://github.com/frontity/frontity/pull/415)
+* Add an `--analyze` option to the `dev` and `build` commands. The flag should be explicitly set in order to generate HTML files for bundle analysis. [#774](https://github.com/frontity/frontity/pull/774) 
+* Add an HMR flag to the Frontity state (`state.frontity.hmr`) that indicates if the code is run on an HMR refresh or not. [#783](https://github.com/frontity/frontity/pull/783)
+* Modifies the `frontity create` command so it generates a `tsconfig.json` file and adds dev dependencies to `package.json`. Feature discussion: https://community.frontity.org/t/full-typescript-support-in-frontity-create/880. Thanks [@orballo](https://github.com/orballo) for the [Pull Request](https://github.com/frontity/frontity/pull/786) :tada: !
+* The `GooglePublisherTag` component now accepts an optional `collapseEmptyDiv` prop
+  which if `true` will collapse ad slots that are not filled by Google Publisher Tag. Thanks [@VinuRaj](https://github.com/VinuRaj) for the [Pull Request](https://github.com/frontity/frontity/pull/778) :tada: !
+* Make the `@frontity/google-tag-manager-analytics` package &quot;AMP-aware&quot;. This means it would render an `&lt;amp-analytics&gt;` tag for each container ID provided, along with the given configuration. [#766](https://github.com/frontity/frontity/pull/766)
+* Add Frontity tests for older browsers using Selenium in BrowserStack. [#638](https://github.com/frontity/frontity/pull/638)
+
+# Bug fixes
+* Due to a recent warning in Chrome for missusing preload instead of modulepreload for module files we need to replace the loadable linkType for assets that have to be preloaded as modules instead. [#777](https://github.com/frontity/frontity/pull/777)
+* Return an empty array when there is no `&lt;head&gt;` tag in the REST API - Head Tags plugin. Thanks [@johnfrancisli]() for the [Pull Request](https://github.com/frontity/wp-plugins/pull/51) :tada: !
+* Fix the `&lt;Script&gt;` component to allow more attributes and event handlers. Thanks [@Koli14](https://github.com/Koli14) for the [Pull Request](https://github.com/frontity/frontity/pull/770) :tada: !
+* Fix the `&lt;Link&gt;` component when `state.source.url` or `state.frontity.url` contains a pathname, returning the correct final link. [#792](https://github.com/frontity/frontity/pull/792)
+* Fix some errors causing the AMP package to fail the AMP validation: [AMP package - #66](https://community.frontity.org/t/amp-package/388/66). [#776](https://github.com/frontity/frontity/pull/776)
+* Export new types related to AMP: `AmpConfig`, `AmpRequest` and `AmpTrigger`. [#766](https://github.com/frontity/frontity/pull/766)
+* Modify derived props so they receive `state` and `libraries` as arguments. Also, fix the `Derived` type definition. [#791](https://github.com/frontity/frontity/pull/791)
+* Move the call of the afterSSR() actions to before taking the state snapshot. This way any `afterSSR()` action still has an option to modify the snapshot before sending it to the client. This is important for security as we delete the state.source.auth token in that action in wp-source. [#764](https://github.com/frontity/frontity/pull/764)
+* Prevent a possible race condition in `useInfiniteScroll`. It could happen when a link changes `state.router.link` right before the `useEffect` callback that manages the route runs. [#785](https://github.com/frontity/frontity/pull/785)
+* Fix broken links in `mars-theme` README.md. [#789](https://github.com/frontity/frontity/pull/789)
+* Fix broken links in `twentytwenty-theme` Readme. [#784](https://github.com/frontity/frontity/pull/784)
+* Fix a bug that causes the URL being incorrectly populated when doing an HMR refresh. [#783](https://github.com/frontity/frontity/pull/783)
+* Make redirection URLs relative, so they redirect to `localhost` in a dev environment. [#775](https://github.com/frontity/frontity/pull/775)
+* Remove the `form.errors` property because it is not currently used and was included unnecessarily in the first version of the package. [#755](https://github.com/frontity/frontity/pull/755)
+* Bail out of redirection if frontity is running into embedded mode. [#771](https://github.com/frontity/frontity/pull/771)
+* Fix a bug which caused an infinite loop if the 3xx redirection was &quot;internal&quot; (meaning redirecting to the WP or Frontity domain) and the `location` of the redirection matched the link as discussed in https://community.frontity.org/t/301-redirects-stored-in-wordpress-database/3032/28. [#767](https://github.com/frontity/frontity/pull/767)
+* Fix the pattern of the internal redirection when `state.source.homepage` is defined, making links with a search param (`?s=some+term`) to keep using the post archive handler. [#793](https://github.com/frontity/frontity/pull/793)
+* Add different schemas for categories and tags to avoid ID collisions inside `libraries.source.populate()`. [#795](https://github.com/frontity/frontity/pull/795)
+
+---
+# Plugins Changelog
+
+## `frontity-headtags@1.2.1`
+
+### Patch Changes
+
+* [`8a28bb2`](https://github.com/frontity/wp-plugins/commit/8a28bb2440ed93e2c1ff536c61bd948817119df5) [#51](https://github.com/frontity/wp-plugins/pull/51) - Return an empty array when there is no `&lt;head&gt;` tag.
+---
+# Packages Changelog
+---
+## `@frontity/amp@0.1.1`
+ 
+### Patch Changes
+
+- [`900a36f9`](https://github.com/frontity/frontity/commit/900a36f9b5ea3424829775e019d5ff0ebcf42163) [#776](https://github.com/frontity/frontity/pull/776) Thanks [@michalczaplinski](https://github.com/michalczaplinski)! - Fix multiple errors causing the AMP package to fail the AMP validation: https://community.frontity.org/t/amp-package/388/66
+
+- Updated dependencies [[`eb41d982`](https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483), [`876256d8`](https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613), [`4f12c5ee`](https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9), [`8083bd0a`](https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2), [`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - @frontity/wp-source@1.11.3
+  - frontity@1.15.0
+
+---
+## `@frontity/analytics@1.4.1`
+
+### Patch Changes
+
+- [`4aea44d8`](https://github.com/frontity/frontity/commit/4aea44d88e3834cc01cdbb00813843209e6f0f33) [#766](https://github.com/frontity/frontity/pull/766) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Export new types related to AMP: `AmpConfig`, `AmpRequest` and `AmpTrigger`.
+
+- Updated dependencies [[`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - frontity@1.15.0
+
+---
+## `@frontity/components@1.7.2`
+
+### Patch Changes
+
+- [`944d5888`](https://github.com/frontity/frontity/commit/944d5888b8884585a39485002b896b4f9beaaab3) [#770](https://github.com/frontity/frontity/pull/770) Thanks [@Koli14](https://github.com/Koli14)! - Fix the `&lt;Script&gt;` component to allow more attributes and event handlers.
+
+* [`f227d135`](https://github.com/frontity/frontity/commit/f227d1351234c0d458e0280a6a2f13a959ed576f) [#792](https://github.com/frontity/frontity/pull/792) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Fix the `&lt;Link&gt;` component when `state.source.url` or `state.frontity.url` contains a pathname, returning the correct final link.
+
+* Updated dependencies [[`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`f65f7ca0`](https://github.com/frontity/frontity/commit/f65f7ca0d54b958bd5ec2681d5a2943854f9471a), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - frontity@1.15.0
+  - @frontity/hooks@2.2.1
+  
+---
+## `@frontity/connect@1.3.0`
+
+### Minor Changes
+
+- [`7111b3ce`](https://github.com/frontity/frontity/commit/7111b3cee7065816a885629cac93967f705d0969) [#415](https://github.com/frontity/frontity/pull/415) Thanks [@luisherranz](https://github.com/luisherranz)! - Migrate `@frontity/connect` to be a thin layer on top of `react-easy-state`. This means that in the future, taking advantage of the bug fixes and other improvements from `react-easy-state` will be much easier.
+
+### Patch Changes
+
+- [`641a1cf0`](https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58) [#791](https://github.com/frontity/frontity/pull/791) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Modify derived props so they receive `state` and `libraries` as arguments. Also, fix the `Derived` type definition.
+
+- Updated dependencies [[`641a1cf0`](https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58), [`86b2eff9`](https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf)]:
+  - @frontity/types@1.8.0
+
+---
+## `@frontity/core@1.12.0`
+
+### Minor Changes
+
+- [`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee) [#774](https://github.com/frontity/frontity/pull/774) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Add an `--analyze` option to the `dev` and `build` commands. The flag should be explicitly set in order to generate HTML files for bundle analysis.
+
+* [`86b2eff9`](https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf) [#783](https://github.com/frontity/frontity/pull/783) Thanks [@luisherranz](https://github.com/luisherranz)! - Add an HMR flag to the Frontity state (`state.frontity.hmr`) that indicates if the code is run on an HMR refresh or not.
+
+### Patch Changes
+
+- [`aaa85073`](https://github.com/frontity/frontity/commit/aaa850731dc4b9defa51618f09a1ebf3427ce83b) [#764](https://github.com/frontity/frontity/pull/764) Thanks [@michalczaplinski](https://github.com/michalczaplinski)! - Move the call of the afterSSR() actions to before taking the state snapshot. This way any `afterSSR()` action still has an option to modify the snapshot before sending it to the client. This is important for security as we delete the state.source.auth token in that action in wp-source.
+
+* [`89de8177`](https://github.com/frontity/frontity/commit/89de81770279d353f330298f82fe3abc718b5c52) [#777](https://github.com/frontity/frontity/pull/777) Thanks [@cristianbote](https://github.com/cristianbote)! - Due to a recent warning in Chrome for missusing preload instead of modulepreload for module files we need to replace the loadable linkType for assets that have to be preloaded as modules instead.
+
+* Updated dependencies [[`7111b3ce`](https://github.com/frontity/frontity/commit/7111b3cee7065816a885629cac93967f705d0969), [`641a1cf0`](https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58)]:
+  - @frontity/connect@1.3.0
+
+---
+## `frontity@1.15.0`
+
+### Minor Changes
+
+- [`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee) [#774](https://github.com/frontity/frontity/pull/774) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Add an `--analyze` option to the `dev` and `build` commands. The flag should be explicitly set in order to generate HTML files for bundle analysis.
+
+### Patch Changes
+
+- [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225) [#786](https://github.com/frontity/frontity/pull/786) Thanks [@orballo](https://github.com/orballo)! - Modifies the `frontity create` command so it generates a `tsconfig.json` file and adds dev dependencies to `package.json`. Feature discussion: https://community.frontity.org/t/full-typescript-support-in-frontity-create/880
+
+- Updated dependencies [[`641a1cf0`](https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58), [`86b2eff9`](https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf)]:
+  - @frontity/types@1.8.0
+
+---
+## `@frontity/google-ad-manager@1.0.0`
+
+### Major Changes
+
+- [`4aee489a`](https://github.com/frontity/frontity/commit/4aee489a313b4c44fa7f2430b028fbcc1318b7e6) [#790](https://github.com/frontity/frontity/pull/790) Thanks [@SantosGuillamot](https://github.com/SantosGuillamot)! - Release first stable version of @frontity/wp-comments and @frontity/google-ad-manager packages.
+
+### Patch Changes
+
+- [`5ede2b97`](https://github.com/frontity/frontity/commit/5ede2b977763f7a316bfa3b7659918e8489895eb) [#778](https://github.com/frontity/frontity/pull/778) Thanks [@VinuRaj](https://github.com/VinuRaj)! - The `GooglePublisherTag` component now accepts an optional `collapseEmptyDiv` prop
+  which if `true` will collapse ad slots that are not filled by Google Publisher Tag.
+- Updated dependencies [[`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - frontity@1.15.0
+ 
+---
+## `@frontity/google-tag-manager-analytics@1.3.0`
+
+### Minor Changes
+
+- [`4aea44d8`](https://github.com/frontity/frontity/commit/4aea44d88e3834cc01cdbb00813843209e6f0f33) [#766](https://github.com/frontity/frontity/pull/766) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Make the @frontity/google-tag-manager-analytics package &quot;AMP-aware&quot;. This means
+  it would render an `&lt;amp-analytics&gt;` tag for each container ID provided, along
+  with the given configuration.
+
+### Patch Changes
+
+- Updated dependencies [[`4aea44d8`](https://github.com/frontity/frontity/commit/4aea44d88e3834cc01cdbb00813843209e6f0f33), [`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - @frontity/analytics@1.4.1
+  - frontity@1.15.0
+
+---
+## `@frontity/hooks@2.2.1`
+
+### Patch Changes
+
+- [`f65f7ca0`](https://github.com/frontity/frontity/commit/f65f7ca0d54b958bd5ec2681d5a2943854f9471a) [#785](https://github.com/frontity/frontity/pull/785) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Prevent a possible race condition in `useInfiniteScroll`. It could happen when a link changes `state.router.link` right before the `useEffect` callback that manages the route runs.
+
+- Updated dependencies [[`eb41d982`](https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483), [`876256d8`](https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613), [`4f12c5ee`](https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9), [`8083bd0a`](https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2), [`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - @frontity/wp-source@1.11.3
+  - frontity@1.15.0
+
+---
+## `@frontity/mars-theme@1.5.1`
+
+### Patch Changes
+
+- [`888060c1`](https://github.com/frontity/frontity/commit/888060c11a0f458abe3a6e4b794733d3a49eb716) [#789](https://github.com/frontity/frontity/pull/789) Thanks [@mburridge](https://github.com/mburridge)! - Fixes broken links in README.md
+
+- Updated dependencies [[`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`944d5888`](https://github.com/frontity/frontity/commit/944d5888b8884585a39485002b896b4f9beaaab3), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225), [`f227d135`](https://github.com/frontity/frontity/commit/f227d1351234c0d458e0280a6a2f13a959ed576f)]:
+  - frontity@1.15.0
+  - @frontity/components@1.7.2
+
+---
+## `@frontity/tiny-router@1.4.2`
+
+### Patch Changes
+
+- [`86b2eff9`](https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf) [#783](https://github.com/frontity/frontity/pull/783) Thanks [@luisherranz](https://github.com/luisherranz)! - Fix a bug that causes the URL being incorrectly populated when doing an HMR refresh.
+
+* [`277c05d3`](https://github.com/frontity/frontity/commit/277c05d30cf39468aad3348abde425e11ea0bf6f) [#775](https://github.com/frontity/frontity/pull/775) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Make redirection URLs relative, so they redirect to `localhost` in a dev environment.
+
+* Updated dependencies [[`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - frontity@1.15.0
+
+---
+## `@frontity/twentytwenty-theme@1.3.1`
+
+### Patch Changes
+
+- [`8ade4db1`](https://github.com/frontity/frontity/commit/8ade4db16b0513a699d38ac2d8965dd7b63db8c3) [#784](https://github.com/frontity/frontity/pull/784) Thanks [@mburridge](https://github.com/mburridge)! - Fix broken links in Readme.
+
+- Updated dependencies [[`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`944d5888`](https://github.com/frontity/frontity/commit/944d5888b8884585a39485002b896b4f9beaaab3), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225), [`f227d135`](https://github.com/frontity/frontity/commit/f227d1351234c0d458e0280a6a2f13a959ed576f)]:
+  - frontity@1.15.0
+  - @frontity/components@1.7.2
+
+---
+## `@frontity/types@1.8.0`
+
+### Minor Changes
+
+- [`86b2eff9`](https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf) [#783](https://github.com/frontity/frontity/pull/783) Thanks [@luisherranz](https://github.com/luisherranz)! - Add an HMR flag to the Frontity state (`state.frontity.hmr`) that indicates if the code is run on an HMR refresh or not.
+
+### Patch Changes
+
+- [`641a1cf0`](https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58) [#791](https://github.com/frontity/frontity/pull/791) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Modify derived props so they receive `state` and `libraries` as arguments. Also, fix the `Derived` type definition.
+
+---
+## `@frontity/wp-comments@1.0.0`
+
+### Major Changes
+
+- [`4aee489a`](https://github.com/frontity/frontity/commit/4aee489a313b4c44fa7f2430b028fbcc1318b7e6) [#790](https://github.com/frontity/frontity/pull/790) Thanks [@SantosGuillamot](https://github.com/SantosGuillamot)! - Release first stable version of @frontity/wp-comments and @frontity/google-ad-manager packages.
+
+### Patch Changes
+
+- [`fd8d5917`](https://github.com/frontity/frontity/commit/fd8d5917adc4538c91b98c505d6a1be2afc533b3) [#755](https://github.com/frontity/frontity/pull/755) Thanks [@michalczaplinski](https://github.com/michalczaplinski)! - Remove the `form.errors` property because it is not currently used and was included unnecessarily in the first version of the package.
+
+- Updated dependencies [[`eb41d982`](https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483), [`876256d8`](https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613), [`4f12c5ee`](https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9), [`8083bd0a`](https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2), [`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - @frontity/wp-source@1.11.3
+  - frontity@1.15.0
+
+---
+## `@frontity/wp-source@1.11.3`
+
+### Patch Changes
+
+- [`eb41d982`](https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483) [#771](https://github.com/frontity/frontity/pull/771) Thanks [@cristianbote](https://github.com/cristianbote)! - Bail out of redirection if frontity is running into embedded mode.
+
+* [`876256d8`](https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613) [#767](https://github.com/frontity/frontity/pull/767) Thanks [@michalczaplinski](https://github.com/michalczaplinski)! - Fix a bug which caused an infinite loop if the 3xx redirection was &quot;internal&quot;
+  (meaning redirecting to the WP or Frontity domain) and the `location` of the
+  redirection matched the link as discussed in https://community.frontity.org/t/301-redirects-stored-in-wordpress-database/3032/28.
+
+- [`4f12c5ee`](https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9) [#793](https://github.com/frontity/frontity/pull/793) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Fix the pattern of the internal redirection when `state.source.homepage` is defined, making links with a search param (`?s=some+term`) to keep using the post archive handler.
+
+* [`8083bd0a`](https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2) [#795](https://github.com/frontity/frontity/pull/795) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Add different schemas for categories and tags to avoid ID collisions inside `libraries.source.populate()`.
+
+* Updated dependencies [[`62e60216`](https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee), [`77e0a286`](https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225)]:
+  - frontity@1.15.0</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 07 May 2021 07:46:40 +0000</lastBuildDate>
+    <category>Releases</category>
+    <atom:link href="https://community.frontity.org/t/frontity-release-a-bunch-of-enhancements-and-bug-fixes/4476.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity release: A bunch of enhancements and bug fixes</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <h1>
+<a name="enhancements" class="anchor" href="https://community.frontity.org#enhancements"></a>Enhancements</h1>
+<ul>
+<li>
+<p>Improve the <a href="https://github.com/frontity/frontity-embedded">Frontity Embedded Mode plugin</a> to make it more secure and easy to use. Moreover, we have released a <strong><a href="https://api.frontity.org/frontity-plugins/embedded-mode">full explanation of the Embedded Mode implementation in the Frontity docs</a></strong>.</p>
+<ul>
+<li>Add UI to set Frontity Server URL. <a href="https://github.com/frontity/frontity-embedded/pull/15">#15</a><br>
+<div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/f/f12437d41d0206105f23a682c9367200d1485aa9.png" data-download-href="https://community.frontity.org/uploads/default/f12437d41d0206105f23a682c9367200d1485aa9" title="Frontity_Embedded_Mode_‹embedded—_WordPress"><img src="https://community.frontity.org/uploads/default/optimized/2X/f/f12437d41d0206105f23a682c9367200d1485aa9_2_517x252.png" alt="Frontity_Embedded_Mode_‹embedded—_WordPress" data-base62-sha1="ypeFmW8KLLB1R9YMssFY1u1C2OB" width="517" height="252" srcset="https://community.frontity.org/uploads/default/optimized/2X/f/f12437d41d0206105f23a682c9367200d1485aa9_2_517x252.png, https://community.frontity.org/uploads/default/optimized/2X/f/f12437d41d0206105f23a682c9367200d1485aa9_2_775x378.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/f/f12437d41d0206105f23a682c9367200d1485aa9_2_1034x504.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/f/f12437d41d0206105f23a682c9367200d1485aa9_2_10x10.png"></a></div>
+</li>
+<li>Check if user can edit post before previewing it. <a href="https://github.com/frontity/frontity-embedded/pull/12">#12</a>
+</li>
+<li>Restrict token capabilities. <a href="https://github.com/frontity/frontity-embedded/pull/16">#16</a>
+</li>
+<li>Avoid using glob to load files. <a href="https://github.com/frontity/frontity-embedded/pull/18">#18</a>
+</li>
+<li>Handle errors properly. <a href="https://github.com/frontity/frontity-embedded/pull/17">#17</a>
+</li>
+<li>Add <code>frontity_embedded</code> query to Frontity request. <a href="https://github.com/frontity/frontity-embedded/pull/11">#11</a>
+</li>
+</ul>
+</li>
+<li>
+<p>Migrate <code>@frontity/connect</code> to be a thin layer on top of <code>react-easy-state</code>. This means that in the future, taking advantage of the bug fixes and other improvements from <code>react-easy-state</code> will be much easier. <a href="https://github.com/frontity/frontity/pull/415">#415</a></p>
+</li>
+<li>
+<p>Add an <code>--analyze</code> option to the <code>dev</code> and <code>build</code> commands. The flag should be explicitly set in order to generate HTML files for bundle analysis. <a href="https://github.com/frontity/frontity/pull/774">#774</a></p>
+</li>
+<li>
+<p>Add an HMR flag to the Frontity state (<code>state.frontity.hmr</code>) that indicates if the code is run on an HMR refresh or not. <a href="https://github.com/frontity/frontity/pull/783">#783</a></p>
+</li>
+<li>
+<p>Modifies the <code>frontity create</code> command so it generates a <code>tsconfig.json</code> file and adds dev dependencies to <code>package.json</code>. Feature discussion: <a href="https://community.frontity.org/t/full-typescript-support-in-frontity-create/880" class="inline-onebox">Full TypeScript support in `frontity create`</a>. Thanks <a href="https://github.com/orballo">@orballo</a> for the <a href="https://github.com/frontity/frontity/pull/786">Pull Request</a> <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"> !</p>
+</li>
+<li>
+<p>The <code>GooglePublisherTag</code> component now accepts an optional <code>collapseEmptyDiv</code> prop<br>
+which if <code>true</code> will collapse ad slots that are not filled by Google Publisher Tag. Thanks <a href="https://github.com/VinuRaj">@VinuRaj</a> for the <a href="https://github.com/frontity/frontity/pull/778">Pull Request</a> <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"> !</p>
+</li>
+<li>
+<p>Make the <code>@frontity/google-tag-manager-analytics</code> package “AMP-aware”. This means it would render an <code>&lt;amp-analytics&gt;</code> tag for each container ID provided, along with the given configuration. <a href="https://github.com/frontity/frontity/pull/766">#766</a></p>
+</li>
+<li>
+<p>Add Frontity tests for older browsers using Selenium in BrowserStack. <a href="https://github.com/frontity/frontity/pull/638">#638</a></p>
+</li>
+</ul>
+<h1>
+<a name="bug-fixes" class="anchor" href="https://community.frontity.org#bug-fixes"></a>Bug fixes</h1>
+<ul>
+<li>Due to a recent warning in Chrome for missusing preload instead of modulepreload for module files we need to replace the loadable linkType for assets that have to be preloaded as modules instead. <a href="https://github.com/frontity/frontity/pull/777">#777</a>
+</li>
+<li>Return an empty array when there is no <code>&lt;head&gt;</code> tag in the REST API - Head Tags plugin. Thanks <a href="https://community.frontity.org">@johnfrancisli</a> for the <a href="https://github.com/frontity/wp-plugins/pull/51">Pull Request</a> <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"> !</li>
+<li>Fix the <code>&lt;Script&gt;</code> component to allow more attributes and event handlers. Thanks <a href="https://github.com/Koli14">@Koli14</a> for the <a href="https://github.com/frontity/frontity/pull/770">Pull Request</a> <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"> !</li>
+<li>Fix the <code>&lt;Link&gt;</code> component when <code>state.source.url</code> or <code>state.frontity.url</code> contains a pathname, returning the correct final link. <a href="https://github.com/frontity/frontity/pull/792">#792</a>
+</li>
+<li>Fix some errors causing the AMP package to fail the AMP validation: <a href="https://community.frontity.org/t/amp-package/388/66">AMP package - #66</a>. <a href="https://github.com/frontity/frontity/pull/776">#776</a>
+</li>
+<li>Export new types related to AMP: <code>AmpConfig</code>, <code>AmpRequest</code> and <code>AmpTrigger</code>. <a href="https://github.com/frontity/frontity/pull/766">#766</a>
+</li>
+<li>Modify derived props so they receive <code>state</code> and <code>libraries</code> as arguments. Also, fix the <code>Derived</code> type definition. <a href="https://github.com/frontity/frontity/pull/791">#791</a>
+</li>
+<li>Move the call of the afterSSR() actions to before taking the state snapshot. This way any <code>afterSSR()</code> action still has an option to modify the snapshot before sending it to the client. This is important for security as we delete the state.source.auth token in that action in wp-source. <a href="https://github.com/frontity/frontity/pull/764">#764</a>
+</li>
+<li>Prevent a possible race condition in <code>useInfiniteScroll</code>. It could happen when a link changes <code>state.router.link</code> right before the <code>useEffect</code> callback that manages the route runs. <a href="https://github.com/frontity/frontity/pull/785">#785</a>
+</li>
+<li>Fix broken links in <code>mars-theme</code> README.md. <a href="https://github.com/frontity/frontity/pull/789">#789</a>
+</li>
+<li>Fix broken links in <code>twentytwenty-theme</code> Readme. <a href="https://github.com/frontity/frontity/pull/784">#784</a>
+</li>
+<li>Fix a bug that causes the URL being incorrectly populated when doing an HMR refresh. <a href="https://github.com/frontity/frontity/pull/783">#783</a>
+</li>
+<li>Make redirection URLs relative, so they redirect to <code>localhost</code> in a dev environment. <a href="https://github.com/frontity/frontity/pull/775">#775</a>
+</li>
+<li>Remove the <code>form.errors</code> property because it is not currently used and was included unnecessarily in the first version of the package. <a href="https://github.com/frontity/frontity/pull/755">#755</a>
+</li>
+<li>Bail out of redirection if frontity is running into embedded mode. <a href="https://github.com/frontity/frontity/pull/771">#771</a>
+</li>
+<li>Fix a bug which caused an infinite loop if the 3xx redirection was “internal” (meaning redirecting to the WP or Frontity domain) and the <code>location</code> of the redirection matched the link as discussed in <a href="https://community.frontity.org/t/301-redirects-stored-in-wordpress-database/3032/28" class="inline-onebox">301 redirects stored in WordPress database - #28 by luisherranz</a>. <a href="https://github.com/frontity/frontity/pull/767">#767</a>
+</li>
+<li>Fix the pattern of the internal redirection when <code>state.source.homepage</code> is defined, making links with a search param (<code>?s=some+term</code>) to keep using the post archive handler. <a href="https://github.com/frontity/frontity/pull/793">#793</a>
+</li>
+<li>Add different schemas for categories and tags to avoid ID collisions inside <code>libraries.source.populate()</code>. <a href="https://github.com/frontity/frontity/pull/795">#795</a>
+</li>
+</ul>
+<hr>
+<h1>
+<a name="plugins-changelog" class="anchor" href="https://community.frontity.org#plugins-changelog"></a>Plugins Changelog</h1>
+<h2>
+<a name="frontity-headtags121" class="anchor" href="https://community.frontity.org#frontity-headtags121"></a><code>frontity-headtags@1.2.1</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/wp-plugins/commit/8a28bb2440ed93e2c1ff536c61bd948817119df5"><code>8a28bb2</code></a> <a href="https://github.com/frontity/wp-plugins/pull/51">#51</a> - Return an empty array when there is no <code>&lt;head&gt;</code> tag.</li>
+</ul>
+<hr>
+<h1>
+<a name="packages-changelog" class="anchor" href="https://community.frontity.org#packages-changelog"></a>Packages Changelog</h1>
+<hr>
+<h2>
+<a name="frontityamp011" class="anchor" href="https://community.frontity.org#frontityamp011"></a><code>@frontity/amp@0.1.1</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/900a36f9b5ea3424829775e019d5ff0ebcf42163"><code>900a36f9</code></a> <a href="https://github.com/frontity/frontity/pull/776">#776</a> Thanks <a href="https://github.com/michalczaplinski">@michalczaplinski</a>! - Fix multiple errors causing the AMP package to fail the AMP validation: <a href="https://community.frontity.org/t/amp-package/388/66" class="inline-onebox">AMP package - #66 by SantosGuillamot</a></p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483"><code>eb41d982</code></a>, <a href="https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613"><code>876256d8</code></a>, <a href="https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9"><code>4f12c5ee</code></a>, <a href="https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2"><code>8083bd0a</code></a>, <a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:</p>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source@1.11.3</li>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontityanalytics141" class="anchor" href="https://community.frontity.org#frontityanalytics141"></a><code>@frontity/analytics@1.4.1</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/4aea44d88e3834cc01cdbb00813843209e6f0f33"><code>4aea44d8</code></a> <a href="https://github.com/frontity/frontity/pull/766">#766</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Export new types related to AMP: <code>AmpConfig</code>, <code>AmpRequest</code> and <code>AmpTrigger</code>.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:</p>
+<ul>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitycomponents172" class="anchor" href="https://community.frontity.org#frontitycomponents172"></a><code>@frontity/components@1.7.2</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/944d5888b8884585a39485002b896b4f9beaaab3"><code>944d5888</code></a> <a href="https://github.com/frontity/frontity/pull/770">#770</a> Thanks <a href="https://github.com/Koli14">@Koli14</a>! - Fix the <code>&lt;Script&gt;</code> component to allow more attributes and event handlers.</li>
+</ul>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/f227d1351234c0d458e0280a6a2f13a959ed576f"><code>f227d135</code></a> <a href="https://github.com/frontity/frontity/pull/792">#792</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Fix the <code>&lt;Link&gt;</code> component when <code>state.source.url</code> or <code>state.frontity.url</code> contains a pathname, returning the correct final link.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/f65f7ca0d54b958bd5ec2681d5a2943854f9471a"><code>f65f7ca0</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:</p>
+<ul>
+<li>frontity@1.15.0</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/hooks@2.2.1</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontityconnect130" class="anchor" href="https://community.frontity.org#frontityconnect130"></a><code>@frontity/connect@1.3.0</code>
+</h2>
+<h3>
+<a name="minor-changes" class="anchor" href="https://community.frontity.org#minor-changes"></a>Minor Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/7111b3cee7065816a885629cac93967f705d0969"><code>7111b3ce</code></a> <a href="https://github.com/frontity/frontity/pull/415">#415</a> Thanks <a href="https://github.com/luisherranz">@luisherranz</a>! - Migrate <code>@frontity/connect</code> to be a thin layer on top of <code>react-easy-state</code>. This means that in the future, taking advantage of the bug fixes and other improvements from <code>react-easy-state</code> will be much easier.</li>
+</ul>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58"><code>641a1cf0</code></a> <a href="https://github.com/frontity/frontity/pull/791">#791</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Modify derived props so they receive <code>state</code> and <code>libraries</code> as arguments. Also, fix the <code>Derived</code> type definition.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58"><code>641a1cf0</code></a>, <a href="https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf"><code>86b2eff9</code></a>]:</p>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/types@1.8.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitycore1120" class="anchor" href="https://community.frontity.org#frontitycore1120"></a><code>@frontity/core@1.12.0</code>
+</h2>
+<h3>
+<a name="minor-changes" class="anchor" href="https://community.frontity.org#minor-changes"></a>Minor Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a> <a href="https://github.com/frontity/frontity/pull/774">#774</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Add an <code>--analyze</code> option to the <code>dev</code> and <code>build</code> commands. The flag should be explicitly set in order to generate HTML files for bundle analysis.</li>
+</ul>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf"><code>86b2eff9</code></a> <a href="https://github.com/frontity/frontity/pull/783">#783</a> Thanks <a href="https://github.com/luisherranz">@luisherranz</a>! - Add an HMR flag to the Frontity state (<code>state.frontity.hmr</code>) that indicates if the code is run on an HMR refresh or not.</li>
+</ul>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/aaa850731dc4b9defa51618f09a1ebf3427ce83b"><code>aaa85073</code></a> <a href="https://github.com/frontity/frontity/pull/764">#764</a> Thanks <a href="https://github.com/michalczaplinski">@michalczaplinski</a>! - Move the call of the afterSSR() actions to before taking the state snapshot. This way any <code>afterSSR()</code> action still has an option to modify the snapshot before sending it to the client. This is important for security as we delete the state.source.auth token in that action in wp-source.</li>
+</ul>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/89de81770279d353f330298f82fe3abc718b5c52"><code>89de8177</code></a> <a href="https://github.com/frontity/frontity/pull/777">#777</a> Thanks <a href="https://github.com/cristianbote">@cristianbote</a>! - Due to a recent warning in Chrome for missusing preload instead of modulepreload for module files we need to replace the loadable linkType for assets that have to be preloaded as modules instead.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/7111b3cee7065816a885629cac93967f705d0969"><code>7111b3ce</code></a>, <a href="https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58"><code>641a1cf0</code></a>]:</p>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/connect@1.3.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontity1150" class="anchor" href="https://community.frontity.org#frontity1150"></a><code>frontity@1.15.0</code>
+</h2>
+<h3>
+<a name="minor-changes" class="anchor" href="https://community.frontity.org#minor-changes"></a>Minor Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a> <a href="https://github.com/frontity/frontity/pull/774">#774</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Add an <code>--analyze</code> option to the <code>dev</code> and <code>build</code> commands. The flag should be explicitly set in order to generate HTML files for bundle analysis.</li>
+</ul>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a> <a href="https://github.com/frontity/frontity/pull/786">#786</a> Thanks <a href="https://github.com/orballo">@orballo</a>! - Modifies the <code>frontity create</code> command so it generates a <code>tsconfig.json</code> file and adds dev dependencies to <code>package.json</code>. Feature discussion: <a href="https://community.frontity.org/t/full-typescript-support-in-frontity-create/880" class="inline-onebox">Full TypeScript support in `frontity create`</a></p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58"><code>641a1cf0</code></a>, <a href="https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf"><code>86b2eff9</code></a>]:</p>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/types@1.8.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitygoogle-ad-manager100" class="anchor" href="https://community.frontity.org#frontitygoogle-ad-manager100"></a><code>@frontity/google-ad-manager@1.0.0</code>
+</h2>
+<h3>
+<a name="major-changes" class="anchor" href="https://community.frontity.org#major-changes"></a>Major Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/4aee489a313b4c44fa7f2430b028fbcc1318b7e6"><code>4aee489a</code></a> <a href="https://github.com/frontity/frontity/pull/790">#790</a> Thanks <a href="https://github.com/SantosGuillamot">@SantosGuillamot</a>! - Release first stable version of <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-comments and <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/google-ad-manager packages.</li>
+</ul>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/5ede2b977763f7a316bfa3b7659918e8489895eb"><code>5ede2b97</code></a> <a href="https://github.com/frontity/frontity/pull/778">#778</a> Thanks <a href="https://github.com/VinuRaj">@VinuRaj</a>! - The <code>GooglePublisherTag</code> component now accepts an optional <code>collapseEmptyDiv</code> prop<br>
+which if <code>true</code> will collapse ad slots that are not filled by Google Publisher Tag.</li>
+<li>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:
+<ul>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitygoogle-tag-manager-analytics130" class="anchor" href="https://community.frontity.org#frontitygoogle-tag-manager-analytics130"></a><code>@frontity/google-tag-manager-analytics@1.3.0</code>
+</h2>
+<h3>
+<a name="minor-changes" class="anchor" href="https://community.frontity.org#minor-changes"></a>Minor Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/4aea44d88e3834cc01cdbb00813843209e6f0f33"><code>4aea44d8</code></a> <a href="https://github.com/frontity/frontity/pull/766">#766</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Make the <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/google-tag-manager-analytics package “AMP-aware”. This means<br>
+it would render an <code>&lt;amp-analytics&gt;</code> tag for each container ID provided, along<br>
+with the given configuration.</li>
+</ul>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/4aea44d88e3834cc01cdbb00813843209e6f0f33"><code>4aea44d8</code></a>, <a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/analytics@1.4.1</li>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontityhooks221" class="anchor" href="https://community.frontity.org#frontityhooks221"></a><code>@frontity/hooks@2.2.1</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/f65f7ca0d54b958bd5ec2681d5a2943854f9471a"><code>f65f7ca0</code></a> <a href="https://github.com/frontity/frontity/pull/785">#785</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Prevent a possible race condition in <code>useInfiniteScroll</code>. It could happen when a link changes <code>state.router.link</code> right before the <code>useEffect</code> callback that manages the route runs.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483"><code>eb41d982</code></a>, <a href="https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613"><code>876256d8</code></a>, <a href="https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9"><code>4f12c5ee</code></a>, <a href="https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2"><code>8083bd0a</code></a>, <a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:</p>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source@1.11.3</li>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitymars-theme151" class="anchor" href="https://community.frontity.org#frontitymars-theme151"></a><code>@frontity/mars-theme@1.5.1</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/888060c11a0f458abe3a6e4b794733d3a49eb716"><code>888060c1</code></a> <a href="https://github.com/frontity/frontity/pull/789">#789</a> Thanks <a href="https://github.com/mburridge">@mburridge</a>! - Fixes broken links in README.md</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/944d5888b8884585a39485002b896b4f9beaaab3"><code>944d5888</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>, <a href="https://github.com/frontity/frontity/commit/f227d1351234c0d458e0280a6a2f13a959ed576f"><code>f227d135</code></a>]:</p>
+<ul>
+<li>frontity@1.15.0</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/components@1.7.2</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitytiny-router142" class="anchor" href="https://community.frontity.org#frontitytiny-router142"></a><code>@frontity/tiny-router@1.4.2</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf"><code>86b2eff9</code></a> <a href="https://github.com/frontity/frontity/pull/783">#783</a> Thanks <a href="https://github.com/luisherranz">@luisherranz</a>! - Fix a bug that causes the URL being incorrectly populated when doing an HMR refresh.</li>
+</ul>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/277c05d30cf39468aad3348abde425e11ea0bf6f"><code>277c05d3</code></a> <a href="https://github.com/frontity/frontity/pull/775">#775</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Make redirection URLs relative, so they redirect to <code>localhost</code> in a dev environment.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:</p>
+<ul>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitytwentytwenty-theme131" class="anchor" href="https://community.frontity.org#frontitytwentytwenty-theme131"></a><code>@frontity/twentytwenty-theme@1.3.1</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/8ade4db16b0513a699d38ac2d8965dd7b63db8c3"><code>8ade4db1</code></a> <a href="https://github.com/frontity/frontity/pull/784">#784</a> Thanks <a href="https://github.com/mburridge">@mburridge</a>! - Fix broken links in Readme.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/944d5888b8884585a39485002b896b4f9beaaab3"><code>944d5888</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>, <a href="https://github.com/frontity/frontity/commit/f227d1351234c0d458e0280a6a2f13a959ed576f"><code>f227d135</code></a>]:</p>
+<ul>
+<li>frontity@1.15.0</li>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/components@1.7.2</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitytypes180" class="anchor" href="https://community.frontity.org#frontitytypes180"></a><code>@frontity/types@1.8.0</code>
+</h2>
+<h3>
+<a name="minor-changes" class="anchor" href="https://community.frontity.org#minor-changes"></a>Minor Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/86b2eff993aac3e9360946a0c190e239b6f93abf"><code>86b2eff9</code></a> <a href="https://github.com/frontity/frontity/pull/783">#783</a> Thanks <a href="https://github.com/luisherranz">@luisherranz</a>! - Add an HMR flag to the Frontity state (<code>state.frontity.hmr</code>) that indicates if the code is run on an HMR refresh or not.</li>
+</ul>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/641a1cf00a02f78076e23b7918027d7219c08f58"><code>641a1cf0</code></a> <a href="https://github.com/frontity/frontity/pull/791">#791</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Modify derived props so they receive <code>state</code> and <code>libraries</code> as arguments. Also, fix the <code>Derived</code> type definition.</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitywp-comments100" class="anchor" href="https://community.frontity.org#frontitywp-comments100"></a><code>@frontity/wp-comments@1.0.0</code>
+</h2>
+<h3>
+<a name="major-changes" class="anchor" href="https://community.frontity.org#major-changes"></a>Major Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/4aee489a313b4c44fa7f2430b028fbcc1318b7e6"><code>4aee489a</code></a> <a href="https://github.com/frontity/frontity/pull/790">#790</a> Thanks <a href="https://github.com/SantosGuillamot">@SantosGuillamot</a>! - Release first stable version of <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-comments and <a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/google-ad-manager packages.</li>
+</ul>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/fd8d5917adc4538c91b98c505d6a1be2afc533b3"><code>fd8d5917</code></a> <a href="https://github.com/frontity/frontity/pull/755">#755</a> Thanks <a href="https://github.com/michalczaplinski">@michalczaplinski</a>! - Remove the <code>form.errors</code> property because it is not currently used and was included unnecessarily in the first version of the package.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483"><code>eb41d982</code></a>, <a href="https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613"><code>876256d8</code></a>, <a href="https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9"><code>4f12c5ee</code></a>, <a href="https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2"><code>8083bd0a</code></a>, <a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:</p>
+<ul>
+<li>
+<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/wp-source@1.11.3</li>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>
+<a name="frontitywp-source1113" class="anchor" href="https://community.frontity.org#frontitywp-source1113"></a><code>@frontity/wp-source@1.11.3</code>
+</h2>
+<h3>
+<a name="patch-changes" class="anchor" href="https://community.frontity.org#patch-changes"></a>Patch Changes</h3>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/eb41d982552c8f542437cbedaee4335d23b7a483"><code>eb41d982</code></a> <a href="https://github.com/frontity/frontity/pull/771">#771</a> Thanks <a href="https://github.com/cristianbote">@cristianbote</a>! - Bail out of redirection if frontity is running into embedded mode.</li>
+</ul>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/876256d8b923508a94b1bfc1818045edc0f1b613"><code>876256d8</code></a> <a href="https://github.com/frontity/frontity/pull/767">#767</a> Thanks <a href="https://github.com/michalczaplinski">@michalczaplinski</a>! - Fix a bug which caused an infinite loop if the 3xx redirection was “internal”<br>
+(meaning redirecting to the WP or Frontity domain) and the <code>location</code> of the<br>
+redirection matched the link as discussed in <a href="https://community.frontity.org/t/301-redirects-stored-in-wordpress-database/3032/28" class="inline-onebox">301 redirects stored in WordPress database - #28 by luisherranz</a>.</li>
+</ul>
+<ul>
+<li>
+<a href="https://github.com/frontity/frontity/commit/4f12c5ee37f3cd3cc4df963d7285e2bc458a4cb9"><code>4f12c5ee</code></a> <a href="https://github.com/frontity/frontity/pull/793">#793</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Fix the pattern of the internal redirection when <code>state.source.homepage</code> is defined, making links with a search param (<code>?s=some+term</code>) to keep using the post archive handler.</li>
+</ul>
+<ul>
+<li>
+<p><a href="https://github.com/frontity/frontity/commit/8083bd0a07c8d61ece4f669bd8088912b91a4ab2"><code>8083bd0a</code></a> <a href="https://github.com/frontity/frontity/pull/795">#795</a> Thanks <a href="https://github.com/DAreRodz">@DAreRodz</a>! - Add different schemas for categories and tags to avoid ID collisions inside <code>libraries.source.populate()</code>.</p>
+</li>
+<li>
+<p>Updated dependencies [<a href="https://github.com/frontity/frontity/commit/62e60216198111626d82566507f7f208323ffeee"><code>62e60216</code></a>, <a href="https://github.com/frontity/frontity/commit/77e0a286ceb8274efb6a473c01c8f60d78b70225"><code>77e0a286</code></a>]:</p>
+<ul>
+<li>frontity@1.15.0</li>
+</ul>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/frontity-release-a-bunch-of-enhancements-and-bug-fixes/4476/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-release-a-bunch-of-enhancements-and-bug-fixes/4476/1</link>
+        <pubDate>Tue, 27 Apr 2021 09:50:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4476-1</guid>
+        <source url="https://community.frontity.org/t/frontity-release-a-bunch-of-enhancements-and-bug-fixes/4476.rss">Frontity release: A bunch of enhancements and bug fixes</source>
+      </item>
+  </channel>
+</rss>

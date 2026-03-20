@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Vercel Raise Issue Frontity Heading Cache Network Isssue</title>
+    <link>https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580</link>
+    <description>Hello Team,
+
+Our website doesn&#39;t give speed performance on Vercel deploy. 
+Vercel Support Team Raise Issue in frontity framework file settings.
+
+I have tried based on vercel team response but still doesn&#39;t work properly on speed performance and see final last &quot;Mail - 3&quot; which is issue in frontity framework.
+
+-------------------------------------------
+Mail - 1:
+-------------------------------------------
+URL:  https://vrinsoftreact-620jkr7do-vrinsoft.vercel.app/  
+
+It might be that a header is not set properly by Frontify.
+
+You could try adding the following to your vercel.json.
+
+It will cache requests for 24 hours, but you might want to tweak the value to your liking.
+
+
+vercel.json
+
+{
+  &quot;version&quot;: 2,
+  &quot;builds&quot;: [
+    {
+      &quot;src&quot;: &quot;package.json&quot;,
+      &quot;use&quot;: &quot;@frontity/now&quot;
+    }
+  ],
+  &quot;headers&quot;: [
+    {
+      &quot;source&quot;: &quot;/&quot;,
+      &quot;headers&quot; : [
+        {
+          &quot;key&quot; : &quot;Cache-Control&quot;,
+          &quot;value&quot; : &quot;s-maxage=86400, stale-while-revalidate&quot;
+        }
+      ]
+    }
+  ]
+}
+
+Charles De Mount
+▲ Customer Success Engineer at Vercel
+
+-------------------------------------------
+Mail - 2:
+-------------------------------------------
+I want to escalate the issue you are encountering to our Infrastructure team.
+
+From what I can see the cache continues to miss due to the `Cache-Control` configuration.
+
+In [this test](https://vrinsoftreact-620jkr7do-vrinsoft.vercel.app/), we can see that the value is `public, max-age=0, must-revalidate` which is the default with Vercel.
+
+My hunch is that something is off with that header and the Cache-control in your `vercel.json` is being overwritten by the response from your Frontify app.
+
+Charles De Mount
+▲ Customer Success Engineer at Vercel
+
+-------------------------------------------
+Mail - 3:
+-------------------------------------------
+Thank you for your patience.
+
+In short, we have discovered there were some bugs that could happen when defining caching headers inside of route and had to disable that feature on our Edge network.
+
+The issue is that&#39;s what your framework, Frontify, is currently doing. → https://github.com/frontity/now-builder/blob/master/src/index.ts#L123-L127
+
+The best path forward would either contact their support team with this information or create an issue in the repository for the Vercel Adapter → https://github.com/frontity/now-builder
+
+Instead of using routes, they should return the caching headers directly from the functions themeselves.
+
+Hope that highlights the issue.
+
+Please let me know if you have any further questions or concerns.
+
+Best
+
+Charles De Mount
+▲ Customer Success Engineer at Vercel
+--------------------------------------------------------------------------------------
+
+Kindly please me as soon possible what i need to change exactly in which file for this kind issue of caching headers. 
+
+Thank you,
+Pramod</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 09 May 2022 15:33:28 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Vercel Raise Issue Frontity Heading Cache Network Isssue</title>
+        <dc:creator><![CDATA[frederik.nordahl]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey Pramod</p>
+<p>I am not sure if this is still an issue for you? But in your theme index, you can add an afterSSR that sets the headers correctly - like so:</p>
+<pre><code class="lang-javascript">afterSSR: ({ state, actions }) =&gt; async ({ ctx }) =&gt; {
+    ctx.set("Cache-Control", "s-maxage=1,stale-while-revalidate");
+},
+</code></pre>
+<p>Read more about actions here: <a href="https://gitbook-docs.frontity.org/learning-frontity/actions" class="inline-onebox" rel="noopener nofollow ugc">6. Actions - Frontity Docs</a></p>
+<p>/Frederik</p>
+          <p><a href="https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580/2</link>
+        <pubDate>Mon, 09 May 2022 15:33:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5580-2</guid>
+        <source url="https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580.rss">Vercel Raise Issue Frontity Heading Cache Network Isssue</source>
+      </item>
+      <item>
+        <title>Vercel Raise Issue Frontity Heading Cache Network Isssue</title>
+        <dc:creator><![CDATA[pramod.r]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello Team,</p>
+<p>Our website doesn’t give speed performance on Vercel deploy.<br>
+Vercel Support Team Raise Issue in frontity framework file settings.</p>
+<p>I have tried based on vercel team response but still doesn’t work properly on speed performance and see final last “Mail - 3” which is issue in frontity framework.</p>
+<hr>
+<h2>
+<a name="mail-1-1" class="anchor" href="https://community.frontity.org#mail-1-1"></a>Mail - 1:</h2>
+<p>URL:  <a href="https://vrinsoftreact-620jkr7do-vrinsoft.vercel.app/" rel="noopener nofollow ugc">https://vrinsoftreact-620jkr7do-vrinsoft.vercel.app/</a></p>
+<p>It might be that a header is not set properly by Frontify.</p>
+<p>You could try adding the following to your vercel.json.</p>
+<p>It will cache requests for 24 hours, but you might want to tweak the value to your liking.</p>
+<p>vercel.json</p>
+<p>{<br>
+“version”: 2,<br>
+“builds”: [<br>
+{<br>
+“src”: “package.json”,<br>
+“use”: “<a class="mention" href="https://community.frontity.org/u/frontity">@frontity</a>/now”<br>
+}<br>
+],<br>
+“headers”: [<br>
+{<br>
+“source”: “/”,<br>
+“headers” : [<br>
+{<br>
+“key” : “Cache-Control”,<br>
+“value” : “s-maxage=86400, stale-while-revalidate”<br>
+}<br>
+]<br>
+}<br>
+]<br>
+}</p>
+<p>Charles De Mount<br>
+▲ Customer Success Engineer at Vercel</p>
+<hr>
+<h2>
+<a name="mail-2-2" class="anchor" href="https://community.frontity.org#mail-2-2"></a>Mail - 2:</h2>
+<p>I want to escalate the issue you are encountering to our Infrastructure team.</p>
+<p>From what I can see the cache continues to miss due to the <code>Cache-Control</code> configuration.</p>
+<p>In <a href="https://vrinsoftreact-620jkr7do-vrinsoft.vercel.app/" rel="noopener nofollow ugc">this test</a>, we can see that the value is <code>public, max-age=0, must-revalidate</code> which is the default with Vercel.</p>
+<p>My hunch is that something is off with that header and the Cache-control in your <code>vercel.json</code> is being overwritten by the response from your Frontify app.</p>
+<p>Charles De Mount<br>
+▲ Customer Success Engineer at Vercel</p>
+<hr>
+<h2>
+<a name="mail-3-3" class="anchor" href="https://community.frontity.org#mail-3-3"></a>Mail - 3:</h2>
+<p>Thank you for your patience.</p>
+<p>In short, we have discovered there were some bugs that could happen when defining caching headers inside of route and had to disable that feature on our Edge network.</p>
+<p>The issue is that’s what your framework, Frontify, is currently doing. → <a href="https://github.com/frontity/now-builder/blob/master/src/index.ts#L123-L127" class="inline-onebox" rel="noopener nofollow ugc">now-builder/index.ts at master · frontity/now-builder · GitHub</a></p>
+<p>The best path forward would either contact their support team with this information or create an issue in the repository for the Vercel Adapter → <a href="https://github.com/frontity/now-builder" class="inline-onebox" rel="noopener nofollow ugc">GitHub - frontity/now-builder: A Frontity builder for the Vercel hosting</a></p>
+<p>Instead of using routes, they should return the caching headers directly from the functions themeselves.</p>
+<p>Hope that highlights the issue.</p>
+<p>Please let me know if you have any further questions or concerns.</p>
+<p>Best</p>
+<h2>
+<a name="charles-de-mount-customer-success-engineer-at-vercel-4" class="anchor" href="https://community.frontity.org#charles-de-mount-customer-success-engineer-at-vercel-4"></a>Charles De Mount<br>
+▲ Customer Success Engineer at Vercel</h2>
+<p>Kindly please me as soon possible what i need to change exactly in which file for this kind issue of caching headers.</p>
+<p>Thank you,<br>
+Pramod</p>
+          <p><a href="https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580/1</link>
+        <pubDate>Thu, 16 Dec 2021 15:10:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5580-1</guid>
+        <source url="https://community.frontity.org/t/vercel-raise-issue-frontity-heading-cache-network-isssue/5580.rss">Vercel Raise Issue Frontity Heading Cache Network Isssue</source>
+      </item>
+  </channel>
+</rss>

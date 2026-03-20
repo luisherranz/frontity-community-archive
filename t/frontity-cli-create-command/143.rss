@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Frontity CLI - Create command</title>
+    <link>https://community.frontity.org/t/frontity-cli-create-command/143</link>
+    <description>Collection of ideas on what we need to do with the `frontity create` command and how we are going to implement it.
+
+## Contraints
+- Support for **Node v8.10**.
+- Support for **Linux**, **macOS** and **Windows**.
+- When using `npx` it shouldn&#39;t download anything but `frontity`. (e.g. `@frontity/core`)
+
+## Create app
+
+### Command
+```text
+frontity create [options] [name]
+```
+
+### User stories
+- :white_check_mark: - As a developer, I want to generate a new app inside a new directory named by me.
+- :white_check_mark: - As a developer, I want to generate a new app in my current directory if the directory is empty or is a new GitHub repo.
+- :white_check_mark: - As a developer, I want to generate a new app with TypeScript support.
+- :white_check_mark: - As a developer, I want to use `frontity create` and get prompts about the initial setup of my app.
+- :white_check_mark: - As a developer, I also want to use `frontity create` programmatically (e.g. `import { create } from &quot;frontity&quot;`).
+- :white_check_mark: - As a developer, if the command throws, I want it to undo any work done to that point.
+
+### Parameters
+- `name` (optional)
+A name for the app.
+
+### Options
+- `-t`, `--typescript`
+The app will be configured to use TypeScript.
+- `-c`, `--use-cwd`
+The app will be generated in the current working directory
+
+### Result
+A directory with the following structure:
+```text
+my-project/
+|__ node_modules/
+|__ packages/
+|   |__ mars-theme/
+|__ package.json
+|__ frontity.settings.(js|ts)
+|__ tsconfig.json ?
+```
+
+### Steps
+1. Validate and parse options.
+2. Ensure that the directory exists and is empty.
+3. Generate a `package.json` file.
+4. Generate a `frontity.settings.js` file. (`frontity.settinigs.ts` if `--typescript` options is passed)
+5. Create a `packages/` directory and clone `@frontity/mars-theme` inside it.
+6. Install dependencies.
+7. On error: Revert progress.
+
+## Create package
+### Command
+```text
+frontity create-package [options] [name]
+```
+
+### User stories
+- :x: - As a developer, I want to generate an environment ready to start developing my package.
+- :x: - As a developer, I want to generate an environment ready to use with TypeScript.
+- :x: - As a developer, I want to generate a new package in an existent Frontity app.
+
+### Result
+I&#39;m guessing that the directory structure for packages would be the same as with apps, but I&#39;m not sure. In this case, the important code is inside the package folder, and it should be a git repo. Maybe we should avoid to create a git repo on the root directory.
+
+A scenario that crosses my mind is when we are developing a package, we save the code of that package on Github, but we had some custom config in the root directory to help with development, and that config won&#39;t be saved in Github. To restore that setup with just a command would be desirable but not possible. How can we approach this?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 08 May 2019 12:17:19 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/frontity-cli-create-command/143.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, I applied the first solution using <code>node -r ts-node/register/transpile-only</code> on the shebang of the <code>commands.js</code> file and it seems to work <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/21</link>
+        <pubDate>Wed, 08 May 2019 12:17:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-21</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>If we transpile the typescript code to javascript, it cannot access the <code>frontity.settings.ts</code> file.</p>
+<p>So either we:</p>
+<ol>
+<li>Don’t transpile the <code>frontity</code> code and run it using <code>ts-node</code>.</li>
+<li>Transpile <code>frontity.settings.ts</code> with <code>tsc</code> before Frontity starts.</li>
+</ol>
+<p><a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a> can you take a look at it?</p>
+<p>I think I’ll try the first one first. <code>ts-node</code> has a programmatic option: <a href="https://github.com/TypeStrong/ts-node#programmatic" rel="nofollow noopener">https://github.com/TypeStrong/ts-node#programmatic</a>.</p>
+<ul>
+<li>It can work with <code>require('ts-node').register()</code> inside the code</li>
+<li>It can work with <code>node -r ts-node/register</code> in the command line.</li>
+</ul>
+<p>EDIT: Uh, and it has a <code>transpile-only</code> option <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/20</link>
+        <pubDate>Wed, 08 May 2019 07:19:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-20</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Yup. After the beta we can try <code>pastel</code> and <code>ink</code>, and also implement the <code>create-package</code> function.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/19</link>
+        <pubDate>Tue, 07 May 2019 11:58:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-19</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I really like the final <code>frontity create</code>! I think it’s really good, maybe we don’t need to invest more time now on it right now and we should focus on other important stuff.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/18</link>
+        <pubDate>Tue, 07 May 2019 10:11:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-18</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Maybe next week after the beta is out?</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/17</link>
+        <pubDate>Mon, 06 May 2019 09:29:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-17</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I think I’d love to try it out <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/16</link>
+        <pubDate>Mon, 06 May 2019 09:12:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-16</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a href="https://vadimdemedes.com/posts/creating-clis-with-ink-react-and-a-bit-of-magic" class="onebox" target="_blank" rel="nofollow noopener">https://vadimdemedes.com/posts/creating-clis-with-ink-react-and-a-bit-of-magic</a></p>
+<p>I like the idea of doing the CLI with React.</p>
+<p>What do you think <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>?</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/15</link>
+        <pubDate>Fri, 03 May 2019 18:02:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-15</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>It’d be interesting to think about the settings of  <code>wp-source</code>:</p>
+<ul>
+<li>Give the user the default settings populated, like <code>{ api: "https://test.frontity.io/wp-json/" }</code>.</li>
+<li>Ask the user about those settings in the <code>create</code>.</li>
+</ul>
+<p>And any other setting that needs to be set so the app works.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/14</link>
+        <pubDate>Mon, 29 Apr 2019 09:39:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-14</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>No, we can use <code>frontity dev</code> and so on everywhere.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/13</link>
+        <pubDate>Wed, 24 Apr 2019 11:56:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-13</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> once we have <code>dev</code>, <code>build</code> and <code>serve</code> in <code>frontity</code>, do we still need those commands to run in <code>@frontity/core</code>? I mean as scripts in its <code>package.json</code>.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/12</link>
+        <pubDate>Wed, 24 Apr 2019 11:55:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-12</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, I’ll be updating the first post with any changes I come up with during development and the ideas you are posting here.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/11</link>
+        <pubDate>Mon, 15 Apr 2019 08:47:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-11</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="9" data-topic="143" data-full="true">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Would it make sense to add an option called <code>--now</code> that would generate also a <code>now.json</code> file?</p>
+</blockquote>
+</aside>
+<p><code>now</code> is going to be only one of the possible ways to deploy Frontity so I wouldn’t add anything specific to the cli.</p>
+<aside class="quote group-development-team" data-post="8" data-topic="143">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>If what I’m doing is to develop a package for the community, I don’t care about the app repo, I’d only want to save the package and that’s gonna be my repo. But, there are some configs in the app that I use for development that would be worth saving, and I’d be loosing them. I don’t know how to make all of this to work together.</p>
+</blockquote>
+</aside>
+<p>My take on this is: the dev creates the theme/extension inside a “Frontity project”, not in a separate project.</p>
+<pre><code class="lang-bash">my-custom-theme-project/
+|__ .git/
+|__ node_modules/
+|__ packages/
+    |__ my-custom-theme/ # &lt;- the dev wants to publish only this
+          |__ package.json
+          |__ src/
+|__ package.json
+|__ frontity.settings.js
+</code></pre>
+<p>When the theme/extension is ready to be published, the dev simply uses <code>frontity publish my-custom-theme</code> and the cli does the magic. The themes/extensions already need a <code>package.json</code> file: they are ready to be published in <code>npm</code>.</p>
+<p>The <code>frontity publish</code> command only checks things like if the <code>keywords</code> are right (as suggested by <a class="mention" href="https://community.frontity.org/u/david">@David</a> a while ago).</p>
+<p>Regarding git, the devs can choose if they want to keep a “Frontity project git” (which I think it should be our recommendation), create a git submodule or only use git inside <code>my-custom-theme</code>:</p>
+<pre><code class="lang-bash">my-custom-theme-project/
+|__ node_modules/
+|__ packages/
+    |__ my-custom-theme/
+          |__ .git/
+          |__ package.json
+          |__ src/
+|__ package.json
+|__ frontity.settings.js
+</code></pre>
+<p>For that reason, we need to “clone” packages from npm and not from github:</p>
+<aside class="quote group-development-team" data-post="8" data-topic="143">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>user could just <code>frontity clone-package git@github.com:my/package</code></p>
+</blockquote>
+</aside>
+<p>So, it looks like we need naming for:</p>
+<pre><code class="lang-bash">&gt; frontity create my-app
+&gt; frontity create-package my-pkg
+&gt; frontity publish-package my-pkg
+&gt; frontity clone-package other-pkg
+</code></pre>
+<p>Maybe we can name <code>create</code> so we don’t have to name with <code>-package</code> the rest:</p>
+<pre><code class="lang-bash">&gt; frontity create-app my-app
+&gt; frontity create my-pkg
+&gt; frontity publish my-pkg
+&gt; frontity clone other-pkg
+</code></pre>
+<p><code>frontity create</code> could fail gracefully if the dev is not in a Frontity project folder and suggest to use <code>create-app</code> instead.</p>
+<p>I don’t quite like <code>clone</code> much because it may be confusing (we won’t add the <code>.git</code> folder).</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/10</link>
+        <pubDate>Thu, 11 Apr 2019 08:39:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-10</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Would it make sense to add an option called <code>--now</code> that would generate also a <code>now.json</code> file?</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/9</link>
+        <pubDate>Thu, 11 Apr 2019 08:02:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-9</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I didn’t see it that way. Maybe we could support both ways. What worries me here, is how the repos are going to be used.</p>
+<p>If I have an app, I’d like to have a repo with everything, not just my custom package. But maybe I’d like to also have a repo for my custom package (e.g. my theme).</p>
+<p>If what I’m doing is to develop a package for the community, I don’t care about the app repo, I’d only want to save the package and that’s gonna be my repo. But, there are some configs in the app that I use for development that would be worth saving, and I’d be loosing them. I don’t know how to make all of this to work together.</p>
+<p>I thought about a file called <code>frontity.development.js</code> inside my package, or something like that, to store the settings I need in the app to develop my package, and them another user could just <code>frontity clone-package git@github.com:my/package</code> and generate the whole environment ready to run <code>frontity dev</code> and start coding.</p>
+<p>I actually don’t know if all this trouble is really necessary or I’m just overthinking it <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>PS: Two commands wins!</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/8</link>
+        <pubDate>Wed, 10 Apr 2019 09:02:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-8</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Yeah, great work, <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>!</p>
+<p>Regarding on how to create apps or packages, I think it’s best to use two different commands, even if you haven’t created an app first you won’t be able to use <code>frontity create-package</code>.</p>
+<p>I mean, it makes sense to create an app and be able to add one or more packages to that app, develop them in the same project and then, with another command, publish them separately in npm.</p>
+<p>Something like:</p>
+<pre><code class="lang-bash">&gt; frontity create my-app
+&gt; frontity create-package my-pkg
+&gt; frontity publish my-pkg
+</code></pre>
+<p>What do you think?</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/7</link>
+        <pubDate>Wed, 10 Apr 2019 06:46:38 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-7</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think it’s a good pattern and provides the tool to do the Frontity Admin in the future and makes it “hackable” to others. The “cli with args” option is also good for things like travis and whatnot.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/6</link>
+        <pubDate>Tue, 09 Apr 2019 15:22:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-6</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I hadn’t think of the programmatic way. I’ll add it to the post.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/5</link>
+        <pubDate>Tue, 09 Apr 2019 15:19:35 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-5</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Great work. I think it’s a great plan.</p>
+<p>Just a design note: we need to make sure our APIS can be used in three levels:</p>
+<ol>
+<li>Programmatic, passing <code>options</code> (i.e, using node <code>require</code>)</li>
+<li>CLI, using user input.</li>
+<li>CLI, passing <code>args</code>.</li>
+</ol>
+<p>So, instead of coding <code>frontity create</code> only for the cli it should work first like:</p>
+<pre><code class="lang-javascript">import { create } from 'frontity';
+
+const options = { typescript: true };
+
+create(options);
+</code></pre>
+<p>Use it with cli and args:</p>
+<pre><code class="lang-bash">&gt; frontity create --typescript 
+</code></pre>
+<p>And finally with no args, using a library of questions like <a href="https://www.npmjs.com/package/inquirer" rel="nofollow noopener">inquirer</a>.</p>
+<pre><code class="lang-bash">&gt; frontity create
+
+- What is the name of the folder?
+/my-app
+- Do you want to use typescript? [Y/n]
+
+</code></pre>
+<p>The cli obviously uses the programmatic code underneath.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/4</link>
+        <pubDate>Tue, 09 Apr 2019 15:16:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-4</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> <a class="mention" href="https://community.frontity.org/u/david">@david</a> let me know what you think, if I’m missing something (probably) and if you have any other ideas on how <code>frontity create</code> should work <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/3</link>
+        <pubDate>Tue, 09 Apr 2019 12:23:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-3</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>What do you prefer for create app and create package?</p>
+<p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/2">Click to view the poll.</a></p>
+<p>If you have any other suggestion please write them below.</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/2</link>
+        <pubDate>Tue, 09 Apr 2019 12:21:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-2</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+      <item>
+        <title>Frontity CLI - Create command</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Collection of ideas on what we need to do with the <code>frontity create</code> command and how we are going to implement it.</p>
+<h2>Contraints</h2>
+<ul>
+<li>Support for <strong>Node v8.10</strong>.</li>
+<li>Support for <strong>Linux</strong>, <strong>macOS</strong> and <strong>Windows</strong>.</li>
+<li>When using <code>npx</code> it shouldn’t download anything but <code>frontity</code>. (e.g. <code>@frontity/core</code>)</li>
+</ul>
+<h2>Create app</h2>
+<h3>Command</h3>
+<pre><code class="lang-nohighlight">frontity create [options] [name]
+</code></pre>
+<h3>User stories</h3>
+<ul>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to generate a new app inside a new directory named by me.</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to generate a new app in my current directory if the directory is empty or is a new GitHub repo.</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to generate a new app with TypeScript support.</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I want to use <code>frontity create</code> and get prompts about the initial setup of my app.</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, I also want to use <code>frontity create</code> programmatically (e.g. <code>import { create } from "frontity"</code>).</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> - As a developer, if the command throws, I want it to undo any work done to that point.</li>
+</ul>
+<h3>Parameters</h3>
+<ul>
+<li>
+<code>name</code> (optional)<br>
+A name for the app.</li>
+</ul>
+<h3>Options</h3>
+<ul>
+<li>
+<code>-t</code>, <code>--typescript</code><br>
+The app will be configured to use TypeScript.</li>
+<li>
+<code>-c</code>, <code>--use-cwd</code><br>
+The app will be generated in the current working directory</li>
+</ul>
+<h3>Result</h3>
+<p>A directory with the following structure:</p>
+<pre><code class="lang-nohighlight">my-project/
+|__ node_modules/
+|__ packages/
+|   |__ mars-theme/
+|__ package.json
+|__ frontity.settings.(js|ts)
+|__ tsconfig.json ?
+</code></pre>
+<h3>Steps</h3>
+<ol>
+<li>Validate and parse options.</li>
+<li>Ensure that the directory exists and is empty.</li>
+<li>Generate a <code>package.json</code> file.</li>
+<li>Generate a <code>frontity.settings.js</code> file. (<code>frontity.settinigs.ts</code> if <code>--typescript</code> options is passed)</li>
+<li>Create a <code>packages/</code> directory and clone <code>@frontity/mars-theme</code> inside it.</li>
+<li>Install dependencies.</li>
+<li>On error: Revert progress.</li>
+</ol>
+<h2>Create package</h2>
+<h3>Command</h3>
+<pre><code class="lang-nohighlight">frontity create-package [options] [name]
+</code></pre>
+<h3>User stories</h3>
+<ul>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> - As a developer, I want to generate an environment ready to start developing my package.</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> - As a developer, I want to generate an environment ready to use with TypeScript.</li>
+<li>
+<img src="https://community.frontity.org/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> - As a developer, I want to generate a new package in an existent Frontity app.</li>
+</ul>
+<h3>Result</h3>
+<p>I’m guessing that the directory structure for packages would be the same as with apps, but I’m not sure. In this case, the important code is inside the package folder, and it should be a git repo. Maybe we should avoid to create a git repo on the root directory.</p>
+<p>A scenario that crosses my mind is when we are developing a package, we save the code of that package on Github, but we had some custom config in the root directory to help with development, and that config won’t be saved in Github. To restore that setup with just a command would be desirable but not possible. How can we approach this?</p>
+          <p><a href="https://community.frontity.org/t/frontity-cli-create-command/143/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/frontity-cli-create-command/143/1</link>
+        <pubDate>Mon, 08 Apr 2019 12:56:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-143-1</guid>
+        <source url="https://community.frontity.org/t/frontity-cli-create-command/143.rss">Frontity CLI - Create command</source>
+      </item>
+  </channel>
+</rss>

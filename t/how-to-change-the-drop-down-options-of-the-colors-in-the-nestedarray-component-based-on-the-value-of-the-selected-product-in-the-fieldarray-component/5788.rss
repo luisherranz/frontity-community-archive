@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to change the drop down options of the colors in the NestedArray Component based on the value of the selected product in the FieldArray Component? </title>
+    <link>https://community.frontity.org/t/how-to-change-the-drop-down-options-of-the-colors-in-the-nestedarray-component-based-on-the-value-of-the-selected-product-in-the-fieldarray-component/5788</link>
+    <description>I kind of wanted to display the `colors` according to what was chosen as the `product` in `AutoComplete` of the `FieldArray` component. For example, I chose Tumbler, this will show the list of colors the tumbler has which are `Black, Pink, and Green`. And if I’ll choose the product `Shirt,` the list of `colors` that will display are `Blue and Black`
+
+How can I do this? Thank you.
+
+This is the `JSON.stringify(products)`
+
+```
+[
+  {
+    prodName: &quot;Tumbler&quot;,
+    size: &quot;500&quot;,
+    colorMap: { Black: 20, Pink: 10, Green: 5 },
+    id: &quot;aRLMZkiSU7T0lcsPCSsV&quot;
+  },
+  {
+    prodName: &quot;Shirt&quot;,
+    size: &quot;L&quot;,
+    colorMap: { Blue: 10, Black: 10 },
+    id: &quot;uTHIR6OQFRuqP9Drft0e&quot;
+  },
+  {
+    size: &quot;200&quot;,
+    colorMap: { Green: 50, Red: 19, Black: 20 },
+    prodName: &quot;Notebook&quot;,
+    id: &quot;y9ECyZBKp2OBekmWym4M&quot;
+  }
+];
+```
+I have recreated the problem in codesandbox: [React Hook Form - Wizard Form - From Reddit with data - CodeSandbox](https://codesandbox.io/s/react-hook-form-wizard-form-from-reddit-with-data-ouy64e?file=/src/fieldArray.js)
+
+
+```
+const FieldArray = ({  products }) =&gt; {
+
+  const options = products.map(
+    (object) =&gt;
+      object.prodName +
+      &quot; - &quot; +
+      object.size +
+     
+  );
+
+  console.log(fields, &quot;f&quot;);
+
+  const selectedProduct = fields.map((object) =&gt; object.product);
+  console.log(selectedProduct, &quot;selectedProduct&quot;);
+
+  return (
+    &lt;div&gt;
+      &lt;ul&gt;
+        {fields.map((item, index) =&gt; {
+          return (
+            &lt;li key={item.id} style={{ listStyleType: &quot;none&quot; }}&gt;
+              &lt;Controller
+                control={control}
+                name={`order.${index}.product`}
+                render={({ field: { onChange, value = &quot;&quot;, ...rest } }) =&gt; (
+                  &lt;Autocomplete
+                    {...rest}
+                    onInputChange={(e, newValue) =&gt; {
+                      onChange(newValue);
+                    }}
+                    inputValue={value}
+                    options={options}
+                    isOptionEqualToValue={(option, value) =&gt;
+                      option?.value === value?.value
+                    }
+                    renderInput={(params) =&gt; (
+                      &lt;TextField
+                        {...params}
+                        label=&quot;Product&quot;
+                        variant=&quot;outlined&quot;
+                        fullWidth
+                      /&gt;
+                    )}
+                  /&gt;
+                )}
+              /&gt;
+              &lt;NestedArray
+                nestIndex={index}
+                {...{ control, register, products }}
+              /&gt;   //pass the corresponding colors here of the selected product (AutoComplete) in the above component
+            &lt;/li&gt;
+          );
+        })}
+      &lt;/ul&gt;
+      &lt;section&gt;
+       //button to add more product
+      &lt;/section&gt;
+    &lt;/div&gt;
+  );
+};
+
+export default FieldArray;
+```
+
+
+I have also posted this on: [javascript - How can I show the corresponding colors of the product that was selected in AutoComplete and pass it to another component? - Stack Overflow](https://stackoverflow.com/questions/71291945/how-can-i-show-the-corresponding-colors-of-the-product-that-was-selected-in-auto)</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 01 Mar 2022 09:16:18 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-change-the-drop-down-options-of-the-colors-in-the-nestedarray-component-based-on-the-value-of-the-selected-product-in-the-fieldarray-component/5788.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to change the drop down options of the colors in the NestedArray Component based on the value of the selected product in the FieldArray Component? </title>
+        <dc:creator><![CDATA[forjen16]]></dc:creator>
+        <description><![CDATA[
+            <p>I kind of wanted to display the <code>colors</code> according to what was chosen as the <code>product</code> in <code>AutoComplete</code> of the <code>FieldArray</code> component. For example, I chose Tumbler, this will show the list of colors the tumbler has which are <code>Black, Pink, and Green</code>. And if I’ll choose the product <code>Shirt,</code> the list of <code>colors</code> that will display are <code>Blue and Black</code></p>
+<p>How can I do this? Thank you.</p>
+<p>This is the <code>JSON.stringify(products)</code></p>
+<pre><code class="lang-javascript">[
+  {
+    prodName: "Tumbler",
+    size: "500",
+    colorMap: { Black: 20, Pink: 10, Green: 5 },
+    id: "aRLMZkiSU7T0lcsPCSsV"
+  },
+  {
+    prodName: "Shirt",
+    size: "L",
+    colorMap: { Blue: 10, Black: 10 },
+    id: "uTHIR6OQFRuqP9Drft0e"
+  },
+  {
+    size: "200",
+    colorMap: { Green: 50, Red: 19, Black: 20 },
+    prodName: "Notebook",
+    id: "y9ECyZBKp2OBekmWym4M"
+  }
+];
+</code></pre>
+<p>I have recreated the problem in codesandbox: <a href="https://codesandbox.io/s/react-hook-form-wizard-form-from-reddit-with-data-ouy64e?file=/src/fieldArray.js" rel="noopener nofollow ugc">React Hook Form - Wizard Form - From Reddit with data - CodeSandbox</a></p>
+<pre><code class="lang-javascript">const FieldArray = ({  products }) =&gt; {
+
+  const options = products.map(
+    (object) =&gt;
+      object.prodName +
+      " - " +
+      object.size +
+     
+  );
+
+  console.log(fields, "f");
+
+  const selectedProduct = fields.map((object) =&gt; object.product);
+  console.log(selectedProduct, "selectedProduct");
+
+  return (
+    &lt;div&gt;
+      &lt;ul&gt;
+        {fields.map((item, index) =&gt; {
+          return (
+            &lt;li key={item.id} style={{ listStyleType: "none" }}&gt;
+              &lt;Controller
+                control={control}
+                name={`order.${index}.product`}
+                render={({ field: { onChange, value = "", ...rest } }) =&gt; (
+                  &lt;Autocomplete
+                    {...rest}
+                    onInputChange={(e, newValue) =&gt; {
+                      onChange(newValue);
+                    }}
+                    inputValue={value}
+                    options={options}
+                    isOptionEqualToValue={(option, value) =&gt;
+                      option?.value === value?.value
+                    }
+                    renderInput={(params) =&gt; (
+                      &lt;TextField
+                        {...params}
+                        label="Product"
+                        variant="outlined"
+                        fullWidth
+                      /&gt;
+                    )}
+                  /&gt;
+                )}
+              /&gt;
+              &lt;NestedArray
+                nestIndex={index}
+                {...{ control, register, products }}
+              /&gt;   //pass the corresponding colors here of the selected product (AutoComplete) in the above component
+            &lt;/li&gt;
+          );
+        })}
+      &lt;/ul&gt;
+      &lt;section&gt;
+       //button to add more product
+      &lt;/section&gt;
+    &lt;/div&gt;
+  );
+};
+
+export default FieldArray;
+</code></pre>
+<p>I have also posted this on: <a href="https://stackoverflow.com/questions/71291945/how-can-i-show-the-corresponding-colors-of-the-product-that-was-selected-in-auto" rel="noopener nofollow ugc">javascript - How can I show the corresponding colors of the product that was selected in AutoComplete and pass it to another component? - Stack Overflow</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-change-the-drop-down-options-of-the-colors-in-the-nestedarray-component-based-on-the-value-of-the-selected-product-in-the-fieldarray-component/5788/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-change-the-drop-down-options-of-the-colors-in-the-nestedarray-component-based-on-the-value-of-the-selected-product-in-the-fieldarray-component/5788/1</link>
+        <pubDate>Tue, 01 Mar 2022 09:16:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5788-1</guid>
+        <source url="https://community.frontity.org/t/how-to-change-the-drop-down-options-of-the-colors-in-the-nestedarray-component-based-on-the-value-of-the-selected-product-in-the-fieldarray-component/5788.rss">How to change the drop down options of the colors in the NestedArray Component based on the value of the selected product in the FieldArray Component? </source>
+      </item>
+  </channel>
+</rss>

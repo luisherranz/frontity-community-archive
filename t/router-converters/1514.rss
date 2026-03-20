@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Router Converters</title>
+    <link>https://community.frontity.org/t/router-converters/1514</link>
+    <description># Description
+
+Sometimes multiple URLs represent a single URL. We need a way to modify those URLs before they reach the rest of the framework.
+
+The system needs to be extensible. Users and packages must be able to add and remove those modifications at will.
+
+# User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **replace some URLs with a different URL**
+&gt; so that **I don&#39;t have to deal with duplicate URLs that shouldn&#39;t exist**.
+
+# Examples
+
+- Adding trailing slashes:
+  `&quot;/some-post&quot;` =&gt; `&quot;/some-post/&quot;`
+
+- Or doing the opposite, remove trailing slashes:
+  `&quot;/some-post/&quot;` =&gt; `&quot;/some-post&quot;`
+
+- &lt;s&gt;Remove configuration queries starting with `frontity_`:&lt;/s&gt;
+  `&quot;/some-post/?frontity_name=my-site&quot;` =&gt; `&quot;/some-post/&quot;`
+  `&quot;/some-post/?frontity_publicPath=/other-static-folder&quot;` =&gt; `&quot;/some-post/&quot;`
+  _This was already done at a framework level with the introduction of the &quot;Frontity Query Options&quot;: https://community.frontity.org/t/auth-header-in-source-packages-and-frontity-query-options/2678/21_
+
+- Replace search spaces (or `%20`) with `+`:
+  `&quot;/?s=some search&quot;` =&gt; `&quot;/?s=some+search&quot;`
+  `&quot;/?s=some%20search&quot;` =&gt; `&quot;/?s=some+search&quot;`
+
+- Replace search permalink with search query:
+  `&quot;/search/some+search&quot;` =&gt; `&quot;/?s=some+search&quot;`
+
+# Possible Implementation
+
+Introduce a new system called **router converters**, based on:
+
+- Configuration objects in `state.router.converters`.
+- Code in `libraries.router.converters`.
+
+When the action `actions.router.set` is run, it will look in the state and will run the libraries before changing the URL.
+
+Each converter can be declared by a boolean or an object in the `state`.
+
+- If it&#39;s a boolean, `actions.router.set` will just run the library with the same name if the value is `true` and will not run at all if the value is `false`.
+- If it&#39;s an object, `actions.router.set` will run the library specified in `library` and will pass `options` to the library. It can also specify a `priority` different than the default (10).
+
+The `options` of each converter are decided by the converter creators and should be documented by them.
+
+```js
+import { trailingSlash, removeQueries } from &quot;./converters&quot;;
+
+export default {
+  state: {
+    router: {
+      converters: {
+        trailingSlash: true,
+        removeQueries: {
+          library: &quot;removeQueries&quot;,
+          priority: 5,
+          options: {
+            blacklist: {
+              frontity_name: true,
+              frontity_publicPath: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  libraries: {
+    router: {
+      converters: {
+        trailingSlash,
+        removeQueries,
+      },
+    },
+  },
+};
+```
+
+If the configuration object is `false` the converter will not be used. This is useful to deactivate converters on demand.
+
+By the user, using `frontity.settings.js`:
+
+```js
+export default {
+  // ...
+  packages: [
+    {
+      name: &quot;tiny-router&quot;,
+      state: {
+        router: {
+          converters: {
+            trailingSlash: false,
+          },
+        },
+      },
+    },
+  ],
+};
+```
+
+By some other package, using its own state. For example, imagine somebody wants to remove trailing slashes instead of adding them:
+
+```js
+import { removeTrailingSlash } from &quot;./router-converters&quot;;
+
+export default {
+  state: {
+    router: {
+      converters: {
+        trailingSlash: false,
+        removeTrailingSlash: true,
+      },
+    },
+  },
+  libraries: {
+    router: {
+      converters: {
+        removeTrailingSlash,
+      },
+    },
+  },
+};
+```
+
+The action `actions.router.set` may look something like this:
+
+```js
+const set = ({ state, libraries }) =&gt; (link, options) =&gt; {
+  Object.entries(state.router.converters)
+    // Filter false converters.
+    .filter(([_, converter]) =&gt; converter !== false)
+    // Add default priority.
+    .map(([name, converter]) =&gt; (converter.priority = converter.priority || 10))
+    // Sort them by priority.
+    .sort(
+      ([_, converterA], [_, converterB]) =&gt;
+        converterA.priotity &gt; converterB.priority
+    )
+    .forEach(([name, converter]) =&gt; {
+      // The library used is either the key or the `library` prop.
+      const codeConverterName = conveter === true ? name : converter.library;
+      const codeConverter = libraries.router.converters[codeConverterName];
+      // Run the code and replace link.
+      link = codeConverter({
+        state,
+        libraries,
+        link,
+        options: { ...options, ...converter.options },
+      });
+    });
+  // Continue with actions.router.set duties...
+};
+```
+
+Code converters will receive the `link`, the options passed to `actions.router.set` (like `method`) and they will have access to `state` and `libraries`:
+
+```js
+const removeQueries = ({ link, options }) =&gt; {
+  // Generate URL object.
+  const url = new URL(link);
+  // Remove the queries that are in the blacklist options.
+  Array.from(url.searchParams).forEach((key) =&gt; {
+    if (Object.keys(options.blacklist).includes(key))
+      url.searchParams.delete(key);
+  });
+  // Return the filtered URL.
+  return `${url.pathname}${url.search}`;
+};
+```
+
+Users and package creators can also modify the options of the converters.
+
+For example, a package may add an additional configuration query that needs to be filtered. Imagine a package needs to filter `?my_package_option=XXX`.
+
+```js
+import { removeQueries } from &quot;@frontity/router/converters&quot;;
+
+export default {
+  state: {
+    router: {
+      converters: {
+        removeQueries: {
+          library: &quot;removeQueries&quot;,
+          options: {
+            blacklist: {
+              my_package_option: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  libraries: {
+    router: {
+      converters: {
+        removeQueries,
+      },
+    },
+  },
+};
+```
+
+One important thing to notice is that, in order to make sure that the query is going to be removed, the package needs to import the library and recreate the converter configuration object itself. If the package doesn&#39;t do that and rely on the `&quot;removeQueries&quot;` to be there it will work only if another package has added the `&quot;removeQueries&quot;` converter, which is not a solid behavior.
+
+This will fail if no other package is adding the `&quot;removeQueries&quot;` code converter.
+
+```js
+export default {
+  state: {
+    router: {
+      converters: {
+        removeQueries: {
+          options: {
+            blacklist: {
+              my_package_option: true,
+            },
+          },
+        },
+      },
+    },
+  },
+};
+```
+
+## Default converters
+
+By default, `@frontity/tiny-router` can add:
+
+- Add trailing slash converter.
+- &lt;s&gt;Remove any query that starts with `frontity_`.&lt;/s&gt; _Not required as this is already done by the core_.
+
+By default, `@frontity/wp-source` can add:
+
+- Replace search query spaces with `+`.
+- Replace permalink search with query search.
+
+It&#39;s important to notice that the converters relevant only to WordPress should be added by WordPress related packages and `@frontity/tiny-router` is agnostic to WordPress.
+
+## Update link on client hydration
+
+&lt;s&gt;We should update the browser URL on client hydration to match `state.router.link`. We can do so with `history.replaceState`.&lt;/s&gt;
+
+&lt;s&gt;This is not strictly necessary as any Frontity package should be using `state.router.link` instead of `window.location`, but I guess for consistency it&#39;d be good to make them match.&lt;/s&gt;
+
+This is not a good approach because sometimes the URL sent to the server can be different than the URL that exists in the client: https://github.com/frontity/frontity/issues/623
+
+So we need to do the opposite, update `state.router.link` with `window.location`.
+
+---
+
+In the future, when we add Frontity hooks, these converters will be substituted by them.
+
+# Dependencies
+
+There is another FD to add an options object to `actions.router.set`: https://community.frontity.org/t/router-set-options-method-title-and-state/1508. This FD doesn&#39;t depend on that feature to work, but if this one is done before, it needs to be modified to pass the options object to the converters once that FD is implemented.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 12 Jul 2021 14:13:37 +0000</lastBuildDate>
+    <category>Closed</category>
+    <atom:link href="https://community.frontity.org/t/router-converters/1514.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Router Converters</title>
+        <dc:creator><![CDATA[bhagvan.vrinsofts]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/all">@all</a></p>
+<p>Any one please help me for above point.</p>
+          <p><a href="https://community.frontity.org/t/router-converters/1514/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-converters/1514/5</link>
+        <pubDate>Mon, 12 Jul 2021 14:13:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1514-5</guid>
+        <source url="https://community.frontity.org/t/router-converters/1514.rss">Router Converters</source>
+      </item>
+      <item>
+        <title>Router Converters</title>
+        <dc:creator><![CDATA[bhagvan.vrinsofts]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi</p>
+<p>I have used .html link for pages then link is working fine. but i have faced in url  / (slash). Like this one reference : <a href="http://localhost:3000/services.html/" rel="noopener nofollow ugc">http://localhost:3000/services.html/</a></p>
+<p>So can you please help me how we remove  / (slash) after url.</p>
+<p>Thanks.</p>
+          <p><a href="https://community.frontity.org/t/router-converters/1514/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-converters/1514/4</link>
+        <pubDate>Thu, 01 Jul 2021 09:32:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1514-4</guid>
+        <source url="https://community.frontity.org/t/router-converters/1514.rss">Router Converters</source>
+      </item>
+      <item>
+        <title>Router Converters</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I agree action hooks is a best approach, I really like the idea. I’m closing this Feature Discussion and we can open it again in case we finally implement it this way.</p>
+          <p><a href="https://community.frontity.org/t/router-converters/1514/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-converters/1514/3</link>
+        <pubDate>Wed, 17 Jun 2020 09:11:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1514-3</guid>
+        <source url="https://community.frontity.org/t/router-converters/1514.rss">Router Converters</source>
+      </item>
+      <item>
+        <title>Router Converters</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Due to our collaboration with <code>react-easy-state</code> I think we should not go ahead with this Feature Discussion as it is. Instead, wait until we have action hooks.</p>
+<p>Thanks to action hooks, we will be able to achieve the same result/pattern explained here, but done with a tool that works for any Frontity action, not something specific to <code>actions.router.set</code>.</p>
+          <p><a href="https://community.frontity.org/t/router-converters/1514/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-converters/1514/2</link>
+        <pubDate>Wed, 17 Jun 2020 08:14:12 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1514-2</guid>
+        <source url="https://community.frontity.org/t/router-converters/1514.rss">Router Converters</source>
+      </item>
+      <item>
+        <title>Router Converters</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>Sometimes multiple URLs represent a single URL. We need a way to modify those URLs before they reach the rest of the framework.</p>
+<p>The system needs to be extensible. Users and packages must be able to add and remove those modifications at will.</p>
+<h1>User Stories</h1>
+<blockquote>
+<p>As a <strong>Frontity user</strong><br>
+I want to <strong>replace some URLs with a different URL</strong><br>
+so that <strong>I don’t have to deal with duplicate URLs that shouldn’t exist</strong>.</p>
+</blockquote>
+<h1>Examples</h1>
+<ul>
+<li>
+<p>Adding trailing slashes:<br>
+<code>"/some-post"</code> =&gt; <code>"/some-post/"</code></p>
+</li>
+<li>
+<p>Or doing the opposite, remove trailing slashes:<br>
+<code>"/some-post/"</code> =&gt; <code>"/some-post"</code></p>
+</li>
+<li>
+<p><s>Remove configuration queries starting with <code>frontity_</code>:</s><br>
+<code>"/some-post/?frontity_name=my-site"</code> =&gt; <code>"/some-post/"</code><br>
+<code>"/some-post/?frontity_publicPath=/other-static-folder"</code> =&gt; <code>"/some-post/"</code><br>
+<em>This was already done at a framework level with the introduction of the “Frontity Query Options”: <a href="https://community.frontity.org/t/auth-header-in-source-packages-and-frontity-query-options/2678/21" class="inline-onebox">Auth header in Source packages and Frontity Query Options</a></em></p>
+</li>
+<li>
+<p>Replace search spaces (or <code>%20</code>) with <code>+</code>:<br>
+<code>"/?s=some search"</code> =&gt; <code>"/?s=some+search"</code><br>
+<code>"/?s=some%20search"</code> =&gt; <code>"/?s=some+search"</code></p>
+</li>
+<li>
+<p>Replace search permalink with search query:<br>
+<code>"/search/some+search"</code> =&gt; <code>"/?s=some+search"</code></p>
+</li>
+</ul>
+<h1>Possible Implementation</h1>
+<p>Introduce a new system called <strong>router converters</strong>, based on:</p>
+<ul>
+<li>Configuration objects in <code>state.router.converters</code>.</li>
+<li>Code in <code>libraries.router.converters</code>.</li>
+</ul>
+<p>When the action <code>actions.router.set</code> is run, it will look in the state and will run the libraries before changing the URL.</p>
+<p>Each converter can be declared by a boolean or an object in the <code>state</code>.</p>
+<ul>
+<li>If it’s a boolean, <code>actions.router.set</code> will just run the library with the same name if the value is <code>true</code> and will not run at all if the value is <code>false</code>.</li>
+<li>If it’s an object, <code>actions.router.set</code> will run the library specified in <code>library</code> and will pass <code>options</code> to the library. It can also specify a <code>priority</code> different than the default (10).</li>
+</ul>
+<p>The <code>options</code> of each converter are decided by the converter creators and should be documented by them.</p>
+<pre><code class="lang-js">import { trailingSlash, removeQueries } from "./converters";
+
+export default {
+  state: {
+    router: {
+      converters: {
+        trailingSlash: true,
+        removeQueries: {
+          library: "removeQueries",
+          priority: 5,
+          options: {
+            blacklist: {
+              frontity_name: true,
+              frontity_publicPath: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  libraries: {
+    router: {
+      converters: {
+        trailingSlash,
+        removeQueries,
+      },
+    },
+  },
+};
+</code></pre>
+<p>If the configuration object is <code>false</code> the converter will not be used. This is useful to deactivate converters on demand.</p>
+<p>By the user, using <code>frontity.settings.js</code>:</p>
+<pre><code class="lang-js">export default {
+  // ...
+  packages: [
+    {
+      name: "tiny-router",
+      state: {
+        router: {
+          converters: {
+            trailingSlash: false,
+          },
+        },
+      },
+    },
+  ],
+};
+</code></pre>
+<p>By some other package, using its own state. For example, imagine somebody wants to remove trailing slashes instead of adding them:</p>
+<pre><code class="lang-js">import { removeTrailingSlash } from "./router-converters";
+
+export default {
+  state: {
+    router: {
+      converters: {
+        trailingSlash: false,
+        removeTrailingSlash: true,
+      },
+    },
+  },
+  libraries: {
+    router: {
+      converters: {
+        removeTrailingSlash,
+      },
+    },
+  },
+};
+</code></pre>
+<p>The action <code>actions.router.set</code> may look something like this:</p>
+<pre><code class="lang-js">const set = ({ state, libraries }) =&gt; (link, options) =&gt; {
+  Object.entries(state.router.converters)
+    // Filter false converters.
+    .filter(([_, converter]) =&gt; converter !== false)
+    // Add default priority.
+    .map(([name, converter]) =&gt; (converter.priority = converter.priority || 10))
+    // Sort them by priority.
+    .sort(
+      ([_, converterA], [_, converterB]) =&gt;
+        converterA.priotity &gt; converterB.priority
+    )
+    .forEach(([name, converter]) =&gt; {
+      // The library used is either the key or the `library` prop.
+      const codeConverterName = conveter === true ? name : converter.library;
+      const codeConverter = libraries.router.converters[codeConverterName];
+      // Run the code and replace link.
+      link = codeConverter({
+        state,
+        libraries,
+        link,
+        options: { ...options, ...converter.options },
+      });
+    });
+  // Continue with actions.router.set duties...
+};
+</code></pre>
+<p>Code converters will receive the <code>link</code>, the options passed to <code>actions.router.set</code> (like <code>method</code>) and they will have access to <code>state</code> and <code>libraries</code>:</p>
+<pre><code class="lang-js">const removeQueries = ({ link, options }) =&gt; {
+  // Generate URL object.
+  const url = new URL(link);
+  // Remove the queries that are in the blacklist options.
+  Array.from(url.searchParams).forEach((key) =&gt; {
+    if (Object.keys(options.blacklist).includes(key))
+      url.searchParams.delete(key);
+  });
+  // Return the filtered URL.
+  return `${url.pathname}${url.search}`;
+};
+</code></pre>
+<p>Users and package creators can also modify the options of the converters.</p>
+<p>For example, a package may add an additional configuration query that needs to be filtered. Imagine a package needs to filter <code>?my_package_option=XXX</code>.</p>
+<pre><code class="lang-js">import { removeQueries } from "@frontity/router/converters";
+
+export default {
+  state: {
+    router: {
+      converters: {
+        removeQueries: {
+          library: "removeQueries",
+          options: {
+            blacklist: {
+              my_package_option: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  libraries: {
+    router: {
+      converters: {
+        removeQueries,
+      },
+    },
+  },
+};
+</code></pre>
+<p>One important thing to notice is that, in order to make sure that the query is going to be removed, the package needs to import the library and recreate the converter configuration object itself. If the package doesn’t do that and rely on the <code>"removeQueries"</code> to be there it will work only if another package has added the <code>"removeQueries"</code> converter, which is not a solid behavior.</p>
+<p>This will fail if no other package is adding the <code>"removeQueries"</code> code converter.</p>
+<pre><code class="lang-js">export default {
+  state: {
+    router: {
+      converters: {
+        removeQueries: {
+          options: {
+            blacklist: {
+              my_package_option: true,
+            },
+          },
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<h2>Default converters</h2>
+<p>By default, <code>@frontity/tiny-router</code> can add:</p>
+<ul>
+<li>Add trailing slash converter.</li>
+<li>
+<s>Remove any query that starts with <code>frontity_</code>.</s> <em>Not required as this is already done by the core</em>.</li>
+</ul>
+<p>By default, <code>@frontity/wp-source</code> can add:</p>
+<ul>
+<li>Replace search query spaces with <code>+</code>.</li>
+<li>Replace permalink search with query search.</li>
+</ul>
+<p>It’s important to notice that the converters relevant only to WordPress should be added by WordPress related packages and <code>@frontity/tiny-router</code> is agnostic to WordPress.</p>
+<h2>Update link on client hydration</h2>
+<p><s>We should update the browser URL on client hydration to match <code>state.router.link</code>. We can do so with <code>history.replaceState</code>.</s></p>
+<p><s>This is not strictly necessary as any Frontity package should be using <code>state.router.link</code> instead of <code>window.location</code>, but I guess for consistency it’d be good to make them match.</s></p>
+<p>This is not a good approach because sometimes the URL sent to the server can be different than the URL that exists in the client: <a href="https://github.com/frontity/frontity/issues/623">https://github.com/frontity/frontity/issues/623</a></p>
+<p>So we need to do the opposite, update <code>state.router.link</code> with <code>window.location</code>.</p>
+<hr>
+<p>In the future, when we add Frontity hooks, these converters will be substituted by them.</p>
+<h1>Dependencies</h1>
+<p>There is another FD to add an options object to <code>actions.router.set</code>: <a href="https://community.frontity.org/t/router-set-options-method-title-and-state/1508" class="inline-onebox">Router set options: method, title and state</a>. This FD doesn’t depend on that feature to work, but if this one is done before, it needs to be modified to pass the options object to the converters once that FD is implemented.</p>
+          <p><a href="https://community.frontity.org/t/router-converters/1514/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/router-converters/1514/1</link>
+        <pubDate>Fri, 10 Apr 2020 09:37:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1514-1</guid>
+        <source url="https://community.frontity.org/t/router-converters/1514.rss">Router Converters</source>
+      </item>
+  </channel>
+</rss>

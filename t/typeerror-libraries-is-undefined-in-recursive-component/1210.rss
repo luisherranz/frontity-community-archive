@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>TypeError: libraries is undefined in recursive component</title>
+    <link>https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210</link>
+    <description>I&#39;m trying to achieve a recursive menuItem. I was able to make a basic example with the following code:
+
+    /**
+    * Navigation Component
+    *
+    * It renders the navigation links
+    */
+    const Nav = ({ state }) =&gt; {
+      const { items } = state.source.get(&quot;menus/2&quot;);
+
+      return (
+        &lt;NavContainer&gt;
+          {items.map(item =&gt; {
+            if (item.parent === 0) {  //if it&#39;s a top level menuItem
+              return &lt;NavItem key={item.id} items={items} item={item} /&gt;;
+            }
+          })}
+        &lt;/NavContainer&gt;
+      );
+    };
+
+    const NavItem = ({ items, item }) =&gt; {
+      const childItems = items.filter(({ parent }) =&gt; parent === item.id);
+      const name = item.title.rendered;
+      return (
+        &lt;div key={item.id}&gt;
+          {name}
+          {childItems.length &gt; 0 &amp;&amp;  //If it has childrens do it recursive
+            childItems.map(childItem =&gt; {
+              const childChildItems = items.filter(
+                ({ parent }) =&gt; parent === childItem.id,
+              );
+              return (
+                &lt;NavItem key={childItem.id} items={items} item={childItem} /&gt;
+              );
+            })}
+        &lt;/div&gt;
+      );
+    };
+
+    export default connect(Nav);
+
+However, I was not able to use `libraries` and `state` recursively.
+My code, what&#39;s not working:
+I moved the `NavItem` to a separate file, so my `nav.js` looks like:
+
+    //nav.js
+    import React from &quot;react&quot;;
+    import { connect, styled } from &quot;frontity&quot;;
+    import NavItem from &quot;./nav-item&quot;;
+
+    /**
+    * Navigation Component
+    *
+    * It renders the navigation links
+    */
+    const Nav = ({ state }) =&gt; {
+      const { items } = state.source.get(&quot;menus/2&quot;);
+
+      return (
+        &lt;NavContainer&gt;
+          {items.map(item =&gt; {
+            if (item.parent === 0) {
+              return &lt;NavItem key={item.id} items={items} item={item} /&gt;;
+            }
+          })}
+        &lt;/NavContainer&gt;
+      );
+    };
+
+    export default connect(Nav);
+
+    const NavContainer = styled.nav` ...`;
+    
+And my `nav-item.js`:
+
+    //nav-item.js
+    import React from &quot;react&quot;;
+    import { connect } from &quot;frontity&quot;;
+    import Link from &quot;./link&quot;;
+
+    const NavItem = ({ state, libraries, items, item }) =&gt; {
+      const name = item.title.rendered;
+      const link = libraries.source.normalize(item.url); //without this line the code is working
+      const childItems = items.filter(({ parent }) =&gt; parent === item.id);
+      return (
+        &lt;div key={item.id}&gt;
+          {name}
+          {childItems.length &gt; 0 &amp;&amp;
+            childItems.map(childItem =&gt; {
+              const childChildItems = items.filter(
+                ({ parent }) =&gt; parent === childItem.id
+              );
+              return &lt;NavItem key={childItem.id} items={items} item={childItem} /&gt;;
+            })}
+        &lt;/div&gt;
+      );
+    };
+
+    export default connect(NavItem);
+
+The top-level `NavItem`s does see `state` and `libraries` but the childItems are throwing the following error:
+
+    The above error occurred in the &lt;NavItem&gt; component:
+        in NavItem
+        in div
+        in Unknown
+        in nav (created by Context.Consumer)
+        in NavContainer
+        in Unknown
+        in Unknown
+        in div (created by Context.Consumer)
+        in HeadContainer
+        in Unknown (created by App)
+        in HelmetProvider (created by App)
+        in App
+
+    Consider adding an error boundary to your tree to customize error handling behavior.
+    Visit https://fb.me/react-error-boundaries to learn more about error boundaries. 3 backend.js:6:2315
+        r backend.js:6
+        React 9
+        batch scheduler.js:10
+        batchedUpdates$1 React
+        batch scheduler.js:10
+        batched scheduler.js:25
+        React 3
+        unstable_runWithPriority scheduler.development.js:697
+        React 5
+        unstable_runWithPriority scheduler.development.js:697
+        React 4
+        batch scheduler.js:10
+        batched scheduler.js:25
+        (Async: promise callback)
+        apply scheduler.js:42
+        asyncGeneratorStep index.tsx:10
+        _next index.tsx:10
+        _asyncToGenerator index.tsx:10
+        _asyncToGenerator index.tsx:10
+        default index.tsx:7
+        &lt;anonymous&gt; client.ts:37
+        &lt;anonymous&gt; client.ts:17
+        hotApply frontity.module.js:664
+        cb process-update.js:76
+        check process-update.js:91
+        batch scheduler.js:10
+        batchedUpdates$1 React
+        batch scheduler.js:10
+        batched scheduler.js:25
+        (Async: promise callback)
+        apply scheduler.js:42
+        check process-update.js:90
+        exports process-update.js:52
+        processMessage client.js:279
+        handleMessage client.js:139
+        handleMessage client.js:102
+        (Async: EventHandlerNonNull)
+        init client.js:91
+        EventSourceWrapper client.js:80
+        getEventSourceWrapper client.js:126
+        connect client.js:132
+        &lt;anonymous&gt; client.js:33
+        &lt;anonymous&gt; client.js:12
+        js frontity.module.js:2478
+        __webpack_require__ frontity.module.js:770
+        fn frontity.module.js:130
+        0 frontity.module.js:2702
+        __webpack_require__ frontity.module.js:770
+        &lt;anonymous&gt; frontity.module.js:908
+        &lt;anonymous&gt; frontity.module.js:911
+    TypeError: libraries is undefined
+    3 frontity.3b4107709437b24ece61.hot-update.js line 11 &gt; eval:8:97
+        NavItem nav-item.js:7
+        React 4
+        batch scheduler.js:10
+        batchedUpdates$1 React
+        batch scheduler.js:10
+        batched scheduler.js:25
+        React 6
+        performSyncWorkOnRoot self-hosted:920
+        flushSyncCallbackQueueImpl React
+        unstable_runWithPriority scheduler.development.js:697
+        React 4
+        batch scheduler.js:10
+        batched scheduler.js:25
+        (Async: promise callback)
+        apply self-hosted:1875
+        apply scheduler.js:42
+        asyncGeneratorStep index.tsx:10
+        _next index.tsx:10
+        _asyncToGenerator index.tsx:10
+        _asyncToGenerator index.tsx:10
+        default index.tsx:7
+        &lt;anonymous&gt; client.ts:37
+        &lt;anonymous&gt; client.ts:17
+        &lt;anonymous&gt; self-hosted:876
+        hotApply frontity.module.js:664
+        cb process-update.js:76
+        check process-update.js:91
+        batch scheduler.js:10
+        batchedUpdates$1 React
+        batch scheduler.js:10
+        batched scheduler.js:25
+        (Async: promise callback)
+        apply self-hosted:1875
+        apply scheduler.js:42
+        check process-update.js:90
+        exports process-update.js:52
+        processMessage client.js:279
+        handleMessage client.js:139
+        handleMessage client.js:102
+        (Async: EventHandlerNonNull)
+        init client.js:91
+        EventSourceWrapper client.js:80
+        getEventSourceWrapper client.js:126
+        connect client.js:132
+        &lt;anonymous&gt; client.js:33
+        &lt;anonymous&gt; client.js:12
+        js frontity.module.js:2478
+        __webpack_require__ frontity.module.js:770
+        fn frontity.module.js:130
+        0 frontity.module.js:2702
+        __webpack_require__ frontity.module.js:770
+        &lt;anonymous&gt; frontity.module.js:908
+        &lt;anonymous&gt; frontity.module.js:911
+    TypeError: libraries is undefined
+    frontity.3b4107709437b24ece61.hot-update.js line 11 &gt; eval:8:97
+
+Edit: I also tried to connect the NavItem when I create it recursievely like: 
+
+    return connect(
+            &lt;NavItem key={childItem.id} items={items} item={childItem} /&gt;
+          );</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 11 Feb 2020 13:56:20 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>TypeError: libraries is undefined in recursive component</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>Hell, YEAH! Thanks! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210/4</link>
+        <pubDate>Tue, 11 Feb 2020 13:56:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1210-4</guid>
+        <source url="https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210.rss">TypeError: libraries is undefined in recursive component</source>
+      </item>
+      <item>
+        <title>TypeError: libraries is undefined in recursive component</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a>, I think I know what’s happening.</p>
+<p>In your first try, you were using <code>NavItem</code> inside <code>NavItem</code> recursively, but <code>connect</code> only at the moment of exporting it, so the <code>NavItem</code> const referenced to a non-connected component. Those rendered recursively were using the <code>NavtItem</code> const and therefore were not connected to the Frontity’s state.</p>
+<p>In the second try, you connected a rendered component. You have to use <code>connect</code> with the function that defines the component, not in the React code.</p>
+<p>To fix this, you can use <code>connect</code> over the <code>NavItem</code> function; that should work.</p>
+<pre><code>import React from "react";
+import { connect } from "frontity";
+import Link from "./link";
+
+// Use connect here, wrapping the function.
+// This way, `NavItem` const references to a connected component,
+// and can be used recursively.
+const NavItem = connect(({ state, libraries, items, item }) =&gt; {
+  const name = item.title.rendered;
+  const link = libraries.source.normalize(item.url); //without this line the code is working
+  const childItems = items.filter(({ parent }) =&gt; parent === item.id);
+  return (
+    &lt;div key={item.id}&gt;
+      {name}
+      {childItems.length &gt; 0 &amp;&amp;
+        childItems.map(childItem =&gt; {
+          const childChildItems = items.filter(
+            ({ parent }) =&gt; parent === childItem.id
+          );
+          return &lt;NavItem key={childItem.id} items={items} item={childItem} /&gt;;
+        })}
+    &lt;/div&gt;
+  );
+});
+
+export default NavItem;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210/3</link>
+        <pubDate>Tue, 11 Feb 2020 11:43:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1210-3</guid>
+        <source url="https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210.rss">TypeError: libraries is undefined in recursive component</source>
+      </item>
+      <item>
+        <title>TypeError: libraries is undefined in recursive component</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m trying to achieve a recursive menuItem. I was able to make a basic example with the following code:</p>
+<pre><code>/**
+* Navigation Component
+*
+* It renders the navigation links
+*/
+const Nav = ({ state }) =&gt; {
+  const { items } = state.source.get("menus/2");
+
+  return (
+    &lt;NavContainer&gt;
+      {items.map(item =&gt; {
+        if (item.parent === 0) {  //if it's a top level menuItem
+          return &lt;NavItem key={item.id} items={items} item={item} /&gt;;
+        }
+      })}
+    &lt;/NavContainer&gt;
+  );
+};
+
+const NavItem = ({ items, item }) =&gt; {
+  const childItems = items.filter(({ parent }) =&gt; parent === item.id);
+  const name = item.title.rendered;
+  return (
+    &lt;div key={item.id}&gt;
+      {name}
+      {childItems.length &gt; 0 &amp;&amp;  //If it has childrens do it recursive
+        childItems.map(childItem =&gt; {
+          const childChildItems = items.filter(
+            ({ parent }) =&gt; parent === childItem.id,
+          );
+          return (
+            &lt;NavItem key={childItem.id} items={items} item={childItem} /&gt;
+          );
+        })}
+    &lt;/div&gt;
+  );
+};
+
+export default connect(Nav);
+</code></pre>
+<p>However, I was not able to use <code>libraries</code> and <code>state</code> recursively.<br>
+My code, what’s not working:<br>
+I moved the <code>NavItem</code> to a separate file, so my <code>nav.js</code> looks like:</p>
+<pre><code>//nav.js
+import React from "react";
+import { connect, styled } from "frontity";
+import NavItem from "./nav-item";
+
+/**
+* Navigation Component
+*
+* It renders the navigation links
+*/
+const Nav = ({ state }) =&gt; {
+  const { items } = state.source.get("menus/2");
+
+  return (
+    &lt;NavContainer&gt;
+      {items.map(item =&gt; {
+        if (item.parent === 0) {
+          return &lt;NavItem key={item.id} items={items} item={item} /&gt;;
+        }
+      })}
+    &lt;/NavContainer&gt;
+  );
+};
+
+export default connect(Nav);
+
+const NavContainer = styled.nav` ...`;
+</code></pre>
+<p>And my <code>nav-item.js</code>:</p>
+<pre><code>//nav-item.js
+import React from "react";
+import { connect } from "frontity";
+import Link from "./link";
+
+const NavItem = ({ state, libraries, items, item }) =&gt; {
+  const name = item.title.rendered;
+  const link = libraries.source.normalize(item.url); //without this line the code is working
+  const childItems = items.filter(({ parent }) =&gt; parent === item.id);
+  return (
+    &lt;div key={item.id}&gt;
+      {name}
+      {childItems.length &gt; 0 &amp;&amp;
+        childItems.map(childItem =&gt; {
+          const childChildItems = items.filter(
+            ({ parent }) =&gt; parent === childItem.id
+          );
+          return &lt;NavItem key={childItem.id} items={items} item={childItem} /&gt;;
+        })}
+    &lt;/div&gt;
+  );
+};
+
+export default connect(NavItem);
+</code></pre>
+<p>The top-level <code>NavItem</code>s does see <code>state</code> and <code>libraries</code> but the childItems are throwing the following error:</p>
+<pre><code>The above error occurred in the &lt;NavItem&gt; component:
+    in NavItem
+    in div
+    in Unknown
+    in nav (created by Context.Consumer)
+    in NavContainer
+    in Unknown
+    in Unknown
+    in div (created by Context.Consumer)
+    in HeadContainer
+    in Unknown (created by App)
+    in HelmetProvider (created by App)
+    in App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://fb.me/react-error-boundaries to learn more about error boundaries. 3 backend.js:6:2315
+    r backend.js:6
+    React 9
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    React 3
+    unstable_runWithPriority scheduler.development.js:697
+    React 5
+    unstable_runWithPriority scheduler.development.js:697
+    React 4
+    batch scheduler.js:10
+    batched scheduler.js:25
+    (Async: promise callback)
+    apply scheduler.js:42
+    asyncGeneratorStep index.tsx:10
+    _next index.tsx:10
+    _asyncToGenerator index.tsx:10
+    _asyncToGenerator index.tsx:10
+    default index.tsx:7
+    &lt;anonymous&gt; client.ts:37
+    &lt;anonymous&gt; client.ts:17
+    hotApply frontity.module.js:664
+    cb process-update.js:76
+    check process-update.js:91
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    (Async: promise callback)
+    apply scheduler.js:42
+    check process-update.js:90
+    exports process-update.js:52
+    processMessage client.js:279
+    handleMessage client.js:139
+    handleMessage client.js:102
+    (Async: EventHandlerNonNull)
+    init client.js:91
+    EventSourceWrapper client.js:80
+    getEventSourceWrapper client.js:126
+    connect client.js:132
+    &lt;anonymous&gt; client.js:33
+    &lt;anonymous&gt; client.js:12
+    js frontity.module.js:2478
+    __webpack_require__ frontity.module.js:770
+    fn frontity.module.js:130
+    0 frontity.module.js:2702
+    __webpack_require__ frontity.module.js:770
+    &lt;anonymous&gt; frontity.module.js:908
+    &lt;anonymous&gt; frontity.module.js:911
+TypeError: libraries is undefined
+3 frontity.3b4107709437b24ece61.hot-update.js line 11 &gt; eval:8:97
+    NavItem nav-item.js:7
+    React 4
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    React 6
+    performSyncWorkOnRoot self-hosted:920
+    flushSyncCallbackQueueImpl React
+    unstable_runWithPriority scheduler.development.js:697
+    React 4
+    batch scheduler.js:10
+    batched scheduler.js:25
+    (Async: promise callback)
+    apply self-hosted:1875
+    apply scheduler.js:42
+    asyncGeneratorStep index.tsx:10
+    _next index.tsx:10
+    _asyncToGenerator index.tsx:10
+    _asyncToGenerator index.tsx:10
+    default index.tsx:7
+    &lt;anonymous&gt; client.ts:37
+    &lt;anonymous&gt; client.ts:17
+    &lt;anonymous&gt; self-hosted:876
+    hotApply frontity.module.js:664
+    cb process-update.js:76
+    check process-update.js:91
+    batch scheduler.js:10
+    batchedUpdates$1 React
+    batch scheduler.js:10
+    batched scheduler.js:25
+    (Async: promise callback)
+    apply self-hosted:1875
+    apply scheduler.js:42
+    check process-update.js:90
+    exports process-update.js:52
+    processMessage client.js:279
+    handleMessage client.js:139
+    handleMessage client.js:102
+    (Async: EventHandlerNonNull)
+    init client.js:91
+    EventSourceWrapper client.js:80
+    getEventSourceWrapper client.js:126
+    connect client.js:132
+    &lt;anonymous&gt; client.js:33
+    &lt;anonymous&gt; client.js:12
+    js frontity.module.js:2478
+    __webpack_require__ frontity.module.js:770
+    fn frontity.module.js:130
+    0 frontity.module.js:2702
+    __webpack_require__ frontity.module.js:770
+    &lt;anonymous&gt; frontity.module.js:908
+    &lt;anonymous&gt; frontity.module.js:911
+TypeError: libraries is undefined
+frontity.3b4107709437b24ece61.hot-update.js line 11 &gt; eval:8:97
+</code></pre>
+<p>Edit: I also tried to connect the NavItem when I create it recursievely like:</p>
+<pre><code>return connect(
+        &lt;NavItem key={childItem.id} items={items} item={childItem} /&gt;
+      );</code></pre>
+          <p><a href="https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210/1</link>
+        <pubDate>Fri, 07 Feb 2020 12:55:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1210-1</guid>
+        <source url="https://community.frontity.org/t/typeerror-libraries-is-undefined-in-recursive-component/1210.rss">TypeError: libraries is undefined in recursive component</source>
+      </item>
+  </channel>
+</rss>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Dealing with window.innerwidth</title>
+    <link>https://community.frontity.org/t/dealing-with-window-innerwidth/4537</link>
+    <description>On my Archive page I want to render different components on Mobile and Desktop. My code looks like this: 
+
+    import { Box } from &#39;@chakra-ui/react&#39;
+    import { connect } from &#39;frontity&#39;
+    import { CoverItem, FeaturedCoverItem } from &#39;../home/cover-items&#39;
+    import ArchiveItem from &#39;./archive-item&#39;
+    import Pagination from &#39;./pagination&#39;
+
+    const Archive = ({ state }) =&gt; {
+      // Get the data of the current list.
+      const data = state.source.get(state.router.link)
+
+      return (
+        &lt;Box as=&#39;section&#39;&gt;
+          {/* Iterate over the items of the list. */}
+          {data.items.map(({ type, id }, index) =&gt; {
+            const item = state.source[type][id]
+            return (typeof window !== &#39;undefined&#39; &amp;&amp; window?.innerWidth &gt; 767)
+              ? &lt;ArchiveItem key={item.id} item={item} index={index} type={type} /&gt;  // On desktop
+              : ( // On Mobile:
+                index === 0
+                  ? &lt;FeaturedCoverItem key={id} item={item} isLeft index={index} /&gt;
+                  : &lt;CoverItem key={id} item={item} isLeft /&gt;
+              )
+          })}
+
+          &lt;Pagination /&gt;
+        &lt;/Box&gt;
+      )
+    }
+ 
+    export default connect(Archive)
+
+It works as expected, if user navigates to the archive page from an other internal page. But if user arrives directly to an archive, then always the mobile version is appearing.
+To reproduce it, visit https://szinhaz.online/category/szinhaz/ . Thats an archive page and it&#39;s appearing incorrect on desktop. If you click on any menu items, you will see the correct layout of an Archive page.
+I tried to solve it with `useEffect`, and with the `global` [npm package](https://www.npmjs.com/package/global), but non of them worked for me. 
+Any advice?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 10 May 2021 09:53:32 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/dealing-with-window-innerwidth/4537.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Dealing with window.innerwidth</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/koli14">@koli14</a></p>
+<p>This is happening because when a user arrives directly on an archive page that page is being created in SSR, and the <code>window</code> object does not exist in SSR, it only exists in CSR.</p>
+<p>Also <code>useEffect</code> does run in SSR, it only runs in CSR after the component has rendered.</p>
+<p>You might find these articles useful:</p>
+<ul>
+<li><a href="https://nitayneeman.com/posts/combining-server-side-rendering-and-responsive-design-using-react/" class="inline-onebox">React - Combining Server-Side Rendering and Responsive Design</a></li>
+<li><a href="https://medium.com/swlh/how-to-use-useeffect-on-server-side-654932c51b13" class="inline-onebox">How to use useEffect on server-side? | by Kasper Moskwiak | The Startup | Medium</a></li>
+</ul>
+          <p><a href="https://community.frontity.org/t/dealing-with-window-innerwidth/4537/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/dealing-with-window-innerwidth/4537/2</link>
+        <pubDate>Mon, 10 May 2021 09:53:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4537-2</guid>
+        <source url="https://community.frontity.org/t/dealing-with-window-innerwidth/4537.rss">Dealing with window.innerwidth</source>
+      </item>
+      <item>
+        <title>Dealing with window.innerwidth</title>
+        <dc:creator><![CDATA[koli14]]></dc:creator>
+        <description><![CDATA[
+            <p>On my Archive page I want to render different components on Mobile and Desktop. My code looks like this:</p>
+<pre><code>import { Box } from '@chakra-ui/react'
+import { connect } from 'frontity'
+import { CoverItem, FeaturedCoverItem } from '../home/cover-items'
+import ArchiveItem from './archive-item'
+import Pagination from './pagination'
+
+const Archive = ({ state }) =&gt; {
+  // Get the data of the current list.
+  const data = state.source.get(state.router.link)
+
+  return (
+    &lt;Box as='section'&gt;
+      {/* Iterate over the items of the list. */}
+      {data.items.map(({ type, id }, index) =&gt; {
+        const item = state.source[type][id]
+        return (typeof window !== 'undefined' &amp;&amp; window?.innerWidth &gt; 767)
+          ? &lt;ArchiveItem key={item.id} item={item} index={index} type={type} /&gt;  // On desktop
+          : ( // On Mobile:
+            index === 0
+              ? &lt;FeaturedCoverItem key={id} item={item} isLeft index={index} /&gt;
+              : &lt;CoverItem key={id} item={item} isLeft /&gt;
+          )
+      })}
+
+      &lt;Pagination /&gt;
+    &lt;/Box&gt;
+  )
+}
+
+export default connect(Archive)
+</code></pre>
+<p>It works as expected, if user navigates to the archive page from an other internal page. But if user arrives directly to an archive, then always the mobile version is appearing.<br>
+To reproduce it, visit <a href="https://szinhaz.online/category/szinhaz/" class="inline-onebox" rel="noopener nofollow ugc">Színház Archives - Színház.online</a> . Thats an archive page and it’s appearing incorrect on desktop. If you click on any menu items, you will see the correct layout of an Archive page.<br>
+I tried to solve it with <code>useEffect</code>, and with the <code>global</code> <a href="https://www.npmjs.com/package/global" rel="noopener nofollow ugc">npm package</a>, but non of them worked for me.<br>
+Any advice?</p>
+          <p><a href="https://community.frontity.org/t/dealing-with-window-innerwidth/4537/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/dealing-with-window-innerwidth/4537/1</link>
+        <pubDate>Fri, 07 May 2021 13:26:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4537-1</guid>
+        <source url="https://community.frontity.org/t/dealing-with-window-innerwidth/4537.rss">Dealing with window.innerwidth</source>
+      </item>
+  </channel>
+</rss>

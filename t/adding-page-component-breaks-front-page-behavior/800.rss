@@ -1,0 +1,953 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+    <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800</link>
+    <description>I recently added the following logic to my index.js in order to differentiate between the Page and Post components:
+
+```
+              {data.isFetching &amp;&amp; &lt;Loading /&gt;}
+              {data.isArchive &amp;&amp; &lt;Archive /&gt;}
+              {data.isPage &amp;&amp; &lt;Page /&gt;}
+              {data.isPostType &amp;&amp;  /&gt;}
+              {data.is404 &amp;&amp; &lt;Page404 /&gt;}
+```
+
+The `data={data}` stuff is just there because I added page transitions. The problem is the addition of `data.isPage`. When I add that in I get a bug. 
+
+If I&#39;m on the front page `&lt;Archive /&gt;` and I click a link to a `&lt;Post /&gt;` then it works fine. If I a menu button that is linked to a specific page then it works. But if after clicking any of these I click the logo in the top left hand corner to take me back to the homepage I get a blank page as a response. 
+
+This is the Error I get from the Console:
+
+```
+Page.js?486c:27 Uncaught TypeError: Cannot read property &#39;title&#39; of undefined
+    at Page (Page.js?486c:27)
+    at runAsReaction (reactionRunner.js?30ae:55)
+    at reaction (observer.js?724e:11)
+    at eval (connect.js?84b5:70)
+    at renderWithHooks (react-dom.development.js?61bb:16241)
+    at updateFunctionComponent (react-dom.development.js?61bb:18328)
+    at updateSimpleMemoComponent (react-dom.development.js?61bb:18266)
+    at beginWork$1 (react-dom.development.js?61bb:20228)
+    at HTMLUnknownElement.callCallback (react-dom.development.js?61bb:336)
+    at eval (scheduler.js?f1c4:10)
+Page @ Page.js?486c:27
+runAsReaction @ reactionRunner.js?30ae:55
+reaction @ observer.js?724e:11
+eval @ connect.js?84b5:70
+renderWithHooks @ react-dom.development.js?61bb:16241
+updateFunctionComponent @ react-dom.development.js?61bb:18328
+updateSimpleMemoComponent @ react-dom.development.js?61bb:18266
+beginWork$1 @ react-dom.development.js?61bb:20228
+callCallback @ react-dom.development.js?61bb:336
+eval @ scheduler.js?f1c4:10
+batchedUpdates$1 @ react-dom.development.js?61bb:24353
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+invokeGuardedCallbackDev @ react-dom.development.js?61bb:385
+invokeGuardedCallback @ react-dom.development.js?61bb:440
+beginWork$$1 @ react-dom.development.js?61bb:25738
+performUnitOfWork @ react-dom.development.js?61bb:24662
+workLoopSync @ react-dom.development.js?61bb:24638
+performSyncWorkOnRoot @ react-dom.development.js?61bb:24237
+eval @ react-dom.development.js?61bb:12180
+unstable_runWithPriority @ scheduler.development.js?3069:818
+runWithPriority$2 @ react-dom.development.js?61bb:12130
+flushSyncCallbackQueueImpl @ react-dom.development.js?61bb:12175
+flushSyncCallbackQueue @ react-dom.development.js?61bb:12163
+batchedUpdates$1 @ react-dom.development.js?61bb:24359
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+backend.js:6 The above error occurred in one of your React components:
+    in Unknown
+    in div (created by Context.Consumer)
+    in Absolute
+    in div (created by ForwardRef)
+    in ForwardRef
+    in Unknown (created by App)
+    in HelmetProvider (created by App)
+    in App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://fb.me/react-error-boundaries to learn more about error boundaries.
+r @ backend.js:6
+logCapturedError @ react-dom.development.js?61bb:21810
+logError @ react-dom.development.js?61bb:21847
+update.callback @ react-dom.development.js?61bb:23199
+callCallback @ react-dom.development.js?61bb:13810
+commitUpdateEffects @ react-dom.development.js?61bb:13848
+commitUpdateQueue @ react-dom.development.js?61bb:13838
+commitLifeCycles @ react-dom.development.js?61bb:22127
+commitLayoutEffects @ react-dom.development.js?61bb:25302
+callCallback @ react-dom.development.js?61bb:336
+eval @ scheduler.js?f1c4:10
+batchedUpdates$1 @ react-dom.development.js?61bb:24353
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+invokeGuardedCallbackDev @ react-dom.development.js?61bb:385
+invokeGuardedCallback @ react-dom.development.js?61bb:440
+commitRootImpl @ react-dom.development.js?61bb:25040
+unstable_runWithPriority @ scheduler.development.js?3069:818
+runWithPriority$2 @ react-dom.development.js?61bb:12130
+commitRoot @ react-dom.development.js?61bb:24889
+finishSyncRender @ react-dom.development.js?61bb:24296
+performSyncWorkOnRoot @ react-dom.development.js?61bb:24274
+eval @ react-dom.development.js?61bb:12180
+unstable_runWithPriority @ scheduler.development.js?3069:818
+runWithPriority$2 @ react-dom.development.js?61bb:12130
+flushSyncCallbackQueueImpl @ react-dom.development.js?61bb:12175
+flushSyncCallbackQueue @ react-dom.development.js?61bb:12163
+batchedUpdates$1 @ react-dom.development.js?61bb:24359
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+react-dom.development.js?61bb:12193 Uncaught TypeError: Cannot read property &#39;title&#39; of undefined
+    at Page (Page.js?486c:27)
+    at runAsReaction (reactionRunner.js?30ae:55)
+    at reaction (observer.js?724e:11)
+    at eval (connect.js?84b5:70)
+    at renderWithHooks (react-dom.development.js?61bb:16241)
+    at updateFunctionComponent (react-dom.development.js?61bb:18328)
+    at updateSimpleMemoComponent (react-dom.development.js?61bb:18266)
+    at beginWork$1 (react-dom.development.js?61bb:20228)
+    at HTMLUnknownElement.callCallback (react-dom.development.js?61bb:336)
+    at eval (scheduler.js?f1c4:10)
+```
+
+I&#39;m guessing the problem here is that it thinks that the frontpage archive is a Page and not an Archive component?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 10 Dec 2019 14:58:50 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m glad you’ve finally found the issue <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>CORS issues are always though.</p>
+<p>We are going to include an option to add the CORS headers to our PHP plugin, but sometimes those headers get overwritten by the hosting.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/19</link>
+        <pubDate>Tue, 10 Dec 2019 14:58:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-19</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Found the problem! Having tested things against the test site API, I pushed support to really dig into the issue and they finally fixed the problem! I had this in my .htaccess:</p>
+<pre><code> 1 Header add Access-Control-Allow-Origin: "*"
+ 2 Header add Access-Control-Allow-Methods: "GET,POST,OPTIONS,PUT"
+ 3 Header add Access-Control-Allow-Headers: "*"
+</code></pre>
+<p>and the commented out <code> Header add Access-Control-Allow-Origin: "*"</code> and that fixed it!</p>
+<p>So now my .httaccess contains this:</p>
+<pre><code> 1 # Header add Access-Control-Allow-Origin: "*"
+ 2 Header add Access-Control-Allow-Methods: "GET,POST,OPTIONS,PUT"
+ 3 Header add Access-Control-Allow-Headers: "*"
+</code></pre>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/18">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/18</link>
+        <pubDate>Sat, 07 Dec 2019 18:13:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-18</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Yeah… this is def some kind of issue related to the pages versus posts distinction, because</p>
+<ol>
+<li>I have completely stripped the VPS apache server of redirects, and I’ve put all the necessary stuff to allow for CORS.</li>
+<li>I know I’ve done this correctly because I can curl or visit in my browser <code>https://jackalope.tech/wp-json/wp/v2/pages?_embed=true&amp;slug=about</code> no problem</li>
+<li>but I get nothing back when I try to curl or visit in my browser <code>https://jackalope.tech/wp-json/wp/v2/posts?_embed=true&amp;slug=about</code> (which is the url that the CORS error contains).</li>
+</ol>
+<p>And I can see in the WP API documentation here that there’s a clear difference between page and post calls:</p>
+<p><a href="https://developer.wordpress.org/rest-api/reference/posts/" class="onebox" target="_blank" rel="nofollow noopener">https://developer.wordpress.org/rest-api/reference/posts/</a><br>
+<a href="https://developer.wordpress.org/rest-api/reference/pages/" class="onebox" target="_blank" rel="nofollow noopener">https://developer.wordpress.org/rest-api/reference/pages/</a></p>
+<p>And this isn’t just my set up. It’s also true of the test frontity server, see:</p>
+<p>this returns nothing:<br>
+<a href="https://test.frontity.io/wp-json/wp/v2/posts?_embed=true&amp;slug=contact-form" class="onebox" target="_blank" rel="nofollow noopener">https://test.frontity.io/wp-json/wp/v2/posts?_embed=true&amp;slug=contact-form</a></p>
+<p>while this returns the proper content:<br>
+<a href="https://test.frontity.io/wp-json/wp/v2/pages?_embed=true&amp;slug=contact-form" class="onebox" target="_blank" rel="nofollow noopener">https://test.frontity.io/wp-json/wp/v2/pages?_embed=true&amp;slug=contact-form</a></p>
+<p>I’m going to point my theme at the test server and have it try to hit one of the pages and I bet it will result in the same errors.</p>
+<h1>EDIT:</h1>
+<p>It doesn’t give the same errors. Except, not quite!</p>
+<p>I changed it over to the test server and it won’t load the archive page (because I have it targeting “test_posts” but it is loading the “about us” page correctly.</p>
+<p>Looking over the frontity settings though I realize that the syntax for specifying test posts goes like this:</p>
+<pre><code>state: {
+        source: {
+          api: "https://www.jackalope.tech/wp-json",
+          postTypes: [
+            {
+              type: "test_posts", // type slug
+              endpoint: "test_posts", // REST API endpoint
+              archive: "/" // link where this custom posts are listed
+            }
+          ]
+          // taxonomies: [
+          //   {
+          //     taxonomy: "actors", // taxonomy slug
+          //     endpoint: "actor", // REST API endpoint
+          //     postTypeEndpoint: "movies" // endpoint from which posts from this taxonomy are fetched
+          //   }
+          // ]
+        }
+      }
+    }, //end of custom post types section
+</code></pre>
+<p>And I see in the wp-source documentation:</p>
+<ul>
+<li>
+<p>archives: <code>isArchive</code></p>
+</li>
+<li>
+<p>taxonomy: <code>isTaxonomy</code></p>
+<ul>
+<li>
+<p>category: <code>isCategory</code></p>
+</li>
+<li>
+<p>tag: <code>isTag</code></p>
+</li>
+<li>
+<p>deal: <code>isDeal</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>author: <code>isAuthor</code></p>
+</li>
+<li>
+<p>postTypeArchive: <code>isPostTypeArchive</code></p>
+<ul>
+<li>
+<p>post: <code>isHome</code> , <code>isPostArchive</code> ( <code>isFrontPage</code> optional)</p>
+</li>
+<li>
+<p>product: <code>isProductArchive</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>date: <code>isDate</code></p>
+</li>
+<li>
+<p>postTypes: <code>isPostType</code></p>
+<ul>
+<li>
+<p>post: <code>isPost</code></p>
+</li>
+<li>
+<p>page: <code>isPage</code> ( <code>isFrontPage</code> optional)</p>
+</li>
+<li>
+<p>product: <code>isProduct</code></p>
+</li>
+<li>
+<p>media: <code>isMedia</code> , <code>isAttachment</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>404: <code>is404</code></p>
+</li>
+</ul>
+<p>I notice that IsPost and isPage are sub categories it looks like of isPostType (at least that’s what the bullets seem to imply to me).</p>
+<p>So I take this to mean that perhaps the reason why isPage is not grabbing a page is because  that hasn’t been specified in the frontity.settings.js file perhaps?</p>
+<h1>EDIT2:</h1>
+<p>Yeah… so I’ve got my app pointed to frontity’s test server and it’s having zero problem with posts and pages.</p>
+<p>It’s gotta be something with my server but I can’t figure it out.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/17</link>
+        <pubDate>Sat, 07 Dec 2019 00:44:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-17</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="14" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I can’t know until you share with us your whole Frontity project. If there’s a reason for not doing so, please let us know.</p>
+</blockquote>
+</aside>
+<p>Sorry, I don’t know what you mean exactly. It’s just a standard frontity server created using <code>using npx frontity create {{server name}}</code>. I just created a fresh server and installed my package locally (using <code>npm install ./packages/desert-jackalope</code> ) and was able to replicate the issue. The only thing I change in the server from the default install are the frontity settings which look like this:</p>
+<pre><code>const settings = {
+  name: "test",
+  state: {
+    frontity: {
+      url: "https://hire-me.jackalope.tech",
+      title: "Aslan French",
+      description: ""
+    }
+  },
+  packages: [
+    {
+      name: "desert-jackalope",
+      state: {
+        theme: {
+          menu: [
+            ["personal blog", " https://www.jackalope.tech/"],
+            ["about/contact", "/about/"]
+          ],
+          featured: {
+            showOnList: true,
+            showOnPost: true
+          }
+        }
+      }
+    },
+    {
+      //beginning of custom post types section
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          api: "https://www.jackalope.tech/wp-json",
+          postTypes: [
+            {
+              type: "test_posts", // type slug
+              endpoint: "test_posts", // REST API endpoint
+              archive: "/" // link where this custom posts are listed
+            }
+          ]
+          // taxonomies: [
+          //   {
+          //     taxonomy: "actors", // taxonomy slug
+          //     endpoint: "actor", // REST API endpoint
+          //     postTypeEndpoint: "movies" // endpoint from which posts from this taxonomy are fetched
+          //   }
+          // ]
+        }
+      }
+    }, //end of custom post types section
+    // {
+    //   name: "@frontity/wp-source",
+    //   state: {
+    //     source: {
+    //       api: "https://test.frontity.io/wp-json"
+    //     }
+    //   }
+    // },
+    "@frontity/tiny-router",
+    "@frontity/html2react"
+  ]
+};
+
+export default settings;
+</code></pre>
+<p>And the package.json which looks like this:</p>
+<pre><code>{
+  "name": "test-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontity project",
+  "keywords": [
+    "frontity"
+  ],
+  "scripts": {
+    "dev": "frontity dev",
+    "build": "frontity build",
+    "serve": "frontity serve"
+  },
+  "prettier": {},
+  "dependencies": {
+    "@frontity/core": "^1.4.0",
+    "@frontity/html2react": "^1.1.14",
+    "@frontity/mars-theme": "./packages/mars-theme",
+    "@frontity/tiny-router": "^1.0.17",
+    "@frontity/wp-source": "^1.4.2",
+    "desert-jackalope": "file:packages/desert-jackalope",
+    "frontity": "^1.4.2"
+  }
+}
+</code></pre>
+<p>Everything else is just a standard install.</p>
+<aside class="quote group-community-team" data-post="15" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I took a quick look at hire-me.jackalope.tech and it doesn’t seem to be a problem with pages. It seems that all the client calls are failing. You are not having any issues with posts if you go directly to the home because they are fetched in the server too, but if you start at <a href="https://hire-me.jackalope.tech/about/" rel="nofollow noopener">https://hire-me.jackalope.tech/about/ </a> it loads and if try to navigate to the home/posts it gives the same error.</p>
+</blockquote>
+</aside>
+<p>Right, and when you navigate from about to the home/posts archive it’s loading a page right?</p>
+<p>Looking at the CORS error it says the url for the request that failed was:</p>
+<pre><code>https://jackalope.tech/wp-json/wp/v2/posts?_embed=true&amp;slug=about
+</code></pre>
+<p>If you visit <code>https://jackalope.tech/wp-json/wp/v2/posts?_embed=true&amp;slug=about</code> in your browser you get the following:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/c4b4845acf164480a93f7779c5127643e24f1379.png" data-download-href="https://community.frontity.org/uploads/default/c4b4845acf164480a93f7779c5127643e24f1379" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/c4b4845acf164480a93f7779c5127643e24f1379_2_690x177.png" alt="image" data-base62-sha1="s48l5q1tMir3I1rLCIt3hS2w8dj" width="690" height="177" srcset="https://community.frontity.org/uploads/default/optimized/1X/c4b4845acf164480a93f7779c5127643e24f1379_2_690x177.png, https://community.frontity.org/uploads/default/optimized/1X/c4b4845acf164480a93f7779c5127643e24f1379_2_1035x265.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/c4b4845acf164480a93f7779c5127643e24f1379_2_1380x354.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/c4b4845acf164480a93f7779c5127643e24f1379_2_10x10.png"></a></div><p></p>
+<p>But if you go to <code>https://jackalope.tech/wp-json/wp/v2/pages?_embed=true&amp;slug=about</code></p>
+<p>you get the following:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/e21aeb038285537336b945c947ff24b3e7654e26.png" data-download-href="https://community.frontity.org/uploads/default/e21aeb038285537336b945c947ff24b3e7654e26" title="image"><img src="https://community.frontity.org/uploads/default/optimized/1X/e21aeb038285537336b945c947ff24b3e7654e26_2_690x296.png" alt="image" data-base62-sha1="wgdzXcLCHzCQzh4jGL4ihrdASnI" width="690" height="296" srcset="https://community.frontity.org/uploads/default/optimized/1X/e21aeb038285537336b945c947ff24b3e7654e26_2_690x296.png, https://community.frontity.org/uploads/default/optimized/1X/e21aeb038285537336b945c947ff24b3e7654e26_2_1035x444.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/e21aeb038285537336b945c947ff24b3e7654e26_2_1380x592.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/e21aeb038285537336b945c947ff24b3e7654e26_2_10x10.png"></a></div><p></p>
+<p>Which is why I think the issue has to do with Frontity trying to make a request for a post rather than for a page.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/16</link>
+        <pubDate>Thu, 05 Dec 2019 18:32:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-16</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Just a quick point:</p>
+<aside class="quote no-group" data-post="13" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>I think the issue is because the json request is attempting post rather than page, because I’m not having any issues with posts.</p>
+</blockquote>
+</aside>
+<p>I took a quick look at hire-me.jackalope.tech and it doesn’t seem to be a problem with pages. It seems that all the client calls are failing. You are not having any issues with posts if you go directly to the home because they are fetched in the server too, but if you start at <a href="https://hire-me.jackalope.tech/about/">https://hire-me.jackalope.tech/about/</a> it loads and if try to navigate to the home/posts it gives the same error.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/15">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/15</link>
+        <pubDate>Thu, 05 Dec 2019 08:58:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-15</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="13" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Is there some other reason the Page component might be making a request for posts instead of pages then?</p>
+</blockquote>
+</aside>
+<p>I can’t know until you share with us your whole Frontity project. If there’s a reason for not doing so, please let us know.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/14</link>
+        <pubDate>Thu, 05 Dec 2019 06:48:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-14</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="12" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I mean the Frontity project (not the Frontity theme) so we have the exact same environment than you. We don’t need the WordPress.</p>
+</blockquote>
+</aside>
+<p>I’m testing on both a live server environment at hire-me.jackalope.tech and a local server environment on my local machine.</p>
+<p>I just received a response from Dreamhost tech support and they said the issue was that stuff is getting routed through cloudflare and that I should do my fetch requests with <a href="https://www.jackalope.tech" rel="nofollow noopener">https://www.jackalope.tech</a> instead of <a href="https://jackalope.tech" rel="nofollow noopener">https://jackalope.tech</a> but I just changed that and it doesn’t seem to work. It also doesn’t make any sense as the issue sense I was able to successfully curl the https yesterday without issue.</p>
+<p>I think the issue is because the json request is attempting post rather than page, because I’m not having any issues with posts.</p>
+<p>This is weird because I set the page component in my logic before the Post component so I would assume that it would have checked for the data=Page conditional before checking for Post.</p>
+<p>Is there some other reason the Page component might be making a request for posts instead of pages then?</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/13</link>
+        <pubDate>Wed, 04 Dec 2019 21:58:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-13</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="11" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Do you mean the WordPress theme that the frontity theme is getting its info from?</p>
+</blockquote>
+</aside>
+<p>I mean the Frontity project (not the Frontity theme) so we have the exact same environment than you. We don’t need the WordPress.</p>
+<aside class="quote no-group" data-post="11" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>Shouldn’t the routing for the page component makes its rest api request to a page?</p>
+</blockquote>
+</aside>
+<p>There’s no way to distinguish between a page or a post so Frontity tries both.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/12</link>
+        <pubDate>Wed, 04 Dec 2019 08:06:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-12</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Do you mean the WordPress theme that the frontity theme is getting its info from?</p>
+<p>The repo for that is here: <a href="https://github.com/jcklpe/Jackalope" rel="nofollow noopener">https://github.com/jcklpe/Jackalope</a></p>
+<p>But if you mean the WordPress installation itself that’s on a server. Iraq just a standard WordPress installation. Nothing special.</p>
+<p>I do notice one thing: the cors error is from a request to post. But the link isn’t a post. It’s a page. Shouldn’t the routing for the page component makes its rest api request to a page?</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/11</link>
+        <pubDate>Wed, 04 Dec 2019 08:03:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-11</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I cannot tell. If you want us to have a look at the error please provide us with this information:</p>
+<aside class="quote group-development-team" data-post="7" data-topic="800">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>we’re going to need the project (not the theme) repository and detailed steps on how to reproduce the problem.</p>
+</blockquote>
+</aside>
+<p>It’s going to be much faster that way.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/10</link>
+        <pubDate>Wed, 04 Dec 2019 07:36:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-10</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Weird, yeah so I’ve added the stuff that needs to be added to the .htaccess file (which I’m guessing is what the filter function was supposed to do) and yet it’s still giving me a cors error. I run a test <a href="https://gf.dev/http-headers-test" rel="nofollow noopener">here</a> and it returns back information that seems like stuff should be fixed.</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Date</td>
+<td>Tue, 03 Dec 2019 23:21:36 GMT</td>
+</tr>
+<tr>
+<td>Content-Type</td>
+<td>text/html; charset=UTF-8</td>
+</tr>
+<tr>
+<td>Transfer-Encoding</td>
+<td>chunked</td>
+</tr>
+<tr>
+<td>Connection</td>
+<td>keep-alive</td>
+</tr>
+<tr>
+<td>Access-Control-Allow-Headers</td>
+<td>*</td>
+</tr>
+<tr>
+<td>Access-Control-Allow-Methods</td>
+<td>GET,POST,OPTIONS,DELETE,PUT</td>
+</tr>
+<tr>
+<td>Access-Control-Allow-Origin</td>
+<td>*</td>
+</tr>
+<tr>
+<td>Cf-Railgun</td>
+<td>direct (waiting for pending WAN connection)</td>
+</tr>
+<tr>
+<td>Link</td>
+<td>
+<a href="https://www.jackalope.tech/wp-json/" rel="nofollow noopener">https://www.jackalope.tech/wp-json/</a>; rel=“<a href="https://api.w.org/" rel="nofollow noopener">https://api.w.org/</a>”, <a href="https://www.jackalope.tech/" rel="nofollow noopener">https://www.jackalope.tech/</a>; rel=shortlink</td>
+</tr>
+<tr>
+<td>CF-Cache-Status</td>
+<td>DYNAMIC</td>
+</tr>
+<tr>
+<td>Expect-CT</td>
+<td>max-age=604800, report-uri=“<a href="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct" rel="nofollow noopener">https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct</a>”</td>
+</tr>
+<tr>
+<td>Server</td>
+<td>cloudflare</td>
+</tr>
+<tr>
+<td>CF-RAY</td>
+<td>53f947156fb9e376-SEA</td>
+</tr>
+</tbody>
+</table>
+</div><h1>EDIT:</h1>
+<p>Okay so I’m getting the expected response header… and I’ve checked a direct JSON request via the browser like so: <a href="https://www.jackalope.tech/wp-json/wp/v2/pages?embed=true&amp;slug=about" rel="nofollow noopener">https://www.jackalope.tech/wp-json/wp/v2/pages?embed=true&amp;slug=about</a></p>
+<p>So what does that mean? Is this actually a problem with server config, or is it something funky going on with frontity?</p>
+<p>It seems weird to me that I don’t get CORS errors when I load the front page but when I click to the About page I get errors. On the other hand if I load the About page fresh, then I don’t get any errors but I do get errors clicking to the front page. It seems the issue isn’t it requesting the data, but rather it requesting it through the click process?</p>
+<h1>EDIT2:</h1>
+<p>The issue does not seem to be with the server. See curl response:</p>
+<pre><code class="lang-auto">  ⚡  /mnt/c/Users/aslan/home/work/server-front 
+    ⭄&gt;&gt;  *   Trying 2606:4700:30::6812:39bc... 
+* TCP_NODELAY set
+* Connected to www.jackalope.tech (2606:4700:30::6812:39bc) port 443 (#0) 
+* ALPN, offering h2 
+* ALPN, offering http/1.1
+* successfully set certificate verify locations: 
+*   CAfile: /etc/ssl/certs/ca-certificates.crt
+  CApath: /etc/ssl/certs
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.3 (IN), TLS handshake, Server hello (2): 
+* TLSv1.3 (IN), TLS Unknown, Certificate Status (22):
+* TLSv1.3 (IN), TLS handshake, Unknown (8):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15): 
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.3 (OUT), TLS change cipher, Client hello (1):
+* TLSv1.3 (OUT), TLS Unknown, Certificate Status (22):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: OU=Domain Control Validated; OU=PositiveSSL Multi-Domain; CN=sni189918.cloudflaressl.com
+*  start date: Oct 11 00:00:00 2019 GMT 
+*  expire date: Apr 18 23:59:59 2020 GMT
+*  subjectAltName: host "www.jackalope.tech" matched cert's "*.jackalope.tech"
+*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=COMODO CA Limited; CN=COMODO ECC Domain Validation Secure Server CA 2
+*  SSL certificate verify ok.
+* Using HTTP2, server supports multi-use
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0 
+* TLSv1.3 (OUT), TLS Unknown, Unknown (23):
+* TLSv1.3 (OUT), TLS Unknown, Unknown (23):
+* TLSv1.3 (OUT), TLS Unknown, Unknown (23):
+* Using Stream ID: 1 (easy handle 0x7fffdd311580)
+* TLSv1.3 (OUT), TLS Unknown, Unknown (23):
+&gt; GET /wp-json/wp/v2/pages?embed=true HTTP/2
+&gt; Host: www.jackalope.tech
+&gt; User-Agent: curl/7.58.0
+&gt; Accept: */* 
+&gt; Origin: http://test.com
+&gt; 
+* TLSv1.3 (IN), TLS Unknown, Certificate Status (22):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+* Connection state changed (MAX_CONCURRENT_STREAMS updated)! 
+* TLSv1.3 (OUT), TLS Unknown, Unknown (23):
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+* TLSv1.3 (IN), TLS Unknown, Unknown (23): 
+&lt; HTTP/2 200 
+&lt; date: Wed, 04 Dec 2019 01:48:57 GMT
+&lt; content-type: application/json; charset=UTF-8 
+&lt; set-cookie: __cfduid=db1e114557c4065c3d0c55160e48acce71575424137; expires=Fri, 03-Jan-20 01:48:57 GMT; path=/; domain=.jackalope.tech; HttpOnly; Secure
+&lt; access-control-allow-credentials: true 
+&lt; access-control-allow-headers: Authorization, Content-Type
+&lt; access-control-allow-headers: *
+&lt; access-control-allow-methods: OPTIONS, GET, POST, PUT, PATCH, DELETE 
+&lt; access-control-allow-methods: GET,POST,OPTIONS,PUT
+&lt; access-control-allow-origin: http://test.com
+&lt; access-control-allow-origin: *
+&lt; access-control-expose-headers: X-WP-Total, X-WP-TotalPages
+&lt; allow: GET
+&lt; cf-railgun: direct (waiting for pending WAN connection)
+&lt; link: &lt;https://www.jackalope.tech/wp-json/&gt;; rel="https://api.w.org/" 
+&lt; set-cookie: mSLnQR=Lbz%40Au; expires=Thu, 05-Dec-2019 01:48:57 GMT; Max-Age=86400; path=/
+&lt; vary: Origin
+&lt; x-content-type-options: nosniff
+&lt; x-robots-tag: noindex
+&lt; x-wp-total: 4
+&lt; x-wp-totalpages: 1
+&lt; cf-cache-status: DYNAMIC
+&lt; set-cookie: VoatHl_fi=T3pHfNcsG; expires=Thu, 05-Dec-2019 01:48:57 GMT; Max-Age=86400; path=/
+&lt; set-cookie: xlGehNFCWs=V0v4ZowWna; expires=Thu, 05-Dec-2019 01:48:57 GMT; Max-Age=86400; path=/
+&lt; expect-ct: max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct" 
+&lt; server: cloudflare
+&lt; cf-ray: 53fa1efb4a85ecbb-DFW
+&lt; 
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+[{"id":3470,"date":"2019-11-28T05:49:33","date_gmt":"2019-11-28T05:49:33","guid":{"rendered":"https:\/\/www.jackalope.tech\/?page_id=3470"},"modified":"2019-11-29T04:06:36","modified_gmt":"2019-11-29T04:06:36","slug":"about","status":"publish","type":"page","link":"https:\/\/www.jackalope.tech\/about\/","title":{"rendered":"About"},"content":{"rendered":"\n&lt;div class=\"wp-block-media-text alignwide has-media-on-the-right is-stacked-on-mobile\"&gt;&lt;figure class=\"wp-block-media-text__media\"&gt;&lt;img src=\"https:\/\/www.jackalope.tech\/wp-content\/uploads\/system\/3_David_bc-e1512358889475-674x900.jpg\" alt=\"\" class=\"wp-image-1218\" srcset=\"https:\/\/www.jackalope.tech\/wp-content\/uploads\/3_David_bc-e1512358889475-674x900.jpg 674w, https:\/\/www.jackalope.tech\/wp-content\/uploads\/3_David_bc-e1512358889475-449x600.jpg 449w, https:\/\/www.jackalope.tech\/wp-content\/uploads\/3_David_bc-e1512358889475-768x1025.jpg 768w, https:\/\/www.jackalope.tech\/wp-content\/uploads\/3_David_bc-e1512358889475.jpg 800w\" sizes=\"(max-width: 674px) 100vw, 674px\" \/&gt;&lt;\/figure&gt;&lt;div class=\"wp-block-media-text__content\"&gt;\n&lt;p&gt; Hey, my name is Aslan. I&amp;#8217;m a creative technologist living and working in  Austin, Texas. I am always refining my craft, and enjoy striving 
+for  creative and innovative solutions to problems. At heart I view myself as  a craftsman, whether I&amp;#8217;m working in code, or with pixels (or something  else!). My vocation is in civic tech, with a focus on  designing\/developing scalable systems that improve people&amp;#8217;s lives and  empower citizens. I&amp;#8217;m also interested in the contemporary edges of  creative expression in technology and in my spare time I work on  physical electronic art installations with my art collective, create  paintings using neural networks, or ramble about the button layouts of  microwaves at parties. &lt;\/p&gt;\n&lt;\/div&gt;&lt;\/div&gt;\n\n\n\n&lt;h3&gt;Skills&lt;\/h3&gt;\n\n\n\n&lt;h4&gt;Development:&lt;\/h4&gt;\n\n\n\n&lt;p&gt;HTML5, CSS3, jQuery, Javascript, JSX, PHP, WordPress, Shader Forge, Bootstrap, Flexbox, and CSS Grid.&lt;\/p&gt;\n\n\n\n&lt;h4&gt;Design:&lt;\/h4&gt;\n\n\n\n&lt;p&gt;Interaction design, user research, visual design, art direction, creative and copy writing, prototyping, CSS animation, VR design and prototyping, 3D modeling and animation, texturing, illustration, concept art, and neural network mixed medium art.&lt;\/p&gt;\n\n\n\n&lt;h4&gt;Tools:&lt;\/h4&gt;\n\n\n\n&lt;p&gt;Adobe XD, Photoshop, Illustrator, Premiere, Lightroom, After Effects, Vscode, PHPstorm, WebStorm, Hyper.js, Git, Blender, zBrush, JIRA, Trello, Agisoft Photoscan, Meshlab, and Invision&lt;\/p&gt;\n","protected":false},"excerpt":{"rendered":"&lt;p&gt;Hey, my name is Aslan. I&amp;#8217;m a creative technologist living and working in Austin, Texas. I am always refining my craft, and enjoy striving for creative and innovative solutions to [&amp;hellip;]&lt;\/p&gt;\n","protected":false},"author":1,"featured_media":0,"parent":0,"menu_order":0,"comment_status":"closed","ping_status":"closed","template":"template-parts\/plain.php","meta":[],"featured_image_src":null,"featured_image_src_square":null,"_links":{"self":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/3470"}],"collection":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages"}],"about":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/types\/page"}],"author":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/users\/1"}],"replies":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/comments?post=3470"}],"version-history":[{"count":2,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/3470\/revisions"}],"predecessor-version":[{"id":3475,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/3470\/revisions\/3475"}],"wp:attachment":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/media?parent=3470"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}},{"id":15,"date":"2017-03-30T23:40:49","date_gmt":"2017-03-30T23:40:49","guid":{"rendered":"http:\/\/jackalopelocal.local\/?page_id=15"},"modified":"2017-05-27T00:15:56","modified_gmt":"* TLSv1.3 (IN), TLS Unknown, Unknown (23): 
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+* TLSv1.3 (IN), TLS Unknown, Unknown (23):
+2017-05-27T00:15:56","slug":"consultation","status":"publish","type":"page","link":"https:\/\/www.jackalope.tech\/consultation\/","title":{"rendered":"Free Consultation!"},"content":{"rendered":"","protected":false},"excerpt":{"rendered":"","protected":false},"author":1,"featured_media":0,"parent":0,"menu_order":0,"comment_status":"closed","ping_status":"closed","template":"page-freelance.php","meta":[],"featured_image_src":null,"featured_image_src_square":null,"_links":{"self":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/15"}],"collection":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages"}],"about":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/types\/page"}],"author":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/users\/1"}],"replies":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/comments?post=15"}],"version-history":[{"count":0,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/15\/revisions"}],"wp:attachment":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/media?parent=15"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}},{"id":11,"date":"2017-03-30T23:36:35","date_gmt":"2017-03-30T23:36:35","guid":{"rendered":"http:\/\/jackalopelocal.local\/?page_id=11"},"modified":"2017-05-10T00:35:03","modified_gmt":"2017-05-10T00:35:03","slug":"blog","status":"publish","type":"page","link":"https:\/\/www.jackalope.tech\/blog\/","title":{"rendered":"Blog"},"content":{"rendered":"","protected":false},"excerpt":{"rendered":"","protected":false},"author":1,"featured_media":0,"parent":0,"menu_order":0,"comment_status":"closed","ping_status":"closed","template":"archive.php","meta":[],"featured_image_src":null,"featured_image_src_square":null,"_links":{"self":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/11"}],"collection":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages"}],"about":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/types\/page"}],"author":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/users\/1"}],"replies":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/comments?post=11"}],"version-history":[{"count":0,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/11\/revisions"}],"wp:attachment":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/media?parent=11"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}},{"id":8,"date":"2017-03-30T19:33:04","date_gmt":"2017-03-30T19:33:04","guid":{"rendered":"http:\/\/jackalopelocal.local\/?page_id=8"},"modified":"2019-11-29T00:40:16","modified_gmt":"2019-11-29T00:40:16","slug":"home","status":"publish","type":"page","link":"https:\/\/www.jackalope.tech\/","title":{"rendered":"Home"},"content":{"rendered":"","protected":false},"excerpt":{"rendered":"","protected":false},"author":1,"featured_media":1258,"parent":0,"menu_order":0,"comment_status":"closed","ping_status":"closed","template":"index.php","meta":[],"featured_image_src":"https:\/\/www.jackalope.tech\/wp-content\/uploads\/DeepDimension\/JackalopeLogo.jpg","featured_image_src_square":"https:\/\/www.jackalope.tech\/wp-content\/uploads\/DeepDimension\/JackalopeLogo.jpg","_links":{"self":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/8"}],"collection":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages"}],"about":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/types\/page"}],"author":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/users\/1"}],"replies":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/comments?post=8"}],"version-history":[{"count":1,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/8\/revisions"}],"predecessor-version":[{"id":3474,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/pages\/8\/revisions\/3474"}],"wp:featuredmedia":[{"embeddable":true,"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/media\/1258"}],"wp:attachm* TLSv1.3 (IN), TLS Unknown, Unknown (23): 
+* Connection #0 to host www.jackalope.tech left intact
+ent":[{"href":"https:\/\/www.jackalope.tech\/wp-json\/wp\/v2\/media?parent=8"}],"curies":[{"name":"wp","href":"https:\/\/api.w.org\/{rel}","templated":true}]}}]^C 
+[1]+  Done                    curl -H "Origin: http://test.com" --verbose https://www.jackalope.tech/wp-json/wp/v2/pages?embed=true
+</code></pre>
+<h2>EDT 2.5:</h2>
+<p>Also to answer your question about the undefined issue I get this</p>
+<pre><code class="lang-auto">console.log(e),
+r.data[o] = {
+is404: !0,
+isFetching: !1,
+isReady: !1
+}
+</code></pre>
+<p>Which seems to be a console log that gets thrown on a page 404 or something?</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/9</link>
+        <pubDate>Wed, 04 Dec 2019 00:13:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-9</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>cool, I think it’s an issue with my host. I’m checking in with support there and I’ll report back. Found an article by them here: <a href="https://help.dreamhost.com/hc/en-us/articles/216201557-How-to-setup-Cross-Origin-Resource-Sharing-CORS-on-DreamObjects" rel="nofollow noopener">https://help.dreamhost.com/hc/en-us/articles/216201557-How-to-setup-Cross-Origin-Resource-Sharing-CORS-on-DreamObjects</a></p>
+<p>That I think addresses the issue. It at least helped me understand what the nature of the issue was, and I’m pretty sure it’s something they are putting on their own system.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/8</link>
+        <pubDate>Tue, 03 Dec 2019 22:07:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-8</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, adding that to <code>functions.php</code> or a custom plugin solves the CORS problem.</p>
+<p>If that’s not the problem, then we’re going to need the project (not the theme) repository and detailed steps on how to reproduce the problem.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/7</link>
+        <pubDate>Mon, 02 Dec 2019 06:39:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-7</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Do I add that to my functions.php file in my wordpress website? I tried that but that doesn’t seem to have worked. Or perhaps I need to add it to my php.ini ?</p>
+<p>Researching the CORS problem, MDN says:</p>
+<blockquote>
+<p>Other possible causes include:</p>
+<ul>
+<li>Trying to access an <code>https</code> resource that has an invalid certificate will cause this error.</li>
+<li>Trying to access an <code>http</code> resource from a page with an <code>https</code> origin will also cause this error.</li>
+</ul>
+</blockquote>
+<p>Would that perhaps be the result of some kind of ssl setting on my server? Or perhaps that I’m using WP-rocket to php cache my website?</p>
+<p>I’m going to go test that second theory real quick.</p>
+<h1>EDIT:</h1>
+<p>Okay I think I get it. Looking over the error in Chrome, I think the issue is that it’s trying to grab posts but those pages it fails on are pages, not posts. I think I have an idea how to fix it, just a sec.</p>
+<h1>EDIT 2:</h1>
+<p>Okay looks like that didn’t fix it. I thought maybe if I made sure to put the  component before the  component that maybe that would fix stuff but doesn’t look like it has.</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/6</link>
+        <pubDate>Sat, 30 Nov 2019 20:25:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-6</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I only see a CORS problem in <a href="https://www.jackalope.tech/wp-json/">https://www.jackalope.tech/wp-json/</a>.</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/0317501f57eab16fade0be83773a6bb147f7327d.png" data-download-href="https://community.frontity.org/uploads/default/0317501f57eab16fade0be83773a6bb147f7327d" title="53"><img src="https://community.frontity.org/uploads/default/optimized/1X/0317501f57eab16fade0be83773a6bb147f7327d_2_690x77.png" alt="53" data-base62-sha1="rlnzD6sCxmWxmuZbtG1q6iB5tH" width="690" height="77" srcset="https://community.frontity.org/uploads/default/optimized/1X/0317501f57eab16fade0be83773a6bb147f7327d_2_690x77.png, https://community.frontity.org/uploads/default/optimized/1X/0317501f57eab16fade0be83773a6bb147f7327d_2_1035x115.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/0317501f57eab16fade0be83773a6bb147f7327d_2_1380x154.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/0317501f57eab16fade0be83773a6bb147f7327d_2_10x10.png"></a></div><p></p>
+<p>To solve it add the CORS header to the REST API:</p>
+<pre><code class="lang-auto">	add_filter( 'rest_pre_serve_request', function( $value ) {
+		header( 'Access-Control-Allow-Origin: *' );
+		header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
+		header( 'Access-Control-Allow-Credentials: true' );
+		return $value;
+	});
+</code></pre>
+<hr>
+<p>Could you please share the required steps to get to the <code>Cannot read property 'title' of undefined</code> problem?</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/5</link>
+        <pubDate>Sat, 30 Nov 2019 10:34:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-5</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>unfortunately I’m having the same problems again even though I have the refactored component.</p>
+<p>You can see a live version of the website I’m working on at hire-me.jackalope.tech and the repo for it is: <a href="https://github.com/jcklpe/desert-jackalope" rel="nofollow noopener">https://github.com/jcklpe/desert-jackalope</a></p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/4</link>
+        <pubDate>Sat, 30 Nov 2019 01:15:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-4</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, we have moved to the <code>||</code> format so they are OR and not AND too.</p>
+<p>I’ve added a <code>&lt;Switch&gt;</code> component to our roadmap that will work like this:</p>
+<pre><code class="lang-auto">&lt;Switch&gt;
+  &lt;Loading when={data.isFetching} /&gt;
+  &lt;Archive when={data.isArchive} /&gt;
+  &lt;Page when={data.isPage} /&gt;
+  &lt;Post when={data.isPostType} /&gt;
+  &lt;Page404 /&gt;
+&lt;/Switch&gt;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/3</link>
+        <pubDate>Fri, 29 Nov 2019 12:49:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-3</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>I seem to have fixed it when I refactored it to this:</p>
+<pre><code class="lang-auto">{(data.isFetching &amp;&amp; &lt;Loading /&gt;) ||
+                (data.isArchive &amp;&amp; &lt;Archive data={data} /&gt;) ||
+                (data.isPage &amp;&amp; &lt;Page data={data} /&gt;) ||
+                (data.isPostType &amp;&amp; &lt;Post data={data} /&gt;) ||
+                (data.is404 &amp;&amp; &lt;Page404 /&gt;)}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/2</link>
+        <pubDate>Wed, 06 Nov 2019 01:31:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-2</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+      <item>
+        <title>Adding &lt;Page /&gt; Component breaks front page behavior</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>I recently added the following logic to my index.js in order to differentiate between the Page and Post components:</p>
+<pre><code class="lang-auto">              {data.isFetching &amp;&amp; &lt;Loading /&gt;}
+              {data.isArchive &amp;&amp; &lt;Archive /&gt;}
+              {data.isPage &amp;&amp; &lt;Page /&gt;}
+              {data.isPostType &amp;&amp;  /&gt;}
+              {data.is404 &amp;&amp; &lt;Page404 /&gt;}
+</code></pre>
+<p>The <code>data={data}</code> stuff is just there because I added page transitions. The problem is the addition of <code>data.isPage</code>. When I add that in I get a bug.</p>
+<p>If I’m on the front page <code>&lt;Archive /&gt;</code> and I click a link to a <code>&lt;Post /&gt;</code> then it works fine. If I a menu button that is linked to a specific page then it works. But if after clicking any of these I click the logo in the top left hand corner to take me back to the homepage I get a blank page as a response.</p>
+<p>This is the Error I get from the Console:</p>
+<pre><code class="lang-auto">Page.js?486c:27 Uncaught TypeError: Cannot read property 'title' of undefined
+    at Page (Page.js?486c:27)
+    at runAsReaction (reactionRunner.js?30ae:55)
+    at reaction (observer.js?724e:11)
+    at eval (connect.js?84b5:70)
+    at renderWithHooks (react-dom.development.js?61bb:16241)
+    at updateFunctionComponent (react-dom.development.js?61bb:18328)
+    at updateSimpleMemoComponent (react-dom.development.js?61bb:18266)
+    at beginWork$1 (react-dom.development.js?61bb:20228)
+    at HTMLUnknownElement.callCallback (react-dom.development.js?61bb:336)
+    at eval (scheduler.js?f1c4:10)
+Page @ Page.js?486c:27
+runAsReaction @ reactionRunner.js?30ae:55
+reaction @ observer.js?724e:11
+eval @ connect.js?84b5:70
+renderWithHooks @ react-dom.development.js?61bb:16241
+updateFunctionComponent @ react-dom.development.js?61bb:18328
+updateSimpleMemoComponent @ react-dom.development.js?61bb:18266
+beginWork$1 @ react-dom.development.js?61bb:20228
+callCallback @ react-dom.development.js?61bb:336
+eval @ scheduler.js?f1c4:10
+batchedUpdates$1 @ react-dom.development.js?61bb:24353
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+invokeGuardedCallbackDev @ react-dom.development.js?61bb:385
+invokeGuardedCallback @ react-dom.development.js?61bb:440
+beginWork$$1 @ react-dom.development.js?61bb:25738
+performUnitOfWork @ react-dom.development.js?61bb:24662
+workLoopSync @ react-dom.development.js?61bb:24638
+performSyncWorkOnRoot @ react-dom.development.js?61bb:24237
+eval @ react-dom.development.js?61bb:12180
+unstable_runWithPriority @ scheduler.development.js?3069:818
+runWithPriority$2 @ react-dom.development.js?61bb:12130
+flushSyncCallbackQueueImpl @ react-dom.development.js?61bb:12175
+flushSyncCallbackQueue @ react-dom.development.js?61bb:12163
+batchedUpdates$1 @ react-dom.development.js?61bb:24359
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+backend.js:6 The above error occurred in one of your React components:
+    in Unknown
+    in div (created by Context.Consumer)
+    in Absolute
+    in div (created by ForwardRef)
+    in ForwardRef
+    in Unknown (created by App)
+    in HelmetProvider (created by App)
+    in App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://fb.me/react-error-boundaries to learn more about error boundaries.
+r @ backend.js:6
+logCapturedError @ react-dom.development.js?61bb:21810
+logError @ react-dom.development.js?61bb:21847
+update.callback @ react-dom.development.js?61bb:23199
+callCallback @ react-dom.development.js?61bb:13810
+commitUpdateEffects @ react-dom.development.js?61bb:13848
+commitUpdateQueue @ react-dom.development.js?61bb:13838
+commitLifeCycles @ react-dom.development.js?61bb:22127
+commitLayoutEffects @ react-dom.development.js?61bb:25302
+callCallback @ react-dom.development.js?61bb:336
+eval @ scheduler.js?f1c4:10
+batchedUpdates$1 @ react-dom.development.js?61bb:24353
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+invokeGuardedCallbackDev @ react-dom.development.js?61bb:385
+invokeGuardedCallback @ react-dom.development.js?61bb:440
+commitRootImpl @ react-dom.development.js?61bb:25040
+unstable_runWithPriority @ scheduler.development.js?3069:818
+runWithPriority$2 @ react-dom.development.js?61bb:12130
+commitRoot @ react-dom.development.js?61bb:24889
+finishSyncRender @ react-dom.development.js?61bb:24296
+performSyncWorkOnRoot @ react-dom.development.js?61bb:24274
+eval @ react-dom.development.js?61bb:12180
+unstable_runWithPriority @ scheduler.development.js?3069:818
+runWithPriority$2 @ react-dom.development.js?61bb:12130
+flushSyncCallbackQueueImpl @ react-dom.development.js?61bb:12175
+flushSyncCallbackQueue @ react-dom.development.js?61bb:12163
+batchedUpdates$1 @ react-dom.development.js?61bb:24359
+batch @ scheduler.js?f1c4:10
+batched @ scheduler.js?f1c4:25
+react-dom.development.js?61bb:12193 Uncaught TypeError: Cannot read property 'title' of undefined
+    at Page (Page.js?486c:27)
+    at runAsReaction (reactionRunner.js?30ae:55)
+    at reaction (observer.js?724e:11)
+    at eval (connect.js?84b5:70)
+    at renderWithHooks (react-dom.development.js?61bb:16241)
+    at updateFunctionComponent (react-dom.development.js?61bb:18328)
+    at updateSimpleMemoComponent (react-dom.development.js?61bb:18266)
+    at beginWork$1 (react-dom.development.js?61bb:20228)
+    at HTMLUnknownElement.callCallback (react-dom.development.js?61bb:336)
+    at eval (scheduler.js?f1c4:10)
+</code></pre>
+<p>I’m guessing the problem here is that it thinks that the frontpage archive is a Page and not an Archive component?</p>
+          <p><a href="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800/1</link>
+        <pubDate>Tue, 05 Nov 2019 19:58:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-800-1</guid>
+        <source url="https://community.frontity.org/t/adding-page-component-breaks-front-page-behavior/800.rss">Adding &lt;Page /&gt; Component breaks front page behavior</source>
+      </item>
+  </channel>
+</rss>

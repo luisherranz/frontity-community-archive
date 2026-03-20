@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>WebP image support</title>
+    <link>https://community.frontity.org/t/webp-image-support/1129</link>
+    <description>Hello, I was just thinking of the Wordpress features that I find important for the websites that I have built. WebP image support is one of my go to features to improve page speed. Shopify has gone to serving WebP exclusively to browsers that support it and it is a great feature to have overall. For some of my Wordpress sites, I have used [Cache Enabler](https://wordpress.org/plugins/cache-enabler/) and [Shortpixel](https://shortpixel.com/) to serve WebP images over a CDN with Shortpixel and they are cached using Cache Enabler. I am unsure of how I would get this to work, and thought I would share with people smarter than me who may already have an answer. 
+
+Thank you! 😄</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 07 Apr 2020 08:44:56 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/webp-image-support/1129.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Another nice possibility. Thanks for sharing <a class="mention" href="https://community.frontity.org/u/403page">@403page</a>.</p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/14">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/14</link>
+        <pubDate>Tue, 07 Apr 2020 08:44:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-14</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>That looks like a great way to go about it and I’ve been looking at how I could use a Cloudflare worker in a project. Thanks for sharing <img src="https://community.frontity.org/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/13</link>
+        <pubDate>Tue, 07 Apr 2020 00:07:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-13</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[403page]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve found another method for handling webp using Cloudflare (without CF Polish). The only requirement is that your Wordpress instance is behind Cloudflare so you can slot a worker in. You just need to have .webp equivalents of all your .jpg/.pngs in the same wp-content/uploads/ folder (you can use the free <a href="https://wordpress.org/plugins/webp-express/" rel="nofollow noopener">Webp Express plugin</a> to easily bulk generate them).</p>
+<p>Here’s the worker code:</p>
+<pre><code>   /**
+ * Assume we have an image server able to serve webp, convert png and jpg
+ * urls to webp urls if the browser supports it
+ */
+addEventListener('fetch', event =&gt; {
+    event.respondWith(makeWebp(event.request))
+})
+
+
+async function makeWebp(request) {
+
+    let regex = /\.jpg$|\.png$/
+
+    if(request.headers.get('Accept')
+        &amp;&amp; request.headers.get('Accept').match(/image\/webp/)
+        &amp;&amp; request.url.match(regex)) {
+        /**
+         * Replace jpg / png with webp
+         */
+        let url = new URL(request.url.replace(regex, '.webp'))
+
+        /**
+         * Create a new request with the webp url
+         */
+        const modifiedRequest = new Request(url, {
+            method: request.method,
+            headers: request.headers
+        })
+
+        /**
+         * Fetch the webp response
+         */
+        const webpResponse = await fetch(modifiedRequest)
+
+        /**
+         * Add webworker header to the webp response so we can
+         * check live if the webworking is doing what it should do
+         */
+        const webpHeaders = new Headers(webpResponse.headers)
+        webpHeaders.append('X-WebWorker', 'active')
+
+        /**
+         * Return a new response object
+         */
+        return new Response(webpResponse.body, {
+            status: webpResponse.status,
+            statusText: webpResponse.statusText,
+            headers: webpHeaders
+        })
+
+    } else {
+        const response = await fetch(request)
+        return response
+    }
+}
+</code></pre>
+<p>I’ve written a fuller explanation here if needed <a href="https://403page.com/how-to-support-webp-on-cloudflares-edge-with-a-worker/" rel="nofollow noopener">https://403page.com/how-to-support-webp-on-cloudflares-edge-with-a-worker/</a></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/12</link>
+        <pubDate>Sun, 05 Apr 2020 10:46:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-12</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Nice catch <a class="mention" href="https://community.frontity.org/u/shagui">@ShaGui</a>. I’m sure this will be useful for other people so thanks for posting it here <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:">    <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/11</link>
+        <pubDate>Wed, 29 Jan 2020 14:51:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-11</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>I edited this response because I was wrong and want to keep record of what I said. When I was testing the fix, I was on my laptop, what I said below did seem to fix my issue, but I have since returned home and have went on my blog and the issue persists. It is an extremely odd issue and seems to potentially be related to screen resolution. Anyone might be able to help?</p>
+<hr>
+<p>I looked further into the issue and it seems that for some reason the srcset value in the img elements was not being generated. Since it was not being generated, Jetpack seemed to be feeding the smallest image possible as per it’s guideline which can be found <a href="https://jetpack.com/support/site-accelerator/" rel="nofollow noopener">on the page you linked for Jetpack</a>. the images being generated was like 480x340 or something like that.</p>
+<p>To fix the issue, I went ahead and simply updated my posts and for good measure, changed the image size setting which can be found in the Gutenburg Image settings:<br>
+<img src="https://community.frontity.org/uploads/default/original/1X/b0c4517ffde9cb052c0a39fc94ad2c377ca245a4.png" alt="image" data-base62-sha1="pdKDZabGD0iBYbYIgp3WnJD3dsM" width="272" height="96"><br>
+Once I did that, the srcset value was being generated and the correct dimensions were being loaded by Jetpack’s CDN.</p>
+<p>Sorry for taking your time with this issue which was on my side, I don’t understand what exactly caused the srcset values not be loaded, but thanks for your time. <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/10</link>
+        <pubDate>Tue, 28 Jan 2020 21:58:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-10</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="6" data-topic="1129">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/shagui/40/293_2.png" class="avatar"> ShaGui:</div>
+<blockquote>
+<p>Is there a trick to getting it to work with Frontity?</p>
+</blockquote>
+</aside>
+<p>We didn’t do anything special, just enabled this:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/54c4133dd58c11300960dfe97f15f76679357554.png" data-download-href="https://community.frontity.org/uploads/default/54c4133dd58c11300960dfe97f15f76679357554" title="Screen Shot 2020-01-28 at 19.17.58"><img src="https://community.frontity.org/uploads/default/optimized/1X/54c4133dd58c11300960dfe97f15f76679357554_2_517x335.png" alt="Screen Shot 2020-01-28 at 19.17.58" data-base62-sha1="c5ScbMXPLtsnjWHWiQNmbZa0qBS" width="517" height="335" srcset="https://community.frontity.org/uploads/default/optimized/1X/54c4133dd58c11300960dfe97f15f76679357554_2_517x335.png, https://community.frontity.org/uploads/default/optimized/1X/54c4133dd58c11300960dfe97f15f76679357554_2_775x502.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/54c4133dd58c11300960dfe97f15f76679357554_2_1034x670.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/54c4133dd58c11300960dfe97f15f76679357554_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/9</link>
+        <pubDate>Tue, 28 Jan 2020 19:18:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-9</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/christianoliveira">@christianoliveira</a>, good to know!</p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/8</link>
+        <pubDate>Tue, 28 Jan 2020 19:17:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-8</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[christianoliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, no problems with images and SEO with the Jetpack CDN as it indeed includes the canonical link back to the original URL.</p>
+<p>Even if that wasn’t the case, it’s not a big deal as the images are indexed by Google associated to the URL that contains them, and that’s more important in terms of SEO than the URL of the image itself</p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/7</link>
+        <pubDate>Tue, 28 Jan 2020 14:32:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-7</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>I tried using Jetpack on <a href="http://shaunguimond.com" rel="nofollow noopener">shaunguimond.com</a> and when I enabled the feature for CDN and automatic webp support, the images became incredibly blurry. Is there a trick to getting it to work with Frontity?</p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/6</link>
+        <pubDate>Tue, 28 Jan 2020 03:42:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-6</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[403page]]></dc:creator>
+        <description><![CDATA[
+            <p>Right on! That’s a sweet method. The thing I like about webp express is its handled all in your code base (though it does have the option to set up an external processor using an API, but it can still be your own external server). The plugin does the original link too and sends the webp mime type in the header so it falls back to jpg/png for browsers that dont support webp, like safari.</p>
+<p>The developer of that plugin is pretty cool too, very responsive and open to suggestions, he just made it as a side project. Wonder if he’d come over here and write a package for frontity <img src="https://community.frontity.org/images/emoji/apple/grinning.png?v=9" title=":grinning:" class="emoji" alt=":grinning:"></p>
+<p>Jetpack is super handy. Haven’t used it in ages and hadn’t thought about it but that’s a great way.</p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/5</link>
+        <pubDate>Mon, 27 Jan 2020 19:19:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-5</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>That’s a great one <a class="mention" href="https://community.frontity.org/u/403page">@403page</a>, we didn’t know about it <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"> <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<p>We are currently using Jetpack. The <a href="https://jetpack.com/support/site-accelerator/">free version includes CDN and automatic webp</a> support.</p>
+<p>It changes the URLs, for example:</p>
+<ul>
+<li>from: <code>https://test.frontity.io/wp-content/uploads/2016/11/Iceland-test.jpg</code>
+</li>
+<li>to: <code>https://i1.wp.com/test.frontity.io/wp-content/uploads/2016/11/Iceland-test.jpg</code>
+</li>
+</ul>
+<p>But they include the link canonical header pointing to the original image so it should be fine for SEO.<br>
+<em><a class="mention" href="https://community.frontity.org/u/christianoliveira">@christianoliveira</a> could you please confirm this? <img src="https://community.frontity.org/images/emoji/apple/point_up_2.png?v=9" title=":point_up_2:" class="emoji" alt=":point_up_2:"></em></p>
+<p>Anyway, it’s great to know about alternatives. If anyone else is using a different plugin/service please share it with us <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/4</link>
+        <pubDate>Mon, 27 Jan 2020 19:13:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-4</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you for the insight! It’s good to know that it is possible and that Frontity should be able to pull the WebP versions. I’ll have to have a closer look at my configuration to see if I need to do something to get it working. <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/3</link>
+        <pubDate>Mon, 27 Jan 2020 01:55:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-3</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[403page]]></dc:creator>
+        <description><![CDATA[
+            <p>Yo! On my first Frontity test, I was pulling content from a Wordpress site with the WebpExpress plugin (<a href="https://wordpress.org/plugins/webp-express/" rel="nofollow noopener">https://wordpress.org/plugins/webp-express/</a>) that was configured to automatically add .webp to the end of png and jpgs. If those images didn’t exist it would send the image to it’s own converter and spit out a fresh webp. It worked out of the box with frontity as it rewrote the image extension on the fly for the content at least.</p>
+<p>I cant remember my exact configurations, but it will definitely work for images contained in the rest responses and you can set it up within wordpress.</p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/2</link>
+        <pubDate>Sun, 26 Jan 2020 23:51:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-2</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+      <item>
+        <title>WebP image support</title>
+        <dc:creator><![CDATA[ShaGui]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello, I was just thinking of the Wordpress features that I find important for the websites that I have built. WebP image support is one of my go to features to improve page speed. Shopify has gone to serving WebP exclusively to browsers that support it and it is a great feature to have overall. For some of my Wordpress sites, I have used <a href="https://wordpress.org/plugins/cache-enabler/" rel="nofollow noopener">Cache Enabler</a> and <a href="https://shortpixel.com/" rel="nofollow noopener">Shortpixel</a> to serve WebP images over a CDN with Shortpixel and they are cached using Cache Enabler. I am unsure of how I would get this to work, and thought I would share with people smarter than me who may already have an answer.</p>
+<p>Thank you! <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+          <p><a href="https://community.frontity.org/t/webp-image-support/1129/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/webp-image-support/1129/1</link>
+        <pubDate>Fri, 24 Jan 2020 22:59:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1129-1</guid>
+        <source url="https://community.frontity.org/t/webp-image-support/1129.rss">WebP image support</source>
+      </item>
+  </channel>
+</rss>

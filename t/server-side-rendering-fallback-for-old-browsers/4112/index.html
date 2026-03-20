@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Server Side Rendering fallback for old browsers - Currently in Research - Frontity Community Forum</title>
+    <meta name="description" content="Description
+According to our design principles, we prioritize for modern browsers and look only for usability in older browsers, not feature parity. This means that if you visit a Frontity site in a really old browser wh&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="./" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Server Side Rendering fallback for old browsers&#39;" href="4112.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/server-side-rendering-fallback-for-old-browsers/4112" />
+<meta name="twitter:url" content="/t/server-side-rendering-fallback-for-old-browsers/4112" />
+<meta property="og:title" content="Server Side Rendering fallback for old browsers" />
+<meta name="twitter:title" content="Server Side Rendering fallback for old browsers" />
+<meta property="og:description" content="Description According to our design principles, we prioritize for modern browsers and look only for usability in older browsers, not feature parity. This means that if you visit a Frontity site in a really old browser where Proxy isn’t supported, the load and the navigation will work, but some functionalities, like opening a menu for example, won’t.  Right now, if Proxy isn’t supported, Frontity throws a warning. However, sometimes users will want to add some more logic in this case. We would li..." />
+<meta name="twitter:description" content="Description According to our design principles, we prioritize for modern browsers and look only for usability in older browsers, not feature parity. This means that if you visit a Frontity site in a really old browser where Proxy isn’t supported, the load and the navigation will work, but some functionalities, like opening a menu for example, won’t.  Right now, if Proxy isn’t supported, Frontity throws a warning. However, sometimes users will want to add some more logic in this case. We would li..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Currently in Research" />
+<meta property="og:article:section:color" content="D3ABFF" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="9 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="3 ❤" />
+<meta property="article:published_time" content="2021-02-25T13:05:17+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Server Side Rendering fallback for old browsers","mainEntity":{"@type":"Question","name":"Server Side Rendering fallback for old browsers","text":"Description\n\nAccording to our <a href="/t/server-side-rendering-fallback-for-old-browsers/\&quot;/t/frontity-design-principles/3179\&quot;">design principles<\/a>, we prioritize for modern browsers and look only for usability in older browsers, not feature parity. This means that if you visit a Frontity site in a really old browser where <a href="/t/server-side-rendering-fallback-for-old-browsers/\&quot;https://caniuse.com/">Proxy isn’t supported<\/a>, the load and the navigation will work, but some funct&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2021-02-25T13:05:17.865Z","author":{"@type":"Person","name":"Mario Santos Guillamot"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">Server Side Rendering fallback for old browsers</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/in-research/36" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #D3ABFF'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Currently in Research</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Server Side Rendering fallback for old browsers'>
+        <meta itemprop='articleSection' content='Currently in Research'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-02-25T13:05:17Z' class='post-time'>
+                    25 February 2021 13:05
+                  </time>
+                  <meta itemprop='dateModified' content='2021-02-25T13:05:17Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <h1>Description</h1>
+<p>According to our <a href="/t/frontity-design-principles/3179">design principles</a>, we prioritize for modern browsers and look only for usability in older browsers, not feature parity. This means that if you visit a Frontity site in a really old browser where <a href="https://caniuse.com/?search=proxy">Proxy isn’t supported</a>, the load and the navigation will work, but some functionalities, like opening a menu for example, won’t.</p>
+<p>Right now, if Proxy isn’t supported, <a href="https://github.com/frontity/frontity/blob/72f7c82003c73629baf0b1510d0f339c4dfb6af5/packages/core/src/client/index.tsx#L64-L68">Frontity throws a warning</a>. However, sometimes users will want to add some more logic in this case. We would like to offer an easy-to-use solution to allow users do whatever they want in old browsers. They could just show a message in the web to update the browser or create an alternative logic supported by old browsers.</p>
+<h1>Functionalities</h1>
+<ul>
+<li>Packages should be able to create alternative logic for old browsers where Proxy is not supported.</li>
+</ul>
+<h1>Requirements</h1>
+<ul>
+<li>Packages should be able to access defined the <code>state</code>, <code>actions</code> and <code>libraries</code> in the SSR from the fallback.</li>
+</ul>
+<h1>Possible solution</h1>
+<p>Our initial idea was to create an specific action to be used when Proxy is not supported, similar to <a href="https://docs.frontity.org/learning-frontity/actions#aftercsr-client-only"><code>afterCSR()</code></a>, where packages can hook into and add any logic they want for old browsers.</p>
+<p>Another idea we had in mind was to allow a fallback to the AMP version when the <a href="/t/amp-package/388">AMP package</a> is ready.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-12-release-the-beta-version-of-the-amp-package/4118">Sprint 12: Release the beta version of the AMP package</a>
+                        <meta itemprop='position' content='6'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-05T08:56:40Z' class='post-time'>
+                    5 March 2021 08:56
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-05T08:56:40Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thank you <a class="mention" href="/u/santosguillamot">@SantosGuillamot</a> for opening this up.</p>
+<p>Disclaimer: This is by no means concluded. There are still venues to explore, so if you know one, please share it here.</p>
+<h1>General requirements</h1>
+<ol>
+<li>The website should provide the same functionality.</li>
+<li>The actions should trigger state changes that drive UI changes.</li>
+</ol>
+<h1>Reading material</h1>
+<p>There are a few concept that first we need to get familiarised with.</p>
+<ol>
+<li><a href="/t/frontity-design-principles/3179">How <code>frontity</code> manages the state</a></li>
+<li><a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/client/index.tsx#L8">What actually happens in the browser at load time</a></li>
+<li><a href="https://caniuse.com/proxy">Proxy browser support</a></li>
+</ol>
+<h1>Explored ideas</h1>
+<h2>1. Actions always trigger a full <code>&lt;App/&gt;</code> rerender</h2>
+<p>In a browser that supports <code>Proxy</code>, an action triggers a state update, and based on the mutation happening on the derived state, the components that are using that particular state are re-rendered. This is the ideal scenario where <code>Proxy</code> is used to “observe” the used state and based on the registered use of that state, run a reaction queue, that in turn triggers a re-render.</p>
+<p>For the browsers that do not support <code>Proxy</code> we could practically trigger a full app re-render for each action.</p>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Actions will work as before without the user need to do anything</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>A full app re-render might be really bad in terms of performance</li>
+<li>Multiple actions might lead to multiple re-renders</li>
+<li>
+<code>@frontity/connect</code> will need to have a different code-path for cases where there is no <code>Proxy</code> support</li>
+</ul>
+<h2>2. <code>connect()</code> should provide a way to compute when a component should update</h2>
+<p>Just like there is with <code>memo()</code> and other state selectors, instead of making the component reactive we could instead use this second selector function to detect when it should update.</p>
+<pre><code class="lang-jsx">const Menu = ({ state }) =&gt; {
+  return (
+    &lt;nav&gt;
+      {state.theme.isMenuOpened &amp;&amp; "Menu"}
+    &lt;/nav&gt;
+  );
+}
+
+export default connect(Menu, (nextState, prevState) =&gt; {
+  // Should re-render only when the menu is opened.
+  return nextState.theme.isMenuOpened !== prevState.theme.isMenuOpened;
+});
+</code></pre>
+<p>Another variance would be having a static property on the functional component that it’s being wrapped. This one might be better in terms of clearly separating the behaviours.</p>
+<pre><code class="lang-jsx">const Menu = ({ state }) =&gt; {
+  return (
+    &lt;nav&gt;
+      {state.theme.isMenuOpened &amp;&amp; "Menu"}
+    &lt;/nav&gt;
+  );
+}
+
+Menu.selectorForLegacyBrowser = (nextState, prevState) =&gt; {
+  // Should re-render only when the menu is opened.
+  return nextState.theme.isMenuOpened !== prevState.theme.isMenuOpened;
+};
+
+export default connect(Menu);
+</code></pre>
+<p>This will require changes inside the <em>observer</em> function to trigger the <em>scheduler</em> on each action update.</p>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Easy on the app performance as it’s not gonna trigger a full <code>&lt;App /&gt;</code> rerender</li>
+<li>Easy to sprinkle on top of current implementations</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>It needs to be clear explained that this is not needed for default behaviour.</li>
+<li>It’s gonna be shipping with the default code, hence adding more size.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-05T08:57:20Z' class='post-time'>
+                    5 March 2021 08:57
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-05T08:57:20Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Still thinking about other ways and exploring alternatives but I submitted this WIP so I don’t loose it.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-08T09:45:54Z' class='post-time'>
+                    8 March 2021 09:45
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-08T09:45:54Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thanks for sharing your initial ideas Cristian <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Just one comment so far:</p>
+<aside class="quote group-dev-team" data-username="cristianbote" data-post="2" data-topic="4112">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<h1>General requirements</h1>
+<ol>
+<li>The website should provide the same functionality.</li>
+<li>The actions should trigger state changes that drive UI changes.</li>
+</ol>
+</blockquote>
+</aside>
+<p>I wouldn’t consider a requirement that old browsers should provide the same functionality. As explained in <a href="/t/frontity-design-principles/3179">the Design Principles</a>,  we <strong>look only for usability in older browsers, not feature parity</strong>. Currently, <a href="https://caniuse.com/proxy">browsers not supporting proxy</a> are less than 5%, and this number decreases each year. For this reason, we think providing usability should be enough. Actually, even the <a href="https://amp.dev/support/faq/supported-browsers/">AMP-framework is following the same approach.</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-08T10:43:08Z' class='post-time'>
+                    8 March 2021 10:43
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-08T10:43:08Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey <a class="mention" href="/u/santosguillamot">@SantosGuillamot</a>, that’s a good point about feature parity. Now, with this in mind, maybe that requirement should be something like, " 1. The website should provide the same functionality in a way that it does no affect the other 95% of the browsers"?</p>
+<p>Or we are basically looking for a way to just trigger changes based on those actions?</p>
+<p>Gonna post soon some more ideas and a video, hopefully <img src="../../../images/emoji/apple/smiley.png%3Fv=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-08T12:15:58Z' class='post-time'>
+                    8 March 2021 12:15
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-08T12:15:58Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I agree with Mario about this one.</p>
+<aside class="quote group-dev-team" data-username="cristianbote" data-post="2" data-topic="4112">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<ol>
+<li>The website should provide the same functionality.</li>
+<li>The actions should trigger state changes that drive UI changes.</li>
+</ol>
+</blockquote>
+</aside>
+<p>The initial idea for this is:</p>
+<ul>
+<li>The website should provide some functionality (so it is not broken) but not <em>the same</em> functionality.</li>
+<li>
+<code>state</code> changes <em>do not need to trigger a new UI render</em>. We are not trying to make React and the state manager work on those browsers.</li>
+</ul>
+<p>For example, imagine an e-commerce site:</p>
+<ul>
+<li>The site should render properly.</li>
+<li>The images should appear.</li>
+<li>The links should work.</li>
+<li>But maybe the pinch-zoom or the swipe in the image gallery doesn’t work.</li>
+<li>And if you click on an “Add to cart” button, it displays a message saying “Please update your browser to make a purchase in this shop” message, because the cart and the checkout don’t work.</li>
+</ul>
+<p>But your approaches of making React and the state manager work in pre-Proxy browsers are very interesting though!</p>
+<p>I wouldn’t like to close the door to those ideas because obviously making Frontity work as it is in old browsers would be the ideal solution, but there are more implications of our ES6 Proxy usage than what it may seem at first, especially with the upcoming Frontity Hooks.</p>
+<p>So why don’t we have a call to discuss those ideas? See how far we could go? What do you think? <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-08T12:49:06Z' class='post-time'>
+                    8 March 2021 12:49
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-08T12:49:06Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="luisherranz" data-post="6" data-topic="4112">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>So why don’t we have a call to discuss those ideas? See how far we could go? What do you think? <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+</blockquote>
+</aside>
+<p>Sure thing! Sounds great.</p>
+<p>The thing about the requirements is that I don’t think there’s a way to differentiate between, an action that should work, and another one that should show the message. Meaning, our whole state, is pretty blackboxed for <code>frontity</code> in terms of what it represents. A state that shows a product in a cart is the same as the menu is open, for us.</p>
+<p>Having a different API for the actions that are important, is one way to do it. And that’s what I’m exploring at the moment. A way to flag an action that would trigger a state update in an non-connected app.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-08T14:18:01Z' class='post-time'>
+                    8 March 2021 14:18
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-08T14:18:01Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h2>3. Have a <code>dispatch</code> function with whom to call the actions</h2>
+<h4>Prerequisite</h4>
+<p>For browsers that do not support <code>Proxy</code> we should hydrate with a read only version of the state.</p>
+<pre><code class="lang-js">const stateElement = document.getElementById("__FRONTITY_CONNECT_STATE__");
+// createStore here will mostly merge the state and prepare the actions.
+const store = createStore({
+  state: JSON.parse(stateElement.innerHTML),
+  packages,
+});
+
+hydrate(&lt;MainApp /&gt;, window.document.getElementById("root"));
+</code></pre>
+<h3>Using the <code>dispatch</code>
+</h3>
+<p>Let’ talk more precisely about the <code>isMobileMenuOpen</code> flag within our <code>mars</code> theme project. <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/index.js#L23" class="inline-onebox">frontity/index.js at dev · frontity/frontity · GitHub</a>. Opening and closing the menu is done via this flag, and rendered on demand based on it’s value. <a href="https://github.com/frontity/frontity/blob/dev/packages/mars-theme/src/components/menu.js#L10" class="inline-onebox">frontity/menu.js at dev · frontity/frontity · GitHub</a></p>
+<p>With the <code>dispatch</code> function, I imagine something like this could be achieved:</p>
+<pre><code class="lang-jsx">import { styled, connect, dispatch, Global } from "frontity";
+import { CloseIcon, HamburgerIcon } from "./menu-icon";
+import MenuModal from "./menu-modal";
+
+function MobileMenu({ state, actions }) {
+  const { isMobileMenuOpen } = state.theme;
+  return (
+    &lt;&gt;
+      &lt;div onClick={() =&gt; dispatch(actions.theme.toggleMobileMenu)}&gt;
+        {isMobileMenuOpen ? (
+          &lt;&gt;
+            {/* Add some style to the body when menu is open,
+            to prevent body scroll */}
+            &lt;Global styles={{ body: { overflowY: "hidden" } }} /&gt;
+            &lt;CloseIcon color="white" size="20px" /&gt;
+          &lt;/&gt;
+        ) : (
+          &lt;HamburgerIcon color="white" size="24px" /&gt;
+        )}
+      &lt;/div&gt;
+      {/* If the menu is open, render the menu modal */}
+      {isMobileMenuOpen &amp;&amp; &lt;MenuModal /&gt;}
+    &lt;/&gt;
+  );
+}
+
+export default connect(MobileMenu);
+</code></pre>
+<p>This is pretty tied with the <code>Flux</code> architecture, so it adds the benefit of what it is expected from it. Meaning, the <code>dispatch</code> will call the action, with a copy of the current <code>store</code> state, and the result it’s going to be committed to the store and trigger updates to the <code>connect</code>(ed) components.</p>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Completely opt-in</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Could lead to the same perf issues since unnecessary re-renderings might happen</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-08T15:43:14Z' class='post-time'>
+                    8 March 2021 15:43
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-08T15:43:14Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="cristianbote" data-post="7" data-topic="4112">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p>Sure thing! Sounds great.</p>
+</blockquote>
+</aside>
+<p>Great. Schedule something for tomorrow or Wednesday <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"><img src="../../../images/emoji/apple/+1.png%3Fv=9" title=":+1:" class="emoji" alt=":+1:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-10T10:59:59Z' class='post-time'>
+                    10 March 2021 10:59
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-17T11:53:46Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p><a class="mention" href="/u/luisherranz">@luisherranz</a> and I had a lengthy meeting discussing the concepts involved in handling state in a non-Proxy browser and what would the fallback look like on those browsers.</p>
+<h2>Intermediary conclusion</h2>
+<p>It’s not trivial to have a streamlined solution that sets the proper expectation for the developer of what parts of state are working or not. No API offers that visibility without additional confusion of the side-effects. So, with this in mind, we concluded that a solution that offers the ability to have a <code>ssrFallback</code> action would be the best option. This action would be called after the <code>state</code>, <code>libraries</code> and <code>actions</code> would be already bootstrap and this would give the developer a chance to handle the needed interactivity on the client.</p>
+<p>Example:</p>
+<pre><code class="lang-js">export default {
+  actions: {
+    theme: {
+      ssrFallback({ state }) {
+        const menuButton = document.getElementById('menu-button');
+        // Handle the interactivity at will.
+      }
+    }
+  }
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-19T11:04:34Z' class='post-time'>
+                    19 March 2021 11:04
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-19T11:04:34Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This was a bit lengthier than I anticipated, but overall I do believe that I managed to research the proper way of handling this.</p>
+<h1>The Challenge Ahead</h1>
+<p>Frontity mission is to deliver top-notch and best in class quality for websites, running in what is considered modern browsers, the line was drawn at the presence of the <code>Proxy</code> class. That means, the browsers that do not have this exposed on window can not benefit from Frontity’s functionalities at large, because of the tight relationship between how internally Frontity works.<br>
+But we do not stop there, we serve <em>modern</em> bundled code available as JavaScript <em>modules</em> or ESModules. That means that at each build time, we generate two sets of scripts that need to be sent to the browser. Depending on the browser, it will pick-up either the script or the module, to hydrate the already rendered application.</p>
+<p>That means that navigating through links, pages or urls on browsers that do not support the <code>Proxy</code> class, works seamlessly. What doesn’t work, are the framework and theme scripts. And this is the challenge in providing a fallback for older browsers.</p>
+<h1>Prerequisites and common ground</h1>
+<p>Before we dive in in the changes needed to <code>frontity</code> we need to settled some grounds.</p>
+<h3>Add the needed compatibility <code>&lt;meta&gt;</code> tag</h3>
+<p>In order for older Internet Explorer version to render the websites in compatibility mode, we need to instruct them as such. We can achieve that by adding this <code>&lt;meta&gt;</code> tag to the template.</p>
+<pre><code class="lang-html">&lt;meta http-equiv="X-UA-Compatible" content="IE=edge" /&gt;
+</code></pre>
+<p>This will ensure the <em>rendering</em> of the server rendered content is rendered correctly, on Internet Explorer 11. This is the least painful change that we can to do in <code>frontity</code> to properly render the pages.</p>
+<h3>The current runtime throws</h3>
+<p>Currently, in Internet Explorer 11, the generated scripts cannot run, since we use module by default. That means we need to find another way or a proper way of making sure Frontity can run <em>some</em> scripts.</p>
+<h3>Understanding the current bundling target</h3>
+<p>Frontity bundles the JavaScript in two formats for the browsers:</p>
+<ul>
+<li>
+<code>module</code><br>
+This one is aimed at the browsers that know how to parse the newer JavaScript syntax. This is the main targeted browser market.</li>
+<li>
+<code>es5</code><br>
+This is an acronym referring to EcmaScript5 version of JavaScript. This version is the earliest version that we’d like to support, since our state management architecture it’s built on top of <code>Proxy</code> functionality.</li>
+</ul>
+<p>These two bundles are served differently with the module/nomodule pattern. You can read more about it <a href="https://web.dev/serve-modern-code-to-modern-browsers/">here</a>.</p>
+<h3>What about the previously defined solutions</h3>
+<p>Most of them are not enough to get the SSR Fallback to have some sort of functionality. So, they are out of the scope of the following researched ideas – since technically they would need to be instrumented in a way to be compatible with legacy browsers.</p>
+<h1>Researched avenues</h1>
+<p>Tackling this particular issue it’s not that straightforward, since the architecture of <code>frontity</code> is targeted to treat as first class citizen the <em>modern browser</em> or better yet the modern JavaScript syntax. With this in mind, I’ve tried to not steer far away from it and remain true to it.</p>
+<h2>A. Lowering the <em>modern</em> browser target</h2>
+<h3>Proposal</h3>
+<p>Lower the browserlist to include <code>ie &gt;= 11</code>.</p>
+<h3>Results</h3>
+<p>This would basically mean, that the <code>es5</code> format to include polyfills for the missing APIs including <code>Proxy</code>. The latter is not perfect as it can not offer the same functionality, on which the state manager works, and it’ll not work seamless – since <code>Proxy</code> it’s impossible to get a perfect polyfill.</p>
+<blockquote>
+<p>For example we use the <code>.has</code> trap. That it’s not implemented in any polyfill.</p>
+</blockquote>
+<h3>Verdict</h3>
+<p>The generated sources would be compiled with <code>"use strict";</code>.<br>
+Since we use <code>sourceType: "unambiguous"</code> for our babel options, and generate the entry point as a module, we’ll have to generate different entry points for each target <em>only</em> to make sure that Internet Explorer can run the scripts without throwing.</p>
+<h2>B. Create a fallback entry point</h2>
+<h3>Proposal</h3>
+<p>If we can not use the client entry point, we could offer a <code>fallback</code> client side entry, that will basically only call the actions defined on the theme namespace.</p>
+<h3>Results</h3>
+<p>This took way longer to figure out if it’s achievable or not. Mainly trying to come up with the least invasive method. And I believe I found it.</p>
+<h4>1. Create a <code>fallback.ts</code> entry</h4>
+<p>Right now, we have a <em>dynamically</em> generated entry-point for the <code>client</code> that based on the packages, imports the needed things and <em>bootstraps</em> the store and hydrates the <code>App</code>. This is all good, but this is where the problem starts cause the <em>bootstrap</em> picks-up the whole state management based on <code>Proxy</code> and its all down from here. By having a separate <code>fallback</code> entry point, we can omit those packages and let the user deal as they wish with the client. This fallback is defined as a relative path to a file to be included in the compilation pipeline.</p>
+<pre><code class="lang-js">// frontity.settings.js
+export default {
+  name: 'my-site',
+  fallback: './fallback.ts'
+}
+</code></pre>
+<pre><code class="lang-js">// ./fallback.ts
+const stateElement = document.getElementById("__FRONTITY_CONNECT_STATE__");
+const state = JSON.parse(stateElement.innerHTML);
+
+// Here you can do whatever you'd like with access to state.
+</code></pre>
+<h4>2. Define a on-the-fly entry point for the fallback</h4>
+<p>I imagine this would be based on a state flag or something that we can surface over from the settings. But let’s say we have the green light to generate a fallback entry point. This will be done in two places.</p>
+<p>Firstly, based on the flag, we’ll have to create the dynamic entry point, inside <code>webpack/entry.ts</code>. While there, also, push a new <code>frontity-fallback</code> entry mapping, so webpack will pick-it up.</p>
+<p>Second, we need to dynamically include it in the <em>scripts</em> collections of the <code>ChunkExtractor</code>:</p>
+<pre><code class="lang-js">// ./server-side-rendering.ts
+const extractor = new ChunkExtractor({
+  stats,
+  entrypoints: [settings.fallback &amp;&amp; "frontity-fallback", settings.name],
+});
+</code></pre>
+<p>This will make it so that we will end-up with 3 scripts in the dom:</p>
+<pre><code class="lang-html">&lt;script async data-chunk="frontity-fallback" src="/static/frontity-fallback.es5.js"&gt;&lt;/script&gt;
+&lt;script async data-chunk="mars-theme" src="/static/mars-theme.es5.js"&gt;&lt;/script&gt;
+&lt;script async data-chunk="list" src="/static/list.es5.js"&gt;&lt;/script&gt;
+</code></pre>
+<h3>Verdict</h3>
+<p>I believe this is the most streamlined solution that I could come up with. Doesn’t offer the interaction between packages and client, but at least one can read the state, and fire-up some functionality for it.</p>
+<p>Recorded a video as well:</p>
+<iframe width="100%" height="333" src="https://www.loom.com/embed/6a3b2999f82942d2ad5c7103e1bacd59" frameborder="0" allowfullscreen=""></iframe>
+<h2>C. Use the <code>libraries.frontity.scripts</code>
+</h2>
+<h3>Proposal</h3>
+<p>For minimal functionality, one can push scripts through <code>libraries.frontity.scripts</code>.</p>
+<h3>Results</h3>
+<p>These scripts are not transpiled, compiled or amended in any way. With that being sad something like this:</p>
+<pre><code class="lang-js">{
+  actions: {
+    theme: {
+      beforeSSR({ libraries }) {
+        libraries.frontity.scripts.push(`
+          &lt;script&gt;
+            window.gtag('pageview');
+          &lt;/script&gt;
+        `);
+      }
+    }
+  }
+}
+</code></pre>
+<h3>Verdict</h3>
+<p>This is highly error prone. I can see one getting nowhere for wanting to reuse pieces of code, sharing functionality or simply wanting to track custom events.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-13-in-progress-make-frontity-packages-amp-aware/4296">Sprint 13 [In progress]: Make Frontity packages AMP-aware</a>
+                        <meta itemprop='position' content='2'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-12-in-progress-release-the-beta-version-of-the-amp-package/4118">Sprint 12: Release the beta version of the AMP package</a>
+                        <meta itemprop='position' content='3'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-19T13:21:26Z' class='post-time'>
+                    19 March 2021 13:21
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-19T13:21:26Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>Description</h1>
+
+<p>Frontity puts modern browsers first and with that as a side-effect the legacy ones are left without a way to interact on the client. With this IP my aim is to allow folks to add interactivity for the legacy browsers in a way that’s not invasive on the output but achieves the desired functionality.</p>
+<h1>Glossary</h1>
+
+<ul>
+<li>
+<strong>module</strong><br>
+Refers to JavaScript modules.</li>
+<li>
+<strong>bundling</strong><br>
+The action of transforming JavaScript code syntax into another code syntax that’s understandable by modern browsers.</li>
+</ul>
+<h1>Context / Background</h1>
+
+<p>Currently Frontity, serves the scripts into two formats: module and es5. The primary format is <code>module</code> but for the browsers that do not support <code>module</code> but does support the <code>Proxy</code> class, there’s a <code>es5</code> variant. This is working really well, but stops working for browsers that do not have support for <code>Proxy</code> class. Therefore, for legacy browsers, even though the navigation of the website does function the client-side functionalities do not. So this is the problem that I aim to solve with this IP.</p>
+<h1>Goals</h1>
+
+<ul>
+<li>A way of gaining execution context for legacy browsers with access to <code>frontity</code> state.</li>
+</ul>
+<h1>Out of Scope</h1>
+
+<ul>
+<li>
+<em>Actual</em> application code getting executed due to incompatible JavaScript execution contexts.</li>
+</ul>
+<h1>Implementation Proposal</h1>
+
+<p>Allow a <code>fallback</code> file to be defined and included for the legacy browsers.</p>
+<ul>
+<li>Pros:
+<ul>
+<li>Integrated into the build/dev process</li>
+<li>Part of the website settings</li>
+<li>Isolated in terms of accidentally including application code that won’t run.</li>
+</ul>
+</li>
+<li>Cons:<br>
+*</li>
+</ul>
+<h1>Acceptance Criteria / Requirements</h1>
+<ul>
+<li>A <code>frontity</code> website can run client side code on legacy browsers to enable some interactivity.</li>
+</ul>
+<h1>Alternate Solutions</h1>
+<p>More about them here: <a href="/t/server-side-rendering-fallback-for-old-browsers/4112" class="inline-onebox">Server Side Rendering fallback for old browsers - #11 by cristianbote</a></p>
+<h1>Dependencies</h1>
+<p>None</p>
+<h1>Individual Tasks</h1>
+
+<ul>
+<li>Add the <code>&lt;meta&gt;</code> tag for compatibility mode.</li>
+<li>Define a new entry point based on the availability of the <code>site.fallback</code> file reference and include it in the appended <code>scripts</code>.</li>
+</ul>
+<h1>Documentation</h1>
+<p>Wrote about it more here: <a href="/t/server-side-rendering-fallback-for-old-browsers/4112" class="inline-onebox">Server Side Rendering fallback for old browsers - #11 by cristianbote</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-22T07:49:45Z' class='post-time'>
+                    22 March 2021 07:49
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-22T07:49:45Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thanks for the detailed explanation <a class="mention" href="/u/cristianbote">@cristianbote</a> <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>With the approach you suggest, could each package define its own fallback or does it have to be defined in a project level?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-22T08:49:26Z' class='post-time'>
+                    22 March 2021 08:49
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-22T08:49:26Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey <a class="mention" href="/u/santosguillamot">@SantosGuillamot</a> it’s a project level fallback. It’s not functionally possible to have a package level one, since the code for those packages can’t run in a non-Proxy browser.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-22T16:28:43Z' class='post-time'>
+                    22 March 2021 16:28
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-22T16:28:43Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey Cris, great analysis thanks <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>I have a question: What prevents us from lowering the es5 bundle to compile for ie11-like browsers and create a different <code>createStore</code> when Proxy is not present?</p>
+<p>Something like this:</p>
+<pre><code class="lang-js">const { innerHTML: state } = document.getElementById(
+  "__FRONTITY_CONNECT_STATE__"
+);
+
+const runActions = async (name, actions) =&gt; {
+  await Promise.all(
+    Object.values(actions).map((namespace) =&gt; {
+      if (namespace[name]) return namespace[name]();
+    })
+  );
+}
+
+if (window["Proxy"]) {
+  // Use normal `createStore`.
+  const store = createStore({ state, packages });
+  // Run `init` actions.
+  await runActions("init", store.actions);
+  // Run `beforeCSR` actions.
+  await runActions("beforeCSR", store.actions);
+  );
+  // Hydrate App.
+  hydrate(&lt;MainApp /&gt;, window.document.getElementById("root"))
+  // Run `afterCSR` actions.
+  await runActions("afterCSR", store.actions);
+} else {
+  // Use a different version of `createStore` that doesn't use Proxy.
+  const store = createStaticStore({ state, packages });
+  // Run the fallback action.
+  await runActions("fallback", store.actions);
+}
+
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-23T07:16:44Z' class='post-time'>
+                    23 March 2021 07:16
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-23T07:16:44Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="cristianbote" data-post="14" data-topic="4112">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p><a class="mention" href="/u/santosguillamot">@SantosGuillamot</a> it’s a project level fallback. It’s not functionally possible to have a package level one, since the code for those packages can’t run in a non-Proxy browser.</p>
+</blockquote>
+</aside>
+<p>Okay, thanks <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> To clarify, that would mean that we coudln’t create a fallback for the analytics or the ads packages, we would have to ask the users to add it to their projects right? Moreover, theme developers couldn’t add support for old browsers directly, they would have to ask users to add some pieces of code as well?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-03-23T11:38:16Z' class='post-time'>
+                    23 March 2021 11:38
+                  </time>
+                  <meta itemprop='dateModified' content='2021-03-23T11:38:16Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hey <a class="mention" href="/u/luisherranz">@luisherranz</a>, thanks for checking it out.</p>
+<p>Reading your reply, I think I did a poor job explaining the problems. So I’ll try again with a different approach.</p>
+<p>There are a few problems with having a read/static only store, problems that would either change how frontity is architected or the codebase.</p>
+<h2>Problem 1: Generated compiled code is using <code>"use strict";</code>
+</h2>
+<p>Even though this might be something trivial, IE11 at least can’t run our current bundle because the es5 target is using <code>"use strict";</code> or strictMode. This means, that we don’t even get the code to run for detecting <code>Proxy</code>.</p>
+<p>Now, we can disable this, but the configuration to disable it, <code>sourceType</code>, also changes the way babel will read up the source code. Meaning it will treat our files as commonjs not esmodules. That means this is a no go and we would have to find other solutions.</p>
+<h2>Problem 2: There’s no guarantee that the list of <code>packages</code> are not using Proxy.</h2>
+<p>The entry point for the client, currently, is something like this:</p>
+<pre><code class="lang-js">import client from "@frontity/core/src/client";
+import frontity__tiny_router_default from "@frontity/tiny-router/src/index";
+import frontity__html2react_default from "@frontity/html2react/src/index";
+import frontity__mars_theme_default from "@frontity/mars-theme/src/index";
+import frontity__wp_source_default from "@frontity/wp-source/src/index";
+
+const packages = {
+  frontity__tiny_router_default,
+  frontity__html2react_default,
+  frontity__mars_theme_default,
+  frontity__wp_source_default,
+};
+
+export default client({ packages });
+</code></pre>
+<p>The moment the import block gets executed we lose the ability to detect the Proxy availability on the client. Now, we could, change this into a dynamically imported file, based on the Proxy availability, like this:</p>
+<pre><code class="lang-js">if (typeof window.Proxy === 'undefined') {
+  console.log('woot no Proxy?');
+} else {
+  // `bootstrap` is the initial file from above.
+  import('./bootstrap');
+}
+</code></pre>
+<p>This works. IE11 runtime it’s now <em>unblocked</em> but we still can’t run the packages imports because of the <code>"use strict"</code> usage and compilation. And we need to import the packages in order to get the <em>namespaces</em> and the code for actions and all.</p>
+<h2>(maybe?) Problem 3: Allow packages to define a fallback entry</h2>
+<p>This sounds promising, until we get into the thick of it.</p>
+<p>Having a different entry point for the legacy browsers it’s technically possible, but functionally provides almost zero value to the end user, since the <code>&lt;App /&gt;</code> it’s not running and can’t run in that environment. So, what does this mean? That a package could define a fallback file, to be imported for the legacy browsers, but has no execution context of where is running, besides the <code>state</code>.</p>
+<pre><code class="lang-js">// ./foo-theme/config.js
+export default {
+  name: 'foo-theme'
+}
+</code></pre>
+<pre><code class="lang-js">// ./foo-theme/index.js
+import config from './config';
+
+export default {
+  ...config
+}
+</code></pre>
+<pre><code class="lang-js">// ./foo-theme/fallback.js
+import config from './config';
+
+export default {
+  ...config,
+  actions: {
+    theme: {
+      fallback(readOnlyState) {
+        // do something here?
+      }
+    }
+  }
+}
+</code></pre>
+<p>With the above setup our entry point will become something like this:</p>
+<pre><code class="lang-js">// Import only the packages that have a `fallback` entry
+import frontity__tiny_router_default from "@frontity/tiny-router/src/fallback";
+import frontity__mars_theme_default from "@frontity/mars-theme/src/fallback";
+
+const packages = {
+  frontity__tiny_router_default,
+  frontity__mars_theme_default,
+};
+
+if (typeof window.Proxy === 'undefined') {
+  // Read the state
+  const state = JSON.parse( document.getElementById("__FRONTITY_CONNECT_STATE__").innerHTML);
+  
+  // Run through the packages and call the `fallback` action.
+  for (let name in packages) {
+    // Get the namespace
+    const actions = packages[name].actions;
+    for (let ns in actions) {
+      // If there's a fallback action defined, run it with the read only state
+      if (actions[ns].fallback) {
+        actions[ns].fallback(state);
+      }
+    }
+  } 
+} else {
+  // `bootstrap` is the initial file from above.
+  import('./bootstrap');
+}
+</code></pre>
+<p>This does seem appealing, but not sure how valuable it is, since the idea of offering functionality for legacy browsers it’s not the in the principles of Frontity. So, instead of having the ecosystem change the way the packages are defined, might be better to isolate that functionality, as much as possible into something more easy to remove.</p>
+<ul>
+<li>Would a package be better handling the fallback with the read only state as they wish?</li>
+<li>Would that be enough to sprinkle some interactivity?</li>
+<li>Is this a better pattern for package authors?</li>
+<li>Would it be better to have the needed logic for fallback functionality for tracking, ads, or whatnot centralised into a single file?</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-04-07T11:19:48Z' class='post-time'>
+                    7 April 2021 11:19
+                  </time>
+                  <meta itemprop='dateModified' content='2021-04-07T11:19:48Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="cristianbote" data-post="17" data-topic="4112">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p>Now, we can disable this, but the configuration to disable it, <code>sourceType</code>, also changes the way babel will read up the source code. Meaning it will treat our files as commonjs not esmodules. That means this is a no go and we would have to find other solutions.</p>
+</blockquote>
+</aside>
+<p>I see. Thanks for the explanation Cris!</p>
+<p>A follow-up question: If we could find a way to solve this problem and sucessfully compile the ES5 bundle for IE11, what solution would you propose?</p>
+<p>Taking into account this other point, of course:</p>
+<aside class="quote group-dev-team" data-username="cristianbote" data-post="17" data-topic="4112">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cristianbote/40/1899_2.png" class="avatar"> cristianbote:</div>
+<blockquote>
+<p>Problem 2: There’s no guarantee that the list of <code>packages</code> are not using Proxy.</p>
+</blockquote>
+</aside>
+<p>Still the same? A different approach?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/cristianbote'><span itemprop='name'>cristianbote</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-04-12T07:51:46Z' class='post-time'>
+                    12 April 2021 07:51
+                  </time>
+                  <meta itemprop='dateModified' content='2021-04-12T07:51:46Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Sorry <a class="mention" href="/u/luisherranz">@luisherranz</a>, got sidetracked when I’ve tried to reply.</p>
+<p>I would still only allow one <em>fallback</em> entry per frontity configuration. I keep think about it and we keep it simple in terms of choices, this will avoid a lot of other overcomplicating the packages ecosystem and will also make it more imperative what sort of fallback one will want to allow.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-04-12T15:18:04Z' class='post-time'>
+                    12 April 2021 15:18
+                  </time>
+                  <meta itemprop='dateModified' content='2021-04-12T15:18:04Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Ok, thanks for your answers Cris <img src="../../../images/emoji/apple/+1.png%3Fv=9" title=":+1:" class="emoji" alt=":+1:"><img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

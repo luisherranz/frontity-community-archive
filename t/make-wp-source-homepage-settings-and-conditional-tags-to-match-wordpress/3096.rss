@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+    <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096</link>
+    <description>&lt;!-- Please, follow this template to be as efficient as possible. Before opening a new feature, please check that it hasn&#39;t been already added. --&gt;
+
+# Description
+&lt;!-- Try to give a detailed explanation of what do you expect of this feature --&gt;
+
+
+Right now, Frontity settings and conditional tags related to the homepage are based on the WordPress dashboard:
+
+![](upload://46LI9yNjlXSktGXtDkeKfNWbVVC.png)
+
+| WordPress Dashboard | Frontity State | Frontity Conditional Tags |
+| --- | --- | --- |
+| Homepage | `homepage` | `isHome` |
+| Posts page | `postsPage` | `isPostArchive` |
+
+That doesn&#39;t honor either the WordPress settings or the WordPress conditional tags:
+
+| WP dashboard | WP settings | WP cond. tags | Frontity state | Frontity cond. tags |
+| --- | --- | --- | --- | --- |
+| *Homepage* | `page_on_front` | `is_front_page()` | *`homepage`* | *`isHome`* |
+| Posts page | `page_for_posts` | *`is_home()`* | `postsPage` | `isPostArchive` |
+
+
+We should make a decision on this so that the terminology we use is as similar as possible to that used by WordPress and at the same time as understandable as possible.
+
+# Possible solution
+&lt;!-- If you have already thought of a possible solution, let us know! --&gt;
+
+@mmczaplinski has proposed this solution: https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/3?u=david</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 15 Oct 2020 08:00:37 +0000</lastBuildDate>
+    <category>🗣 Feature Discussions</category>
+    <atom:link href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey, great research guys!</p>
+<p>I like the fact that <code>is_home()</code> can be mapped to <code>isPostArchive</code> in Frontity, which is much more explicit.</p>
+<p>So Frontity “doesn’t need” an <code>is_home()</code>.</p>
+<p>I also don’t like the fact that if we move <code>isHome</code> to <code>isFrontPage</code> it’s a breaking change.</p>
+<p>So, what about this a mix between your proposals:</p>
+<h3>1. Changes for Source v1</h3>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WP dashboard</th>
+<th>WP cond. tags</th>
+<th>Frontity state</th>
+<th>Frontity cond. tags</th>
+<th>Frontity alias (deprecated)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Homepage</td>
+<td><code>is_frontpage()</code></td>
+<td><code>homepage</code></td>
+<td><code>isFrontPage</code></td>
+<td><code>isHome</code></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>ishome()</code></td>
+<td><code>postsPage</code></td>
+<td><code>isPostArchive</code></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+</div><h3>2. Breaking Changes for Source v2</h3>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WP dashboard</th>
+<th>WP cond. tags</th>
+<th>Frontity state</th>
+<th>Frontity cond. tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Homepage</td>
+<td><code>is_frontpage()</code></td>
+<td><code>homepage</code></td>
+<td><code>isFrontPage</code></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>ishome()</code></td>
+<td><code>postsPage</code></td>
+<td>
+<code>isPostArchive</code> (or <code>isHome</code>)</td>
+</tr>
+</tbody>
+</table>
+</div><hr>
+<p>My reasoning behind this:</p>
+<ul>
+<li>
+<strong>I’d stick to WP dashboard names for the Frontity state</strong><br>
+I agree with Michal that the WP database setting names are less confusing than the WP dashboard names. Unfortunately, I think WordPress developers are not familiar with those database names and it is less confusing to match the WP dashboard names, because that’s the names the developers they see when they need to configure this.</li>
+<li>
+<strong>I’d try to get rid of the <code>is_home()</code> !== <code>isHome</code> inconsistency</strong><br>
+I agree with David that the WP <code>is_home()</code> is quite confusing. But it’s also confusing that we use <code>isHome</code> for a different thing. I’d try to get rid of that and switch from <code>isHome</code> to <code>isFrontPage</code>.</li>
+<li>
+<strong>I’d try to start with a non-breaking change</strong><br>
+That way, people can start moving away from using the <code>isHome</code> to the <code>isFrontPage</code> gradually. And hopefully, by the time we switch to Source v2, most of the people will be using <code>isFrontPage</code> instead of <code>isHome</code>.</li>
+<li>
+<strong>Finally, match WordPress</strong><br>
+Even though I agree with David that <code>isPostArchive</code> is much more explicit than <code>isHome</code> and we should promote the use of that flag, I think I would still add <code>isHome</code> in Source v2. I’m not 100% convinced about this one though. Maybe we could just remove it.</li>
+</ul>
+<p>Anyway, great work guys. I think this FD can be framed under the “moving towards Source v2” scope <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/7</link>
+        <pubDate>Thu, 15 Oct 2020 08:00:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3096-7</guid>
+        <source url="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss">Make `wp-source` homepage settings and conditional tags to match WordPress</source>
+      </item>
+      <item>
+        <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> I would like to know your opinion on this as well <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/6</link>
+        <pubDate>Tue, 13 Oct 2020 07:33:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3096-6</guid>
+        <source url="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss">Make `wp-source` homepage settings and conditional tags to match WordPress</source>
+      </item>
+      <item>
+        <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>From: <a href="https://community.frontity.org/t/data-ishome-is-not-working-since-update/3039/8" class="inline-onebox">data.isHome is not working since update</a></p>
+<hr>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="4" data-topic="3039">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"><a href="https://community.frontity.org/t/data-ishome-is-not-working-since-update/3039/4">data.isHome is not working since update</a>
+</div>
+<blockquote>
+<p>We’re going to investigate how this works in WordPress because in WordPress you have both <a href="https://developer.wordpress.org/reference/functions/is_home/"> <code>is_home</code> </a> and <a href="https://developer.wordpress.org/reference/functions/is_front_page/"> <code>is_front_page</code> </a> and I think we should match that exactly in Frontity with <code>isHome</code> and <code>isFrontPage</code> .</p>
+</blockquote>
+</aside>
+<p>I’m not sure if we should do that, <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>.</p>
+<p>I remembered that we tried to avoid some confusion that is around these terms in WordPress.</p>
+<p>The thing is that, in the WordPress dashboard, the term <strong>homepage</strong> is used to refer to the root of your site (what we usually call <em>homepage</em>). Based on this settings we created the options <code>state.source.homepage</code> and <code>state.source.postsPage</code>.</p>
+<p>                    <a href="https://gblobscdn.gitbook.com/assets/-LZ-alQBwUYv-HkbN8zV/sync/f62a343186da22158ee6fb080f2085f372b94213.png?alt=media" target="_blank" rel="nofollow ugc noopener" class="onebox">
+            <img src="https://community.frontity.org/uploads/default/original/1X/1ccc9858d75fb548c00609f5ec55756ae3b7eec0.png" width="475" height="200">
+          </a>
+
+</p>
+<p>However, in the WordPress <a href="https://developer.wordpress.org/themes/basics/conditional-tags/#the-main-page">Conditional Tags</a> we have:</p>
+<ul>
+<li>
+<a href="https://developer.wordpress.org/reference/functions/is_home/"><code>is_home()</code></a>, which returns <code>true</code> for the <strong>post archive</strong> page, even though you have set your <em>homepage</em> as a static page in the WordPress settings (in that case, <code>is_home()</code> would be <code>false</code> for the <em>homepage</em> <img src="https://community.frontity.org/images/emoji/apple/dizzy_face.png?v=9" title=":dizzy_face:" class="emoji" alt=":dizzy_face:">).</li>
+<li>
+<a href="https://developer.wordpress.org/reference/functions/is_front_page/"><code>is_front_page()</code></a>: which returns <code>true</code> for the <strong>static page</strong> you specified as your <em>homepage</em>, or for the <strong>post archive</strong> if your <em>homepage</em> displays your latest posts (so it is always <code>true</code> for what your <em>homepage</em> displays).</li>
+</ul>
+<p>So, we took the decision of matching what WordPress calls <code>homepage</code> in its dashboard.</p>
+<hr>
+<p>Anyway, if we eventually decided to match both the WordPress settings and the conditional tags, we should explain in detail why we would have chosen those names for <code>isHome()</code> and <code>isFrontPage()</code> and why <code>isHome()</code> would not be <code>true</code> for the page specified in <code>state.source.homepage</code>.</p>
+          <p><a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/2</link>
+        <pubDate>Fri, 09 Oct 2020 12:59:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3096-2</guid>
+        <source url="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss">Make `wp-source` homepage settings and conditional tags to match WordPress</source>
+      </item>
+      <item>
+        <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+
+<p>Right now, Frontity settings and conditional tags related to the homepage are based on the WordPress dashboard:</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/1ccc9858d75fb548c00609f5ec55756ae3b7eec0.png" alt="" data-base62-sha1="46LI9yNjlXSktGXtDkeKfNWbVVC" width="475" height="200"></p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WordPress Dashboard</th>
+<th>Frontity State</th>
+<th>Frontity Conditional Tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Homepage</td>
+<td><code>homepage</code></td>
+<td><code>isHome</code></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>postsPage</code></td>
+<td><code>isPostArchive</code></td>
+</tr>
+</tbody>
+</table>
+</div><p>That doesn’t honor either the WordPress settings or the WordPress conditional tags:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WP dashboard</th>
+<th>WP settings</th>
+<th>WP cond. tags</th>
+<th>Frontity state</th>
+<th>Frontity cond. tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>Homepage</em></td>
+<td><code>page_on_front</code></td>
+<td><code>is_front_page()</code></td>
+<td><em><code>homepage</code></em></td>
+<td><em><code>isHome</code></em></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>page_for_posts</code></td>
+<td><em><code>is_home()</code></em></td>
+<td><code>postsPage</code></td>
+<td><code>isPostArchive</code></td>
+</tr>
+</tbody>
+</table>
+</div><p>We should make a decision on this so that the terminology we use is as similar as possible to that used by WordPress and at the same time as understandable as possible.</p>
+<h1>Possible solution</h1>
+
+<p><a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> has proposed this solution: <a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/3" class="inline-onebox">Make `wp-source` homepage settings and conditional tags to match WordPress</a></p>
+          <p><a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/1</link>
+        <pubDate>Fri, 09 Oct 2020 12:58:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3096-1</guid>
+        <source url="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss">Make `wp-source` homepage settings and conditional tags to match WordPress</source>
+      </item>
+      <item>
+        <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Okay, I extended the tables above to include also the WP settings and WP conditional tags.</p>
+<p>This is what <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> has proposed:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WP dashboard</th>
+<th>WP settings</th>
+<th>WP cond. tags</th>
+<th>Frontity state</th>
+<th>Frontity cond. tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>Homepage</em></td>
+<td><code>page_on_front</code></td>
+<td><code>is_front_page()</code></td>
+<td><code>pageOnFront</code></td>
+<td><code>isFrontPage</code></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>page_for_posts</code></td>
+<td><em><code>is_home()</code></em></td>
+<td><code>pageForPosts</code></td>
+<td><em><code>isHome</code></em></td>
+</tr>
+</tbody>
+</table>
+</div><p>And this is how Frontity works currently:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WP dashboard</th>
+<th>WP settings</th>
+<th>WP cond. tags</th>
+<th>Frontity state</th>
+<th>Frontity cond. tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>Homepage</em></td>
+<td><code>page_on_front</code></td>
+<td><code>is_front_page()</code></td>
+<td><em><code>homepage</code></em></td>
+<td><em><code>isHome</code></em></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>page_for_posts</code></td>
+<td><em><code>is_home()</code></em></td>
+<td><code>postsPage</code></td>
+<td><code>isPostArchive</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+          <p><a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/5</link>
+        <pubDate>Fri, 09 Oct 2020 09:06:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3096-5</guid>
+        <source url="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss">Make `wp-source` homepage settings and conditional tags to match WordPress</source>
+      </item>
+      <item>
+        <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <p>Fair enough. <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+<p>That would make a lot of sense. The only thing is, to use these settings in Frontity, you must specify them as well in your WordPress dashboard. So, you would have to explain how and why these terms are related.</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WordPress Dashboard</th>
+<th>Frontity State</th>
+<th>Frontity Conditional Tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>Homepage</em></td>
+<td><code>pageOnFront</code></td>
+<td><code>isFrontPage</code></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>pageForPosts</code></td>
+<td><em><code>isHome</code></em></td>
+</tr>
+</tbody>
+</table>
+</div><p>Maybe we could deprecate <code>isHome</code> as well and change it by <code>isPostsPage</code>, or just use <code>isPostArchive</code>, which is the equivalent term we have right now.</p>
+<p>I know it is confusing not to follow what WordPress is doing. But for me, it is also confusing to follow that!</p>
+<hr>
+<p>BTW, the terms that Frontity are using currently are these:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>WordPress Dashboard</th>
+<th>Frontity State</th>
+<th>Frontity Conditional Tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Homepage</td>
+<td><code>homepage</code></td>
+<td><code>isHome</code></td>
+</tr>
+<tr>
+<td>Posts page</td>
+<td><code>postsPage</code></td>
+<td><code>isPostArchive</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+          <p><a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/4</link>
+        <pubDate>Fri, 09 Oct 2020 08:57:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3096-4</guid>
+        <source url="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss">Make `wp-source` homepage settings and conditional tags to match WordPress</source>
+      </item>
+      <item>
+        <title>Make `wp-source` homepage settings and conditional tags to match WordPress</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>OK, I’ve tried to untangle this a little bit further.</p>
+<p>WordPress has the following concepts which I took from the <a href="https://codex.wordpress.org/Option_Reference">Option Reference</a>:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/0/071446ad5cef883371267956758ce2fda70bdefc.png" data-download-href="https://community.frontity.org/uploads/default/071446ad5cef883371267956758ce2fda70bdefc" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/0/071446ad5cef883371267956758ce2fda70bdefc_2_690x276.png" alt="image" data-base62-sha1="10CMA9S3ByhFfp7zkziQl2U0VQ0" width="690" height="276" srcset="https://community.frontity.org/uploads/default/optimized/2X/0/071446ad5cef883371267956758ce2fda70bdefc_2_690x276.png, https://community.frontity.org/uploads/default/optimized/2X/0/071446ad5cef883371267956758ce2fda70bdefc_2_1035x414.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/0/071446ad5cef883371267956758ce2fda70bdefc_2_1380x552.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/0/071446ad5cef883371267956758ce2fda70bdefc_2_10x10.png"></a></div><p></p>
+<p>For reference, here are the definitions:</p>
+ show_on_front <a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/3">(click for more details)</a>
+ page_on_front &amp; page_for_posts <a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/3">(click for more details)</a>
+<p>The crucial part for understanding all of this is the <a href="https://developer.wordpress.org/reference/functions/is_home/">definition of <code>is_home()</code> algorithm</a>:</p>
+<blockquote>
+<ul>
+<li>If  <code>'posts' == get_option( 'show_on_front' )</code> :
+<ul>
+<li>On the site front page:
+<ul>
+<li>
+<code>is_front_page()</code>  will return  <code>true</code>
+</li>
+<li>
+<code>is_home()</code>  will return  <code>true</code>
+</li>
+</ul>
+</li>
+<li>If assigned, WordPress ignores the pages assigned to display the site front page or the blog posts index</li>
+</ul>
+</li>
+<li>If  <code>'page' == get_option( 'show_on_front' )</code> :
+<ul>
+<li>On the page assigned to display the site front page:
+<ul>
+<li>
+<code>is_front_page()</code>  will return  <code>true</code>
+</li>
+<li>
+<code>is_home()</code>  will return  <code>false</code>
+</li>
+</ul>
+</li>
+<li>On the page assigned to display the blog posts index:
+<ul>
+<li>
+<code>is_front_page()</code>  will return  <code>false</code>
+</li>
+<li>
+<code>is_home()</code>  will return  <code>true</code>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>So, what I understand from all of this is:</p>
+<pre><code class="lang-javascript">frontity        WP setting             WP conditional
+homepage   ===  page_on_front    ===   the page where is_front_page() === true
+postsPage  ===  page_for_posts   ===   the page where is_home() === true
+</code></pre>
+<p>So, right now, frontity’s <code>isHome</code> is the same as the <code>is_front_page()</code> from WordPress, which I think is confusing!</p>
+<hr>
+<h3>What to do <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:">
+</h3>
+<p>I think in the ideal world we should have named the options in Frontity the same way as they are named in WordPress internally (but camelCased):</p>
+<ul>
+<li><code>pageOnFront</code></li>
+<li>
+<code>pageForPost</code>.</li>
+</ul>
+<p>Then we could also have the <code>isHome</code> and <code>isFrontPage</code> properties which would correspond to those options in WordPress.</p>
+<p>So, concretely, we could do this:</p>
+<ul>
+<li>
+<p>Add a <code>pageOnFront</code> property to <code>source.state</code>.</p>
+</li>
+<li>
+<p>Add a <code>pageForPosts</code> property to <code>source.state</code>.</p>
+</li>
+<li>
+<p>Alias <code>homepage</code> to <code>pageOnFront</code> and deprecate the <code>homepage</code> property.</p>
+</li>
+<li>
+<p>Alias <code>postsPage</code> to <code>pageForPosts</code> and deprecate the <code>postsPage</code> property.</p>
+</li>
+<li>
+<p>Change how <code>isHome</code> property is computed to align with WordPress’s <code>is_home()</code> rather than the current behaviour of <code>is_front_page()</code>. This would be a breaking change.</p>
+</li>
+<li>
+<p>Add an <code>isFrontPage</code> property to the data. This would have the same logic as <code>isHome</code> has currently.</p>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096/3</link>
+        <pubDate>Thu, 08 Oct 2020 23:37:16 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3096-3</guid>
+        <source url="https://community.frontity.org/t/make-wp-source-homepage-settings-and-conditional-tags-to-match-wordpress/3096.rss">Make `wp-source` homepage settings and conditional tags to match WordPress</source>
+      </item>
+  </channel>
+</rss>

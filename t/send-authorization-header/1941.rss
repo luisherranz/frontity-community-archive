@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Send authorization header</title>
+    <link>https://community.frontity.org/t/send-authorization-header/1941</link>
+    <description>Currently im having a problem fetching my menus from wordpress since the endpoint need authorization and i cant figure out how to send the authorization bearer header.
+
+- [Plugin](https://github.com/WP-API/menus-endpoints) installed for menus 
+- [Plugin](https://de.wordpress.org/plugins/jwt-authentication-for-wp-rest-api/) installed for JWT-Authentication
+
+I managed to setup a afterCSR request to fetch the token.
+
+What i setup for menus:
+
+    actions: {
+        theme: {       
+          ...
+          beforeSSR: ({ actions }) =&gt; async () =&gt; {
+            await actions.source.fetch(&quot;menus/2&quot;);
+          },
+          afterCSR: async ({ state, libraries, actions }) =&gt; {
+            if (state.frontity.platform === &#39;client&#39;) {
+              if (undefined === state.theme.token) {
+                actions.theme.fetchToken();
+              }
+            }
+          },
+          fetchToken
+        }
+      },
+      libraries: {
+       source: {
+         handlers: [menuHandler],
+        }
+    }
+
+Handler:
+
+    const menuHandler = {
+      name: &quot;menus&quot;,
+      priority: 10,
+      pattern: &quot;menus/:id&quot;,
+      func: async ({ route, params, state, libraries }) =&gt; {
+        const { api } = libraries.source;
+        const { id } = params;
+        const response = await api.get({
+          endpoint: &quot;menus/&quot;,
+          headers: {
+            &quot;authorization&quot;: &quot;Bearer mytokenhere&quot;,
+            &quot;host&quot;: &quot;myhosthere&quot;,
+            &quot;accept&quot;: &quot;*\/*&quot;,
+          },
+          params: {
+            menus: id,
+            per_page: 100
+          }
+        });
+
+        const items = await response.json();
+        const currentPageData = state.source.data[route];
+
+        Object.assign(currentPageData, {
+          id,
+          items,
+          isMenu: true
+        });
+      }
+    };
+
+I repeatedly receive a 401 unauthorized.
+Via Postman i managed to get the Menus from the endpoint so the authorization works actually. But i guess the header is not sent by frontity fetch. Any ideas on how to send the header correct?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 25 Jun 2020 16:52:21 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/send-authorization-header/1941.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Send authorization header</title>
+        <dc:creator><![CDATA[hugsaf2132]]></dc:creator>
+        <description><![CDATA[
+            <p>45/5000</p>
+<p>Now it’s working, thanks for your attention</p>
+          <p><a href="https://community.frontity.org/t/send-authorization-header/1941/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/send-authorization-header/1941/7</link>
+        <pubDate>Thu, 25 Jun 2020 16:52:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1941-7</guid>
+        <source url="https://community.frontity.org/t/send-authorization-header/1941.rss">Send authorization header</source>
+      </item>
+      <item>
+        <title>Send authorization header</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/hugsaf2132">@hugsaf2132</a></p>
+<p>Does the solution provided not work for you? What error are you getting?</p>
+          <p><a href="https://community.frontity.org/t/send-authorization-header/1941/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/send-authorization-header/1941/6</link>
+        <pubDate>Thu, 25 Jun 2020 16:38:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1941-6</guid>
+        <source url="https://community.frontity.org/t/send-authorization-header/1941.rss">Send authorization header</source>
+      </item>
+      <item>
+        <title>Send authorization header</title>
+        <dc:creator><![CDATA[hugsaf2132]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group quote-modified" data-username="sarang" data-post="3" data-topic="1941">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/s/bc79bd/40.png" class="avatar"> sarang:</div>
+<blockquote>
+<p>Authorization: <code>Bearer ${responseJSON.access_token}</code>,</p>
+</blockquote>
+</aside>
+<p>Good morning I have the same problem, get a solution?</p>
+          <p><a href="https://community.frontity.org/t/send-authorization-header/1941/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/send-authorization-header/1941/4</link>
+        <pubDate>Wed, 17 Jun 2020 09:31:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1941-4</guid>
+        <source url="https://community.frontity.org/t/send-authorization-header/1941.rss">Send authorization header</source>
+      </item>
+      <item>
+        <title>Send authorization header</title>
+        <dc:creator><![CDATA[sarang]]></dc:creator>
+        <description><![CDATA[
+            <p>Heres a way to get menus that worked for me.</p>
+<pre><code class="lang-javascript">import { fetch } from "frontity";
+
+const responseMenus = await fetch("https://example.com/wp-json/wp/v2/menus", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${responseJSON.access_token}`,
+            },
+        });
+</code></pre>
+          <p><a href="https://community.frontity.org/t/send-authorization-header/1941/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/send-authorization-header/1941/3</link>
+        <pubDate>Wed, 27 May 2020 15:44:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1941-3</guid>
+        <source url="https://community.frontity.org/t/send-authorization-header/1941.rss">Send authorization header</source>
+      </item>
+      <item>
+        <title>Send authorization header</title>
+        <dc:creator><![CDATA[mosamlife]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <a class="mention" href="https://community.frontity.org/u/pirmin.bahr">@pirmin.bahr</a> one of my team member solve this issue</p>
+<p><a class="mention" href="https://community.frontity.org/u/sarang">@sarang</a> can you please provide the solution here?</p>
+          <p><a href="https://community.frontity.org/t/send-authorization-header/1941/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/send-authorization-header/1941/2</link>
+        <pubDate>Wed, 27 May 2020 15:37:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1941-2</guid>
+        <source url="https://community.frontity.org/t/send-authorization-header/1941.rss">Send authorization header</source>
+      </item>
+      <item>
+        <title>Send authorization header</title>
+        <dc:creator><![CDATA[pirmin.bahr]]></dc:creator>
+        <description><![CDATA[
+            <p>Currently im having a problem fetching my menus from wordpress since the endpoint need authorization and i cant figure out how to send the authorization bearer header.</p>
+<ul>
+<li>
+<a href="https://github.com/WP-API/menus-endpoints" rel="nofollow noopener">Plugin</a> installed for menus</li>
+<li>
+<a href="https://de.wordpress.org/plugins/jwt-authentication-for-wp-rest-api/" rel="nofollow noopener">Plugin</a> installed for JWT-Authentication</li>
+</ul>
+<p>I managed to setup a afterCSR request to fetch the token.</p>
+<p>What i setup for menus:</p>
+<pre><code>actions: {
+    theme: {       
+      ...
+      beforeSSR: ({ actions }) =&gt; async () =&gt; {
+        await actions.source.fetch("menus/2");
+      },
+      afterCSR: async ({ state, libraries, actions }) =&gt; {
+        if (state.frontity.platform === 'client') {
+          if (undefined === state.theme.token) {
+            actions.theme.fetchToken();
+          }
+        }
+      },
+      fetchToken
+    }
+  },
+  libraries: {
+   source: {
+     handlers: [menuHandler],
+    }
+}
+</code></pre>
+<p>Handler:</p>
+<pre><code>const menuHandler = {
+  name: "menus",
+  priority: 10,
+  pattern: "menus/:id",
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const { api } = libraries.source;
+    const { id } = params;
+    const response = await api.get({
+      endpoint: "menus/",
+      headers: {
+        "authorization": "Bearer mytokenhere",
+        "host": "myhosthere",
+        "accept": "*\/*",
+      },
+      params: {
+        menus: id,
+        per_page: 100
+      }
+    });
+
+    const items = await response.json();
+    const currentPageData = state.source.data[route];
+
+    Object.assign(currentPageData, {
+      id,
+      items,
+      isMenu: true
+    });
+  }
+};
+</code></pre>
+<p>I repeatedly receive a 401 unauthorized.<br>
+Via Postman i managed to get the Menus from the endpoint so the authorization works actually. But i guess the header is not sent by frontity fetch. Any ideas on how to send the header correct?</p>
+          <p><a href="https://community.frontity.org/t/send-authorization-header/1941/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/send-authorization-header/1941/1</link>
+        <pubDate>Wed, 27 May 2020 14:36:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1941-1</guid>
+        <source url="https://community.frontity.org/t/send-authorization-header/1941.rss">Send authorization header</source>
+      </item>
+  </channel>
+</rss>

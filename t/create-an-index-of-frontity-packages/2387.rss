@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Create an index of &quot;frontity&quot; packages</title>
+    <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387</link>
+    <description># Description
+As more users are publishing their own frontity packages, we should start tracking them so that we can provide an official &quot;index&quot; of frontity packages that can be installed.
+
+In the future we can provide an official, searchable list of frontity packages on our website and extend the CLI so that each one of them could be installable with just `frontity install-package &lt;package-name&gt;`
+
+# Examples
+Gatsby has an ecosystem of &quot;plugins&quot; that basically serve the same purpose as frontity packages: https://www.gatsbyjs.org/plugins/
+
+# Possible solution
+There are several related tasks that we need to accomplish:
+- Create an index of packages as an editable database. This should be editable both manually and through some sort of an API. We could probably get away with just a notion page for the moment. Later, I think we should create a serverless function that connects to a data storage somewhere.
+- Manually collect a list of already existing frontity packages (can search on npm/github)
+- Establish a convention that each npm package with a `frontity-*` prefix is an installable &quot;frontity&quot; package.
+- Create a cron job that periodically adds all those packages to our index.
+- Extend the CLI to allow installing a frontity package by doing just `frontity install-package &lt;package-name&gt;`
+- (nice to have) Update the frontity CLI to by default create a package with a `frontity-` prefix followed by 2 random words (e.g. `frontity-daring-fireplace`) so that it&#39;s instantly publishable under that name.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 17 Dec 2020 09:19:43 +0000</lastBuildDate>
+    <category>Awaiting Development</category>
+    <atom:link href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>A post was split to a new topic: <a href="https://community.frontity.org/t/how-to-set-up-algolia-with-wordpress-and-frontity/3616">How to set up Algolia with WordPress and Frontity?</a></p>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/8</link>
+        <pubDate>Thu, 17 Dec 2020 09:26:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-8</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yes, for now I just would npm keywords. Maybe <a class="mention" href="https://community.frontity.org/u/santosguillamot">@santosguillamot</a> is right and the <code>frontity</code> keyword is too general, and it would be better to promote a <code>frontity-package</code> keyword instead.</p>
+<p>For “official” namespaces, we can use specific keywords:</p>
+<ul>
+<li>
+<strong>source</strong>: <code>frontity-source</code>
+</li>
+<li>
+<strong>analytics</strong>: <code>frontity-analytics</code>
+</li>
+<li>
+<strong>comments</strong>: <code>frontity-comments</code>
+</li>
+<li>
+<strong>newsletter</strong>: <code>frontity-newsletter</code>
+</li>
+<li>
+<strong>share</strong>: <code>frontity-share</code>
+</li>
+<li>…</li>
+</ul>
+<p>That way we can filter those namespaces directly by searching on npm.</p>
+<p>When we release a new version of a namespace, we should release a new keyword:</p>
+<ul>
+<li>
+<strong>source v2</strong>: <code>frontity-source-v2</code>
+</li>
+</ul>
+<p>We can add a new <code>"frontity"</code> field to the <code>package.json</code> file with our own structured data but that is not searchable in npm. Depending on how users are going to share/search for the packages, that may be important or not.</p>
+<p>I agree with <a class="mention" href="https://community.frontity.org/u/nicholasio.oliveira">@nicholasio.oliveira</a> that we need the ability to “officially approve” the packages, especially for the official namespaces where it’s important to know that a package is compliant with the namespace needs. We could provide a badge for the approved packages.</p>
+<hr>
+<p>Regarding this, I just want to add an idea for the future (far future) I’ve been thinking about: we should release our own dependency system to allow packages to specify.</p>
+<ul>
+<li>Which namespace they implement</li>
+<li>Which other namespaces they require</li>
+<li>Which other namespaces they support</li>
+</ul>
+<p>This will allow a theme to specify that it requires a <code>router</code> and a <code>source-v2</code> and that it supports <code>comments</code>, <code>share</code>, and <code>newsletter</code>.</p>
+<pre><code class="lang-json">{
+  "name": "my-awesome-theme",
+  "keywords": ["frontity", "frontity-theme"],
+  "frontity": {
+    "implements": ["theme"],
+    "requires": ["router", "source-v2", "html2react"],
+    "supports": ["comments", "share", "newsletter"]
+  }
+}
+</code></pre>
+<p>With this, we could create a powerful UI to inform users that they are not meeting the requirements for a package, or suggest them to install additional packages.</p>
+<p>In this system, we could add fallbacks to install packages automatically to meet the packages needs:</p>
+<pre><code class="lang-json">{
+  "name": "my-awesome-theme",
+  "keywords": ["frontity", "frontity-theme"],
+  "frontity": {
+    "implements": ["theme"],
+    "requires": [
+      {
+        "namespace": "router",
+        "fallback": "@frontity/tiny-router"
+      },
+      {
+        "namespace": "source-v2",
+        "fallback": "@frontity/wp-source"
+      },
+      {
+        "namespace": "html2react",
+        "fallback": "@frontity/html2react"
+      }
+    ],
+    "supports": ["comments", "share", "newsletter"]
+  }
+}
+</code></pre>
+<p>That way if the user installs <code>my-awesome-theme</code>, everything is fine because Frontity can use the fallbacks to meet the rest of the requirements. But if he/she wants to use <code>@frontity/wpgraphql-source</code> instead of <code>@frontity/wp-source</code>, it’s also fine because Frontity won’t apply that fallback.</p>
+<p>There is a bit more to this dependency system, but I just wanted to share it here as something I’ve been thinking about to simplify package installation for not-so-technical users in the future.</p>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/7</link>
+        <pubDate>Wed, 22 Jul 2020 07:37:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-7</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I think we need a way for packages to be submitted to a “central repository” even if it’s just adding a github URL to a text file through a Pull Request.</p>
+<p>That way the frontity team would have at least some control of what’ getting added to the repo.</p>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/6</link>
+        <pubDate>Thu, 16 Jul 2020 16:00:31 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-6</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I just run a quick test and the integration between Algolia seems to be easy and pretty nice. We still have to investigate a bit further how it works but this is what I achieved so far:<br>
+            <video title="localhost:3000/packages" width="695" height="396" style="max-width:100%" poster="https://cdn.loom.com/sessions/thumbnails/3a91872aace9448d9ca0d0b825f3e186-00001.gif" controls="">
+              <source src="https://cdn.loom.com/sessions/transcoded/3a91872aace9448d9ca0d0b825f3e186.mp4?Expires=2147472000&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4ubG9vbS5jb20vc2Vzc2lvbnMvdHJhbnNjb2RlZC8zYTkxODcyYWFjZTk0NDhkOWNhMGQwYjgyNWYzZTE4Ni5tcDQiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjIxNDc0NzIwMDB9fX1dfQ__&amp;Signature=oIV8VMTJCpGrkrsTWJS3ysSRh-AIUBcK3AGh5NLIM~3QuqrWD7ea9i9VG8roI7Mc1Odq0SZP9eZ-zvKqLI4oDSXvBsaB8FtdAFfngqIj4XSe5ocX1HrIHesMNpYTnz65sPsT3QFnr992bKg3ixbExvSCNwO6~zuNKYTon8wrMp~eAi-c2eKpPA9ULUQQKIdOYykeGw-oYNxn2t3Q3nx0Tz9vkkPYKERLwVvAc~sEQNyl~RQ8iDyRd4LoH2r9emyOO~~xBWG0nZQumrWbE9P5dnXkt0YTex51rWiTKmOcWsm-pXpQXMZflBmSfjAzAXPAWFsQWwiB76xS2YMlSXhxKw__&amp;Key-Pair-Id=APKAJQIC5BGSW7XXK7FQ">
+            </video>
+</p>
+<p>What I did was getting all the npm packages with the keyword <code>frontity</code> from this url and imported the json manually to Algolia: <a href="https://registry.npmjs.org/-/v1/search?text=keywords:frontity&amp;size=250">https://registry.npmjs.org/-/v1/search?text=keywords:frontity&amp;size=250</a>. It should be easy to automate to it and get the info once/twice a day.</p>
+<p>From that I installed the algoliasearch npm package and configure it for a specific page. It was fairly simple.</p>
+<p>Some things to consider:</p>
+<ul>
+<li>How are we going to filter the packages. Maybe just by the <code>frontity</code> keyword isn’t enough.</li>
+<li>We’ll need to agree on a format for the packages.</li>
+<li>We have to figure out how do we want to show them in the web.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/5</link>
+        <pubDate>Wed, 15 Jul 2020 15:04:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-5</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>You’re totally right, I had just seen the official ones but there are also external plugins.</p>
+<p>Algolia seems nice, I’m going to take a look and I’ll post here my findings.</p>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/4</link>
+        <pubDate>Wed, 15 Jul 2020 07:40:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-4</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="2" data-topic="2387">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>I think they are fetching them from the monorepo,</p>
+</blockquote>
+</aside>
+<p>As far as i can tell the users can submit the plugins to gatsby <a href="https://www.gatsbyjs.org/contributing/submit-to-plugin-library/">https://www.gatsbyjs.org/contributing/submit-to-plugin-library/</a></p>
+<p>They are using <a href="http://algolia.com">algolia.com</a> for the search by the way, maybe we can use it as well if it’s simple to set up. I think we should fit in the free tier easily.</p>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/3</link>
+        <pubDate>Tue, 14 Jul 2020 19:00:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-3</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I think it’s a great idea, looking for and installing <code>frontity</code> packages should be as easy as possible <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:">.</p>
+<p>Regarding the Gatsby plugins, I think they are fetching them from the monorepo, in the packages folder. Would it be possible to do somethings similar for the official packages in Frontity?</p>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/2</link>
+        <pubDate>Tue, 14 Jul 2020 06:58:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-2</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+      <item>
+        <title>Create an index of &quot;frontity&quot; packages</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>As more users are publishing their own frontity packages, we should start tracking them so that we can provide an official “index” of frontity packages that can be installed.</p>
+<p>In the future we can provide an official, searchable list of frontity packages on our website and extend the CLI so that each one of them could be installable with just <code>frontity install-package &lt;package-name&gt;</code></p>
+<h1>Examples</h1>
+<p>Gatsby has an ecosystem of “plugins” that basically serve the same purpose as frontity packages: <a href="https://www.gatsbyjs.org/plugins/">https://www.gatsbyjs.org/plugins/</a></p>
+<h1>Possible solution</h1>
+<p>There are several related tasks that we need to accomplish:</p>
+<ul>
+<li>Create an index of packages as an editable database. This should be editable both manually and through some sort of an API. We could probably get away with just a notion page for the moment. Later, I think we should create a serverless function that connects to a data storage somewhere.</li>
+<li>Manually collect a list of already existing frontity packages (can search on npm/github)</li>
+<li>Establish a convention that each npm package with a <code>frontity-*</code> prefix is an installable “frontity” package.</li>
+<li>Create a cron job that periodically adds all those packages to our index.</li>
+<li>Extend the CLI to allow installing a frontity package by doing just <code>frontity install-package &lt;package-name&gt;</code>
+</li>
+<li>(nice to have) Update the frontity CLI to by default create a package with a <code>frontity-</code> prefix followed by 2 random words (e.g. <code>frontity-daring-fireplace</code>) so that it’s instantly publishable under that name.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/create-an-index-of-frontity-packages/2387/1</link>
+        <pubDate>Mon, 13 Jul 2020 20:27:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2387-1</guid>
+        <source url="https://community.frontity.org/t/create-an-index-of-frontity-packages/2387.rss">Create an index of &quot;frontity&quot; packages</source>
+      </item>
+  </channel>
+</rss>

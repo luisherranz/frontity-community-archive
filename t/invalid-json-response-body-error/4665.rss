@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Invalid json response body error</title>
+    <link>https://community.frontity.org/t/invalid-json-response-body-error/4665</link>
+    <description>Hello 😊 I hope someone can give me some advice. 
+
+I&#39;m currently having this issue that the json response body is invalid:
+
+```
+FetchError: invalid json response body at http://hippiekick.byethost3.com/wp-json/wp/v2/posts?_embed=true&amp;slug=startsida reason: Unexpected token &lt; in JSON at position 0
+      at eval (webpack-internal:///./node_modules/node-fetch/lib/index.mjs:276:32)
+      at eval (webpack-internal:///./node_modules/@frontity/react-easy-state/dist/bundle.js:58:245)
+      at batchedUpdates$1 (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:3767:145)
+      at batch (webpack-internal:///./node_modules/@frontity/react-easy-state/dist/bundle.js:58:237)
+      at Object.apply (webpack-internal:///./node_modules/@frontity/react-easy-state/dist/bundle.js:61:179)
+      at runMicrotasks (&lt;anonymous&gt;)
+      at processTicksAndRejections (internal/process/task_queues.js:97:5)
+      at Object.populate (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/populate.ts:27:12)
+      at Object.eval (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:35:217)
+      at eval (webpack-internal:///./node_modules/@frontity/wp-source/src/actions.ts:40:1)
+```
+
+I found [this thread](https://community.frontity.org/t/rest-api-head-tags-plugin-not-working-with-wordpress-rest-api-menus-endpoints/1212) which shows the person had the same issue I believe. So I tried to implement solution in the menu-handler and it doesn&#39;t seem to make any difference. This is what it looks like in my menu-handler:
+
+```
+const menuHandler = {
+    name: &quot;menus&quot;,
+    priority: 10,
+    pattern: &quot;/menu/:slug&quot;,
+    func: async ({ link, params, state, libraries }) =&gt; {
+      console.log(&quot;PARAMS:&quot;, params);
+      const { slug } = params;
+  
+      // Fetch the menu data from the endpoint
+      const response = await libraries.source.api.get({
+        endpoint: `/menus/v1/menus/${slug}`,
+        params: {
+          head_tags: false // This one should disable REST API - Head Tags.
+        }
+      });
+  
+      // Parse the JSON to get the object
+      const menuData = await response.json();
+  
+      // Add the menu items to source.data
+      const menu = state.source.data[link];
+      console.log(link);
+      Object.assign(menu, {
+        items: menuData.items,
+        isMenu: true,
+      });
+    },
+  };
+  
+  export default menuHandler;
+```
+
+And I was wondering why is the menu registered as a Custom Post Type and not a page is it possible to change this? 
+
+Thank you in advance!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 27 May 2021 16:43:11 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/invalid-json-response-body-error/4665.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Invalid json response body error</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>The error message is caused because WorsPress is returning HTML before/after the JSON, which is most likely an error message.<br>
+So going to that endpoint manually should give you the reason.</p>
+<p>However I tried that endpoint and it only returns an empty array (which makes sense, since your homepage is not a post). So I guess the error has been resolved and should work again.<br>
+It has nothing to do with the menu handler or head tags though, at least I haven’t seen any problems with it in my projects.</p>
+<p>As for your second question; WordPress handles menu’s as a (custom) post type, which is normal since it’s not an actual page or post.<br>
+In the thread you mentioned the problem was caused by a CPT called menu’s, at least as far as I can tell.</p>
+          <p><a href="https://community.frontity.org/t/invalid-json-response-body-error/4665/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/invalid-json-response-body-error/4665/2</link>
+        <pubDate>Thu, 27 May 2021 16:43:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4665-2</guid>
+        <source url="https://community.frontity.org/t/invalid-json-response-body-error/4665.rss">Invalid json response body error</source>
+      </item>
+      <item>
+        <title>Invalid json response body error</title>
+        <dc:creator><![CDATA[clairecaudwell]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"> I hope someone can give me some advice.</p>
+<p>I’m currently having this issue that the json response body is invalid:</p>
+<pre><code class="lang-javascript">FetchError: invalid json response body at http://hippiekick.byethost3.com/wp-json/wp/v2/posts?_embed=true&amp;slug=startsida reason: Unexpected token &lt; in JSON at position 0
+      at eval (webpack-internal:///./node_modules/node-fetch/lib/index.mjs:276:32)
+      at eval (webpack-internal:///./node_modules/@frontity/react-easy-state/dist/bundle.js:58:245)
+      at batchedUpdates$1 (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:3767:145)
+      at batch (webpack-internal:///./node_modules/@frontity/react-easy-state/dist/bundle.js:58:237)
+      at Object.apply (webpack-internal:///./node_modules/@frontity/react-easy-state/dist/bundle.js:61:179)
+      at runMicrotasks (&lt;anonymous&gt;)
+      at processTicksAndRejections (internal/process/task_queues.js:97:5)
+      at Object.populate (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/populate.ts:27:12)
+      at Object.eval (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:35:217)
+      at eval (webpack-internal:///./node_modules/@frontity/wp-source/src/actions.ts:40:1)
+</code></pre>
+<p>I found <a href="https://community.frontity.org/t/rest-api-head-tags-plugin-not-working-with-wordpress-rest-api-menus-endpoints/1212">this thread</a> which shows the person had the same issue I believe. So I tried to implement solution in the menu-handler and it doesn’t seem to make any difference. This is what it looks like in my menu-handler:</p>
+<pre><code class="lang-javascript">const menuHandler = {
+    name: "menus",
+    priority: 10,
+    pattern: "/menu/:slug",
+    func: async ({ link, params, state, libraries }) =&gt; {
+      console.log("PARAMS:", params);
+      const { slug } = params;
+  
+      // Fetch the menu data from the endpoint
+      const response = await libraries.source.api.get({
+        endpoint: `/menus/v1/menus/${slug}`,
+        params: {
+          head_tags: false // This one should disable REST API - Head Tags.
+        }
+      });
+  
+      // Parse the JSON to get the object
+      const menuData = await response.json();
+  
+      // Add the menu items to source.data
+      const menu = state.source.data[link];
+      console.log(link);
+      Object.assign(menu, {
+        items: menuData.items,
+        isMenu: true,
+      });
+    },
+  };
+  
+  export default menuHandler;
+</code></pre>
+<p>And I was wondering why is the menu registered as a Custom Post Type and not a page is it possible to change this?</p>
+<p>Thank you in advance!</p>
+          <p><a href="https://community.frontity.org/t/invalid-json-response-body-error/4665/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/invalid-json-response-body-error/4665/1</link>
+        <pubDate>Thu, 27 May 2021 16:01:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4665-1</guid>
+        <source url="https://community.frontity.org/t/invalid-json-response-body-error/4665.rss">Invalid json response body error</source>
+      </item>
+  </channel>
+</rss>

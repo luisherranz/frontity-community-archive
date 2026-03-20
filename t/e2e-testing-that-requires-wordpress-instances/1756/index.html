@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>E2E testing that requires WordPress instances - Released - Frontity Community Forum</title>
+    <meta name="description" content="Description
+The goal is to create a testing system that can: 
+
+
+Spin up a WordPress instance inside of a Docker container 
+
+
+Create custom WP instances with  but not limited to: 
+
+With fixed or latest version of WordPres&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/e2e-testing-that-requires-wordpress-instances/1756" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;E2E testing that requires WordPress instances&#39;" href="/t/e2e-testing-that-requires-wordpress-instances/1756.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/e2e-testing-that-requires-wordpress-instances/1756" />
+<meta name="twitter:url" content="/t/e2e-testing-that-requires-wordpress-instances/1756" />
+<meta property="og:title" content="E2E testing that requires WordPress instances" />
+<meta name="twitter:title" content="E2E testing that requires WordPress instances" />
+<meta property="og:description" content="Description The goal is to create a testing system that can:    Spin up a WordPress instance inside of a Docker container    Create custom WP instances with  but not limited to:   With fixed or latest version of WordPress With fixed or latest version of any WP plugin With any configuration (database) With media uploaded    The configuration to spin up the instance is in the same codebase as the tests   Be able to test that with Cypress Be able to test that with Jest Be able to run tests in paral..." />
+<meta name="twitter:description" content="Description The goal is to create a testing system that can:    Spin up a WordPress instance inside of a Docker container    Create custom WP instances with  but not limited to:   With fixed or latest version of WordPress With fixed or latest version of any WP plugin With any configuration (database) With media uploaded    The configuration to spin up the instance is in the same codebase as the tests   Be able to test that with Cypress Be able to test that with Jest Be able to run tests in paral..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Released" />
+<meta property="og:article:section:color" content="D3ABFF" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="19 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="6 ❤" />
+<meta property="article:published_time" content="2020-05-06T00:24:49+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/e2e-testing-that-requires-wordpress-instances/1756?page=2">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"E2E testing that requires WordPress instances","mainEntity":{"@type":"Question","name":"E2E testing that requires WordPress instances","text":"Description\n\nThe goal is to create a testing system that can:\n\nSpin up a WordPress instance inside of a Docker container\n\nCreate custom WP instances with  but not limited to:\n\nWith fixed or latest version of WordPress\n\nWith fixed or latest version of any WP plugin\n\nWith any configuration (database&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2020-05-06T00:24:49.653Z","author":{"@type":"Person","name":"Michal Czaplinski"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/e2e-testing-that-requires-wordpress-instances/1756">E2E testing that requires WordPress instances</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/released/40" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #D3ABFF'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Released</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='E2E testing that requires WordPress instances'>
+        <meta itemprop='articleSection' content='Released'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-05-06T00:24:49Z' class='post-time'>
+                    6 May 2020 00:24
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-24T15:13:51Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <h1>Description</h1>
+<p>The goal is to create a testing system that can:</p>
+<ul>
+<li>
+<p>Spin up a WordPress instance inside of a Docker container</p>
+</li>
+<li>
+<p>Create custom WP instances with  but not limited to:</p>
+<ul>
+<li>With fixed or latest version of WordPress</li>
+<li>With fixed or latest version of any WP plugin</li>
+<li>With any configuration (database)</li>
+<li>With media uploaded</li>
+</ul>
+</li>
+<li>
+<p>The configuration to spin up the instance is in the same codebase as the tests</p>
+<ul>
+<li>Be able to test that with Cypress</li>
+<li>Be able to test that with Jest</li>
+<li>Be able to run tests in parallel</li>
+</ul>
+</li>
+</ul>
+<h1>Examples</h1>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/luisherranz/wordpress-e2e-testing" target="_blank">GitHub</a>
+  </header>
+  <article class="onebox-body">
+    <img src="/uploads/default/original/1X/cfb10c687469441205936b703e8aceb258cd44ee.jpeg" class="thumbnail onebox-avatar" width="400" height="400">
+
+<h3><a href="https://github.com/luisherranz/wordpress-e2e-testing" target="_blank">luisherranz/wordpress-e2e-testing</a></h3>
+
+<p>Contribute to luisherranz/wordpress-e2e-testing development by creating an account on GitHub.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/head-giving-error-cannot-read-property-add-of-undefined/2420">&lt;Head&gt; giving error &quot;Cannot read property &#39;add&#39; of undefined&quot;</a>
+                        <meta itemprop='position' content='2'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/frontity-release-wordpress-native-comments-support-and-new-yoast-package/2919">Frontity release: WordPress native comments support and new Yoast package</a>
+                        <meta itemprop='position' content='3'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-4-useinfinitescroll-hook-beta-version-released/2135">Sprint 4: useInfiniteScroll hook beta version released</a>
+                        <meta itemprop='position' content='4'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-6-proof-of-concept-of-the-wordpress-preview-support/2812">Sprint 6: Proof of concept of the WordPress preview support</a>
+                        <meta itemprop='position' content='5'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/sprint-3-wordpress-comments-research/1889">Sprint 3: WordPress Comments research</a>
+                        <meta itemprop='position' content='6'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-02T03:08:48Z' class='post-time'>
+                    2 June 2020 03:08
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-04T00:44:33Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>Implementation Proposal</h1>
+<h2>Components</h2>
+<h3>1. The WP instance (WI)</h3>
+<p>We want to have a testing system that can run an instance of WP with any kind of custom configuration. Let’s refer to this WordPress instance as <strong>WI</strong> hereafter. The <strong>WI</strong> can have the following configuration:</p>
+<ul>
+<li>Fixed or latest version of WordPress</li>
+<li>Fixed or latest version of any WP plugin (+ any configuration of that plugin)</li>
+<li>Any configuration (database)</li>
+<li>Any custom WP configuration that can be done through the WP CLI</li>
+<li>Any media uploaded</li>
+<li>Custom post contents (with embeds or any kind of weird content)</li>
+</ul>
+<p>This WP instance should run inside of a docker container.</p>
+<h3>2. Frontity app</h3>
+<p>Additionally, we also want to be able to build a frontity app with any combination of flags and values for those flags. The flags are at the moment only:</p>
+<ul>
+<li>
+<code>--target</code> = <code>es5</code> | <code>module</code>
+</li>
+<li>
+<code>publicPath</code> (local path or url)</li>
+</ul>
+<p>but we expect more flags in the future. This feature of the testing system should replace the current hack of passing the values <a href="https://github.com/frontity/frontity/blob/bea04bad4413c3994edc716ebd4c6d0fbd3c4fc3/package.json#L10">directly in the npm scripts</a> in the main package.json in the root of the frontity repo <img src="/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>Then, this frontity app should connect to the <strong>WI</strong>.</p>
+<p>Finally, we should be able to run e2e tests against the <strong>frontity app</strong> with cypress.</p>
+<h2>Two Separate systems</h2>
+<p>First, it seems that we will need <strong>two</strong> separate systems for e2e tests. One for the <code>frontity</code> repo and another one for the <code>wp-plugins</code> repo. They are going to be largely similar (and could re-use most of the code/configuration) but in practice they will work slightly differently.</p>
+<p>In the <strong><code>wp-plugins</code></strong> repo:</p>
+<ul>
+<li>We have to be able to build each plugin from the source and run the e2e/unit tests against those built plugins both locally and in a GH action. That means that we want to launch the <strong>WI</strong> with the latest version of some plugin, built from source, at the HEAD of the repository.</li>
+</ul>
+<p>In the <strong><code>frontity</code></strong> repo:</p>
+<ul>
+<li>We only run the <strong>WI</strong> with the version of the plugin that is already published.</li>
+<li>Alternative: We might want to publish all the frontity plugins as a zipfiles (on github) whenever a pull request is merged into <code>dev</code> in the <code>wp-plugins</code> repo. This way, they could be installable from a URL like: <a href="https://github.com/frontity/wp-plugins/blob/dev/dist/head-tags.zip">https://github.com/frontity/wp-plugins/blob/dev/dist/head-tags.zip</a>
+</li>
+</ul>
+<p>This distinction is mostly because of practical reasons - I think it’s going to be very hard to be able to test <em>any</em> version of frontity against <em>any</em> version of any plugin when they are in separate repositories, unless we bring the <code>wp-plugins</code> into the monorepo.</p>
+<p><img src="/images/emoji/apple/loud_sound.png?v=9" title=":loud_sound:" class="emoji" alt=":loud_sound:"> <em>This is up for discussion still. Is this sufficient…?</em></p>
+<h3>Running locally vs. running in github actions</h3>
+<p>Because github actions do not run locally (<a href="https://github.com/nektos/act">although some try</a>) we need a (slightly) different way of running the tests depending on whether we’re on GH actions or localhost, although I think that typically those tests will (and should) just be run on the CI.</p>
+<h3>1. <code>frontity</code> on github actions</h3>
+<p>We are quite lucky because it turns out that we can just use the base github action for cypress to define the steps that we need in order to run the e2e tests.</p>
+<p>Something like:</p>
+<pre><code class="lang-javascript">name: docker-e2e-test
+
+on: [pull_request]
+
+jobs:
+  run-e2e:
+    strategy:
+      matrix:
+        targets: ["module"]
+        publicPath: ["/custom/path"]
+        wordpressVersion: ["5.0"]
+
+    runs-on: ubuntu-latest
+      steps:
+      
+      ### some steps here omitted for brevity:
+      
+      - name: Substitute variables
+        uses: microsoft/variable-substitution@v1 
+        with:
+          files: docker-compose.yaml
+        env:
+          wordpress_version: ${{ matrix.wordpressVersion }}
+      
+      - name: Run e2e tests
+        uses: cypress-io/github-action@v1.21.0
+        with:
+          build: ./scripts/build-e2e-docker.sh ${{ matrix.publicPath }} ${{ matrix.target }}
+          start: node scripts/start-e2e-docker.js &amp;&amp; npx frontity serve --port 3001
+          wait-on: "http://localhost:3001"
+          wait-on-timeout: 180
+          env: HEADLESS=true
+          working-directory: e2e
+          config: video=true,screenshotOnRunFailure=true
+</code></pre>
+<p>Note that in the above file:</p>
+<ol>
+<li>We use <a href="https://github.com/microsoft/variable-substitution">https://github.com/microsoft/variable-substitution</a> to create multiple runs for each version of WP. <img src="/images/emoji/apple/loud_sound.png?v=9" title=":loud_sound:" class="emoji" alt=":loud_sound:"><strong>It’s debatable whether that’s the best approach, more info below</strong>
+</li>
+<li>We call a separate script in the <code>build</code> command of the cypress github action because the cypress action does not seem to allow multiple chained commands like <code>cd e2e/projects &amp;&amp; npx frontity build</code>
+</li>
+</ol>
+<h3>2. <code>frontity</code> on <code>localhost</code>
+</h3>
+<p>On localhost, we will need to:</p>
+<ol>
+<li>Either build the frontity application or run it in the <code>dev</code> mode</li>
+<li>Manually run <code>node scripts/start-e2e-docker.sh</code> to start <strong>WI</strong> with docker (this requires docker to be installed locally)</li>
+<li>Run the test suite that you want: <strong>e2e</strong> or <strong>unit tests</strong>
+</li>
+</ol>
+<h4>
+<img src="/images/emoji/apple/blue_book.png?v=9" title=":blue_book:" class="emoji" alt=":blue_book:">Side note about scripts</h4>
+<p>This is not an essential part of the proposal, but I suggest that we create a few “scripts” in a <code>/scripts</code> directory at the root of the repo. I will assume the presence of those scripts from now on. <em>At a minimum</em> we’ll need a script like <code>build-e2e-docker.sh</code> and another one to <code>start-e2e-docker.sh</code></p>
+<pre><code class="lang-bash">##  /scripts/start-e2e-docker.sh
+##  This is the script that is referred to in docker-e2e-test.yaml
+
+# bring up the containers
+docker-compose up -d
+
+# Wait until server is ready.
+npx wait-on http-get://localhost:8080
+
+# Initiate the default database
+docker-compose exec -T wpcli wp core install \
+  --url=example.com \
+  --title=Example \
+  --admin_user=admin \
+  --admin_password=password \
+  --admin_email=info@example.com \
+
+# Change permissions in the wp-content folder because otherwise we
+# cannot install plugins or load media because we don't have permission
+docker-compose exec -T /bin/bash -c \ 
+  chown -R www-data:www-data /var/www/html/wp-content/plugins/ &amp;&amp; \
+  chown -R www-data:www-data /var/www/html/wp-content/ &amp;&amp; \
+  chmod 775 /var/www/html/wp-content/plugins &amp;&amp; \
+  chmod 775 /var/www/html/wp-content/
+
+#  Install some default plugins.
+#  This might not be necessary actually, because we can install the plugins later on, right before running the tests.
+
+#  We need the `--user 33:33` because of https://hub.docker.com/_/wordpress/ 
+#  See: "Running as arbitrary user"
+#  `wpcli` is the reference to the docker volume (we have `wp`, `wpcli`, and `msql`)
+docker-compose exec -T \
+--user 33:33 \
+wpcli wp plugin install $1 --activate
+</code></pre>
+<p><img src="/images/emoji/apple/blue_book.png?v=9" title=":blue_book:" class="emoji only-emoji" alt=":blue_book:"><strong>Side note:</strong> In this proposal the above is a bash script, but it will probably be implemented as a js script to have better control.</p>
+<h3>Configuring the WI</h3>
+<p>Once we have started the <strong>WI</strong>, we need to configure it for each test case. It should be possible to run any arbitrary commands to configure the <strong>WI</strong> from the test code using something like (using <a href="https://github.com/sindresorhus/execa">https://github.com/sindresorhus/execa</a>):</p>
+<pre><code class="lang-javascript">const execa = require("execa");
+
+// install a plugin
+execa.command("docker-compose run --user 33:33 wpcli wp plugin install yoast");
+
+execa.command(`docker-compose exec -T wpcli wp post create \
+./post-content.txt \
+--post_category=holiday \
+--post_title='Post from file'`)
+</code></pre>
+<h4>Cypress tests</h4>
+<p>For any cypress tests that require a particular plugin or database configuration, we can use the “task” API from cypress to run server-side code: <a href="https://docs.cypress.io/api/commands/task.html">https://docs.cypress.io/api/commands/task.html</a></p>
+<h4>Jest tests</h4>
+<p>When running jest tests, we can just run the above commands for installing plugins or creating posts, etc. directly in the jest unit test files.</p>
+<p>The jest tests can be defined in the same way as any other jest tests, just that now they can make use of the <strong>WI</strong> (at <code>http://localhost:3001</code> by default)</p>
+<p><img src="/images/emoji/apple/warning.png?v=9" title=":warning:" class="emoji" alt=":warning:">Note that each <a href="https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idsteps">github actions step runs in a separate process</a>, so the <strong>WI</strong> setup <strong>must</strong> be run in the same step as <code>npm run test:ci</code></p>
+<h3>Clearing tests</h3>
+<p><img src="/images/emoji/apple/warning.png?v=9" title=":warning:" class="emoji" alt=":warning:">Because we are running just one instance of WP (the <strong>WI</strong>) it’s basically a big chunk of global state. Care needs to be taken in order to reset the DB and clean any changes in between the tests. For example, we can use the <a href="https://developer.wordpress.org/cli/commands/plugin/deactivate/">WP CLI</a>  to deactivate all plugins with something like: <code>wp plugin deactivate hello</code>, etc.</p>
+<h2>Testing frontity WP plugins</h2>
+<p>As mentioned earlier in the propsal, we need to test the wp-plugins separetely from the tests that will run in the main frontity repo.</p>
+<p>Those tests can re-use the same workflow as we are using in the <code>frontity</code> repo.</p>
+<p>The one extra necessary step is to symlink the plugins in the repo to the location on the docker volume with something like:</p>
+<pre><code class="lang-javascript">services:
+  wp:
+    image: wordpress:5.0
+    ports:
+      - 8080:80
+    volumes:
+      - ./plugins/:/var/www/html/wp-content/plugins
+## rest of the file omitted
+</code></pre>
+<p>The main question is whether we want to run the full e2e tests in the <code>wp-plugins</code> repo or only test REST API responses (jest snapshots)</p>
+<h2>Open questions:</h2>
+<h4>1. Shall we keep the current e2e test suite and workflow intact and create a NEW suite of e2e tests that are going to be used exclusively with the <strong>WI</strong> ?</h4>
+<p>The alternative would be to modify the way that we run the e2e tests right now:</p>
+<ul>
+<li>Refactor the e2e tests to point to <code>http://localhost:3001</code>
+</li>
+<li>Update the github workflow to run the e2e tests and start the <strong>WI</strong> in the same step</li>
+</ul>
+<h4>2. Should we create a new docker environment with <code>docker-compose</code> for each new test? Or can we re-use the services and only reset the database / plugins for each new test case ?</h4>
+<p>Running a completely new <code>docker-compose up</code> for each test case separately:</p>
+<ul>
+<li>
+<strong>pros</strong>
+<ul>
+<li>completely separating the environments. no need to worry about cleaning the DB / deactivating the plugins</li>
+</ul>
+</li>
+<li>
+<strong>cons</strong>
+<ul>
+<li>on my machine it takes about 30 secs to run the <code>start-e2e-docker</code> script (and that’s <strong>not</strong> taking into account the time it takes to pull the docker image from the registry). So running this for every single test case might be too slow.</li>
+<li>might be a bit harder to configure</li>
+</ul>
+</li>
+</ul>
+<h4>3. In the <code>wp-plugins</code> repository, should we run the full e2e test suite with cypress using a frontity app or just test REST API responses?</h4>
+<p>Some plugins have need <em>both</em> a WP plugin and a frontity package (e.g. head-tags). Perhaps we might want a e2e cypress test in such cases. The obvious downside is that it’s more complex to set up.</p>
+<h4>4. I had an idea that perhaps we could do jest snapshot tests of the mysql dumps? Not yet sure if this is going to be useful, but just mentioning it in case we do.</h4>
+<h2>Reference</h2>
+<p>There is a PR with some testing related to the current Proposal: <a href="https://github.com/frontity/frontity/pull/450">https://github.com/frontity/frontity/pull/450</a></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-04T10:35:05Z' class='post-time'>
+                    4 June 2020 10:35
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-04T12:59:08Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Great work <span class="mention">@michalczaplinsky</span> <img src="/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+<p>My feedback:</p>
+<ol>
+<li>
+<p>I like the idea of the common <code>scripts</code> folder but I’d move them to the <code>e2e</code> folder for clarity. Actually, I’d move everything related to e2e tests to that folder.</p>
+</li>
+<li>
+<p>I’d create separate “suites” of e2e tests in separate folders, each own with its database/uploads and the bootstraping sequence in a JavaScript file.</p>
+</li>
+</ol>
+<p>Something like this:</p>
+<pre><code class="lang-bash">/e2e/
+  /scripts # Common scripts used by the bootstrap.js files.
+    start-e2e-docker.js
+    ..
+
+  /some-test-suite
+    /data
+      db.sql # The WordPress database for this suite.
+      /uploads # The uploads folder for this suite.
+
+    bootstrap.js # The bootstrapping sequence for this suite.
+
+    /project # The Frontity project for this suite.
+      frontity.settings.js
+      ..
+
+    /tests # The Jest tests for this suite (if any).
+
+    /integration # The Cypress tests for this suite (if any).
+    ..
+</code></pre>
+<p>Then, I’d setup npm scripts to run the tests:</p>
+<pre><code class="lang-bash">&gt; cd e2e/some-test-suite
+&gt; npm run test
+# This starts a JavaScript file with the bootstrapping of this suite:
+# - Run docker-compose
+#   - Mount volume for e2e/some-test-suite/uploads
+#   - Install DB from e2e/some-test-suite/data/db.sql
+# - Install required WP plugins using WP-CLI
+# - Wait for port 8080
+# - Start Frontity project in production mode, with some flags
+# - Wait for port 3000
+# - Run Jest, or Cypress or both, whatever is in the bootstrapping file.
+</code></pre>
+<p>I’d also add another commands that run the same bootstrapping, but end up with different testing tool to ease local development of the suites:</p>
+<pre><code class="lang-bash">&gt; cd e2e/some-test-suite
+&gt; npm run cypress:open
+# - Run same bootstrapping but the Frontity project starts in development
+# - Run Cypress in "Open" mode.
+
+&gt; cd e2e/some-test-suite
+&gt; npm run jest:watch
+# - Run same bootstrapping but the Frontity project starts in development
+# - Run Jest in "watch" mode.
+</code></pre>
+<p>I’d also add a script to dump the database after changes:</p>
+<pre><code class="lang-bash"># Login in the WordPress Instance (http://localhost:8080/wp-admin) and do the
+# required changes, like changing configuration or creating posts.
+&gt; cd e2e/some-test-suite
+&gt; npm run dump
+# - Saves the new database in the data/db.sql folder.
+</code></pre>
+<p>The only thing that is not clear to me is how to do the bootstrapping of tests that may need more than one way of configuration without duplicating the folder.</p>
+<p>For example, imagine we need to test a suite with both:</p>
+<ul>
+<li>The latest version of WordPress.</li>
+<li>The 5.0 version of WordPress.</li>
+<li>Frontity project without a <code>publichPath</code>.</li>
+<li>Frontity project with a <code>publichPath</code> param.</li>
+</ul>
+<p>I guess we’d need some time of “matrix” capability in the bootstrapping files, where they get the matrix and run the bootstrapping for each combination.</p>
+<ol start="3">
+<li>
+<p>I’d move the current e2e tests to a “suite”. They can be part of the same suite because they don’t need different bootstrapping sequences. The fewer systems we need to maintain/teach the better.</p>
+</li>
+<li>
+<p>I’d use a different WordPress Instance for each suite of tests. I think it’s going to be much simpler to maintain than having to clear everything after each test.</p>
+</li>
+</ol>
+<p>If it takes 30 secs, it’s not that much. For GitHub actions, we can easily cache the docker images with <a href="https://github.com/actions/cache">https://github.com/actions/cache</a>. Each repository now has 5Gb so it’s more than enough.</p>
+<p>I guess we’d need to clean things from time to time. For example, something that appears in the <code>uploads</code> folder after running the tests, but it’s not meant to be there when the tests start. But it shouldn’t be too much.</p>
+<ol start="5">
+<li>
+<p>To simplify the system, I’d try to reuse the same bootstrapping scripts in the GitHub actions. That way we don’t need to maintain/teach two different things.</p>
+</li>
+<li>
+<p>I’d run all the suites in parallel. If we run them in serial, the time it takes to run all the suites will increase with each suite.</p>
+</li>
+</ol>
+<p>If we use the folder-per-suite approach we could use a GitHub action workflow similar to this:</p>
+<pre><code class="lang-javascript">jobs:
+  run-e2e:
+    strategy:
+      matrix:
+        suite_folder:
+          ["some-test-suite", "some-other-suite", "yet-another-suite"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup npm cache
+        uses: actions/cache@v1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run e2e tests
+        run: cd e2e/{{matrix.suite_folder}} &amp;&amp; npm run test
+</code></pre>
+<ol start="7">
+<li>To simplify the system, I’d try to reuse the exact same system in the <code>wp-plugins</code> repository (except for the different <code>docker-compose</code> volumes for the Frontity plugins, of course). Also, Cypress can be useful to test the plugin UIs.</li>
+</ol>
+<p>Finally, I’d love to reuse the exact same system for the CLI e2e tests. Maybe we can do so <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> I think <span class="mention">@michalczaplinsky</span>’s JavaScript bootstrapping file idea makes this system powerful enough to acommodate for those types of tests as well. But we can see that after we have finished this part.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-05T00:15:26Z' class='post-time'>
+                    5 June 2020 00:15
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-05T00:35:10Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thanks for the feedback <a class="mention" href="/u/luisherranz">@luisherranz</a> !</p>
+<p><img src="/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"> for 1. and 2. In the PR the files and folders are a bit of a mess right now, but that was my idea as well. Same for adding extra scripts to ease local development.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="6" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>The only thing that is not clear to me is how to do the bootstrapping of tests that may need more than one way of configuration without duplicating the folder.</p>
+</blockquote>
+</aside>
+<p>Let’s start by noticing that we have 3 different levels of configuration for our e2e tests:</p>
+<ol>
+<li>the <strong>build</strong> phase - we can build the frontity app with different <code>--publicPath</code>s or <code>-target</code>s</li>
+<li>the <strong>docker image</strong> phase - we might need different versions of Wordpress or MySQL and those only come on different docker images. So we have to be able to tell <code>docker-compose</code> to pull different images from the registry.</li>
+<li>the <strong>service</strong> phase - this is all the remaining configuration that we can do inside of the <code>docker service</code> using the WP CLI: install a plugin, add media, create a post or even load some data into the DB.</li>
+</ol>
+<p>So, with that in mind I think that according to your suggestion we would need a suite for the combination of the parameters in 1. and 2. I think that some of the parameters from 3. can be specified in the test case itself but some should be specified separately for each test suite. I guess the plugins should be configured for each test suite separately so we don’t have to deal with activating / deactivating them after each test.</p>
+<p>This would then imply the structure like:</p>
+<pre><code class="lang-javascript">/e2e
+  /moduleTargetSuite
+    bootstrap.js
+    /data
+    /project
+    /tests
+    /integration 
+  /es5TargetWPSuite
+  /specificWPVersionSpecificPluginVersionSuite
+  /specificWPVersionSpecificPluginVersionAndAnotherPluginSuite
+</code></pre>
+<p>etc, etc.</p>
+<p>This way we can parameterize the test runs like you mentioned:</p>
+<pre><code class="lang-javascript"> strategy:
+      matrix:
+        suite_folder:
+          ["es5TargetSuite", "specificWPVersionSuite", "moduleTargetSuite"]
+   ....
+</code></pre>
+<p>However, the only issue I see with this is that we might have to end with with a multitude of “suites”. Let’s say that we have a test a specific plugin against 4 versions of wordpress - we’d have to create 4 test suites for this.</p>
+<p>However, if we are going to spin up multiple <strong>WI</strong> anyway, maybe we could take a slightly different approach:</p>
+<ol>
+<li>Have only one <code>e2e</code> directory</li>
+<li>Run the “bootstrap” script in the <code>beforeEach()</code> or <code>beforeAll()</code> of the test script.</li>
+<li>The bootstrap script can then include the full configuration including building the frontity project, running docker compose up, etc. So it’s gonna be something like what Luis mentioned before:</li>
+</ol>
+<pre><code class="lang-javascript">// bootstrap.js
+# This starts a JavaScript file with the bootstrapping of this suite:
+# - Build the frontity app
+# - Start Frontity app
+# - Run docker-compose
+#   - Mount volume for e2e/some-test-suite/uploads
+#   - Install DB from e2e/some-test-suite/data/db.sql
+# - Install required WP plugins using WP-CLI
+# - Wait for port 8080
+# - Wait for port 3000
+# - Run Jest, or Cypress or both, whatever is in the bootstrapping file.
+</code></pre>
+<ol start="4">
+<li>In the workflow file, we can parameterize the test runs with the matrix so that we start a separate container for each testfile like:</li>
+</ol>
+<pre><code class="lang-javascript"> strategy:
+      matrix:
+        testfile:
+          ["some-testfile", "another-testfile", "yet-another-testfile"]
+  
+      - name: Run e2e tests
+        run: cd e2e/ &amp;&amp; npm run test ${{matrix.testfile}}
+</code></pre>
+<p>the <code>npm run test</code> command in the last step is going to pass the filename as a filter to jest like <code>jest test/another-testfile --coverage --ci</code> so that it will start a test run only for those testfiles that match the name.</p>
+<p>The only problem that I see with this is that if we’re only going to have one frontity project for all the tests so if we have a test case in the future that requires parameterizing that, it’s going to be more difficult.</p>
+<p>But the benefit of doing it this way would be that:</p>
+<ul>
+<li>There aren’t multiple largely duplicated folders with different “suites”</li>
+<li>If we’re in a situation that we want to run some tests for a specific plugin and we want to test it with a specific configuration we don’t need to create a whole new suite to do that. We can just add a new testfile with the updated bootstrap and update the workfile matrix so that githhub will run that in parallel.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-05T12:17:45Z' class='post-time'>
+                    5 June 2020 12:17
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-05T12:17:45Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>You’re right that one folder with everything is not going to be the most optimized approach because we’re going to end up with a lot of separate suites and we’ll hit the GH actions limit for concurrent containers at some point. Also, it’s not optimal when you need to run the same test suite for different WordPress/Frontity configurations.</p>
+<p>I’ve made a video to try to summarize this:</p>
+<p>            <video title="5 June, 2020 - Loom Recording" width="695" height="434" style="max-width:100%" poster="https://cdn.loom.com/sessions/thumbnails/4a36180af0dd49699e9060e11006b8a1-00001.gif" controls="">
+              <source src="https://cdn.loom.com/sessions/transcoded/4a36180af0dd49699e9060e11006b8a1.mp4?Expires=2147472000&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4ubG9vbS5jb20vc2Vzc2lvbnMvdHJhbnNjb2RlZC80YTM2MTgwYWYwZGQ0OTY5OWU5MDYwZTExMDA2YjhhMS5tcDQiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjIxNDc0NzIwMDB9fX1dfQ__&amp;Signature=uJ0Qzz-XCjf6-ph0mxcGqvq9Ui4DxDeuK7ZYrte2XPOkHdTh4qfgTOppsvS8VBtubvJKfgIL2oB2zPnLUtU6pd4dmDGke0shnhixWgizJCu37PdKFh0s~3GiDrcYfwmKL9RUeIhB3Ikdp9QxL4W~iSaqox28akGlcpjU~afvRH35TprJkW55dtiNqcf3384mzqtcYBl9DbKAfDwIsOWF-YFN2yGRltHYD6i8b9fBMSYZ~GD3ewRdyfhejqVtMTn89kK9vOVzOj6p5DaHKzwQMWjACiRKlGhvzEGgG0rltaSf7YcFTxNYGhHJcwj8QcEVyBrJBPSK8mb5cZPtY0au5w__&amp;Key-Pair-Id=APKAJQIC5BGSW7XXK7FQ">
+            </source></video>
+</p>
+<p>Drawing: <a href="https://excalidraw.com/#json=5640718332723200,D6HyhNiq1u6YMTFJotHr0A">https://excalidraw.com/#json=5640718332723200,D6HyhNiq1u6YMTFJotHr0A</a></p>
+<p>Is it clear or would you add something else?</p>
+<p>Also, <span class="mention">@michalczaplinksi</span>, now that the concepts are more clear why don’t you work on a glossary so we can better communicate and then outline a first draft of the system we should try to implement first?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-05T19:49:34Z' class='post-time'>
+                    5 June 2020 19:49
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-05T19:49:34Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>YES, This is exactly what I was talking about <img src="/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"> I think you explained it a bit better with the drawing.</p>
+<p>The very very core is what is the best way to combine all the different parameters so that we can optimize both:</p>
+<p><em>Run the smallest amount of <strong>WI</strong> possible on github actions</em></p>
+<p>but also</p>
+<p><em>Have the flexibility to test any combination of parameters (down to the level of the individual test)</em></p>
+<blockquote>
+<p>Also, <span class="mention">@michalczaplinksi</span>, now that the concepts are more clear why don’t you work on a glossary so we can better communicate and then outline a first draft of the system we should try to implement first?</p>
+</blockquote>
+<p>yes, I’m on it.</p>
+<p>Also, I think I have an idea how we could solve the above problem that I hope is not too over-engineered. In essence we could have a system that does some “pre-processing” of the test files. In a similar way that the facebook’s relay compiler pre-processes the graphql queries in individual <code>.js</code> files (e.g. gatsby takes advantage of that).</p>
+<p>Maybe we could create a similar system, where we can still specify the exact bootstrapping needed <strong>at the level of the individual test case</strong>. Then, the pre-processor could collect that information from each test case before running any tests and:</p>
+<ul>
+<li>build the minimal set of fronitity apps for each of the params for <code>build</code>
+</li>
+<li>start the minimal set of <strong>WI</strong> in parallel based on the bootstrap with some params</li>
+</ul>
+<p>This way, we get the flexibility, it would be easy to write a new test case and we don’t have to create new suites if we add a new test case.</p>
+<p>I ll mull it over it the weekend and I ll also explain with more details <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+                <link itemprop="image" href="/uploads/default/original/2X/f/f6b260a131b3d1a812bb63084a81f08a75e73364.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-17T03:40:51Z' class='post-time'>
+                    17 June 2020 03:40
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-17T21:38:30Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h3>1. Glossary:</h3>
+<ul>
+<li>
+<p><em>parameter</em>:  Any kind of variable that is configurable for an e2e test. E.g:</p>
+<ul>
+<li>Fixed or latest version of WordPress</li>
+<li>Fixed or latest version of any WP plugin (+ any configuration of that plugin)</li>
+<li>Any configuration (database)</li>
+<li>Any custom WP configuration that can be done through the WP CLI</li>
+<li>Any media uploaded</li>
+<li>Custom post contents (with embeds or any kind of weird content)</li>
+</ul>
+</li>
+<li>
+<p><em>phase</em>: Each parameter belongs to one of 3 phases: <strong>build &amp; serve</strong>, <strong>docker-image</strong>, or <strong>data/plugins</strong>. They are explained in details below.</p>
+</li>
+<li>
+<p><em>workflow</em>: The github action workflow that is used to run the e2e tests. It will be defined in a workflow file called something like <code>docker-e2e-wp-test.yml</code></p>
+</li>
+<li>
+<p><em>container</em>: A container refers to a docker container. In the context of the e2e tests, a new container will be used for each <em>unique</em> combination of parameters.</p>
+</li>
+<li>
+<p><em>WI</em>: A WordPress instance that is used for testing. Each <strong>container</strong> has its own WordPress instance. This WP instance can have any kind of configuration as defined by the <strong>parameters</strong>.</p>
+</li>
+<li>
+<p><em>test case</em>: It’s the single test that is going to be written using <code>jest</code> or <code>cypress</code> syntax and run with either one or the other tool respectively. It is defined using the <code>test()</code> or <code>describe()</code> function.</p>
+</li>
+</ul>
+<h3>2. There are 3 types of <em>phases</em>
+</h3>
+<p>We can be we call them <em>phases</em> because each of the types is executed at a different time.</p>
+<ol>
+<li>the <strong>build and serve</strong>  phase - we can build the frontity app with different  <code>--publicPath</code> s or  <code>-target</code> s</li>
+<li>the <strong>docker image</strong>  phase - we might need different versions of Wordpress or MySQL and those only come on different docker images. So we have to be able to tell  <code>docker-compose</code>  to pull different images from the registry.</li>
+<li>the <strong>data/plugins</strong>  phase - this is all the remaining configuration that we can do inside of the docker container using the WP CLI: install a plugin, add media, create a post or even load some data into the DB.</li>
+</ol>
+<h3>3. The key problem that we are facing is:</h3>
+<ul>
+<li>Run the <em>smallest amount of <strong>containers</strong> possible</em> (only one and not more for each unique combination of <strong>parameters</strong>)</li>
+<li>At the same time be able to specify unique <strong>parameters</strong> for each test</li>
+<li>Somehow, be able to specify how many <strong>containers</strong> and with what parameters to  launch “ahead of time”. <em><strong>Github actions do not allow us to create containers dynamically - they have to be hardcoded into the workflow file in the <code>matrix</code> parameter !</strong></em>
+</li>
+</ul>
+<p>So, this means that each test case can use different parameters (for each phase). But we don’t want to spin a new <strong>container</strong> for <em>every</em> test case, we want to do that only if some parameter is different.</p>
+<p>Example:</p>
+<ul>
+<li>We have 5 test cases that use the same <strong>build &amp; serve</strong> and <strong>docker image</strong> phases.
+<ul>
+<li>The first 2 need the <code>head-tags</code> plugin to be active</li>
+<li>The last 3 need the <code>head-tags</code> plugin to be inactive</li>
+</ul>
+</li>
+</ul>
+<p>We don’t want to spin 5 containers because we only need 2 of them.</p>
+<p>But how do we communicate to the workflow those requirements that are defined <em>for an individual test case</em> so that we can launch a minimal set of containers?</p>
+<p>Github actions require us to hardcode the “matrix” of possible container types in the workflow file… I’m going to explain further, hold on <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<h1>Proposal</h1>
+<h2>For the “build and serve” phase:</h2>
+<p>First, I need to note that in order to make the workflow work we need to add a flag for the <code>build</code> command to use a different output directory than <code>./build</code>. So, when running <code>npx frontity build</code>, the files are built into another directory. This should be a trivial change, in fact looking at the code for the <code>build</code> command it has already been planned.</p>
+<p>Analogously we also need to change the <code>serve</code> command to have a flag to look for the build files in another directory. Likewise, a simple change.</p>
+<p>Because we need different builds for different test cases, I think we have 2 options here:</p>
+<h4>option 1 - build a separate frontity app for each test case</h4>
+<p>This is a bit wasteful, but because all tests can run in parallel (more on that later) the time complexity is still basically O(1) for this. Then the app can just built and served without any extra steps. For any <code>node</code> unit tests this should be simple by using the programmatic API of <code>build</code> and <code>serve</code>, however in the cypress tests I think that we’ll have to use <a href="https://docs.cypress.io/guides/tooling/plugins-guide.html#cy-task">tasks</a> because we’re not allowed to run server-side code in the test case directly.</p>
+<pre><code class="lang-javascript">import { build } from '@frontity/core';
+
+let hash; // this is gonna be the build folder's name
+
+beforeEach(async () =&gt; {
+  hash = getUniqueHash(); // sth like `940utgh8v923q4r`
+  const await build({ 'production', 'module', '/some/publicPath/', hash });
+  await serve(hash);
+})
+
+</code></pre>
+<h4>option 2 - build all the different possible versions of the app ahead of time</h4>
+<p>For each possible combination of <strong>build &amp; serve</strong> parameters, we can build the app and put each of the builds in a unique build folder and then run each one on a separate port, like:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th>target</th>
+<th>publicPath</th>
+<th>port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>default</td>
+<td>default</td>
+<td>3000</td>
+</tr>
+<tr>
+<td><code>es5</code></td>
+<td>default</td>
+<td>3001</td>
+</tr>
+<tr>
+<td>default</td>
+<td><code>/some/path</code></td>
+<td>3002</td>
+</tr>
+</tbody>
+</table>
+</div><p><em>etc.</em></p>
+<p>I think this mapping of <code>parameters ==&gt; port number</code> can be fixed and we can rely on a convention inside the tests to know which app we connect to. That is to say that e.g. port <strong>3001</strong> will <em>always and only</em> run the frontity app with <code>es5</code> target and default <code>publicPath</code> (according to the table above).</p>
+<p>This way, let’s say that we have a cypress test like:</p>
+<pre><code class="lang-javascript">it("should show the thing on click", () =&gt; {
+    cy.visit("http://localhost:3001/?thing-on-click");
+    cy.get("#thing").click();
+    cy.get("#other-thing").should("exist");
+  });
+</code></pre>
+<p>The fact that we are accessing <code>localhost</code> on port <strong>3001</strong> tells us that we are accessing frontity app with <code>es5</code> target and default <code>publicPath</code> .</p>
+<h2>For the docker image and data/plugins phase:</h2>
+<p>I propose that we divide the e2e workflow into two separate jobs:</p>
+<ol>
+<li>
+<code>pre-processing</code> job</li>
+<li>
+<code>test</code> job</li>
+</ol>
+<p>The pre-processing job will be responsible for literally “pre-processing” the test files in order to figure out the minimal set of containers to launch. I’m still a little bit fuzzy on all the details but I believe this can be done. More details in the next section further down below <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>The “actual” test job will run the e2e tests, basically do all the things that we expect from a test, etc.</p>
+<p>Remember when I mentioned this:</p>
+<blockquote>
+<p>Github actions require us to hardcode the “matrix” of possible container types in the workflow file… I’m going to explain further, hold on <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+</blockquote>
+<p>However, github actions allow passing information from one workflow job to another, including outputting information that can be used as a matrix for another job. We can <a href="https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjobs_idoutputs">use the “output” feature of github actions</a> to collect the information in the <code>pre-processing</code> job to create a matrix of <strong>containers</strong> for the <code>test</code> job <a href="https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjobs_idoutputs">(example)</a>:</p>
+<pre><code class="lang-javascript">### e2e-docker-wp-test.yml
+
+name: e2e-docker-wp-test
+jobs:
+  pre-process:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - id: set-matrix
+      run: npm run pre-process | "::set-output name=matrix::{toJSON{{output}}}"
+      // sth like that - it's not the exact syntax 
+      // The `run-process` npm script should return the final matrix to standard output
+  test:
+    needs: pre-process
+    runs-on: ubuntu-latest
+    strategy:
+      // this is the matrix of all the containers necessary for the test job
+      matrix: ${{fromJson(needs.job1.outputs.matrix)}}
+    steps:
+    - run: npm run test
+</code></pre>
+<h3>Connecting the WI to the frontity apps</h3>
+<p>Right now you might observe that we have <em>built and served</em> the frontity applications but do not yet have the <strong>WI</strong>. This poses a problem:</p>
+<p>How do we connect the frontity apps to the <strong>WI</strong>? The frontity apps are built and served before we know what the parameters of the <strong>WI</strong> are. Specifically, we do not know which WI each frontity app should connect to <em>for a specific test case</em>! This can be summarised as:</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/2X/f/f6b260a131b3d1a812bb63084a81f08a75e73364.png" data-download-href="/uploads/default/f6b260a131b3d1a812bb63084a81f08a75e73364" title="image"><img src="/uploads/default/optimized/2X/f/f6b260a131b3d1a812bb63084a81f08a75e73364_2_690x418.png" alt="image" data-base62-sha1="zcnD2tdKoBH7cwwGfAfwRz00C3O" width="690" height="418" srcset="/uploads/default/optimized/2X/f/f6b260a131b3d1a812bb63084a81f08a75e73364_2_690x418.png, /uploads/default/optimized/2X/f/f6b260a131b3d1a812bb63084a81f08a75e73364_2_1035x627.png 1.5x, /uploads/default/original/2X/f/f6b260a131b3d1a812bb63084a81f08a75e73364.png 2x" data-small-upload="/uploads/default/optimized/2X/f/f6b260a131b3d1a812bb63084a81f08a75e73364_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">image</span><span class="informations">1202×729 112 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>I think I ll need some input for how to make this work. My initial idea was that the server could expose some kind of API for changing the WordPress REST API but I’m guessing that this is terrible from a security perspective. Perhaps the same could be accomplished with an environment variable on “per request” basis. I’m not entirely sure.</p>
+<h3>How is the actual pre-processing job going to work?</h3>
+<p>I’m not 100% sure on all the details but let’s review the types of parameters that we will have to “pre-process” and in what format they come:</p>
+<h5>1. Fixed or latest version of WordPress</h5>
+<p>For this, we simply have to specify a version as a string like: <code>"5.1"</code> or <code>"4.8"</code>.</p>
+<h5>2. Any configuration (database)</h5>
+<p>The database configuration can be stored in a uniquely named folder. This folder would store the SQL file with the database config. So, what we would need here is a path to <code>&lt;folder&gt;/data.sql</code></p>
+<h5>3. Fixed or latest version of any WP plugin (+ any configuration of that plugin)</h5>
+<p>Same as <strong>2.</strong> This will be defined in the <code>data.sql</code> database dump.</p>
+<h5>4. Any custom WP configuration that can be done through the WP CLI</h5>
+<p>This configuration is a string that is basically a <code>bash</code> command (or a list of commands)</p>
+<h5>5. Any media uploaded</h5>
+<p>Same as <strong>2.</strong> This is a path to a folder that contains all the media.</p>
+<h5>6. Custom post contents (with embeds or any kind of weird content)</h5>
+<p>Same as <strong>2.</strong></p>
+<p>The main thing to observe is that each of the 1-6 parameters is “hashable”. This means that we can compute a hash for the combination of all parameters for each test case and launch one container for each unique hash.</p>
+<p>I’m not sure what is the best way to “run” the pre-processing but my best idea was to use a babel plugin.</p>
+<p>This way, we could put the configuration inside of the test case as a “magic comment” inside of that test case and hash the contents of that magic comment.</p>
+<h3>Actually running the tests</h3>
+<p>Assuming that we have now launched the frontity apps and the <strong>WI</strong>s, we have to run the <em>all and only</em> tests that should be run for that particular frontity app and WI.</p>
+<p>I think that this can be accomplished with the same mechanism that I mentioned earlier that creates the <code>"matrix"</code> of containers. The <code>npm run pre-process</code> script can return the names of the test cases that could then be passed as parameters to <code>jest</code> or <code>cypress</code> inside of the workflow file.</p>
+<h3>Using built-in github services instead of custom</h3>
+<p>We should make use of the the built-in <a href="https://help.github.com/en/actions/configuring-and-managing-workflows/about-service-containers#creating-service-containers">github service containers</a> instead of running <code>docker-compose</code> ourselves. This should let us avoid some of the overhead of launching containers ourselves.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-06-17T10:31:17Z' class='post-time'>
+                    17 June 2020 10:31
+                  </time>
+                  <meta itemprop='dateModified' content='2020-06-17T10:31:17Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I like the idea of running all the possible versions of the app using different ports. If that is the case, why don’t we do the opposite: run the WI’s first? After all, they are the thing we want to optimize for.</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="10" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>The pre-processing job will be responsible for literally “pre-processing” the test files in order to figure out the minimal set of containers to launch.</p>
+</blockquote>
+</aside>
+<p>I would try to avoid that for the first version. We can manually link each test-case to a WI.</p>
+<hr>
+<p>Two additional comments:</p>
+<ul>
+<li>Could you please add test-case to the glossary?</li>
+<li>The database also contains all the post content and plugin configuration, so there’s no need for extra steps for those, the <code>data.sql</code> is enough.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+                <link itemprop="image" href="/uploads/default/original/2X/2/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-07T00:25:37Z' class='post-time'>
+                    7 July 2020 00:25
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-09T01:23:50Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>For the sake of documenting the progress, this is the document that we came up with during that outlines the PoC architecture for the tests:</p>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://excalidraw.com/favicon.ico" class="site-icon" width="256" height="256">
+      <a href="https://excalidraw.com/#json=5870193301520384,a-7ZPA_cH2whCsg5yPyUkw" target="_blank">Excalidraw</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/360;"><img src="/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_690x360.png" class="thumbnail" width="690" height="360" srcset="/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_690x360.png, /uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_1035x540.png 1.5x, /uploads/default/original/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1.png 2x" data-small-upload="/uploads/default/optimized/2X/d/d8692951dedc0cae6542d59df716783e3024b8f1_2_10x10.png"></div>
+
+<h3><a href="https://excalidraw.com/#json=5870193301520384,a-7ZPA_cH2whCsg5yPyUkw" target="_blank">Excalidraw</a></h3>
+
+<p>Excalidraw is a whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p><div class="lightbox-wrapper"><a class="lightbox" href="/uploads/default/original/2X/2/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b.png" data-download-href="/uploads/default/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b" title="image"><img src="/uploads/default/optimized/2X/2/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b_2_381x500.png" alt="image" data-base62-sha1="56Fwdn20TWTcKIdIBRHOyULX43V" width="381" height="500" srcset="/uploads/default/optimized/2X/2/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b_2_381x500.png, /uploads/default/optimized/2X/2/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b_2_571x750.png 1.5x, /uploads/default/optimized/2X/2/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b_2_762x1000.png 2x" data-small-upload="/uploads/default/optimized/2X/2/23cbe0f3c1c24a3ebbae484102039bc3fbafa49b_2_10x10.png"><div class="meta"><svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">image</span><span class="informations">1566×2054 294 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg></div></a></div></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+                <link itemprop="image" href="/uploads/default/original/2X/0/02ff4eabe464f122725a508d47e5cfaec5dd8489.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-09T15:32:28Z' class='post-time'>
+                    9 July 2020 15:32
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-09T15:32:28Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This is the last meeting we had where Michal explained the first implementation of the new system</p>
+<div class="youtube-onebox lazy-video-container" data-video-id="RPNYrxCrcdc" data-video-title="E2E testing - 9 July 2020" data-video-start-time="0" data-provider-name="youtube">
+  <a href="https://www.youtube.com/watch?v=RPNYrxCrcdc" target="_blank" rel="noopener">
+    <img class="youtube-thumbnail" src="/uploads/default/original/2X/0/02ff4eabe464f122725a508d47e5cfaec5dd8489.jpeg" title="E2E testing - 9 July 2020" data-dominant-color="282A39" width="690" height="388">
+  </a>
+</div>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-09T16:55:39Z' class='post-time'>
+                    9 July 2020 16:55
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-09T22:21:36Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This is the summary of the current status:</p>
+<p>We have decided that the best way to connect the WP instances with the frontity apps and run the individual test cases is to hardcode this relationship in the workflow file. This strategy is dead simple and can in the future be automatized at build time / at commit with <code>husky</code>.</p>
+<p>The rough outline of the files involved:</p>
+<p>github workflow file:</p>
+<pre><code class="lang-javascript">name: docker-compose-e2e
+
+on: [pull_request]
+
+jobs:
+  run-e2e:
+    strategy:
+      matrix:
+       # the instance name followed by colon and comma-separated names of test suites
+        instances: [ "instance-1:wp-test.spec.js", 
+                     "instance-2:other-test.spec.js,extra-test.spec.js,another-test.spec.js" ]
+
+    # ... do more initialization steps
+    
+      - name: Run e2e tests
+        run: npm run e2e-wp-test ${{ matrix.instances }}
+</code></pre>
+<p>test script (in pseudocode, in reality this will be a js file):</p>
+<pre><code class="lang-javascript">// will read standard input which is a string like:
+//  "instance1:test-spec.js-1.js,test-spec-3.js"
+
+var { $instance, $testSuites } = parse(standard input)
+
+cd $instance
+bash bootstrap.js #start WP and return when ready
+
+// build frontity project
+cd ../project
+npx frontity build
+npx frontity serve --port 3001
+
+cd ..
+
+// prepend the file names with "./integration"
+const fileNames = createTestFileNames($testSuites);
+
+cypress run --spec fileNames
+
+</code></pre>
+<p>before each test case we’ll have to run clean the DB and probably install some WP plugins or run some custom JS on the server. For this we can use the <code>cy.task</code> API from cypress:</p>
+<pre><code class="lang-js">describe("WP test", () =&gt; {
+  beforeEach(() =&gt; {
+    await cy.task('replaceDB');
+    cy.visit("http://localhost:3001?name=e2e-wp-test");
+  });
+
+  it("should load", () =&gt; {
+    cy.task('install some plugin');
+  });
+});
+</code></pre>
+<p>the tasks are defined in cypress plugins file:</p>
+<pre><code class="lang-javascript">// e2e-wp/plugins/index.js
+const execa = require('execa');
+
+module.exports = (on, config) =&gt; {
+  on('task', {
+    replaceDB: () =&gt; {
+      execa('docker-compose run --user 33:33 wpcli wp etc...')
+    },
+    installPlugin: ({name}) =&gt; {
+      execa(`docker-compose run --user 33:33 wpcli wp plugin install ${name}`)
+    }
+  })
+}
+</code></pre>
+<p>The directory structure is roughly:</p>
+<pre><code class="lang-javascript">├── cypress.json
+├── e2e-wp.js    # This is the main "bootstrap" file t
+                 # that orchestrates docker &amp; frontity build/serve
+├── instance-1    # There will be one folder per instance, we can re-use instances
+│   ├── data
+│   │   ├── db.sql
+│   │   └── uploads
+│   ├── docker-compose.yml
+│   └── start-e2e-docker.js  # This file will be called once per container.
+                             # it contains all the WP instance specific configuration
+├── integration    # All the test files can be placed here
+│   └── wp-test.spec.js   
+├── package.json
+├── packages
+│   └── wp-test
+│       ├── package.json
+│       ├── src
+│       │   └── index.tsx
+│       └── types.ts
+├── plugins
+│   └── index.js
+└── project   # A frontity multi-site project
+    ├── favicon.ico
+    ├── frontity.settings.ts  
+    └── package.json
+</code></pre>
+<p>Notes:</p>
+<ul>
+<li>Currently you can only run one instance of WP at a time when running locally. I think we should have a separate script that launches <strong>all</strong> the instances locally with <a href="https://www.npmjs.com/package/concurrently">https://www.npmjs.com/package/concurrently</a>
+</li>
+<li>We need to make sure that the WP instance has the correct permalink structure, because the default docker WP image does not have the “pretty” permalinks which prevents access to the REST API on the <code>/wp-json/</code> route.</li>
+<li>We still need to add a script to dump the database contents. This will be useful when manually making changes to an instance and later re-using it’s configuration.</li>
+<li>I think we should add an extra step in the CI for the  <code>wp-plugins</code>  repo that zips each of the frontity plugins and puts them in a  <code>/dist</code>  folder in the repo. The reason is that if we want to install the latest version of some frontity plugin, we either have to download the <code>wp-plugins/plugins/plugin-name</code> folder somehow and put it in the wp-content (github doesnt support it) or install with wpcli like <code>wp plugin install &lt;url of zipfile&gt; </code>
+</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-10T14:56:22Z' class='post-time'>
+                    10 July 2020 14:56
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-10T14:56:22Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="14" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>We have decided that the best way to connect the WP instances with the frontity apps and run the individual test cases is to hardcode this relationship in the workflow file</p>
+</blockquote>
+</aside>
+<p>What about getting rid of the <code>e2e-wp.js</code> file and adding that work in the JS file of each instance (now named <code>start-e2e-docker</code>)? That way we wouldn’t need to add the specs to the workflow, we could add them in that file.</p>
+<p>If we build abstractions for the things that <code>e2e-wp.js</code> and <code>start-e2e-docker</code> are doing and put them in the <code>/scripts</code> folder the code should be really simple but flexible at the same time. For example:</p>
+<pre><code class="lang-js">// e2e/instance-1/start.js
+import { startWP, installPlugin } from "../scripts/wp";
+import { startFrontity } from "../scripts/frontity";
+import { startCypress } from "../scripts/cypress";
+
+(async () =&gt; {
+  await startWP();
+  await installPlugin("yoast", "latest");
+  await startFrontity();
+  await startCypress({
+    tests: ["wp-test", "other-test"],
+  });
+})();
+</code></pre>
+<p>The workflow could stay just like this:</p>
+<pre><code class="lang-javascript">jobs:
+  run-e2e:
+    strategy:
+      matrix:
+        instances: ["instance-1", "instance-2"]
+</code></pre>
+<p>For the tests that don’t require a WP installation, the file can be:</p>
+<pre><code class="lang-js">// e2e/instance-no-wp/start.js
+import { startFrontity } from "../scripts/frontity";
+import { startCypress } from "../scripts/cypress";
+
+(async () =&gt; {
+  await startFrontity();
+  await startCypress({
+    tests: ["tests-that-dont-need-wp-1", "tests-that-dont-need-wp-2"],
+  });
+})();
+</code></pre>
+<p>If in the future there are some e2e tests better handled by Jest, we can run those too:</p>
+<pre><code class="lang-js">// e2e/instance-1/start.js
+import { startWP, installPlugin } from "../scripts/wp";
+import { startFrontity } from "../scripts/frontity";
+import { startCypress } from "../scripts/cypress";
+import { startJest } from "../scripts/jest";
+
+(async () =&gt; {
+  await startWP();
+  await installPlugin("yoast", "latest");
+  await startFrontity();
+  await startCypress({
+    tests: ["wp-test", "other-test"],
+  });
+  await startJest({
+    tests: ["jest-tests"],
+  });
+})();
+</code></pre>
+<p>Some other ideas:</p>
+<ul>
+<li>Maybe <code>startWP()</code> and <code>startFrontity()</code> can, not only start docker and frontity, but also await until they are ready using <code>waitOn()</code>.</li>
+<li>Maybe <code>startFrontity</code> can do an <code>npx frontity dev</code> if <code>NODE_ENV</code> is <code>development</code> and <code>npx frontity build &amp;&amp; npx frontity serve</code> if it’s <code>production</code>.</li>
+<li>Maybe <code>startCypress</code> can run <code>cypress.open</code> if <code>NODE_ENV</code> is <code>development</code> and <code>cypress.run</code> if it’s production.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-10T15:00:27Z' class='post-time'>
+                    10 July 2020 15:00
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-10T15:00:27Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="14" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>We need to make sure that the WP instance has the correct permalink structure, because the default docker WP image does not have the “pretty” permalinks which prevents access to the REST API on the <code>/wp-json/</code> route.</p>
+</blockquote>
+</aside>
+<p>That is a setting on the DB, so you just have to login in WP, change it and dump the database.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-15T23:54:29Z' class='post-time'>
+                    15 July 2020 23:54
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-15T23:54:29Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="luisherranz" data-post="15" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>What about getting rid of the <code>e2e-wp.js</code> file and adding that work in the JS file of each instance (now named <code>start-e2e-docker</code> )? That way we wouldn’t need to add the specs to the workflow, we could add them in that file.</p>
+</blockquote>
+</aside>
+<p>yup, I think that should work <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"> I’m trying that approach now.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="15" data-topic="1756">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<ul>
+<li>Maybe <code>startWP()</code> and <code>startFrontity()</code> can, not only start docker and frontity, but also await until they are ready using <code>waitOn()</code> .</li>
+<li>Maybe <code>startFrontity</code> can do an <code>npx frontity dev</code> if <code>NODE_ENV</code> is <code>development</code> and <code>npx frontity build &amp;&amp; npx frontity serve</code> if it’s <code>production</code> .</li>
+<li>Maybe <code>startCypress</code> can run <code>cypress.open</code> if <code>NODE_ENV</code> is <code>development</code> and <code>cypress.run</code> if it’s production.</li>
+</ul>
+</blockquote>
+</aside>
+<p>I like those <img src="/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> <img src="/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/filipe'><span itemprop='name'>filipe</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-16T07:18:41Z' class='post-time'>
+                    16 July 2020 07:18
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-16T07:18:41Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>In the spirit of automation and since it seems you will be already using WP-CLI, you can use these commands to change the permalinks without having to login into WP.</p>
+<pre><code class="lang-javascript">wp option get permalink_structure
+wp option update permalink_structure '/%postname%'
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-17T17:26:24Z' class='post-time'>
+                    17 July 2020 17:26
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-17T17:26:24Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thanks <a class="mention" href="/u/filipe">@filipe</a> This is what we’re going to do, indeed.</p>
+<p>BTW, we’re working on the E2E testing system in this PR: <a href="https://github.com/frontity/frontity/pull/450">https://github.com/frontity/frontity/pull/450</a> (still work in progress) if you’d like to follow the progress <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-24T22:36:59Z' class='post-time'>
+                    24 July 2020 22:36
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-24T22:43:41Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve made a video summary of the current status of the PoC:</p>
+<p>Apologies for the sound quality - I didn’t notice that my headset did not work <img src="/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+<p>            <video title="24 July, 2020 - Loom Recording" width="695" height="434" style="max-width:100%" poster="https://cdn.loom.com/sessions/thumbnails/d27cc2a1bb854daa9da09692d7595f32-00001.gif" controls="">
+              <source src="https://cdn.loom.com/sessions/transcoded/d27cc2a1bb854daa9da09692d7595f32.mp4?Expires=2147472000&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4ubG9vbS5jb20vc2Vzc2lvbnMvdHJhbnNjb2RlZC9kMjdjYzJhMWJiODU0ZGFhOWRhMDk2OTJkNzU5NWYzMi5tcDQiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjIxNDc0NzIwMDB9fX1dfQ__&amp;Signature=d5ZDP6OgjbovjIepQrGG~r68ToLWTFXuEpXK8bNe2MXW-DHDrvQgXl8RCE-M~nzHmmW8u6PKhnvdSaoXPpTWBn9Kfwefvcm20PEOkJDxMIoV3ffM9hANiWyWqLdNxduqz8gnjtuoxf~l-O23~b3F90qiw~xJBZeGER5UlknHEuymWqMmIztP3kGnFh3AVNH1bLfsYqTr0x7zO1XDIsvKDdxOMogYYi4jSgxOLaMrx1IVMPVVmkPSA-NCJmrPBKPMLFCKg3ALvQSLGEndJrCc14KFIL6nEF0-FdJXaJebCbshGFup7dxqr-zjLLW8GLP64e~oJ5nmpkoAs7Et74WY6g__&amp;Key-Pair-Id=APKAJQIC5BGSW7XXK7FQ">
+            </video>
+</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_21' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-31T14:29:35Z' class='post-time'>
+                    31 July 2020 14:29
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-31T14:29:35Z'>
+              <span itemprop='position'>21</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thanks for the video Michal. I have some questions:</p>
+<ul>
+<li>
+<p>Why did you move the WordPress setup from the start/bootstrap routine to the spec files? Wasn’t the whole purpose to do that once and then run all the specs of that instance without having to set it up again?</p>
+</li>
+<li>
+<p>Do you have a list of the scripts/tasks that we need? For example:</p>
+<ul>
+<li>Install plugin.</li>
+<li>Remove plugin.</li>
+<li>Replace database.</li>
+<li>Dump/save database.</li>
+</ul>
+</li>
+<li>
+<p>When do you think we’ll be able to start using it? <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+</li>
+</ul>
+<p>Regarding the current <code>e2e</code> folder, I would merge it with the new approach within an instance folder that simply doesn’t initilizate WordPress.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_22' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-07-31T14:37:25Z' class='post-time'>
+                    31 July 2020 14:37
+                  </time>
+                  <meta itemprop='dateModified' content='2020-07-31T14:37:25Z'>
+              <span itemprop='position'>22</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Maybe if we are going to install/remove plugins and replace the database on each spec file, we are moving away from the need of running several WordPress intances in parallel… One instance would be enough.</p>
+<p>I guess it’s going to be slower, but it’ll be simpler.</p>
+<p>What do you think <a class="mention" href="/u/mmczaplinski">@mmczaplinski</a>?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_23' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/e2e-testing-that-requires-wordpress-instances/1756">
+
+                <link itemprop="image" href="/uploads/default/original/2X/1/1a7ddb0075f28e7b491e919842ee31f7083c8efb.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-08-11T16:47:41Z' class='post-time'>
+                    11 August 2020 16:47
+                  </time>
+                  <meta itemprop='dateModified' content='2020-08-11T16:47:41Z'>
+              <span itemprop='position'>23</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>We discussed these questions a bit in today’s daily. This is the video:</p>
+<div class="youtube-onebox lazy-video-container" data-video-id="vSUb5WXmfTM" data-video-title="E2E + WP discussion in Dev Standup" data-video-start-time="0" data-provider-name="youtube">
+  <a href="https://www.youtube.com/watch?v=vSUb5WXmfTM" target="_blank" rel="noopener">
+    <img class="youtube-thumbnail" src="/uploads/default/original/2X/1/1a7ddb0075f28e7b491e919842ee31f7083c8efb.jpeg" title="E2E + WP discussion in Dev Standup" data-dominant-color="5D5853" width="480" height="360">
+  </a>
+</div>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/e2e-testing-that-requires-wordpress-instances/1756?page=2">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Processor cannot handle well `children` and other issues in my demo</title>
+    <link>https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307</link>
+    <description>I have created a [Frontity Demo to show the use of the Intersection Observer `useInView`](https://github.com/frontity-demos/frontity-examples/blob/master/intersection-observer-hooks/)
+
+The demo can be seen online at [CodeSandbox](https://codesandbox.io/s/github/frontity-demos/frontity-examples/tree/master/intersection-observer-hooks)
+
+Features of the demo:
+- It uses a `source` processor that extracts the source link of the post and populates it to the state (so then it can be used to load the iFrame)
+- It uses a `HeadingInView` processor that replaces the `&lt;h2&gt;`, `&lt;h3&gt;`, `&lt;h4&gt;` by the same headings but with Intersection Observer behavior (it displays a message in  the console when the heading is in the viewport)
+- It displays an Iframe on each post with the `sourcePost` property got with the `source` processor
+
+I have the following issues with this demo
+
+### SSR Error Message 
+
+Whenever I render a post page from SSR (for example reloading `http://localhost:3000/2016/the-beauties-of-gullfoss/`) I get the following message error in the console
+
+```
+Warning: Expected server HTML to contain a matching &lt;noscript&gt; in &lt;div&gt;.
+```
+
+### CSR Error Message 
+
+Whenever I navigate to a post page from CSR (for example the post `http://localhost:3000/2016/the-beauties-of-gullfoss/`) I get the following message error in the console
+
+```
+Warning: Cannot update a component (`Post`) while rendering a different component (`Html2React`)...
+```
+
+Maybe it&#39;s because the processor finishes its _parsing_ and updates the state while the `Post` component is being rendered? Is there any way to avoid this error?
+
+### Processor cannot handle well `children`
+
+To replace headings found with themselves but with Intersection Observer behaviour I have used this code
+
+```
+import React, {useEffect} from &#39;react&#39;
+import useInView from &quot;@frontity/hooks/use-in-view&quot;;
+
+const WithInViewHeading = (children, headingTagName) =&gt; {  
+  const childrenContent = children[0].content
+  const InnerComponent = () =&gt; {
+    const { ref, inView } = useInView();
+    useEffect(() =&gt; {
+      if (inView) console.log(`${+new Date()} → Heading In View: ${childrenContent}`)
+    });
+    
+    return React.createElement(headingTagName, {ref}, childrenContent) 
+  }
+  return InnerComponent
+}
+
+const HeadingInView = {
+  priority: 10,
+  name: &quot;h3-in-view&quot;,
+  test: ({ node }) =&gt; (
+    node.component === &quot;h2&quot; || node.component === &quot;h3&quot; || node.component === &quot;h4&quot; &amp;&amp; node.children.length
+  ),
+  processor: ({ node, state }) =&gt; {
+    node.component = WithInViewHeading(node.children, node.component)
+    return node
+  },
+};
+
+export default HeadingInView;
+```
+
+The main problem with this code is that any heading using child tags (`&lt;strong&gt;`, `&lt;span&gt;`, ...) won&#39;t work (in fact with this code some headings detected have `children` as `undefined` and those heading appear with no content)
+
+I&#39;ve been looking for a better solution but couldn&#39;t find one. 
+Any ideas on how to properly *enhance* tags detected in a processor by properly creating the React version with its proper children?
+
+---
+
+@cristianbote any thoughts on this?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 25 Mar 2021 09:49:41 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Processor cannot handle well `children` and other issues in my demo</title>
+        <dc:creator><![CDATA[cristianbote]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a>, so I was digging into this one and the main errors are coming from the fact that by the time you define <code>sourcePost</code> inside the <code>source</code> processor the <code>&lt;Post /&gt;</code> has been rendered. So, that means the <em>server</em> html does not include the <code>iframe</code> element. So, either include the <code>iframe</code> only for <code>state.frontity.rendering === 'csr'</code> or include the <code>iframe</code> at processor level, similar with what you did with the headings.</p>
+<p>Something in the lines of:</p>
+<pre><code class="lang-js">import React from "react";
+import Iframe from "@frontity/components/iframe";
+
+const source = {
+  priority: 100,
+  name: "source",
+  test: ({ node }) =&gt;
+    node.component === "p" &amp;&amp;
+    node.children[0]?.content?.startsWith("Source:") &amp;&amp;
+    node.children[1]?.props?.href?.includes("wikipedia"),
+  processor: ({ node, state }) =&gt; {
+    const linkWikipediaSrc = node.children[1].props.href;
+    const { isReady, isPost, id } = state.source.get(state.router.link);
+    if (isPost) {
+      const tag = node.component;
+
+      const Original = () =&gt; React.createElement(tag, null, node.content);
+
+      node.component = () =&gt; (
+        &lt;&gt;
+          &lt;Original /&gt;
+          &lt;Iframe src={linkWikipediaSrc} height="500" width="100%" /&gt;
+        &lt;/&gt;
+      );
+    }
+    return node;
+  },
+};
+</code></pre>
+<p>Speaking of headings, the condition used for <code>test:</code> needs to be wrapped like instead:</p>
+<pre><code class="lang-js">test: ({ node }) =&gt; (
+    (node.component === "h2" || node.component === "h3" || node.component === "h4")
+    &amp;&amp; node.children.length
+),
+</code></pre>
+<p>Let me know if this helps.</p>
+          <p><a href="https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307/3</link>
+        <pubDate>Thu, 25 Mar 2021 09:49:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4307-3</guid>
+        <source url="https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307.rss">Processor cannot handle well `children` and other issues in my demo</source>
+      </item>
+      <item>
+        <title>Processor cannot handle well `children` and other issues in my demo</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>I have created a <a href="https://github.com/frontity-demos/frontity-examples/blob/master/intersection-observer-hooks/">Frontity Demo to show the use of the Intersection Observer <code>useInView</code></a></p>
+<p>The demo can be seen online at <a href="https://codesandbox.io/s/github/frontity-demos/frontity-examples/tree/master/intersection-observer-hooks">CodeSandbox</a></p>
+<p>Features of the demo:</p>
+<ul>
+<li>It uses a <code>source</code> processor that extracts the source link of the post and populates it to the state (so then it can be used to load the iFrame)</li>
+<li>It uses a <code>HeadingInView</code> processor that replaces the <code>&lt;h2&gt;</code>, <code>&lt;h3&gt;</code>, <code>&lt;h4&gt;</code> by the same headings but with Intersection Observer behavior (it displays a message in  the console when the heading is in the viewport)</li>
+<li>It displays an Iframe on each post with the <code>sourcePost</code> property got with the <code>source</code> processor</li>
+</ul>
+<p>I have the following issues with this demo</p>
+<h3>SSR Error Message</h3>
+<p>Whenever I render a post page from SSR (for example reloading <code>http://localhost:3000/2016/the-beauties-of-gullfoss/</code>) I get the following message error in the console</p>
+<pre><code class="lang-javascript">Warning: Expected server HTML to contain a matching &lt;noscript&gt; in &lt;div&gt;.
+</code></pre>
+<h3>CSR Error Message</h3>
+<p>Whenever I navigate to a post page from CSR (for example the post <code>http://localhost:3000/2016/the-beauties-of-gullfoss/</code>) I get the following message error in the console</p>
+<pre><code class="lang-javascript">Warning: Cannot update a component (`Post`) while rendering a different component (`Html2React`)...
+</code></pre>
+<p>Maybe it’s because the processor finishes its <em>parsing</em> and updates the state while the <code>Post</code> component is being rendered? Is there any way to avoid this error?</p>
+<h3>Processor cannot handle well <code>children</code>
+</h3>
+<p>To replace headings found with themselves but with Intersection Observer behaviour I have used this code</p>
+<pre><code class="lang-javascript">import React, {useEffect} from 'react'
+import useInView from "@frontity/hooks/use-in-view";
+
+const WithInViewHeading = (children, headingTagName) =&gt; {  
+  const childrenContent = children[0].content
+  const InnerComponent = () =&gt; {
+    const { ref, inView } = useInView();
+    useEffect(() =&gt; {
+      if (inView) console.log(`${+new Date()} → Heading In View: ${childrenContent}`)
+    });
+    
+    return React.createElement(headingTagName, {ref}, childrenContent) 
+  }
+  return InnerComponent
+}
+
+const HeadingInView = {
+  priority: 10,
+  name: "h3-in-view",
+  test: ({ node }) =&gt; (
+    node.component === "h2" || node.component === "h3" || node.component === "h4" &amp;&amp; node.children.length
+  ),
+  processor: ({ node, state }) =&gt; {
+    node.component = WithInViewHeading(node.children, node.component)
+    return node
+  },
+};
+
+export default HeadingInView;
+</code></pre>
+<p>The main problem with this code is that any heading using child tags (<code>&lt;strong&gt;</code>, <code>&lt;span&gt;</code>, …) won’t work (in fact with this code some headings detected have <code>children</code> as <code>undefined</code> and those heading appear with no content)</p>
+<p>I’ve been looking for a better solution but couldn’t find one.<br>
+Any ideas on how to properly <em>enhance</em> tags detected in a processor by properly creating the React version with its proper children?</p>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/cristianbote">@cristianbote</a> any thoughts on this?</p>
+          <p><a href="https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307/1</link>
+        <pubDate>Wed, 24 Mar 2021 17:31:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4307-1</guid>
+        <source url="https://community.frontity.org/t/processor-cannot-handle-well-children-and-other-issues-in-my-demo/4307.rss">Processor cannot handle well `children` and other issues in my demo</source>
+      </item>
+  </channel>
+</rss>

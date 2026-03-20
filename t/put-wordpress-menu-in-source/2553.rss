@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Put WordPress menu in source</title>
+    <link>https://community.frontity.org/t/put-wordpress-menu-in-source/2553</link>
+    <description>Hi!
+
+I want owners of a site to be able to configure their own menus through WordPress. So I set myself the task to make that happen with the `nav.js` component of the mars-theme.
+
+Surprisingly WordPress doesn&#39;t expose menus in the REST API. But there&#39;s a plugin for that (https://github.com/nekojira/wp-api-menus), so that problem is fixed, somewhat.
+
+The first step seems to be creating a handler that&#39;s able to retrieve the content of a menu-location (just like a PHP theme would use the menu-location for showing a specific menu on a specific page), so I&#39;m using this endpoint of my installation: https://frontity.noesteprojecten.nl/wp-json/wp-api-menus/v2/menu-locations/menu-1
+
+And this is my handler, which uses the location (now called &#39;menu-1&#39;) of the theme for retrieving the content:
+
+```
+// custom handler for menus
+const menuHandler = {
+  // this is the pattern which will include the name of the menu
+  name: &quot;menu&quot;,
+  pattern: &quot;menu/:menuName&quot;,
+
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const response = await libraries.source.api.get({
+      endpoint: `/wp-api-menus/v2/menu-locations/${params.menuName}/`,
+    });
+    const option = await response.json();
+
+    // add data to &#39;source&#39;
+    const data = state.source.get(route);
+    Object.assign(data, { ...option, isMenu: true });
+  },
+};
+```
+
+Now, I see the data appearing in `state.source.data[&#39;menu/menu1&#39;] like this:
+![Schermafbeelding 2020-07-31 om 17.21.14|531x397](upload://2jAcXUw3gMAG451GHoAQtgvcxbZ.png) 
+
+But I can&#39;t figure out how to really add the data to per example `state.source.menus`. Maybe it doesn&#39;t even need to be there, but to me that seemed to be the next step into integrating it into the `nav.js` file of `mars-theme`. Or is `state.source` restricted to post-types and taxonomies and am I on the wrong path alltogether?
+
+Whatever the answer to the above question is, I&#39;m unsure how to use the available data to make it work in `nav.js` now. Any help towards my next step into this &#39;quest&#39; is greatly appreciated!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 31 Jul 2020 16:25:54 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/put-wordpress-menu-in-source/2553.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Put WordPress menu in source</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/pablo">@Pablo</a>,</p>
+<p>I didn’t come across that topic, although I’ve read other ones on the Community but those weren’t working out for me so far. I will read the comments in your link as soon as I have time and will let you know if it works for me! Thanks!</p>
+          <p><a href="https://community.frontity.org/t/put-wordpress-menu-in-source/2553/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/put-wordpress-menu-in-source/2553/3</link>
+        <pubDate>Fri, 31 Jul 2020 16:25:54 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2553-3</guid>
+        <source url="https://community.frontity.org/t/put-wordpress-menu-in-source/2553.rss">Put WordPress menu in source</source>
+      </item>
+      <item>
+        <title>Put WordPress menu in source</title>
+        <dc:creator><![CDATA[Pablo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/dominique">@dominique</a>,</p>
+<p>Did you take a look at this thread?<br>
+</p><aside class="quote" data-post="1" data-topic="415">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/aeyzazkhan/40/299_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/how-to-fetch-menu-from-wordpress/415">How to fetch Menu from wordpress?</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="This “Dev Talks &amp; Questions” is the place for:">🤗 Dev Talk &amp; Questions</span></a>
+  </div>
+  <blockquote>
+    Hi, I have exposed my site menus and now i want to fetch the menu in my front end. 
+My menu is exposed at <a href="http://localhost:8080/wp-json/wp/v2/menu/primary" rel="nofollow noopener">http://localhost:8080/wp-json/wp/v2/menu/primary</a>
+  </blockquote>
+</aside>
+<p></p>
+<p>It looks like this is a common feature, and some people of the community have shared how they’ve accomplished it.</p>
+          <p><a href="https://community.frontity.org/t/put-wordpress-menu-in-source/2553/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/put-wordpress-menu-in-source/2553/2</link>
+        <pubDate>Fri, 31 Jul 2020 16:10:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2553-2</guid>
+        <source url="https://community.frontity.org/t/put-wordpress-menu-in-source/2553.rss">Put WordPress menu in source</source>
+      </item>
+      <item>
+        <title>Put WordPress menu in source</title>
+        <dc:creator><![CDATA[dominique]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi!</p>
+<p>I want owners of a site to be able to configure their own menus through WordPress. So I set myself the task to make that happen with the <code>nav.js</code> component of the mars-theme.</p>
+<p>Surprisingly WordPress doesn’t expose menus in the REST API. But there’s a plugin for that (<a href="https://github.com/nekojira/wp-api-menus" rel="nofollow noopener">https://github.com/nekojira/wp-api-menus</a>), so that problem is fixed, somewhat.</p>
+<p>The first step seems to be creating a handler that’s able to retrieve the content of a menu-location (just like a PHP theme would use the menu-location for showing a specific menu on a specific page), so I’m using this endpoint of my installation: <a href="https://frontity.noesteprojecten.nl/wp-json/wp-api-menus/v2/menu-locations/menu-1" rel="nofollow noopener">https://frontity.noesteprojecten.nl/wp-json/wp-api-menus/v2/menu-locations/menu-1</a></p>
+<p>And this is my handler, which uses the location (now called ‘menu-1’) of the theme for retrieving the content:</p>
+<pre><code class="lang-javascript">// custom handler for menus
+const menuHandler = {
+  // this is the pattern which will include the name of the menu
+  name: "menu",
+  pattern: "menu/:menuName",
+
+  func: async ({ route, params, state, libraries }) =&gt; {
+    const response = await libraries.source.api.get({
+      endpoint: `/wp-api-menus/v2/menu-locations/${params.menuName}/`,
+    });
+    const option = await response.json();
+
+    // add data to 'source'
+    const data = state.source.get(route);
+    Object.assign(data, { ...option, isMenu: true });
+  },
+};
+</code></pre>
+<p>Now, I see the data appearing in `state.source.data[‘menu/menu1’] like this:<br>
+<img src="https://community.frontity.org/uploads/default/original/2X/1/103b1370795dbc883867807e1951d4bff1845b3b.png" alt="Schermafbeelding 2020-07-31 om 17.21.14" data-base62-sha1="2jAcXUw3gMAG451GHoAQtgvcxbZ" width="531" height="397"></p>
+<p>But I can’t figure out how to really add the data to per example <code>state.source.menus</code>. Maybe it doesn’t even need to be there, but to me that seemed to be the next step into integrating it into the <code>nav.js</code> file of <code>mars-theme</code>. Or is <code>state.source</code> restricted to post-types and taxonomies and am I on the wrong path alltogether?</p>
+<p>Whatever the answer to the above question is, I’m unsure how to use the available data to make it work in <code>nav.js</code> now. Any help towards my next step into this ‘quest’ is greatly appreciated!</p>
+          <p><a href="https://community.frontity.org/t/put-wordpress-menu-in-source/2553/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/put-wordpress-menu-in-source/2553/1</link>
+        <pubDate>Fri, 31 Jul 2020 15:29:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2553-1</guid>
+        <source url="https://community.frontity.org/t/put-wordpress-menu-in-source/2553.rss">Put WordPress menu in source</source>
+      </item>
+  </channel>
+</rss>

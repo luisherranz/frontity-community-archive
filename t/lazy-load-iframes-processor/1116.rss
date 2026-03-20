@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Lazy load iframes processor</title>
+    <link>https://community.frontity.org/t/lazy-load-iframes-processor/1116</link>
+    <description>**--- [Roadmap Card](https://www.notion.so/frontity/Lazy-load-iframes-processor-b4d0e6facb0644d9959d27a1df3ce5f1)**
+
+## Description
+Iframes can impact the loading time and performance of a site, so we can provide Frontity developers with a processor that makes them lazy load, similar to what we are doing for images.
+
+## User Stories
+
+&gt; As a **Frontity developer**
+&gt; I want to **lazy load all my iframes**
+&gt; so that **I don&#39;t hurt my performance**
+
+## Possible solution
+
+We can release both an `Iframe` component that ads [native lazy loading](https://web.dev/native-lazy-loading/) with fallback to intersection observer. The same we are doing for images.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 27 Jan 2020 12:46:19 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/lazy-load-iframes-processor/1116.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Lazy load iframes processor</title>
+        <dc:creator><![CDATA[iamuchejude]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> Thanks for the info.</p>
+          <p><a href="https://community.frontity.org/t/lazy-load-iframes-processor/1116/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lazy-load-iframes-processor/1116/3</link>
+        <pubDate>Mon, 27 Jan 2020 12:46:19 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1116-3</guid>
+        <source url="https://community.frontity.org/t/lazy-load-iframes-processor/1116.rss">Lazy load iframes processor</source>
+      </item>
+      <item>
+        <title>Lazy load iframes processor</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/iamuchejude">@iamuchejude</a> let me give you more context here and some ideas.</p>
+<p>First, please note that Frontity needs <code>Proxy</code> to run. If the browser doesn’t support <code>Proxy</code> (old browsers like IE11) we simply don’t hydrate React: <a href="https://github.com/frontity/frontity/blob/dev/packages/core/src/client/index.tsx#L8-L60">https://github.com/frontity/frontity/blob/dev/packages/core/src/client/index.tsx#L8-L60</a><br>
+The site still works because the HTML is there. If users click on a link, they get a new HTML from the server.</p>
+<p>For lazy loaded components (images and iframes), we need to support five scenarios:</p>
+<ol>
+<li>JavaScript is disabled.</li>
+<li>
+<code>Proxy</code> is not supported.</li>
+<li>
+<code>Proxy</code> is supported, but neither the <code>Intersection Observer</code> or native lazy loading are.</li>
+<li>
+<code>Proxy</code> and <code>Intersection Observer</code> are supported, but native lazy load is not.</li>
+<li>
+<code>Proxy</code>, <code>Intersection Observer</code> and native lazy load are supported.</li>
+</ol>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>javascript</th>
+<th>Proxy</th>
+<th>Intersection Observer</th>
+<th>Native lazy load</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>No</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Yes</td>
+<td>No</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</div><h2>Scenario 1: No JavaScript</h2>
+<p>The HTML generated in the server (when <code>state.frontity.rendering === "ssr"</code>) needs to be valid for the first scenario, because JavaScript won’t be able to change it once the browser loads.</p>
+<p>The problem is that we don’t want it to load until we are able to control it with JavaScript. So the only way to do so that I know of so far is to use the noscript tag:</p>
+<pre><code>&lt;noscript&gt;
+  &lt;img src="..." ... /&gt;
+&lt;/noscript&gt;
+
+&lt;noscript&gt;
+  &lt;iframe src="..." ... /&gt;
+&lt;/noscript&gt;
+</code></pre>
+<h2>Scenario 2: No Proxy (no Frontity)</h2>
+<p>The JavaScript required to make it work in scenario 2 must be outside of Frontity, because if <code>Proxy</code> is not present, we won’t load Frontity.</p>
+<p>That can be achieved adding a <code>&lt;script&gt;</code> tag to the HTML during SRR that only runs if <code>Proxy</code> is not supported. Let’s call it the no-Proxy script:</p>
+<pre><code>&lt;script&gt;
+if (!("Proxy" in window)) {
+  // Do required modifications...
+}
+&lt;/script&gt;
+</code></pre>
+<p>We have two valid tactics here:</p>
+<ul>
+<li>Reuse the noscript tag: the one we added for scenario 1. This library is using that approach: <a href="https://github.com/mfranzke/loading-attribute-polyfill/blob/master/README.md">https://github.com/mfranzke/loading-attribute-polyfill/blob/master/README.md</a>
+</li>
+<li>Move <code>src</code> and <code>srcset</code> to <code>data-src</code> and <code>data-scrset</code> until the no-Proxy script is loaded: this is the current implementation of Frontity’s Image component.</li>
+</ul>
+<pre><code>&lt;!-- From this --&gt;
+&lt;noscript&gt;
+  &lt;img src="..." /&gt;
+&lt;/noscript&gt;
+&lt;!-- to this --&gt;
+&lt;img src="..." /&gt;
+
+&lt;!-- or from this --&gt;
+&lt;img data-src="..." /&gt;
+&lt;!-- to this --&gt;
+&lt;img src="..." /&gt;
+</code></pre>
+<p>I like the idea of reusing the noscript tag. It looks more clean, we only have one tag, and maybe we can reuse the no-Proxy script for images, iframes and even scripts if we add the same class to all of them.</p>
+<pre><code>&lt;noscript class="no-proxy-load"&gt;
+  &lt;img src="..." /&gt;
+&lt;/noscript&gt;
+
+&lt;noscript class="no-proxy-load"&gt;
+  &lt;iframe src="..." /&gt;
+&lt;/noscript&gt;
+
+&lt;noscript class="no-proxy-load"&gt;
+  &lt;script src="..." /&gt;
+&lt;/noscript&gt;
+
+&lt;noscript class="no-proxy-load"&gt;
+  &lt;script&gt;
+    // code...
+  &lt;/script&gt;
+&lt;/noscript&gt;
+
+&lt;script&gt;
+  if (!("Proxy" in window)) {
+    document.querySelector(".no-proxy-load");
+    // remove noscript tags...
+  }
+&lt;/script&gt;
+</code></pre>
+<h2>Scenario 3: Proxy, but no IO</h2>
+<p>At this point we can use React instead of plain JavaScript because Frontity will load.</p>
+<p>If there is no Intersection Observer, we simply load all the images right away. That means that once we are in the browser (<code>state.frontity.rendering === "csr"</code>) we either remove the noscript tag or change <code>data-src</code> and <code>data-srcset</code> to <code>src</code> and <code>srcset</code> (depending on the approach we use).</p>
+<p>At this point React also takes control of future pageviews. That means we are going to be generating new images for those pages. In this scenario we simply need to generate the normal images/iframes, no noscript tag or <code>data-src</code> is needed.</p>
+<h2>Scenario 4: IO, but no native lazy load</h2>
+<p>This scenario is similar to the previous one, but here we don’t have to change the images right away, we have to wait until the user scrolls down. We can use the <a href="https://www.npmjs.com/package/react-intersection-observer">react-intersection-observer</a> hook for that.</p>
+<p>In this scenario we need maintain the noscript tag or the <code>data-src</code> until <code>inView</code> is true<br>
+even for new images generated in client side rendering.</p>
+<h2>Scenario 5: Native lazy load</h2>
+<p>Finally, if native lazy load is available, we simply let the browser decide for itself. This means that, if I’m not mistaken, this scenario is the same than the scenario 3 as long as we add the <code>loading</code> attribute to the images/iframes.</p>
+<pre><code>&lt;!-- From this --&gt;
+&lt;noscript&gt;
+  &lt;img src="..." loading="lazy" /&gt;
+&lt;/noscript&gt;
+&lt;!-- to this --&gt;
+&lt;img src="..." loading="lazy" /&gt;
+</code></pre>
+<p>The <code>loading</code> attribute is ignored by older browsers, so I don’t see a reason why not to add it.</p>
+<p>It’s also the same case than scenario 3 for new images/iframes. We add normal ones and let the browser decide when to load them.</p>
+<h2>Images with no height</h2>
+<p>There is a problem with images without a <code>height</code> attribute and native lazy load: as far as I know, they do not lazy load.</p>
+<p>To solve that in the current implementation of the Image component we decided to use the intersection observer instead of the native lazy load if height is missing.</p>
+<p>That means the scenarios for images would be like this:</p>
+<div class="md-table">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>javascript</th>
+<th>Proxy</th>
+<th>Intersection Observer</th>
+<th>Native lazy load AND height</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>No</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Yes</td>
+<td>No</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</div><p>I don’t think this applies to iframes because they have a default height of 150px if the height attribute is missing.</p>
+<hr>
+<p><a class="mention" href="https://community.frontity.org/u/iamuchejude">@iamuchejude</a> please add in this topic your progress, questions and findings as you work though this <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/lazy-load-iframes-processor/1116/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lazy-load-iframes-processor/1116/2</link>
+        <pubDate>Sun, 26 Jan 2020 18:12:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1116-2</guid>
+        <source url="https://community.frontity.org/t/lazy-load-iframes-processor/1116.rss">Lazy load iframes processor</source>
+      </item>
+      <item>
+        <title>Lazy load iframes processor</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><strong>— <a href="https://www.notion.so/frontity/Lazy-load-iframes-processor-b4d0e6facb0644d9959d27a1df3ce5f1">Roadmap Card</a></strong></p>
+<h2>Description</h2>
+<p>Iframes can impact the loading time and performance of a site, so we can provide Frontity developers with a processor that makes them lazy load, similar to what we are doing for images.</p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>lazy load all my iframes</strong><br>
+so that <strong>I don’t hurt my performance</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<p>We can release both an <code>Iframe</code> component that ads <a href="https://web.dev/native-lazy-loading/">native lazy loading</a> with fallback to intersection observer. The same we are doing for images.</p>
+          <p><a href="https://community.frontity.org/t/lazy-load-iframes-processor/1116/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/lazy-load-iframes-processor/1116/1</link>
+        <pubDate>Thu, 23 Jan 2020 09:08:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1116-1</guid>
+        <source url="https://community.frontity.org/t/lazy-load-iframes-processor/1116.rss">Lazy load iframes processor</source>
+      </item>
+  </channel>
+</rss>

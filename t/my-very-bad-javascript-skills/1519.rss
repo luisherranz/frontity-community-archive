@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>My very bad javascript skills</title>
+    <link>https://community.frontity.org/t/my-very-bad-javascript-skills/1519</link>
+    <description>I want to do the simple task of moving the product wrapper with a button click can anyone help...
+```
+import React from &quot;react&quot;;
+import { connect, styled } from &quot;frontity&quot;;
+import Item from &quot;./list-item&quot;;
+import buttonImage from &quot;../design/assets/button.svg&quot;;
+import { useSpring, a } from &quot;react-spring&quot;;
+
+const pos = -385;
+
+const ProductArchive = ({ state }) =&gt; {
+
+  const data = state.source.get(state.router.link);
+
+
+  return (
+    &lt;Store&gt;
+      &lt;ButtonWrapper&gt;
+        &lt;PrevButton
+          onClick={() =&gt; {
+            console.log(&quot;prev Click&quot;);
+            console.log(pos);
+
+            if (pos &lt;= -385) {
+              return;
+            } else {
+              pos + 70;
+              console.log(pos);
+              return pos;
+              
+            }
+          }}
+        &gt;
+          &lt;img src={buttonImage} alt=&quot;Image alt&quot; /&gt;
+        &lt;/PrevButton&gt;
+        &lt;NextButton
+          onClick={() =&gt; {
+            console.log(&quot;next Click&quot;);
+            console.log(pos);
+            if (pos &gt;= -385) {
+              return;
+            } else {
+              pos - 70;
+              return pos;
+            }
+          }}
+        &gt;
+          &lt;img className=&quot;nextBtn&quot; src={buttonImage} alt=&quot;Image alt&quot; /&gt;
+        &lt;/NextButton&gt;
+      &lt;/ButtonWrapper&gt;
+      &lt;a.div&gt;
+        &lt;ProductWrapper&gt;
+          {data.items.map(({ type, id }) =&gt; {
+            const item = state.source[type][id];
+            return &lt;Item key={item.id} item={item} /&gt;;
+            //            return &lt;div key={item.id}&gt;{item.id}&lt;/div&gt;
+          })}
+        &lt;/ProductWrapper&gt;
+      &lt;/a.div&gt;
+    &lt;/Store&gt;
+  );
+};
+
+export default connect(ProductArchive);
+
+const ProductWrapper = styled.div`
+  transform: translateX(${pos}vw);
+  display: flex;
+  position: absolute;
+`;
+
+const Store = styled.div`
+  display: flex;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  width: 70vw;
+  position: absolute;
+  top: 30vh;
+  left: 15vw;
+  justify-content: space-between;
+  z-index: 999;
+`;
+
+const PrevButton = styled.div``;
+
+const NextButton = styled.div`
+  .nextBtn {
+    transform: rotate(180deg);
+  }
+`;
+```</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 14 Apr 2020 23:38:35 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/my-very-bad-javascript-skills/1519.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>My very bad javascript skills</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/john_jordan">@John_Jordan</a> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:">!</p>
+<p>It seems that your problem is caused by how you pass the <code>onClick</code> event handlers to <code>&lt;PrevButton /&gt;</code> and <code>&lt;NextButton /&gt;</code></p>
+<p>Instead of:</p>
+<pre><code>&lt;PrevButton onClick={moveProductWrapper(70)}&gt;
+
+&lt;NextButton onClick={moveProductWrapper(-70)}&gt;
+</code></pre>
+<p>do</p>
+<pre><code>&lt;PrevButton onClick={() =&gt; moveProductWrapper(70)}&gt;
+
+&lt;NextButton onClick={() =&gt; moveProductWrapper(-70)}&gt;
+</code></pre>
+<p>Hope this helps! <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/my-very-bad-javascript-skills/1519/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/my-very-bad-javascript-skills/1519/5</link>
+        <pubDate>Tue, 14 Apr 2020 23:08:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1519-5</guid>
+        <source url="https://community.frontity.org/t/my-very-bad-javascript-skills/1519.rss">My very bad javascript skills</source>
+      </item>
+      <item>
+        <title>My very bad javascript skills</title>
+        <dc:creator><![CDATA[John_Jordan]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok so my javascript skills are still bad but i have tried a few different things. I have got to this stage and now i have a issue with a typeerror</p>
+<pre><code>import React from "react";
+import { connect, styled, useState } from "frontity";
+import Item from "./list-item";
+import buttonImage from "../design/assets/button.svg";
+
+const ProductArchive = ({ state }) =&gt; {
+  const data = state.source.get(state.router.link);
+
+  let pos = 0;
+
+  const [style, setStyle] = useState({
+    transform: `translateX(${pos})`,
+  });
+
+  const moveProductWrapper = (val) =&gt; {
+    let res = pos + val;
+    setStyle({ ...style, transform: `translateX(${res}vw)` });
+  };
+
+  return (
+    &lt;Store&gt;
+      &lt;ButtonWrapper&gt;
+        &lt;PrevButton onClick={moveProductWrapper(70)}&gt;
+          &lt;img src={buttonImage} alt="Image alt" /&gt;
+        &lt;/PrevButton&gt;
+        &lt;NextButton onClick={moveProductWrapper(-70)}&gt;
+          &lt;img className="nextBtn" src={buttonImage} alt="Image alt" /&gt;
+        &lt;/NextButton&gt;
+      &lt;/ButtonWrapper&gt;
+      &lt;div&gt;
+        &lt;ProductWrapper style={style}&gt;
+          {data.items.map(({ type, id }) =&gt; {
+            const item = state.source[type][id];
+            return &lt;Item key={item.id} item={item} /&gt;;
+          })}
+        &lt;/ProductWrapper&gt;
+      &lt;/div&gt;
+    &lt;/Store&gt;
+  );
+};
+
+export default connect(ProductArchive);
+
+const ProductWrapper = styled.div`
+  display: flex;
+  position: absolute;
+`;
+
+const Store = styled.div`
+  display: flex;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  width: 70vw;
+  position: absolute;
+  top: 30vh;
+  left: 15vw;
+  justify-content: space-between;
+  z-index: 999;
+`;
+
+const PrevButton = styled.div``;
+
+const NextButton = styled.div`
+  .nextBtn {
+    transform: rotate(180deg);
+  }
+`;
+</code></pre>
+<p>TypeError: Object is not a function or its return value is not iterable</p>
+<p>line 11</p>
+<p>any help would be amazing</p>
+          <p><a href="https://community.frontity.org/t/my-very-bad-javascript-skills/1519/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/my-very-bad-javascript-skills/1519/2</link>
+        <pubDate>Tue, 14 Apr 2020 09:47:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1519-2</guid>
+        <source url="https://community.frontity.org/t/my-very-bad-javascript-skills/1519.rss">My very bad javascript skills</source>
+      </item>
+      <item>
+        <title>My very bad javascript skills</title>
+        <dc:creator><![CDATA[John_Jordan]]></dc:creator>
+        <description><![CDATA[
+            <p>I want to do the simple task of moving the product wrapper with a button click can anyone help…</p>
+<pre><code>import React from "react";
+import { connect, styled } from "frontity";
+import Item from "./list-item";
+import buttonImage from "../design/assets/button.svg";
+import { useSpring, a } from "react-spring";
+
+const pos = -385;
+
+const ProductArchive = ({ state }) =&gt; {
+
+  const data = state.source.get(state.router.link);
+
+
+  return (
+    &lt;Store&gt;
+      &lt;ButtonWrapper&gt;
+        &lt;PrevButton
+          onClick={() =&gt; {
+            console.log("prev Click");
+            console.log(pos);
+
+            if (pos &lt;= -385) {
+              return;
+            } else {
+              pos + 70;
+              console.log(pos);
+              return pos;
+              
+            }
+          }}
+        &gt;
+          &lt;img src={buttonImage} alt="Image alt" /&gt;
+        &lt;/PrevButton&gt;
+        &lt;NextButton
+          onClick={() =&gt; {
+            console.log("next Click");
+            console.log(pos);
+            if (pos &gt;= -385) {
+              return;
+            } else {
+              pos - 70;
+              return pos;
+            }
+          }}
+        &gt;
+          &lt;img className="nextBtn" src={buttonImage} alt="Image alt" /&gt;
+        &lt;/NextButton&gt;
+      &lt;/ButtonWrapper&gt;
+      &lt;a.div&gt;
+        &lt;ProductWrapper&gt;
+          {data.items.map(({ type, id }) =&gt; {
+            const item = state.source[type][id];
+            return &lt;Item key={item.id} item={item} /&gt;;
+            //            return &lt;div key={item.id}&gt;{item.id}&lt;/div&gt;
+          })}
+        &lt;/ProductWrapper&gt;
+      &lt;/a.div&gt;
+    &lt;/Store&gt;
+  );
+};
+
+export default connect(ProductArchive);
+
+const ProductWrapper = styled.div`
+  transform: translateX(${pos}vw);
+  display: flex;
+  position: absolute;
+`;
+
+const Store = styled.div`
+  display: flex;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  width: 70vw;
+  position: absolute;
+  top: 30vh;
+  left: 15vw;
+  justify-content: space-between;
+  z-index: 999;
+`;
+
+const PrevButton = styled.div``;
+
+const NextButton = styled.div`
+  .nextBtn {
+    transform: rotate(180deg);
+  }
+`;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/my-very-bad-javascript-skills/1519/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/my-very-bad-javascript-skills/1519/1</link>
+        <pubDate>Sat, 11 Apr 2020 09:18:25 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1519-1</guid>
+        <source url="https://community.frontity.org/t/my-very-bad-javascript-skills/1519.rss">My very bad javascript skills</source>
+      </item>
+  </channel>
+</rss>

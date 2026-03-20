@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>Connect Middleware - Needs Research - Frontity Community Forum</title>
+    <meta name="description" content="This is still a work-in-progress. We have had a lot of conversations about how we could design this. I will update the topic with the current implementation we have in mind as soon as possible. 
+
+User stories
+
+As a Front&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/connect-middleware/593" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Connect Middleware&#39;" href="/t/connect-middleware/593.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/connect-middleware/593" />
+<meta name="twitter:url" content="/t/connect-middleware/593" />
+<meta property="og:title" content="Connect Middleware" />
+<meta name="twitter:title" content="Connect Middleware" />
+<meta property="og:description" content="This is still a work-in-progress. We have had a lot of conversations about how we could design this. I will update the topic with the current implementation we have in mind as soon as possible.   User stories  As a Frontity developer,  I want to be able to subscribe to mutations in the state,  so that I can add logic that depends on some part of the state.    As a Frontity developer,  I want to be able to react to action executions,  so that I can add logic that happens when an action is trigger..." />
+<meta name="twitter:description" content="This is still a work-in-progress. We have had a lot of conversations about how we could design this. I will update the topic with the current implementation we have in mind as soon as possible.   User stories  As a Frontity developer,  I want to be able to subscribe to mutations in the state,  so that I can add logic that depends on some part of the state.    As a Frontity developer,  I want to be able to react to action executions,  so that I can add logic that happens when an action is trigger..." />
+<meta property="og:article:section" content="🗣 Feature Discussions" />
+<meta property="og:article:section:color" content="652D90" />
+<meta property="og:article:section" content="Needs Research" />
+<meta property="og:article:section:color" content="d3abff" />
+<meta property="og:article:tag" content="packages" />
+<meta property="og:article:tag" content="connect" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="29 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="4 ❤" />
+<meta property="article:published_time" content="2019-09-13T08:35:27+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/connect-middleware/593?page=2">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"Connect Middleware","mainEntity":{"@type":"Question","name":"Connect Middleware","text":"This is still a work-in-progress. We have had a lot of conversations about how we could design this. I will update the topic with the current implementation we have in mind as soon as possible.\n\n<a name=\"user-stories-1\" class=\"anchor\" href=\"#user-stories-1\"><\/a>User stories\n\nAs a Frontity developer,\n\nI want to be able to subscribe to mutations in the state,\n\nso th&hellip;","upvoteCount":0,"answerCount":0,"dateCreated":"2019-09-13T08:35:27.896Z","author":{"@type":"Person","name":"Luis Herranz"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/connect-middleware/593">Connect Middleware</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/33" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #652D90'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>🗣 Feature Discussions</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/feature-discussions/needs-research/35" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #d3abff'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Needs Research</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/packages' class='discourse-tag' rel="tag">packages</a>, 
+            <a href='/tag/connect' class='discourse-tag' rel="tag">connect</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='Connect Middleware'>
+        <meta itemprop='articleSection' content='Needs Research'>
+      <meta itemprop='keywords' content='packages, connect'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-13T08:35:27Z' class='post-time'>
+                    13 September 2019 08:35
+                  </time>
+                  <meta itemprop='dateModified' content='2021-05-28T15:40:13Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>This is still a work-in-progress. We have had a lot of conversations about how we could design this. I will update the topic with the current implementation we have in mind as soon as possible.</p>
+<h2>
+<a name="user-stories-1" class="anchor" href="#user-stories-1"></a>User stories</h2>
+<blockquote>
+<p>As a <strong>Frontity developer</strong>,<br>
+I want to be able to <strong>subscribe to mutations in the state</strong>,<br>
+so that I can <strong>add logic that depends on some part of the state</strong>.</p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity developer</strong>,<br>
+I want to be able to <strong>react to action executions</strong>,<br>
+so that I can <strong>add logic that happens when an action is triggered</strong>.</p>
+</blockquote>
+<blockquote>
+<p>As a <strong>package developer</strong>,<br>
+I want to be able to <strong>revert or modify a state mutation</strong>,<br>
+so that I can <strong>modify how other packages mutate the state</strong>.</p>
+</blockquote>
+<blockquote>
+<p>As a <strong>package developer</strong>,<br>
+I want to be able to <strong>abort the execution of some actions</strong>,<br>
+so that I am able to <strong>control the actions of other packages</strong>.</p>
+</blockquote>
+<blockquote>
+<p>As a <strong>package developer</strong>,<br>
+I want to be able to <strong>change the arguments of some actions</strong>,<br>
+so that I am able to <strong>control the actions of other packages</strong>.</p>
+</blockquote>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-13T10:27:29Z' class='post-time'>
+                    13 September 2019 10:27
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-15T14:25:33Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>1. Context and scope</h1>
+<p>Frontity Connect is the name of Frontity’s state manager.</p>
+<p>It can also be used outside of Frontity (<a href="https://codesandbox.io/s/frontityconnect-minimal-example-f7pw5" rel="nofollow noopener">https://codesandbox.io/s/frontityconnect-minimal-example-f7pw5</a>), although that part is not documented yet.</p>
+<p>The npm package is <code>@frontity/connect</code> although when used in Frontity you can import <code>connect</code> directly from the main <code>frontity</code> package:</p>
+<pre><code class="lang-javascript">// In a Frontity project:
+import { connect } from "frontity";
+
+// In an external project:
+import connect from "@frontity/connect";
+</code></pre>
+<p>Our current implementation is a fork of <a href="https://github.com/solkimicreb/react-easy-state" rel="nofollow noopener"><code>react-easy-state</code></a> which is based on <a href="https://github.com/nx-js/observer-util" rel="nofollow noopener"><code>@nx-js/observer-utils</code></a>. These two libraries were created by <a href="https://bertalan-miklos.now.sh/" rel="nofollow noopener">Miklos Bertalan</a>.</p>
+<p>On top of that, we implemented a new API for actions and derived state, heavily inspired by <a href="https://overmindjs" rel="nofollow noopener"><code>overmind</code></a>.</p>
+<p>Both <code>react-easy-state</code> and <code>overmind</code> implement a pattern called transparent reactive programming (TRP). This pattern appeared in the JavaScript world thanks to Meteor’s Tracker library that later served as inspiration for Michel Westrate’s <code>mobx</code>.</p>
+<p>The key concept to understand in TRP is that there are two types of entities:  observables &amp; computations. When observables are used inside computations, the library adds an internal dependency between then. When that observable is mutated, the library runs again any dependant computation.</p>
+<p>In <a href="https://levelup.gitconnected.com/finding-fine-grained-reactive-programming-89741994ddee" rel="nofollow noopener">this article</a>, Ryan Carniato gives a great explanation of TRP (although he calls it “Fine-Grained Reactive Programming”).  There’s also a good explanation of how the dependency graph works on <a href="https://www.mendix.com/blog/making-react-reactive-pursuit-high-performing-easily-maintainable-react-apps/" rel="nofollow noopener">this old Michel’s article</a>, back from the initial days of Mobx.</p>
+<p>Although the three libraries mentioned so far (<code>mobx</code>, <code>react-easy-state</code> and <code>overmind</code>) implement TRP, <code>mobx</code> does it with a combination of ES5 proxies and special objects/arrays, while both <code>react-easy-state</code> and <code>overmind</code> do it with ES6 proxies and plain javascript objects/arrays. <code>@frontity/connect</code> is also based on ES6 proxies.</p>
+<p>We chose not to use any of those libraries and instead fork <code>react-easy-state</code> because we have a more complex use case than the regular React apps: in Frontity all the code is contained in packages, some of them made by the developer itself, but many of them created by the community.</p>
+<p>Similar to what happens in WordPress, there’s a need for a powerful hook/extensibility system among all these packages. For that reason, we need to add middleware to both action executions and state mutations. These are some of the things packages should be able to do:</p>
+<ul>
+<li>Listen to the actions of other packages (<code>add_action</code> in WordPress).</li>
+<li>Modify args or even abort other package actions.</li>
+<li>Listen to mutations of the state of other packages (this is normal in TRP).</li>
+<li>Modify or even abort those mutations (<code>add_filter</code> in WordPress).</li>
+</ul>
+<p>Besides that, the state manager API is so critical in the developer experience of Frontity itself that we deemed important to have total control over it. The middleware will also give us other opportunities, like for example releasing powerful devtools, like the ones of <code>overmind</code>.</p>
+<p>The <code>overmind</code> inspired API we implemented on top of our <code>react-easy-state</code> fork is:</p>
+<h2>Actions (without params):</h2>
+<pre><code class="lang-javascript">const actions = {
+  toggleFilter: ({ state }) =&gt; { state.filter = !state.filter },
+  fetchTodos: async ({ state }) =&gt; { state.todos = await api.getTodos() }
+}
+
+actions.toggleFilter()
+actions.fetchTodos()
+
+interface Actions {
+  toggleFilter: Action&lt;MyPkg&gt;
+  fetchTodos: Action&lt;MyPkg&gt;
+}
+</code></pre>
+<h2>Actions (with params):</h2>
+<pre><code class="lang-javascript">const actions = {
+  addTodo: ({ state }) =&gt; name =&gt; { state.todos.push({ name }) }
+  fetchTodo: ({ state }) =&gt; async id =&gt; { state.todos[id] = await api.getTodo(id) }
+}
+
+actions.addTodo("finish the state manager")
+actions.fetchTodo(374)
+
+interface Actions {
+  addTodo: Action&lt;MyPkg, string&gt;
+  fetchTodo: Action&lt;MyPkg, number&gt;
+}
+</code></pre>
+<h2>Derived State:</h2>
+<pre><code class="lang-javascript">const state = {
+  todos: [],
+  completedTodos: ({ state }) =&gt; state.todos.filter(todo =&gt; todo.completed)
+}
+
+state.todos
+state.completedTodos
+
+interface State {
+  todos: Todos,
+  completedTodos: Derived&lt;MyPkg, Todos&gt;
+}
+</code></pre>
+<h2>Derived State Functions:</h2>
+<pre><code class="lang-javascript">const state = {
+  todos: [],
+  filteredTodos: ({ state }) =&gt; completed =&gt;
+    state.todos.filter(todo =&gt; todo.completed === completed)
+}
+
+state.todos
+state.filteredTodos(false)
+
+interface State {
+  todos: Todos,
+  filteredTodos: Derived&lt;MyPkg, boolean, Todos&gt;
+}
+</code></pre>
+<h2>React Connect</h2>
+<pre><code class="lang-javascript">import connect from "@frontity/connect";
+
+const Toggle = ({ state, actions }) =&gt; (
+  &lt;&gt;
+    &lt;div&gt;Toggle is {state.active ? "active" : "inactive"}&lt;/div&gt;
+    &lt;button onClick={actions.toggle}&gt;toggle!&lt;/button&gt;
+  &lt;/&gt;
+);
+
+export default connect(Toggle);
+</code></pre>
+<h2>Create Store &amp; Provider (unnecessary in a Frontity project):</h2>
+<pre><code class="lang-javascript">import { Provider, createStore } from "@frontity/connect";
+
+const store = createStore({
+  state: {
+    active: false,
+    inverse: ({ state }) =&gt; !state.active
+  },
+  actions: {
+    toggle: ({ state }) =&gt; {
+      state.active = !state.active;
+    }
+  }
+});
+
+const App = () =&gt; (
+    &lt;Provider value={store}&gt;
+      &lt;Content /&gt;
+    &lt;/Provider&gt;
+  );
+</code></pre>
+<p>We chose <code>react-easy-state</code> over <code>overmind</code> because the code is much simpler to start with.</p>
+<h1>2. Goals</h1>
+<p>There are the design goals we set at the beginning of the <a href="/t/frontity-connect-first-thoughts-and-implementation/126">first implementation</a>.</p>
+<p><img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> : Supported/available<br>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> : Not ready yet<br>
+– <a href="https://github.com/mobxjs/mobx-state-tree" rel="nofollow noopener">MobxStateTree</a> is an opinionated version of Mobx.</p>
+<ul>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:">  <strong>Full Typescript support</strong> <em>- Overmind &amp; MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:">  <strong>Zero boilerplate</strong> <em>- Overmind &amp; MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <strong>Easy to learn</strong> <em>- Overmind</em>
+</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <strong>State as a plain javascript object</strong> <em>- Redux &amp; Overmind</em>
+</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <strong>State mutations (devs don’t have to deal with immutability)</strong> <em>- Overmind &amp; MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <strong>Async actions using async/await</strong> <em>- Overmind</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Serializable snapshots</strong> <em>- MobxStateTree &amp; Redux</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Serializable actions</strong> <em>- MobxStateTree &amp; Redux</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Serializable mutations (patches)</strong> <em>- MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Minimum rerender guarantee</strong> <em>- MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Avoid breaking object/array references on mutations</strong> <em>- MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Deterministic mutation (patches)</strong> <em>- MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Middleware support for actions</strong> <em>- Redux &amp; MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Middleware support for mutations</strong> <em>- none</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Filter support</strong> <em>- none</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Devtools for actions and state</strong> <em>- Redux &amp; Overmind</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Devtools for components</strong> <em>- Overmind</em>
+</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <strong>Listen to state mutations</strong> <em>- MobxStateTree &amp; Overmind</em>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Nested derived state</strong> <em>- MobxStateTree</em>
+</li>
+<li>
+<img src="/images/emoji/apple/white_check_mark.png?v=9" title=":white_check_mark:" class="emoji" alt=":white_check_mark:"> <strong>Small bundle size</strong> <em>- Redux &amp; Overmind</em>
+</li>
+</ul>
+<p>These are the specific goals we want to achieve in this iteration:</p>
+<ul>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Minimum rerender guarantee</strong>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Avoid breaking object/array references on mutations</strong>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Middleware support for actions</strong>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Middleware support for mutations</strong>
+</li>
+<li>
+<img src="/images/emoji/apple/x.png?v=9" title=":x:" class="emoji" alt=":x:"> <strong>Serializable mutations (patches)</strong>
+</li>
+</ul>
+<h2>Minimum rerender guarantee</h2>
+<p>In order to provide the best possible developer experience, <code>@frontity/connect</code> should be able to detect when a primitive value of the state hasn’t changed, even in cases when one the object reference containing that value has changed.</p>
+<p>For example, these two equivalent actions should behave exactly the same:</p>
+<pre><code class="lang-javascript">actions: {
+    user: {
+      changeNameObject: ({ state, actions }) =&gt; {
+        state.user = { name: "Jon", surname: random() };
+        actions.user.changeNameProperties();
+      },
+      changeNameProperties: ({ state }) =&gt; {
+        state.user.name = "Jon";
+        state.user.surname = random();
+      }
+    }
+  }
+</code></pre>
+<p><code>state.user.name</code> hasn’t changed (it is still “Jon”), but most state managers today won’t optimize this and will re-render any component which is listening to <code>state.user.name</code>:</p>
+<iframe src="https://codesandbox.io/embed/frontityconnect-rerendering-problem-ccb61?fontsize=14" width="100%" height="200px"></iframe>
+<h2>Avoid breaking object/array references on mutations</h2>
+<p>There is a bug that affects all the current ES6 proxy-based libraries when using async actions which is not easy to debug or catch. Consider this state and actions:</p>
+<pre><code class="lang-javascript">state: {
+  user: { 
+    name: "Jon",
+    surname: "Snow"
+  }
+},
+actions: {
+    user: {
+      asyncAction: async ({ state }) =&gt; {
+        // Store a reference to state.user.
+        const user = state.user; 
+
+        // Yield the action, maybe do some fetching...
+        await new Promise(resolve =&gt; setTimeout(resolve, 5000));
+
+        // Consider that while this function is waiting, the
+        // changeNameObject actions is called, changing the 
+        // reference of state.user.
+
+        // Now, user.surname is not valid anymore. Still holds
+        // the value of "Snow".
+        console.log(user.surname); // &lt;- "Snow"
+        console.log(user.surname === state.user.surname); // &lt;- false
+      },
+      changeNameObject: ({ state, actions }) =&gt; {
+        state.user = { name: "Jon", surname: "Targaryen" };
+      },
+    }
+  }
+</code></pre>
+<iframe src="https://codesandbox.io/embed/frontityconnect-reference-problem-sbs5t?fontsize=14" width="100%" height="250px"></iframe>
+<h2>Middleware support for actions</h2>
+<p>We need to execute callbacks for action executions. Those callbacks:</p>
+<ul>
+<li>Can subscribe to an action, a set of actions or to all actions.</li>
+<li>Start before the action is executed.</li>
+<li>Can await until the action is executed (<code>await next</code> like Koa, for example).
+<ul>
+<li>If the action is sync, they can await until the action has finished.</li>
+<li>If the action is asyc, they can await both until the action has started and unil the action has finished. Maybe something like (<code>await started</code> and <code>await finished</code> instead of <code>next</code>)</li>
+<li>It’d be great if we later reuse the API of this “awaiting” for our server middleware.</li>
+</ul>
+</li>
+<li>Can abort the action execution.
+<ul>
+<li>It can be done with a koa-like prop (<code>ctx.abort = true</code>) or a function (<code>abort()</code>). The benefits of the koa-like approach are that you don’t need a separate <code>isAborded</code> prop and that a subsequent action could easily “unabort” the execution.</li>
+<li>We need to decide if, after the abortion, the rest of middleware is run or not.</li>
+</ul>
+</li>
+<li>Get a relevant context of the action. Some examples:
+<ul>
+<li>Action name (“myAction”).</li>
+<li>Action path (“actions.packageName.myAction” or maybe an array instead of string).</li>
+<li>A unique identifier.</li>
+<li>A parent. Maybe called <code>triggeredBy</code>? It probably needs several properties, like type (“action”, “component”…) and the identifier of the parent or a reference to its context. If we use the reference we need to be very careful with garbage collection to ensure old action execution contexts can be removed by the GC.</li>
+<li>isAsync (we only know this after the action has started the execution looking if it returned a promise).</li>
+</ul>
+</li>
+<li>Get the arguments of the action and can mutate them at will.</li>
+</ul>
+<h2>Middleware support for mutations</h2>
+<p>We need to execute callbacks for action executions. Those callbacks:</p>
+<ul>
+<li>Can subscribe to a mutation, a set of mutations or to all mutations.</li>
+<li>Start before the mutation is done.</li>
+<li>Can await until the mutation is done (<code>await next()</code> like Koa, for example).</li>
+<li>Get the context of the mutation (similar to the action execution contexts).</li>
+<li>Receive the patch with the information of what is about to happen.</li>
+<li>Maybe receive the new value and the old value (maybe not needed if the <code>patch</code> and the current <code>state</code> have that info).</li>
+<li>Can mutate the patch or the new value to modify the mutation.</li>
+<li>Can abort the mutation (similar to action execution abortions).</li>
+</ul>
+<p>We can use context’s <code>parent</code> or <code>triggeredBy</code> property to implement the protect/unprotect state feature of this types of libraries, and thrown an error or log a warning when people try to modify <code>state</code> outside of an action.</p>
+<p>Middleware could easily be able to use the mutation patches to generate immutable snapshots (using <code>immer</code> for example) for things like the devtools.</p>
+<h1>3. Design Challenges &amp; Implementation Ideas</h1>
+<h2>Avoid breaking object/array references on mutations</h2>
+<p>I’ve made a proof of concept about how to preserve proxy references to solve this problem.<br>
+-&gt; <a href="https://codesandbox.io/s/frontity-connect-stable-proxy-references-5knj5" rel="nofollow noopener">https://codesandbox.io/s/frontity-connect-stable-proxy-references-5knj5</a></p>
+<p>If we use this approach, the things we still need to work on are:</p>
+<ul>
+<li>Ensure proper garbage collection.</li>
+<li>Make it work properly with all <code>object</code> stuff, like <code>ownKeys</code>.</li>
+</ul>
+<h2>Attaching contexts to action and state</h2>
+<p>In order to attach different contexts to actions and components my proposal is to reproxify the state for each action execution or component instance with a proxy that has both the <code>state</code> (or <code>actions</code>) and the <code>context</code> in its target.</p>
+<p>I did a more detailed explanation in this video, including the object reference bug and how to solve it:</p>
+<div class="lazyYT" data-youtube-id="d1Yz5sz_ukU" data-youtube-title="" data-width="480" data-height="270" data-parameters="feature=oembed&amp;wmode=opaque"></div>
+<p>Instead of a <code>createStore</code>, we have a <code>reproxify</code> that accepts the <code>state</code> (or <code>action</code>) and the <code>context</code>. That reproxification happens inside <code>connect</code> each time a new component instance is created and inside the action executions.</p>
+<p>You can create other proxies apart from those, like for example one for the console that you latter add to <code>window.frontity</code> or for the devtools in case we add the possibility of changing the state or dispatching actions from there.</p>
+<pre><code class="lang-javascript">const config = { actions, state, libraries };
+const consoleContext = { type: "debug", parent: null... }
+window.frontity = reproxify(config, consoleContext);
+</code></pre>
+<p>If we create middleware to protect <code>state</code> mutations outside <code>actions</code>, it can bypass that behavior if the type is <code>"debug"</code> for example.</p>
+<h2>Minimum rerender guarantee</h2>
+<p><strong>This is probably the biggest challenge we have now</strong>.</p>
+<p>We need to decide:</p>
+<ul>
+<li>What type of patches do we emit:
+<ul>
+<li>The ones we get from the action.</li>
+<li>Optimized to be deterministic and minimum.</li>
+</ul>
+</li>
+<li>How do we diff-by-value to avoid component re-renders or running middleware when values didn’t change.</li>
+</ul>
+<h2>Adding the middleware callbacks</h2>
+<p>There are several approaches. The MobxStateTree approach:</p>
+<pre><code class="lang-javascript">addMiddleware(state, myMiddleware);
+</code></pre>
+<p>Maybe a new prop in the package:</p>
+<pre><code class="lang-auto">export default {
+  state...
+  actions...
+  middleware // or a better name
+}
+</code></pre>
+<p>Maybe an array with names and priorities in <code>libraries</code>, like what we are already doing for <code>html2react</code> processors and <code>wp-source</code> handlers.</p>
+<pre><code class="lang-javascript">libraries.middleware.push({
+  name: "my-middleware",
+  priority: 10,
+  subscription: ...
+  callback: ...
+})
+</code></pre>
+<p>The benefit of this approach is that packages can change the priority or even remove the middleware added by other packages.</p>
+<h2>Subscriptions</h2>
+<h3>1. We need both the action and state middleware to be able to subscribe to any number of actions/state.</h3>
+<p>We can use an approach similar to <code>reaction</code> in Mobx:</p>
+<pre><code class="lang-javascript">// One action
+({ actions }) =&gt; actions.pkgName.myAction
+// A set of actions
+({ actions }) =&gt; {
+  actions.pkgName.myFirstAction;
+  actions.pkgName.mySecondAction;
+}
+// All actions?
+</code></pre>
+<p>Or string/regexps:</p>
+<pre><code class="lang-javascript">// One action (string)
+"actions.pkgName.myAction"
+// A set of actions (or regexp)
+"actions\.pkgName\.my(First|Second)Action"
+// All actions
+"actions"
+</code></pre>
+<p>Same for state.</p>
+<p>If we go with the <code>reaction</code> approach, there is one problem:</p>
+<ul>
+<li>How do you listen to all state changes below certain path?</li>
+</ul>
+<pre><code class="lang-javascript">const state = {
+  user: { name: "Jon", surname: "Snow" }
+};
+
+// Subscribe to the state.user object reference or to any change to
+// user.name and user.surname?
+({ state }) =&gt; state.user
+</code></pre>
+<p>One solution would be to iterate through the object keys, but it’s not straightforward and it gets complex if the object has many nested levels:</p>
+<pre><code class="lang-javascript">({ state }) =&gt; Object.keys(state.user) // only one level
+({ state }) =&gt; JSON.stringify(state.user) // all nested levels
+</code></pre>
+<p>If we go with the string/regexp approach, we lose typings.</p>
+<p>Maybe we can combine both.</p>
+<h3>2. Subscriptions can be done with two approaches: a callback or a promise that resolves.</h3>
+<p>Callback type, this is a bit like <code>takeEvery</code> in Redux Saga or <code>reaction</code> in Mobx:</p>
+<pre><code class="lang-javascript">// Create the middleware
+const myMiddleware = {
+  subscription: ({ actions }) =&gt; actions.pkgName.myAction,
+  callback: ctx =&gt; {
+    // do stuff...
+  }
+}
+// Add it to the array
+libraries.middleware.push(myMiddleware);
+</code></pre>
+<p>Promise type, this a bit like <code>take</code> in Redux Saga or <code>when</code> in Mobx:</p>
+<pre><code class="lang-javascript">const myMiddlewareAction = async () =&gt; {
+  const ctx = await waitFor(({ actions }) =&gt; actions.pkgName.myAction);
+  // do stuff...
+}
+</code></pre>
+<p>If you need to repeat for each action execution, use a while or call the action again:</p>
+<pre><code class="lang-javascript">const myMiddlewareAction = async () =&gt; {
+  while (true) {
+    const ctx = await waitFor(({ actions }) =&gt; actions.pkgName.myAction);
+    // do stuff...
+  };
+}
+</code></pre>
+<p>Benefits of the promise approach are that you have more control over when the middleware kicks in or stops. Cons of the promise approach are that other packages cannot remove the middleware, because it’s not exposed in a public array.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-16T16:16:02Z' class='post-time'>
+                    16 September 2019 16:16
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T07:14:23Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <blockquote>
+<p>Avoid breaking object/array references on mutations</p>
+</blockquote>
+<p>Couldn’t the proxyequal or  <code>memoize-state</code>  package help us with that?</p>
+<p>Could we have devtools support for middleware? It would be great I think to be able to show in the devtools that a particular middleware aborted or modified a particular action</p>
+<p>I like the koa approach of  <code>await next()</code>, etc !!!</p>
+<blockquote>
+<p>We need to decide if, after the abortion, the rest of middleware is run or not.</p>
+</blockquote>
+<p>What would the API for this look like?</p>
+<blockquote>
+<p>Make it work properly with all object stuff, like ownKeys.</p>
+</blockquote>
+<p>what does that mean?</p>
+<blockquote>
+<ol>
+<li>We need both the action and state middleware to be able to subscribe to any number of actions/state.</li>
+</ol>
+</blockquote>
+<p>But shouldn’t we leave that to the user to determine? They should have access to the  <code>action.name</code>  in the middleware, right? If the middleware runs for every state change / action. they could just filter out all the irrelevant actions / state changes if they want. This way we don’t even need to provide an API… Or am I missing some use case here? Might be bad for performance though…</p>
+<p>I don’t really have a good idea how to approach it off top of my head - would need a little bit of reasearch (how other libs deal with it, etc.)</p>
+<blockquote>
+<ol start="2">
+<li>Subscriptions can be done with two approaches: a callback or a promise that resolves.</li>
+</ol>
+</blockquote>
+<p>I think the same technically goes here, right? We  <strong>could</strong>  skip this API altogether. Not saying that we  <strong>should</strong> , but we could.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="2" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-16T18:28:57Z' class='post-time'>
+                    16 September 2019 18:28
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T07:20:11Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-post="3" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>What would the API for this look like?</p>
+</blockquote>
+</aside>
+<p>Possible APIs for abortion: <code>ctx.abort = true</code> or <code>ctx.abort()</code>.</p>
+<hr>
+<p>Several things that we need to make a first decision to start the work:</p>
+<ul>
+<li>The name of the middleware callbacks. Maybe “reactions”?</li>
+<li>Abortion: should we stop running middleware callbacks if another callback aborts the action/mutation?</li>
+<li>What API do we give to the user to subscribe to actions/mutations.
+<ul>
+<li>Run all middleware and let the user filter using <code>action.name</code> or <code>action.path</code>.</li>
+<li>Use a mobx-like <code>reaction</code> with a function that gets parts of the state/actions.</li>
+<li>Use string/regexps against <code>action.path</code>.</li>
+<li>Use the same API for actions/mutations or a separate.</li>
+</ul>
+</li>
+</ul>
+<p>If we keep the array idea, we could use separate props for mutations and actions. Something like this:</p>
+<pre><code class="lang-javascript">{
+      priority: 10,
+      reaction: ({ path }) =&gt; {
+        if (path === "actions.theme.myAction") {
+          // do stuff
+        }
+      }
+    },
+    {
+      priority: 10,
+      test: "actions.theme.myAction",
+      reaction: ({ path }) =&gt; {
+          // do stuff
+      }
+    },
+    {
+      priority: 10,
+      test: /actions.theme.myAction/,
+      reaction: ({ path }) =&gt; {
+          // do stuff
+      }
+    },
+    {
+      priority: 10,
+      test: ({ actions }) =&gt; actions.theme.myAction,
+      reaction: ({ path }) =&gt; {
+          // do stuff
+      }
+    },
+    {
+      priority: 10,
+      test: ({ state }) =&gt; state.theme.myAction,
+      mutation: ({ path }) =&gt; {
+          // do stuff
+      }
+    },
+    {
+      name: "",
+      priority: 10,
+      test: (ctx) =&gt; ctx.path === "state.mything",
+      mutation: (ctx) =&gt; {
+        // each mutation
+      }
+    },
+</code></pre>
+<p>Another thing to have in mind is: do we want the devtools to report which middleware has run? For example, if an action is aborted, do we want to know which middleware did it? If so, we need a way to hook into that as well, and probably a separate “subscription” so we know which reactions were run by which action and so on.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-16T23:39:23Z' class='post-time'>
+                    16 September 2019 23:39
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T07:26:20Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h2>Notes on middleware</h2>
+<p>Like you mentioned, I think we should try to avoid having string/regex based selectors for state/actions because then we lose TS support. If we can get type hints in the IDE for actions / state created by other packages, without having to look them up, it’s <strong>awesome</strong> for developer ergonomics <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<blockquote>
+<p>Maybe something like (await started and await finished instead of next)</p>
+</blockquote>
+<p>When I think about it, I don’t think we need <code>await started()</code> or await finished()`. I don’t think it makes sense to complicate the API just in order to be able to perform a bit of work before the asynchronous action finishes. The only benefit of having something like:</p>
+<pre><code class="lang-javascript">{
+  // do some preparation
+  await started();
+  doSomeWork()
+  await finished();
+  // do some cleanup
+}
+</code></pre>
+<p>is that we can call <code>doSomeWork()</code> before <code>await finished()</code>, so it potentially saves us a bit of time but, realistically, I don’t see it being used very much. Usually, the users will want to do something either before or after the action and any preparation for cleanup can be done simply after <code>await next()</code>.</p>
+<blockquote>
+<p>It can be done with a koa-like prop (ctx.abort = true) or a function (abort()). The benefits of the koa-like approach are that you don’t need a separate isAborded prop and that a subsequent action could easily “unabort” the execution.</p>
+</blockquote>
+<p>My gut tells me that we should make <code>abort</code> a function rather than a prop. I think that it does not matter very much API-wise, but rather that it would be easier to implement this way. If <code>abort</code> is a property, we will probably have to check it with an <code>if</code> statement in multiple places. However, if it’s a function, we can encapsulate the aborting logic in one place more easily. But this is one of those strong opinions that are weakly held, so I could definitely be persuaded otherwise <img src="/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I think it would be nice to have</p>
+<blockquote>
+<p>Abortion: should we stop running middleware callbacks if another callback aborts the action/mutation?</p>
+</blockquote>
+<p>I think that the answer is “sort of” <img src="/images/emoji/apple/grin.png?v=9" title=":grin:" class="emoji" alt=":grin:">. I think that middlewares should run in the order they are defined (like in mobx-state-tree or express). Let’s picture the (action) middleware execution as a stack :</p>
+<pre><code class="lang-json">middleware1
+  middleware2   &lt;- let's say we abort inside middleware2
+    middleware3 &lt;- this middleware will NOT run
+        action  &lt;- the action will NOT run
+    middleware3
+  middleware2
+middleware1     &lt;- but anything that is after `await next()` inside of                      middleware1 WILL still run because we return back to
+                   middleware1 when we abort inside of middleware2
+</code></pre>
+<p>Here’s a full example of what I have in mind:</p>
+<pre><code class="lang-javascript">// Same example for both mutation and action middleware.
+
+// Important: the middlewares run in the order that they are 
+// attached 
+
+const loggerExampleMiddleware = async ( ctx, next, abort, resume ) =&gt; {
+  if (ctx.isAborted) {
+    resume(); // we can check if the current middleware has 
+              // been aborted by previous middleware
+  }
+  if (!ctx.path === 'user.name') {
+    return next();
+    // We can bail out or running the middleware if we want to
+  }
+  
+  console.log(ctx.patch) {
+  // If this is a state mutation, we can have a patch
+  
+  if (ctx.path === 'user.email') {
+    return abort();
+    // If we abort, the middleware:
+    // - stops executings here (we have to explicitly return)
+    // - aborts all subsequently scheduled middlewares 
+    //   (for the particular node in the tree / action).
+    // - aborts any actions called from the current action.
+  }
+
+  console.log(`action ${ctx.name} will run`));
+
+  await next(); 
+  // - In the case of mutation middleware, we don't have to await
+  //   because the state mutation is synchronous.
+  // - In the case of action middleware, we always have to await, 
+  //   because the action could be async (we don't know it if is)
+  
+  abort("optional value"); 
+  // Aborting is still allowed after we run the action! 
+  // In this case the action all subsequent middlewares are aborted!
+
+}
+
+// We can attach to the root [state middleware]
+addMiddleware(store, loggerExampleMiddleware);
+
+// We can attach to a node in the tree [state middleware]
+addMiddleware(store.users, loggerExampleMiddleware);
+
+// We can attach to all actions  [action middleware]
+addMiddleware(store.actions.users.myAction, loggerExampleMiddleware);
+
+// We can attach to a particular action [action middleware]
+addMiddleware(store.actions.users.myAction, loggerExampleMiddleware);
+
+
+// Maybe we should rather do something like:
+addMiddleware(({ actions }) =&gt; actions.user.myAction, loggerMiddleware)
+// But I'm not sure if this "selector" callback is necessary. Thoughts? :)
+
+</code></pre>
+<h3>Notes on the proposal:</h3>
+<ul>
+<li>You <strong>must</strong> call either next(call) or abort(value) within a middleware.</li>
+<li>The value from either abort(‘value’) or the returned value from the action can be manipulated by previous middlewares.</li>
+</ul>
+<h3>Outstanding questions:</h3>
+<ol>
+<li>Like mentioned earlier, not sure yet what the best API to attach new middlewares would be.</li>
+<li>Should the middleware be able to return a <code>value</code> to be passed on to the next middleware? (I’m leaning towards “yes”). I guess for mutation middleware this <code>value</code> would be the modified state? What should it be for the action middleware?</li>
+<li>Should we be able to call other actions in the middleware?</li>
+<li>Should we be able to return promises from middlewares (this would make middlewares async)? Or is this a terrible idea that just overcomplicates things? <img src="/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:">
+</li>
+<li>How do we handle errors in the middleware?</li>
+<li>Why do we really need <code>priority</code> for the middlewares? I’m trying to think of a use case that would be impossible to solve without it and came up with nothing so far. I’m not personally a fan, becuse they seem to overcomplicate things. It reminds me of what a mess <code>z-index</code> is in most of CSS that I’ve seen <img src="/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:">
+</li>
+</ol>
+<h3>What else:</h3>
+<ul>
+<li>We should be careful and think about what we need in the implementation in order to be able to display middleware information in the devtools like:<br>
+<code>middleware mypackage.myMiddleware aborted action actions.user.myActions</code>
+</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="3" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-17T07:18:52Z' class='post-time'>
+                    17 September 2019 07:18
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T07:18:52Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-post="3" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Couldn’t the proxyequal or <code>memoize-state</code> package help us with that?</p>
+</blockquote>
+</aside>
+<p>Not really because they require immutability. I’d do it within our proxify implementation.</p>
+<aside class="quote no-group" data-post="3" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Could we have devtools support for middleware? It would be great I think to be able to show in the devtools that a particular middleware aborted or modified a particular action</p>
+</blockquote>
+</aside>
+<p>Absolutely! Although I have no idea about how to do it. We’ll need to think about it.</p>
+<aside class="quote no-group quote-modified" data-post="3" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>what does “Make it work properly with all object stuff, like ownKeys” mean?</p>
+</blockquote>
+</aside>
+<p>We need to make sure all the proxy traps work: <a href="https://ponyfoo.com/articles/es6-proxy-traps-in-depth" rel="nofollow noopener">https://ponyfoo.com/articles/es6-proxy-traps-in-depth</a></p>
+<p>I’ve been thinking about this and I have a new idea on how to store the context and keep the references stable while maintaining a proper <code>target</code> in the proxy. I’ll try to make a new POC.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-17T08:42:24Z' class='post-time'>
+                    17 September 2019 08:42
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T08:59:06Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group quote-modified" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<blockquote>
+<p>Abortion: should we stop running middleware callbacks if another callback aborts the action/mutation?</p>
+</blockquote>
+<p>I think that the answer is “sort of” <img src="/images/emoji/apple/grin.png?v=9" title=":grin:" class="emoji" alt=":grin:">. I think that middlewares should run in the order they are defined (like in mobx-state-tree or express). Let’s picture the (action) middleware execution as a stack :</p>
+</blockquote>
+</aside>
+<p>Agree. I added an example about how this can be explicit below, along with an example about how to still execute other middleware (for example devtools) and retrieve the name of the reaction that aborted the action/mutation.</p>
+<aside class="quote no-group" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>My gut tells me that we should make <code>abort</code> a function rather than a prop. I think that it does not matter very much API-wise, but rather that it would be easier to implement this way.</p>
+</blockquote>
+</aside>
+<p>Agree. I think <code>abort()</code> as a function makes more explicit that the subsequent reactions are not going to be executed.</p>
+<hr>
+<p>I have an idea on how to “tell” the devtools middleware which other reaction aborted the action/mutation and how to make “normal reactions” don’t run if some other reaction aborted.</p>
+<p>It’s very similar to the middleware stack you explained, but adding explicit priorities and names.</p>
+<pre><code class="lang-javascript">reactions: [
+  {
+    name: "devtools",
+    priority: 0 // This is the first middleware we run
+    reaction: async ctx =&gt; {
+      await ctx.finished();
+      if (ctx.isAborted) {
+        console.log(ctx.abortedBy) // &lt;- "my-aborting-reaction"
+      }     
+    }
+  }
+]
+</code></pre>
+<p><em>– Default  <code>"test"</code> could be <code>() =&gt; true</code> (always run).</em></p>
+<p>Later on… in your package:</p>
+<pre><code class="lang-javascript">reactions: [
+  {
+    name: "my-aborting-reaction",
+    priority: 1, // This is the recommendation for aborting reactions
+    test: ctx =&gt; ctx.path === "actions.someNamespace.someAction",
+    reaction: ctx =&gt; {
+      ctx.abort(); // BOOM!
+    }
+  }
+]
+</code></pre>
+<p>And on other package or theme…</p>
+<pre><code class="lang-javascript">reactions: [
+  {
+    test: ctx =&gt; ctx.path === "actions.someNamespace.someAction",
+    reaction: ctx =&gt; {
+      // I never run because my priority is lower than "my-aborting-reaction"
+    }
+  }
+]
+</code></pre>
+<p><em>– <code>"name"</code> and <code>"priority"</code> are optional. Default priority is 10.</em></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-17T08:55:17Z' class='post-time'>
+                    17 September 2019 08:55
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T14:07:49Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>When I think about it, I don’t think we need <code>await started()</code> or await finished()`. I don’t think it makes sense to complicate the API just in order to be able to perform a bit of work before the asynchronous action finishes.</p>
+</blockquote>
+</aside>
+<p>I’m not sure about this. If <code>ctx.next()</code> is going to be equivalent to <code>ctx.actionFinished()</code>, for example, why not call it <code>ctx.actionFinished()</code> which is more explicit and add <code>ctx.actionStarted()</code>, just in case?</p>
+<p>By the way, in the server middleware we can add the “same kind” of awaitable functions, like <code>ctx.settingsReady()</code>, <code>ctx.storeReady()</code>, <code>ctx.initFinished()</code>, <code>ctx.beforeSSRFinished()</code>, <code>ctx.renderFinished()</code>… so even tho it’s koa, I don’t think people will have to use <code>next()</code>. So I’d go with more explicit naming in both places.</p>
+<aside class="quote no-group" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>You <strong>must</strong> call either next(call) or abort(value) within a middleware.</p>
+</blockquote>
+</aside>
+<p>Based on our design principle that everything should be as simple as possible I think we can avoid the need of calling <code>next()</code> on each reaction. My guess is that most of the time the middleware is going to be used as mobx <code>reactions</code> instead of koa/express middleware:</p>
+<pre><code class="lang-javascript">{
+  test: ({ path }) =&gt; path === "actions.router.set",
+  afterAction: ({ actions, state }) =&gt; {
+    // Send an pageview to Analytics each time the URL changes.
+    actions.analytics.sendPageview(state.router.link);
+  }
+}
+</code></pre>
+<aside class="quote no-group" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I think we should try to avoid having string/regex based selectors for state/actions because then we lose TS support.</p>
+</blockquote>
+</aside>
+<p>Hmm… I liked your proposal of using <code>ctx</code> to do the selection <img src="/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<p>Maybe we can offer both:</p>
+<pre><code class="lang-javascript">{
+  test: ({ path }) =&gt; path === "actions.router.set",
+  // or...
+  test: ({ actions }) =&gt; actions.router.set,
+}
+</code></pre>
+<aside class="quote no-group" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Should the middleware be able to return a <code>value</code> to be passed on to the next middleware? (I’m leaning towards “yes”). I guess for mutation middleware this <code>value</code> would be the modified state? What should it be for the action middleware?</p>
+</blockquote>
+</aside>
+<p>I’d do that like koa does it, with <code>ctx.body</code>, <code>ctx.status</code> and so on… that way we are not limited to “one value”.</p>
+<p>In the case of actions, the arguments of the action can be modified: <code>ctx.arguments</code>.<br>
+In the case of mutations, the new value can be modified, maybe: <code>ctx.value</code> or <code>ctx.newValue</code>.</p>
+<aside class="quote no-group" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Should we be able to call other actions in the middleware?</p>
+</blockquote>
+</aside>
+<p>Yes, we need that. Take a look at the analytics example above.</p>
+<p>In that case, we can use the reaction name to create a new context with the <code>parent</code> or <code>triggeredBy</code> properly populated. People would have to add a <code>"name"</code> to the reaction for this, tho.</p>
+<aside class="quote no-group" data-post="5" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Why do we really need <code>priority</code> for the middlewares? I’m trying to think of a use case that would be impossible to solve without it and came up with nothing so far. I’m not personally a fan, becuse they seem to overcomplicate things. It reminds me of what a mess <code>z-index</code> is in most of CSS that I’ve seen <img src="/images/emoji/apple/smiley.png?v=9" title=":smiley:" class="emoji" alt=":smiley:"></p>
+</blockquote>
+</aside>
+<p>I understand your concern. I’ve always felt that numerical priorities are like democracy: “the worst system except for all the others”. I welcome the day when somebody creates a better way to do prioritization. Until then, we have to deal with it.</p>
+<p>The good thing is that it is optional, so it doesn’t affect the developer experience. For 95% of the use cases where you don’t care about running it before or after other middleware, the default priority works fine and can be omitted. And you can solve the other 5% with it. It conforms to our “simple but hackable” rule.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-17T10:22:05Z' class='post-time'>
+                    17 September 2019 10:22
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T10:22:05Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="6" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I’ve been thinking about this and I have a new idea on how to store the context and keep the references stable while maintaining a proper <code>target</code> in the proxy. I’ll try to make a new POC.</p>
+</blockquote>
+</aside>
+<p>There you go, it works:  <a href="https://codesandbox.io/s/frontity-connect-stable-proxy-references-idea-2-14ew6" rel="nofollow noopener">https://codesandbox.io/s/frontity-connect-stable-proxy-references-idea-2-14ew6</a></p>
+<p>Instead of storing <code>context</code> and <code>state</code> in <code>target</code>, I’m storing them in <code>handlers</code> and accessing them using <code>this</code> inside the handlers.</p>
+<p>The <code>target</code> is <code>state</code> again (instead of an object containing both <code>state</code> and <code>context</code>), but inside the handlers, you don’t use it, you use <code>this.state</code>.</p>
+<p>Benefits of this approach:</p>
+<ul>
+<li>People can <code>console.log(proxy)</code> and inspect the <code>state</code> in the <code>[[Target]]</code> (instead of an object containing both <code>state</code> and <code>context</code>).</li>
+<li>Things like <code>ownKeys</code> work out of the box, because they look at <code>target</code>.</li>
+</ul>
+<p>EDIT: I’ve just realized that the <code>console.log(proxy)</code> will get out of sync when you overwrite the reference <img src="/images/emoji/apple/sweat.png?v=9" title=":sweat:" class="emoji" alt=":sweat:"> We can control the traps (<code>ownKeys</code>) but not the <code>console.log</code> unless we monkey patch it.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-17T12:52:35Z' class='post-time'>
+                    17 September 2019 12:52
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-17T12:52:35Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve modified the original POC to include a <code>set</code> handler: <a href="https://codesandbox.io/s/frontity-connect-stable-proxy-references-wkm42" rel="nofollow noopener">https://codesandbox.io/s/frontity-connect-stable-proxy-references-wkm42</a></p>
+<p>Now it works when you mutate through the proxy (which is going to be the default behaviour):</p>
+<pre><code class="lang-javascript">const state = {
+    user: {
+      name: "Jon",
+      surname: "Snow",
+    }
+  };
+const proxy = proxify(state, context);
+
+const user = proxy.user;
+expect(user.surname).toBe("Snow");
+
+// Overwrite the reference.
+proxy.user = {
+  name: "Jon",
+  surname: "Targerean"
+};
+expect(user.surname).toBe("Targerean");
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-18T13:28:28Z' class='post-time'>
+                    18 September 2019 13:28
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-18T13:28:55Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h2>Update on the implementation</h2>
+<p>There was a subtle bug that was kinda hard to catch:</p>
+<pre><code class="lang-auto">// Update the proxy to reference to the new state.
+// We only want to create a new proxy if the value is NOT a leaf
+// of the state tree
+if (!isPrimitive(value)) {
+  proxify(value, target.context, `${target.path}.${key}`);
+}
+</code></pre>
+<p>In the current implementation we only want to reproxify if the value is NOT a primitive! I  I found it out when adding <code>Reflect.get(target.state, key)</code> and <code>Reflect.set(target.state, key, value)</code></p>
+<h4>Interfacting with the current implementation of <code>@frontity/connect</code>
+</h4>
+<p>I had the idea that the easiest way to integrate our prototype with the current frontity/connect would be to create hide our implementation behind the  <code>rawToProxy</code>  and  <code>proxyToRaw</code> . Basically, we can use the same interfaces, but the  <code>rawToProxy</code>  is not a  <code>WeakMap</code>  anymore, but rather it’s a kind of “bridge” object like:</p>
+<pre><code class="lang-auto">// just to give an idea:
+const proxyToRaw = {
+  get: function(obj, path) {}, // todo
+  set: function(obj, path) {}  // todo
+}
+
+const rawToProxy = {
+  get: function(obj, path) {
+    const proxies = contexts.get(path);
+    if (!proxies) return undefined;
+    return proxies.get(obj);
+  },
+  set: function (obj, path) {
+    const proxies = contexts.get(path);
+    if (!proxies) return 
+  }
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-18T13:29:03Z' class='post-time'>
+                    18 September 2019 13:29
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-18T13:29:03Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h2>Alternative to string-based paths</h2>
+<p>I realized that storing proxies by stringy path is not going to work for arrays, duh!!! <img src="/images/emoji/apple/woman_facepalming.png?v=9" title=":woman_facepalming:" class="emoji" alt=":woman_facepalming:">Even if we go with mongoDB-like notation: <code>state.users.0.name</code>, if a state mutation slices the <code>users</code> array, then we’d have to update the stored paths for all the other users, which I feel is going to get messy real quick.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-18T13:35:17Z' class='post-time'>
+                    18 September 2019 13:35
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-18T13:35:17Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Isn’t that the way all the implementations (mobx, react-easy-state…) work even tho they don’t use string paths?</p>
+<p>Besides that, it’s not a problem for React because of its <code>key</code> prop requirement for arrays.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-18T13:37:35Z' class='post-time'>
+                    18 September 2019 13:37
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-18T13:37:35Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m not actually sure. I will take a look!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-19T13:25:12Z' class='post-time'>
+                    19 September 2019 13:25
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-19T13:25:12Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I experimented with updating of the  <code>proxyToRaw</code>  and  <code>rawToProxy</code>  and I figured out that it won’t work 100%, because of some code that is in  <code>collections.js</code> .For example on this line: <a href="https://github.com/frontity/frontity/blob/dev/packages/connect/src/builtIns/collections.js#L12" rel="nofollow noopener">https://github.com/frontity/frontity/blob/dev/packages/connect/src/builtIns/collections.js#L12</a> we would need to pass the  <code>context</code>  and  <code>path</code>  to  <code>rawToProxy</code> , but there is no way to access those parameters inside of  <code>findObservable()</code> . Similarly, for  <code>proxyToRaw</code> calls inside of  <code>instrumentation</code> , e.g. here: <a href="https://github.com/frontity/frontity/blob/dev/packages/connect/src/builtIns/collections.js#L38.The" rel="nofollow noopener">https://github.com/frontity/frontity/blob/dev/packages/connect/src/builtIns/collections.js#L38.The</a> silver lining is that this should only break the built-in objects (Map, WeakMap) and I think that we can work around it eventually.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+                <link itemprop="image" href="/uploads/default/original/1X/8307fdefd797a5fb4fac77f9b856c45e584318bc.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-19T13:35:30Z' class='post-time'>
+                    19 September 2019 13:35
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-19T13:35:30Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>You’re right, we are moving from a 1-to-1 relation to a 1-to-many.</p>
+<p><img src="/uploads/default/original/1X/8307fdefd797a5fb4fac77f9b856c45e584318bc.png" alt="46" data-base62-sha1="iH9FCpCfmguTPDMFGIfRdb5yRlO" width="254" height="363"></p>
+<p>As far as I can remember,  <code>react-easy-state</code>  only needs the O-&gt;P relation to reuse the same proxy for the same object. But that’s not something we need, we will reuse the same proxy using the path+context. But yeah, we’re going to break some stuff of  <code>react-easy-state</code>.</p>
+<p>By the way, if we need to access  <code>state</code> ,  <code>context</code> ,  <code>path</code>  or  <code>root</code>  from outside of the proxy, we can use symbols:</p>
+<pre><code class="lang-auto">proxy[STATE]
+proxy[CONTEXT]
+proxy[PATH]
+proxy[ROOT]
+</code></pre>
+<p>we can also use that approach to attach the path to the real state because path is invariant:</p>
+<pre><code class="lang-auto">state[PATH]
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-20T12:04:16Z' class='post-time'>
+                    20 September 2019 12:04
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-20T12:04:16Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>We’re working on the first PR: <a href="https://github.com/frontity/frontity/pull/208" rel="nofollow noopener">https://github.com/frontity/frontity/pull/208</a> to add <code>state</code>, <code>path</code> and <code>context</code> to the proxies.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-20T17:03:01Z' class='post-time'>
+                    20 September 2019 17:03
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-21T08:36:56Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The “stable proxy references” implementation involves having to store a “fake target” instead of the real one, because we need to be able to change the reference, without creating a new proxy:</p>
+<pre><code class="lang-javascript">const proxify = (target, context) =&gt; {
+  const fakeTarget = { realTarget: target, context };
+  return new Proxy(fakeTarget, handlers);
+};
+</code></pre>
+<p>It works ok, but all the traps must be used to change this “fake target” for the real one:</p>
+<pre><code class="lang-javascript">handler(fakeTarget, key, ...) {
+  const target = fakeTarget.realTarget; // extract the real target.
+}
+</code></pre>
+<p>It’s not as clean as we thought and it feels kind of hacky because many internal things in JS expect the <code>target</code> to be the real target, obviously. Besides that, the <code>console.log</code> are a bit confusing because people have to look for the real state inside this fake target.</p>
+<p>So we’ve been working on a new idea: stable state references (instead of stable proxy references).</p>
+<p>It works by adding a new <code>deepOverwrite</code> function that preserves the state references, overwriting the old object with the new one.</p>
+<p>Imagine this object with this object references.</p>
+<pre><code class="lang-javascript">const state = {
+  user (ref1): {
+    name (ref2): {
+      first: "Jon",
+      last: "Snow"
+    },
+    city: "Winterfell"
+  }
+}
+</code></pre>
+<p>And an action that overwrites the references like this:</p>
+<pre><code class="lang-javascript">const myAction = ({ state }) =&gt; {
+  state.user (ref3) = {
+    name (ref4): {
+      first: "Jon",
+      last: "Targaryen"
+    }
+  }
+}
+</code></pre>
+<p>Usually, the result will be:</p>
+<pre><code class="lang-javascript">state = {
+  user (ref3): {
+    name (ref4): {
+      first: "Jon",
+      last: "Targaryen"
+    }
+  }
+}
+</code></pre>
+<p>And this patch will be:</p>
+<pre><code class="lang-auto">{
+  path: "state.user",
+  type: "set",
+  value: (ref3) {
+    name (ref4): {
+      first: "Jon",
+      last: "Targaryen"
+    }
+  }
+}
+</code></pre>
+<p>If instead of changing the ref1 -&gt; ref3, we do a <code>deepOverwrite</code> in the set handler, the result would be:</p>
+<pre><code class="lang-javascript">state = {
+  user (ref1): {
+    name (ref2): {
+      first: "Jon",
+      last: "Targaryen"
+    }
+  }
+}
+</code></pre>
+<p>And the patches would be:</p>
+<pre><code class="lang-javascript">{
+  path: "state.user.city",
+  type: "delete"
+}
+{
+  path: "state.user.surname",
+  type: "Targaryen"
+}
+</code></pre>
+<p>The implementation of this <code>deepOverwrite</code> function would be something like this:</p>
+<pre><code class="lang-javascript">function deepOverwrite(a, b) {
+  // Delete the props of a that are not in b.
+  Object.keys(a).forEach(key =&gt; {
+    if (typeof b[key] === "undefined") delete a[key];
+  });
+
+  Object.keys(b).forEach(key =&gt; {
+    // If that key doesn't exist on a or it is a primitive, we overwrite it.
+    if (typeof a[key] === "undefined" || isPrimitive(b[key])) a[key] = b[key];
+    // If it's an object, we deepOverwrite it.
+    else deepOverwrite(a[key], b[key]);
+  });
+}
+</code></pre>
+<p>This approach has some additional benefits that <strong>I really like</strong>:</p>
+<ul>
+<li>We can keep using the solid implementation of <code>react-easy-state</code>.</li>
+<li>The patches would be atomic and deterministic out of the box.</li>
+<li>The re-rendering problem would solved out of the box.</li>
+</ul>
+<p>But it may have a performance impact when deep-overwriting big objects.</p>
+<p>I’ve done a quick test to measure the performance impact: <a href="https://codesandbox.io/s/deep-overwrite-hq9r4" rel="nofollow noopener">https://codesandbox.io/s/deep-overwrite-hq9r4</a></p>
+<p>The test fetches 10 posts (using <code>_embed</code> to get also categories, authors, media…) from <a href="https://test.frontity.io/wp-json/wp/v2/posts?_embed=true" rel="nofollow noopener">https://test.frontity.io/wp-json/wp/v2/posts?_embed=true</a>. Then it normalizes the result with <code>normalizr</code> and deep-clones it before doing the <code>deepOverwrite</code>.</p>
+<p>The JSON is 219Kb (unzipped) so it’s a big object. It takes 20-40 ms to do the <code>deepOverwrite</code> in my computer with a slowdown of x6. That means we would be skipping 2-3 frames for such a big object in a slow device.</p>
+<p>I’ve also measured the normalization we are already doing to that big object (done with the <code>normalizr</code> library) and it’s pretty similar:</p>
+<pre><code class="lang-auto">normalize: 21.870849609375ms
+deepOverwrite: 26.866943359375ms
+</code></pre>
+<p>So it doesn’t seem to be that bad. At least won’t be introducing something which is 10x slower to what we already do.</p>
+<p>I also think that <code>mobx-state-tree</code> has to do something like this under the hood. I’d try to do another test with this approach vs <code>mobx-state-tree</code> to see if we are still in the same order of magnitude. I’d bet this is still way faster.</p>
+<p>Additional considerations about performance:</p>
+<ul>
+<li>It has no impact the fist time you add an object to the state, it only has impact if you overwrite</li>
+<li>It has an opt-in optimization for the final user when needed: <em>don’t overwrite objects, just mutate the primitives!</em>
+</li>
+<li>The <code>deepOverwrite</code> would be performed before any React change is triggered, so it won’t affect the render or any subsequent animations triggered by that mutation.</li>
+</ul>
+<p>For example, we are currently overwriting all the entities fetched with <code>actions.source.fetch(...)</code>, but there’s no reason to do that. So we can check if that entity exists before overwriting it. We can make it opt-in in the future when we add <code>{ force: true }</code> in case it’s a real refresh. So even the “slow” <code>deepOverwrite</code> of my test can be pretty much avoided.</p>
+<p>Another interesting idea worth exploring is to make mutations asynchronous, instead of synchronous. If we do that, the <code>deepOverwrite</code> function is a great candidate for the new facebook’s <code>scheduler</code> function (used internally for React Concurrent). That would solve all the performance problems because <code>deepOverwrite</code> could be chunked and there won’t be any missing frame.</p>
+<p>The problem with making mutations asynchronous is that a filter won’t be ready synchronously:</p>
+<pre><code class="lang-javascript">// This "filter" adds an @ before the user name. "Jon" -&gt; "@Jon".
+const myFilter = {
+  test: ({ path }) =&gt; path === "state.user.name",
+  onMutation: ctx =&gt; {
+    ctx.value = "@" + ctx.value
+  }
+}
+
+// If mutations are synchronous:
+const myAction = ({ state }) =&gt; {
+  state.user.name = "Jon"; // This triggers myFilter
+  console.log(state.user.name) // -&gt; "@Jon"
+}
+
+// If mutations are asynchronous:
+const myAction = ({ state }) =&gt; {
+  state.user.name = "Jon"; // This triggers myFilter
+  console.log(state.user.name) // -&gt; "Jon"
+}
+</code></pre>
+<p>But maybe we can find a solution for that.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/mmczaplinski'><span itemprop='name'>mmczaplinski</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-21T00:00:39Z' class='post-time'>
+                    21 September 2019 00:00
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-21T00:00:39Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I was experimenting with a different approach:</p>
+<p>Maybe we could create a wrapper for a built-in <code>Proxy</code>, which could dynamically change the targets <strong>inside</strong> of the proxy without breaking the references. A sketch of this approach is mentioned <a href="https://stackoverflow.com/a/54460544/2638310" rel="nofollow noopener">here</a>.</p>
+<p>It seems like a kinda complicated idea and I was not able to use use the snippet from StackOverflow nor do I understand it completely <img src="/images/emoji/apple/frowning_face.png?v=9" title=":frowning_face:" class="emoji" alt=":frowning_face:"> I’m tempted to say that for this reason alone we should probably abandon this idea… I’d ideally like our code to be understandable to an average developer like me <img src="/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<p>Now, I investigated the <code>deep-overwrite</code> idea a little more and I realized that we have to change how we handle the reactions. Basically, if a user reassigns the <code>state</code> like in the example:</p>
+<pre><code class="lang-auto">const myAction = ({ state }) =&gt; {
+  state.user (ref3) = {
+    name (ref4): {
+      first: "Jon",
+      last: "Targaryen"
+    }
+  }
+}
+</code></pre>
+<p>then we have to “follow” the change down to the actual leaves of the state tree in order to have the patch like:</p>
+<pre><code class="lang-auto">{
+  path: "state.user.city",
+  type: "delete"
+}
+{
+  path: "state.user.surname",
+  type: "Targaryen"
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/connect-middleware/593">
+
+                <link itemprop="image" href="/uploads/default/original/1X/af6c9dfa9b8c1d8070c0e0c3e3434a3f503c5284.png">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-09-23T09:35:55Z' class='post-time'>
+                    23 September 2019 09:35
+                  </time>
+                  <meta itemprop='dateModified' content='2019-09-23T09:44:43Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote no-group" data-post="19" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I’m tempted to say that for this reason alone we should probably abandon this idea…</p>
+</blockquote>
+</aside>
+<p>Agree. Besides, having proxies inside proxies will obfuscate the debugging even further:<br>
+<img src="/uploads/default/original/1X/af6c9dfa9b8c1d8070c0e0c3e3434a3f503c5284.png" alt="58" data-base62-sha1="p1SgDK0NB41WVzkEjrrw9OPgluY" width="225" height="129"></p>
+<aside class="quote no-group" data-post="19" data-topic="593">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Now, I investigated the <code>deep-overwrite</code> idea a little more and I realized that we have to change how we handle the reactions.</p>
+</blockquote>
+</aside>
+<p>Yes, but, if I’m not mistaken, we only have to change “how we queue” reactions. The rest is going to work out of the box.</p>
+<p>This is our current <code>set</code> handler (I omitted some comments and irrelevant code):</p>
+<pre><code class="lang-javascript">function set(target, key, value, receiver) {
+  const hadKey = target.hasOwnProperty(key);
+  const oldValue = target[key];
+  const result = Reflect.set(target, key, value, receiver);
+
+  if (!hadKey) {
+    // Queue a reaction if it's a new property.
+    queueReactionsForOperation({ target, key, value, receiver, type: "add" });
+  } else if (value !== oldValue) {
+    // Queue a reaction if there's a new value.
+    queueReactionsForOperation({ target, key, value, oldValue, receiver, type: "set" });
+  }
+
+  return result;
+}
+</code></pre>
+<p>This is a rough example of how the new <code>set</code> handler would look like:</p>
+<pre><code class="lang-javascript">function set(target, key, newValue, receiver) {
+  const hadKey = target.hasOwnProperty(key);
+  const oldValue = target[key];
+  const result = Reflect.set(target, key, value, receiver);
+
+  // If both the old value and the new value are objects, deepOverwrite.
+  if (isObject(oldValue) &amp;&amp; isObject(newValue) {
+    deepOverwrite(oldValue, newValue);
+
+  // Queue a reaction if it's a new property.
+  } else if (!hadKey) {  
+    queueReactionsForOperation({ target, key, value, receiver, type: "add" });
+
+  // Queue a reaction if there's a new value.
+  } else if (value !== oldValue) {
+    queueReactionsForOperation({ target, key, value, oldValue, receiver, type: "set" });
+  }
+
+  return result;
+}
+
+function deepOverwrite(a, b) {   
+  // Delete the props of a that are not in b.
+  Object.keys(a).forEach(key =&gt; {
+    if (typeof b[key] === "undefined") {
+      // Trigger a delete reaction.
+      queueReactionsForOperation({ target: a, key, oldValue: a[key], type: "delete" });
+      // Delete the key.
+      delete a[key];
+    }
+  });
+
+  Object.keys(b).forEach(key =&gt; {
+    // If that key doesn't exist, we add it.
+    if (typeof a[key] === "undefined") {
+      queueReactionsForOperation({ target: a, key, type: "add" });
+      a[key] = b[key];
+
+    // If that key exist, it's a primitive and the value has changed, we overwrite it.
+    } else if (isPrimitive(b[key]) &amp;&amp; a[key] !== b[key]) {
+      queueReactionsForOperation({ target: a, key, oldValue: a[key] type: "set" });
+      a[key] = b[key];
+
+    // If it's an object, we deepOverwrite it again.
+    } else {
+      deepOverwrite(a[key], b[key]);
+    }
+  });
+}
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/connect-middleware/593?page=2">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Random post list</title>
+    <link>https://community.frontity.org/t/random-post-list/4969</link>
+    <description>Hi frontity community!
+I want to randomize my CPT post loop, i create an array shuffle and working fine on first load, but if i reload page i&#39;ve got a problem, the featured image doesn&#39;t match the title, and in console i&#39;ve got this error:
+
+```
+Prop `alt` did not match. Server: &quot;name_of_my_media&quot; Client: &quot;name_of_my_other_media&quot;
+```
+
+That&#39;s my code:
+```
+import React from &#39;react&#39;;
+import {connect, styled} from &#39;frontity&#39;;
+
+import FeaturedMedia from &#39;../featured-media&#39;
+import Link from &quot;../link&quot;;
+
+const HomeTemplate = ({state, libraries}) =&gt; {
+
+    const portfolioEl = state.source.get(`/portfolio/`).items;
+    const newPortfolioEl = state.source.[&quot;jetpack-portfolio&quot;];
+    const Html2React = libraries.html2react.Component
+    const portfolioArray = Object.keys(portfolioEl).map((key) =&gt; portfolioEl[key]);
+    const shuffledData = portfolioArray.map((a) =&gt; ({ sort: Math.random(), value: a })).sort((a, b) =&gt; a.sort - b.sort).map((a) =&gt; a.value)
+    const slides = [];
+    shuffledData.map(({ type, id }, index) =&gt; {
+    const item = state.source[type][id];
+    slides.push(item.id);
+    });
+
+    
+    return(
+        &lt;HomePostWrapper&gt;
+            {slides.map((items) =&gt; {
+                // console.log(newPortfolioEl[items])
+                return(
+                    &lt;PortfolioCard key={items}&gt;
+                        &lt;Link link={newPortfolioEl[items].link}&gt;
+                            &lt;FeaturedMedia id={newPortfolioEl[items].featured_media} /&gt;
+                            &lt;h3&gt;&lt;Html2React html={newPortfolioEl[items].title.rendered} /&gt;&lt;/h3&gt;
+                            &lt;h5&gt;&lt;Html2React html={newPortfolioEl[items].acf.sottotitolo} /&gt;&lt;/h5&gt;
+                        &lt;/Link&gt;
+                    &lt;/PortfolioCard&gt;
+                )
+                
+            })}
+        &lt;/HomePostWrapper&gt;
+    )
+
+}
+
+export default connect(HomeTemplate);
+
+const HomePostWrapper = styled.div`
+    display: flex;
+    flex-wrap:wrap;
+    align-items:top;
+`;
+
+const PortfolioCard = styled.div`
+    width:33%
+`;
+```
+
+Can someone help me?
+Thankyou so much :slight_smile:</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 13 Jul 2021 12:26:51 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/random-post-list/4969.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Random post list</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> <a class="mention" href="https://community.frontity.org/u/codemonkeynorth">@codemonkeynorth</a><br>
+Solution found!<br>
+I use “useeffect” before my component, now i’m able to shuffle my cpt posts array!</p>
+<p>This is the code:</p>
+<pre><code class="lang-javascript">import React , { useEffect, useState } from 'react';
+import {connect, styled} from 'frontity';
+import HomeCard from './home-card';
+
+const HomeTemplate = ({state, libraries, actions}) =&gt; {
+
+    useEffect((link) =&gt; {
+        // actions.source.fetch("/portfolio");
+        const dataPost = state.source.get("/portfolio");
+        const postArray = dataPost.items.sort(() =&gt; Math.random() - 0.5);
+        const portfolioPosts = state.source.data[link];
+        
+        Object.assign(portfolioPosts, {
+            items: postArray,
+            isRandom: true,
+          });
+
+        //   console.log('POSTDATAMENU',state.source)
+      }, []);
+
+    const portfolioEl = state.source.get(`/portfolio/`).items;
+    const Html2React = libraries.html2react.Component
+
+    // const data = state.source.get(state.router.link)
+    // console.log('portfolioel',portfolioEl);
+    // console.log('mydata',state.source.data);
+    // console.log('portdata',state.source.get(`/portfolio/`).items);
+    // console.log(portfolioEl);
+    
+
+
+    return(
+        &lt;HomePostWrapper&gt;
+            {portfolioEl.map((singlePort) =&gt; {
+                const portfolioPost = state.source[singlePort.type][singlePort.id];
+                return(
+                    &lt;HomeCard key={singlePort.id} cardElement={portfolioPost} /&gt;
+                )
+            })}
+            {console.log(state)}
+        &lt;/HomePostWrapper&gt;
+    )
+
+}
+
+export default connect(HomeTemplate);
+
+const HomePostWrapper = styled.div`
+    display: flex;
+    flex-wrap:wrap;
+    align-items:top;
+`;
+</code></pre>
+<p>It’s not a very clean code, but I hope it’s useful for everyone!<br>
+<img src="https://community.frontity.org/images/emoji/apple/sunglasses.png?v=9" title=":sunglasses:" class="emoji only-emoji" alt=":sunglasses:"> <img src="https://community.frontity.org/images/emoji/apple/sunglasses.png?v=9" title=":sunglasses:" class="emoji only-emoji" alt=":sunglasses:"> <img src="https://community.frontity.org/images/emoji/apple/sunglasses.png?v=9" title=":sunglasses:" class="emoji only-emoji" alt=":sunglasses:"></p>
+          <p><a href="https://community.frontity.org/t/random-post-list/4969/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/random-post-list/4969/6</link>
+        <pubDate>Tue, 13 Jul 2021 12:26:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4969-6</guid>
+        <source url="https://community.frontity.org/t/random-post-list/4969.rss">Random post list</source>
+      </item>
+      <item>
+        <title>Random post list</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi everyone! I’m not able to test until Tuesday, but maybe based on your suggestions this might be a good solution:</p><aside class="onebox allowlistedgeneric" data-onebox-src="https://felipeelia.dev/wordpress-rest-api-enable-random-order-of-posts-list/">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/a/ad59d9d6d51b93b9e5d48c9d92cccf0ee252bcec.jpeg" class="site-icon" width="32" height="32">
+
+      <a href="https://felipeelia.dev/wordpress-rest-api-enable-random-order-of-posts-list/" target="_blank" rel="noopener nofollow ugc" title="02:49PM - 29 June 2019">Felipe Elia – 29 Jun 19</a>
+  </header>
+
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/362;"><img src="https://community.frontity.org/uploads/default/optimized/2X/e/e1ec71331041b839ef7f1d9b38c4162dfd426f33_2_690x362.jpeg" class="thumbnail" width="690" height="362" srcset="https://community.frontity.org/uploads/default/optimized/2X/e/e1ec71331041b839ef7f1d9b38c4162dfd426f33_2_690x362.jpeg, https://community.frontity.org/uploads/default/optimized/2X/e/e1ec71331041b839ef7f1d9b38c4162dfd426f33_2_1035x543.jpeg 1.5x, https://community.frontity.org/uploads/default/original/2X/e/e1ec71331041b839ef7f1d9b38c4162dfd426f33.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/e/e1ec71331041b839ef7f1d9b38c4162dfd426f33_2_10x10.png"></div>
+
+<h3><a href="https://felipeelia.dev/wordpress-rest-api-enable-random-order-of-posts-list/" target="_blank" rel="noopener nofollow ugc">WordPress REST API: Enable Random Order of Posts List | Felipe Elia</a></h3>
+
+  <p>A simple plugin to enable random order of the posts list on WordPress REST API</p>
+
+  <p>
+    <span class="label1">Est. reading time: 2 minutes</span>
+  </p>
+
+  </article>
+
+  <div class="onebox-metadata">
+    
+    
+  </div>
+
+  <div style="clear: both"></div>
+</aside>
+
+<p>This article show how to randomize the post or custom post type post’s rest Api from wordpress php code, i think it’s a good solution, but i need to try first.</p>
+<p>I keep you updated!<br>
+<img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji only-emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/random-post-list/4969/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/random-post-list/4969/5</link>
+        <pubDate>Sat, 10 Jul 2021 08:47:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4969-5</guid>
+        <source url="https://community.frontity.org/t/random-post-list/4969.rss">Random post list</source>
+      </item>
+      <item>
+        <title>Random post list</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>I believe <a class="mention" href="https://community.frontity.org/u/codemonkeynorth">@codemonkeynorth</a> has a good point, for several reasons.</p>
+<p>The server and client will both have different data since they both het a different list of random items, which will cause issues.</p>
+<p>Second; it may a take a bit of PHP work to create a custom API endpoint, but performance wise it’s a lot better to have it limited and randomized at the server already. And I would ever advice you to do it at SQL level and not in PHP. So limit and randomize the results in the SQL query and return that in the REST API call.</p>
+          <p><a href="https://community.frontity.org/t/random-post-list/4969/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/random-post-list/4969/4</link>
+        <pubDate>Fri, 09 Jul 2021 22:10:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4969-4</guid>
+        <source url="https://community.frontity.org/t/random-post-list/4969.rss">Random post list</source>
+      </item>
+      <item>
+        <title>Random post list</title>
+        <dc:creator><![CDATA[codemonkeynorth]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> if there’s a server/client mismatch error, presumably this is because the randomization is breaking the hydration process? I believe frontity does a server &amp; client render conciliation and those 2 things should match?</p>
+<p>if that’s the case it’s an interesting conundrum because the only way would be to return all items and then take a random selection, rather than doing a randomized query on the backend (since the randomization would not be the same on both server and client)</p>
+<p>however returning all items on the API would presumably be far from optimal?</p>
+          <p><a href="https://community.frontity.org/t/random-post-list/4969/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/random-post-list/4969/3</link>
+        <pubDate>Fri, 09 Jul 2021 21:50:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4969-3</guid>
+        <source url="https://community.frontity.org/t/random-post-list/4969.rss">Random post list</source>
+      </item>
+      <item>
+        <title>Random post list</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/matteo.lcd">@matteo.lcd</a></p>
+<p>TBH I’m having a bit of difficulty trying to figure out what is going on here, esp without being able to see the structure of your data. It would be easier and more convenient to figure out what’s happening at each stage if I can clone your repo and access your data.</p>
+<p>Can you provide a link to a repo please, and ensure that your data source is publicly available. This will enable both myself and others to be able to help you. Please <a href="https://community.frontity.org/t/about-the-get-help-category/2/3">see here</a> for the kind of information about your issue that it’s useful to provide.</p>
+          <p><a href="https://community.frontity.org/t/random-post-list/4969/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/random-post-list/4969/2</link>
+        <pubDate>Fri, 09 Jul 2021 15:07:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4969-2</guid>
+        <source url="https://community.frontity.org/t/random-post-list/4969.rss">Random post list</source>
+      </item>
+      <item>
+        <title>Random post list</title>
+        <dc:creator><![CDATA[matteo.lcd]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi frontity community!<br>
+I want to randomize my CPT post loop, i create an array shuffle and working fine on first load, but if i reload page i’ve got a problem, the featured image doesn’t match the title, and in console i’ve got this error:</p>
+<pre><code class="lang-javascript">Prop `alt` did not match. Server: "name_of_my_media" Client: "name_of_my_other_media"
+</code></pre>
+<p>That’s my code:</p>
+<pre><code class="lang-javascript">import React from 'react';
+import {connect, styled} from 'frontity';
+
+import FeaturedMedia from '../featured-media'
+import Link from "../link";
+
+const HomeTemplate = ({state, libraries}) =&gt; {
+
+    const portfolioEl = state.source.get(`/portfolio/`).items;
+    const newPortfolioEl = state.source.["jetpack-portfolio"];
+    const Html2React = libraries.html2react.Component
+    const portfolioArray = Object.keys(portfolioEl).map((key) =&gt; portfolioEl[key]);
+    const shuffledData = portfolioArray.map((a) =&gt; ({ sort: Math.random(), value: a })).sort((a, b) =&gt; a.sort - b.sort).map((a) =&gt; a.value)
+    const slides = [];
+    shuffledData.map(({ type, id }, index) =&gt; {
+    const item = state.source[type][id];
+    slides.push(item.id);
+    });
+
+    
+    return(
+        &lt;HomePostWrapper&gt;
+            {slides.map((items) =&gt; {
+                // console.log(newPortfolioEl[items])
+                return(
+                    &lt;PortfolioCard key={items}&gt;
+                        &lt;Link link={newPortfolioEl[items].link}&gt;
+                            &lt;FeaturedMedia id={newPortfolioEl[items].featured_media} /&gt;
+                            &lt;h3&gt;&lt;Html2React html={newPortfolioEl[items].title.rendered} /&gt;&lt;/h3&gt;
+                            &lt;h5&gt;&lt;Html2React html={newPortfolioEl[items].acf.sottotitolo} /&gt;&lt;/h5&gt;
+                        &lt;/Link&gt;
+                    &lt;/PortfolioCard&gt;
+                )
+                
+            })}
+        &lt;/HomePostWrapper&gt;
+    )
+
+}
+
+export default connect(HomeTemplate);
+
+const HomePostWrapper = styled.div`
+    display: flex;
+    flex-wrap:wrap;
+    align-items:top;
+`;
+
+const PortfolioCard = styled.div`
+    width:33%
+`;
+</code></pre>
+<p>Can someone help me?<br>
+Thankyou so much <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/random-post-list/4969/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/random-post-list/4969/1</link>
+        <pubDate>Fri, 09 Jul 2021 11:16:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4969-1</guid>
+        <source url="https://community.frontity.org/t/random-post-list/4969.rss">Random post list</source>
+      </item>
+  </channel>
+</rss>

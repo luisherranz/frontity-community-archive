@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The Server Architecture</title>
+    <link>https://community.frontity.org/t/the-server-architecture/52</link>
+    <description>There is an important change coming from the previous version: we want to have **full serverless support**.
+
+Serverless functions are single files with this structure:
+```js
+module.exports = (req, res) =&gt; {
+  res.end(`Hello from my serverless function!`)
+}
+```
+
+#### Constrains:
+- **Single file only, no `node_modules`.**
+We&#39;ll have to use `webpack` or `ncc` to create a single-file bundle.
+- **The smaller the better.**
+We&#39;ll have to pay attention to the size of all modules we use in production.
+- **Export a function that handles an HTML request.**
+Serverless functions don&#39;t need to worry about starting a server or handling static assets: they just handle the HTML request.
+
+That server bundle (and the client one) is what users get when they run `frontity build`.
+
+## Running Frontity on Node
+
+On top of that, we need something like `express` in case the user wants to start a regular Node app to serve both the HTML and static assets:
+
+![00|690x402](upload://h2SL4XSPwvaN1G0rtxzpeWtLpUj.png) 
+
+This Node app is what users get when they run `frontity serve`.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 06 Mar 2019 08:54:05 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/the-server-architecture/52.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Uhm… I was thinking about a WordPress owner that wants to use Frontity but only though the Frontity Admin (it’s not a developer).</p>
+<p>It comes from <a href="https://community.frontity.org/t/on-wp-plugins-and-how-to-manage-them/61/3?u=luisherranz">this conversation</a> where we talking about one solution that would force the WordPress owner to install a myriad of plugins instead of just one.</p>
+<p>Maybe instead of <strong>final-user</strong> we can use <strong>wordpress-admin</strong> or <strong>wordpress-owner</strong>.</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/12</link>
+        <pubDate>Wed, 06 Mar 2019 08:54:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-12</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-development-team" data-post="9" data-topic="52">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>the final-user experience goes first</p>
+</blockquote>
+</aside>
+<p>Who is the final user?</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/11</link>
+        <pubDate>Wed, 06 Mar 2019 08:48:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-11</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>My progress with serverless:</p>
+<h3>1.  <code>loadable-components</code>  creates a file that is accessed by Node in runtime</h3>
+<p>It turns out <code>loadable-components</code> only needs <strong>the client stats on the server</strong>. I have managed to wait until the client bundle has finished and then create the server bundle including the client stats.</p>
+<p>Problem solved.</p>
+<h3>2. Webpack doesn’t like  <code>express</code>  because it has a dynamic request</h3>
+<p>We switched to Koa.</p>
+<p>Problem solved.</p>
+<h3>3. <code>webpack-hot-server-middleware</code>  needs a function that returns a function</h3>
+<p>This is our last problem.</p>
+<p>Now that I’ve managed to include the client stats with Webpack, I’d love to have the serverless bundle directly from Webpack as well. That way we make sure it is as simple as possible and we don’t break anything in a recompilation step.</p>
+<p>With that in mind, I think the best solution is to fork <code>webpack-hot-server-middleware</code> and change its <code>getServerRenderer</code> function to accept a normal function: <a href="https://github.com/60frames/webpack-hot-server-middleware/blob/master/src/index.js#L61-L77" rel="nofollow noopener">https://github.com/60frames/webpack-hot-server-middleware/blob/master/src/index.js#L61-L77</a></p>
+<p>Maybe will accept a PR that makes it optional <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=6" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/10</link>
+        <pubDate>Wed, 06 Mar 2019 08:37:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-10</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve just thought about a couple of extra design principles:</p>
+<ul>
+<li>Everything should be hackable.</li>
+<li>Everything should have a default (meaning: it works without config).</li>
+</ul>
+<p>With those in mind, I really like the idea that the template is hackable but… <code>ctx.body</code> can be already populated with a default template coming from the framework for both <code>default</code> and <code>amp</code> modes. If a theme wants to use its own template, it can replace or modify <code>ctx.body</code>.</p>
+<hr>
+<p>I should probably open an <strong>express vs koa</strong> thread to document it and a <strong>Design Principles</strong> thread to talk about them.</p>
+<p>Just as a quick reminder of why <strong>koa</strong> instead of <strong>express</strong>:</p>
+<ul>
+<li>It is smaller: half the size.</li>
+<li>The router is simpler: koa-route vs express.Router.</li>
+<li>It’s ~20-30% faster.</li>
+<li>The API is simpler.</li>
+<li>It allows us to pass a template (<code>ctx.body</code>) but don’t send it yet, so it can be substituted or modified by extensions. That could in theory be done in express but with extra APIs we need to inject and teach people how to use.</li>
+<li>It doesn’t have any dynamic require. Well, it has one, <code>any-promise</code>, but we can replace it for by <code>promise-monofill</code> with webpack. Express has one dynamic require that cannot be solved because it is internal.</li>
+</ul>
+<p>And a reminder of some of our <strong>Design Principles</strong>:</p>
+<ul>
+<li>It should be as simple as possible to learn.
+<ul>
+<li>The least number of concepts the developer needs to learn as possible.</li>
+<li>The least number of APIs the developer needs to learn as possible.</li>
+</ul>
+</li>
+<li>It should be as simple as possible to use.
+<ul>
+<li>In case of conflict, the final-user experience goes first, then developer experience and finally our own development experience.</li>
+</ul>
+</li>
+<li>Everything should have a default (meaning: no configuration).
+<ul>
+<li>If not possible, ensure the least amount of configuration.</li>
+<li>Everything that’s configurable should be hackable as well.</li>
+</ul>
+</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/9</link>
+        <pubDate>Wed, 06 Mar 2019 07:20:51 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-9</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I really like the idea to use Koa to extend Frontity because it makes the whole server extensible, <a href="https://community.frontity.org/t/the-frontity-server-architecture-serverless/52/4?u=luisherranz">like explained here</a>.</p>
+<p>With Koa, changing <code>headers</code> or <code>robots</code> becomes as simple as:</p>
+<pre><code class="lang-auto">export const server = ({ app, settings }) =&gt; {
+  // Change dynamic headers.
+  app.use((ctx, next) =&gt; {
+    Object.entries(settings.headers.dynamicHeaders).forEach(([key, value]) =&gt; {
+      ctx.set(key, value);
+    });
+    next();
+  });
+  // Add robots.txt support
+  app.use(route('/robots.txt', ctx =&gt; {
+    ctx.body = settings.robots.text;
+  }));
+}
+</code></pre>
+<p>There is something that might cause problems: the order of the middleware. For example, if one extension adds middleware to look for any *.txt file:</p>
+<pre><code class="lang-auto">export const server = ({ app }) =&gt; {
+  app.use(route('/(.*).txt', ctx =&gt; {
+    ctx.body = 'Sorry, missing txt';
+  }));
+}
+</code></pre>
+<p>It will break our <code>robots.txt</code> middleware unless it is in the correct order:</p>
+<ol>
+<li><code>robots-extension</code></li>
+<li><code>missing-txt-extension</code></li>
+</ol>
+<p>An idea is to instruct the dev to use the order of his <code>frontity.package.js</code>:</p>
+<pre><code class="lang-auto">export default [
+  "robots-extension",
+  "missing-txt-extension"
+];
+</code></pre>
+<hr>
+<p>I’ve been thinking about this because I had another idea: <strong>use Koa middleware for theme templates</strong>.</p>
+<p>We can populate <code>frontity</code> all the stuff we used to pass to the template in the old framework (revised, of course):</p>
+<pre><code class="lang-auto">pwaTemplate({
+          html,
+          styles,
+          preloads,
+          publicPath,
+          stores,
+          chunks,
+        }),
+</code></pre>
+<p>And it’d work something like:</p>
+<pre><code class="lang-auto">const myTemplate = frontity =&gt; `&lt;html&gt;&lt;head&gt;..${frontity stuff}..&lt;/html&gt;`;
+const myAmpTemplate = frontity =&gt; `&lt;html amp&gt;&lt;head&gt;..${frontity stuff}..&lt;/html&gt;`
+
+export const server = ({ app, frontity }) =&gt; {
+  app.use((ctx, next) =&gt; {
+    ctx.body = frontity.match === 'amp'
+      ? myTemplate(frontity)
+      : myAmpTemplate(frontity);
+    next();
+  });
+}
+</code></pre>
+<p>That way we don’t have to come up with yet another API for the templates.</p>
+<hr>
+<p>I’m going to open another post to talk about the extensions export API.</p>
+<p>EDIT: I’ve done it here: <a href="https://community.frontity.org/t/the-packages-export-api/64" class="inline-onebox">The packages export API</a></p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/8</link>
+        <pubDate>Tue, 05 Mar 2019 09:28:55 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-8</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I have studied Koa and I think it’s pretty neat. It’s not the standard (express is) but it’s smaller, faster, it has a better API, doesn’t have dynamic imports (bad for webpack) and takes advantage of await/async.</p>
+<p>I’m going to see if code splitting still works when I create the bundle with Webpack and then wrap it with the stats jsons.</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/7</link>
+        <pubDate>Tue, 05 Mar 2019 08:24:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-7</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><code>ncc</code> doesn’t complain about the dynamic require of <code>webpack</code> but I don’t think it’s a good option. Maybe what we need is a wrapper of the whole <code>webpack</code> bundle. Something like this:</p>
+<pre><code class="lang-auto">const stats = require("dist/loadable-stats.json");
+const app = require("dist/main.node.js");
+
+module.exports = (req, res) =&gt; app({ stats })(req, res);
+</code></pre>
+<p>And use <code>koa</code> or an alternative to <code>express</code>.</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/6</link>
+        <pubDate>Mon, 04 Mar 2019 17:19:21 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-6</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Right now there are three problems creating the serverless bundle:</p>
+<h3>1. <code>webpack-hot-server-middleware</code> needs a function that returns a function:</h3>
+<pre><code class="lang-auto">The 'server' compiler must export a function
+in the form of `(options) =&gt; (req, res, next) =&gt; void`
+</code></pre>
+<p>In serverless we need: <code>(req, res) =&gt; void</code>.</p>
+<h3>2. <code>loadable-components</code> creates a file that then is accessed by node in runtime:</h3>
+<pre><code class="lang-auto">// This is the stats file generated by webpack loadable plugin
+const statsFile = path.resolve('../dist/loadable-stats.json')
+</code></pre>
+<p>In serverless we need that the whole bundle is contained in one file.</p>
+<h3>3. Webpack doesn’t like <code>express</code> because it has a dynamic request:</h3>
+<pre><code class="lang-auto">WARNING in ./node_modules/express/lib/view.js 74:13-25
+    Critical dependency: the request of a dependency is an expression
+</code></pre>
+<p>In serverless we need to now all the imports at bundle time.</p>
+<hr>
+<p>So maybe the serverless bundle needs to be created afterwards with something like <a href="https://github.com/zeit/ncc" rel="nofollow noopener"><code>ncc</code></a>. I wonder how <code>ncc</code> works with <code>express</code> because it seems like it works.</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/5</link>
+        <pubDate>Mon, 04 Mar 2019 16:40:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-5</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Yesterday I added both <code>headers</code> and <code>robots.txt</code> settings to the first draft of <code>frontity.config.js</code>. That way users can override those settings using their own <code>frontity.config.js</code> file.</p>
+<p>But after that, I realized that it’d be much powerful to let users hack into the express server. If we do so, things like <code>headers</code> or <code>robots.txt</code> could be changed from extensions and that means final users can configure them in the Frontity Admin instead of a file.</p>
+<p>Maybe something like this to control other urls:</p>
+<pre><code class="lang-auto">const robots = ({ app, settings }) =&gt; {
+  const router = Router();
+  router.get("/robots.txt", (req, res) =&gt; {
+    res.type("text/plain");
+    res.send(settings.robots.text);
+  });
+  app(router);
+};
+</code></pre>
+<p>And something like this to add middleware:</p>
+<pre><code class="lang-auto">const headers = ({ app, settings }) =&gt; {
+  app((req, res, next) =&gt; {
+    Object.entries(settings.headers.dynamicHeaders).forEach(([key, value]) =&gt; {
+      res.header(key, value);
+    });
+    next();
+  })
+};
+</code></pre>
+<p>This would change our architecture to:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/1932903d9a78c86defd5cf944d317be13b84fd73.png" data-download-href="https://community.frontity.org/uploads/default/1932903d9a78c86defd5cf944d317be13b84fd73" title="Screen Shot 2019-03-04 at 08.53.29.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/1932903d9a78c86defd5cf944d317be13b84fd73_2_690x455.png" alt="29" width="690" height="455" srcset="https://community.frontity.org/uploads/default/optimized/1X/1932903d9a78c86defd5cf944d317be13b84fd73_2_690x455.png, https://community.frontity.org/uploads/default/optimized/1X/1932903d9a78c86defd5cf944d317be13b84fd73_2_1035x682.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/1932903d9a78c86defd5cf944d317be13b84fd73_2_1380x910.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/1932903d9a78c86defd5cf944d317be13b84fd73_2_10x10.png"></a></div><p></p>
+<p>But doesn’t seem problematic:<br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/1X/cdaf82e08d011c69ebb1a7c7aff2dffbdd6444aa.png" class="site-icon" width="32" height="32">
+      <a href="https://zeit.co/blog/serverless-express-js-lambdas-with-now-2" target="_blank" rel="nofollow noopener">zeit.co</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/394;"><img src="https://community.frontity.org/uploads/default/original/1X/8121193c1ab1621803eaf48f5da67fb10b77bafc.png" class="thumbnail"></div>
+
+<h3><a href="https://zeit.co/blog/serverless-express-js-lambdas-with-now-2" target="_blank" rel="nofollow noopener">Serverless Express.js with Now 2 - ZEIT</a></h3>
+
+<p>A tutorial on how to use Express.js in a serverless architecture</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<br>
+<aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/1X/8c7390150cd0078e967a18c7663581b9b334d239.png" class="site-icon" width="32" height="32">
+      <a href="https://medium.freecodecamp.org/express-js-and-aws-lambda-a-serverless-love-story-7c77ba0eaa35?gi=1b4b582278a6" target="_blank" title="01:18PM - 15 February 2018" rel="nofollow noopener">freeCodeCamp.org – 15 Feb 18</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/372;"><img src="https://community.frontity.org/uploads/default/original/1X/a053cb49349328fe109f296bbca357bca0bebd25.jpeg" class="thumbnail"></div>
+
+<h3><a href="https://medium.freecodecamp.org/express-js-and-aws-lambda-a-serverless-love-story-7c77ba0eaa35?gi=1b4b582278a6" target="_blank" rel="nofollow noopener">Express.js and AWS Lambda — a serverless love story</a></h3>
+
+<p>If you are a Node.js developer or you’ve built an API with Node.js, there’s a big chance you used Express.js. Express is de facto the most…</p>
+
+  <p><span class="label1">Reading time: 6 min read</span>
+    </p>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<p></p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/4</link>
+        <pubDate>Mon, 04 Mar 2019 07:56:33 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-4</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-DeveloperTeam" data-post="2" data-topic="52">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>How are the statics served in this case?</p>
+</blockquote>
+</aside>
+<p>AFAIK, serverless functions are not used to serve static files so users have to configure a static server or CDN.</p>
+<p>For that reason, I will keep with our previous approach of supporting two different URLs, one for <code>ssr</code> or <code>dynamic</code> assets and the other for  <code>static</code> assets. That way this type of configuration is really simple.</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/3</link>
+        <pubDate>Tue, 26 Feb 2019 12:43:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-3</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-DeveloperTeam" data-post="1" data-topic="52">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p><strong>Export a function that handles an HTML request.</strong><br>
+Serverless functions don’t need to worry about starting a server or handling static assets: they just handle the HTML request.</p>
+</blockquote>
+</aside>
+<p>How are the statics served in this case?</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/2</link>
+        <pubDate>Tue, 26 Feb 2019 09:57:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-2</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+      <item>
+        <title>The Server Architecture</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>There is an important change coming from the previous version: we want to have <strong>full serverless support</strong>.</p>
+<p>Serverless functions are single files with this structure:</p>
+<pre><code class="lang-auto">module.exports = (req, res) =&gt; {
+  res.end(`Hello from my serverless function!`)
+}
+</code></pre>
+<h4>Constrains:</h4>
+<ul>
+<li>
+<strong>Single file only, no <code>node_modules</code>.</strong><br>
+We’ll have to use <code>webpack</code> or <code>ncc</code> to create a single-file bundle.</li>
+<li>
+<strong>The smaller the better.</strong><br>
+We’ll have to pay attention to the size of all modules we use in production.</li>
+<li>
+<strong>Export a function that handles an HTML request.</strong><br>
+Serverless functions don’t need to worry about starting a server or handling static assets: they just handle the HTML request.</li>
+</ul>
+<p>That server bundle (and the client one) is what users get when they run <code>frontity build</code>.</p>
+<h2>Running Frontity on Node</h2>
+<p>On top of that, we need something like <code>express</code> in case the user wants to start a regular Node app to serve both the HTML and static assets:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/7778648e30b195c65863a0f48030e08e74970f1f.png" data-download-href="https://community.frontity.org/uploads/default/7778648e30b195c65863a0f48030e08e74970f1f" title="Screen Shot 2019-02-25 at 17.35.00.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/7778648e30b195c65863a0f48030e08e74970f1f_2_690x402.png" alt="00" width="690" height="402" srcset="https://community.frontity.org/uploads/default/optimized/1X/7778648e30b195c65863a0f48030e08e74970f1f_2_690x402.png, https://community.frontity.org/uploads/default/original/1X/7778648e30b195c65863a0f48030e08e74970f1f.png 1.5x, https://community.frontity.org/uploads/default/original/1X/7778648e30b195c65863a0f48030e08e74970f1f.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/7778648e30b195c65863a0f48030e08e74970f1f_2_10x10.png"></a></div><p></p>
+<p>This Node app is what users get when they run <code>frontity serve</code>.</p>
+          <p><a href="https://community.frontity.org/t/the-server-architecture/52/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/the-server-architecture/52/1</link>
+        <pubDate>Mon, 25 Feb 2019 16:43:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-52-1</guid>
+        <source url="https://community.frontity.org/t/the-server-architecture/52.rss">The Server Architecture</source>
+      </item>
+  </channel>
+</rss>

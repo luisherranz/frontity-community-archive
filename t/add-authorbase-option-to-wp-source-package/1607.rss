@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Add `authorBase` option to WP Source package</title>
+    <link>https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607</link>
+    <description># Description
+
+There is an option to set a custom structure for permalinks in WordPress&#39; admin panel (Settings &gt; Permalinks &gt; Common Settings). This structure not only affects to posts but also categories, tags and **authors**. The only type of entity that is not affected are pages.
+
+![Screenshot from 2020-04-22 18-07-29|444x460](upload://nk3hGvs8Jtt8L8cnaksTmIDBxyh.png) 
+
+For example, when using the custom structure in the image, author URLs whould be something like `/blog/author/admin`, thus breaking the current implementation for the author handler.
+
+To solve this, the idea is to add a new setting in this page like the ones we already have to change the category and tags base link.
+
+# UserStories
+
+&gt; As a  **Frontity user**
+&gt; I want to  **change authors link base in the configuration**
+&gt; so that  **I can make Frontity work with custom permalinks for authors.**
+
+# Possible solution
+
+[details=&quot;Initial proposed solution (click to open)&quot;]
+
+
+#### `state.source.authorBase`
+
+This could be solve using the same implementation we did for `categoryBase` and `tagBase`. We just have to add an `authorBase` option in `state.source`:
+
+https://github.com/frontity/frontity/blob/c5a2e15d68a1e4c2060e32808688314725001038/packages/wp-source/src/state.ts#L39-L40
+
+and handle that option the same way we are doing for the others already mentioned:
+
+https://github.com/frontity/frontity/blob/c5a2e15d68a1e4c2060e32808688314725001038/packages/wp-source/src/actions.ts#L177-L211
+
+[/details]
+
+# Final implementation
+https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607/2?u=santosguillamot
+
+---</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 23 Apr 2020 11:41:11 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Add `authorBase` option to WP Source package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <h1>Final implementation</h1>
+<p>The solution was the same used for <code>categoryBase</code> and <code>tagBase</code>: to create a redirection in the <code>init</code> action based on a setting in <code>state.source</code> called <code>authorBase</code>.</p>
+<pre><code>const WpSource = {
+  actions: {
+    init: ({ state }) =&gt; {
+      const { authorBase } = state.source;
+      if (authorBase) {
+        // Add new direction.
+        const pattern = concatPath(subdirectory, authorBase, "/:subpath+");
+        redirections.push({
+          name: "author base",
+          priority: 10,
+          pattern,
+          func: ({ subpath }) =&gt; `/author/${subpath}/`,
+        });
+        // Remove old direction.
+        redirections.push({
+          name: "author base (reverse)",
+          priority: 10,
+          pattern: concatPath(subdirectory, "/author/(.*)/"),
+          func: () =&gt; "",
+        });
+      }
+    },
+  },
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607/2</link>
+        <pubDate>Thu, 23 Apr 2020 11:41:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1607-2</guid>
+        <source url="https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607.rss">Add `authorBase` option to WP Source package</source>
+      </item>
+      <item>
+        <title>Add `authorBase` option to WP Source package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <h1>Description</h1>
+<p>There is an option to set a custom structure for permalinks in WordPress’ admin panel (Settings &gt; Permalinks &gt; Common Settings). This structure not only affects to posts but also categories, tags and <strong>authors</strong>. The only type of entity that is not affected are pages.</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/a3764ceb00ab3048d4a7e335b4f2efbc76aaf899.png" alt="Screenshot from 2020-04-22 18-07-29" data-base62-sha1="nk3hGvs8Jtt8L8cnaksTmIDBxyh" width="444" height="460"></p>
+<p>For example, when using the custom structure in the image, author URLs whould be something like <code>/blog/author/admin</code>, thus breaking the current implementation for the author handler.</p>
+<p>To solve this, the idea is to add a new setting in this page like the ones we already have to change the category and tags base link.</p>
+<h1>UserStories</h1>
+<blockquote>
+<p>As a  <strong>Frontity user</strong><br>
+I want to  <strong>change authors link base in the configuration</strong><br>
+so that  <strong>I can make Frontity work with custom permalinks for authors.</strong></p>
+</blockquote>
+<h1>Possible solution</h1>
+
+Initial proposed solution (click to open) <a href="https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607/1">(click for more details)</a>
+<h1>Final implementation</h1>
+<aside class="quote quote-modified" data-post="2" data-topic="1607">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607/2">Add `authorBase` option to WP Source package</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/feature-discussions/released"><span class="badge-category-parent-bg" style="background-color: #652D90;"></span><span class="badge-category-bg" style="background-color: #D3ABFF;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="Features that are ready!">Released</span></a>
+  </div>
+  <blockquote>
+    Final implementation
+The solution was the same used for categoryBase and tagBase: to create a redirection in the init action based on a setting in state.source called authorBase. 
+const WpSource = {
+  actions: {
+    init: ({ state }) =&gt; {
+      const { authorBase } = state.source;
+      if (authorBase) {
+        // Add new direction.
+        const pattern = concatPath(subdirectory, authorBase, "/:subpath+");
+        redirections.push({
+          name: "author base",
+          priority: 10,
+     …
+  </blockquote>
+</aside>
+
+<hr>
+          <p><a href="https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607/1</link>
+        <pubDate>Wed, 22 Apr 2020 16:36:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1607-1</guid>
+        <source url="https://community.frontity.org/t/add-authorbase-option-to-wp-source-package/1607.rss">Add `authorBase` option to WP Source package</source>
+      </item>
+  </channel>
+</rss>

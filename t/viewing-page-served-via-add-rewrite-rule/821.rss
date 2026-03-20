@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Viewing page served via add_rewrite_rule</title>
+    <link>https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821</link>
+    <description>Hi All,
+
+Me again with probably a really simple question.
+
+We&#39;re building a site and using Frontity to handle the front-end, we&#39;re building a plugin for the site in question which registers custom rewrite rules to serve data (these pages will have a unique token appended to perform some simple checks)
+
+We&#39;re adding the rewrite rules like this:
+
+    add_rewrite_tag(&#39;%listing%&#39;,&#39;([^/]*)&#39;);
+    add_rewrite_rule(
+        &#39;^listings/([^/]+)$&#39;,
+        &#39;index.php?pagename=new-listings&amp;show=$matches[1]&#39;,
+        &#39;top&#39;);
+
+Now if we access the rewrite above via WP (http://example.com/listings/5000), it is working as expected and I can pull the page.
+When I attempt to access the same URL via Frontity (http://localhost:3000/listings/5000) I&#39;m getting a 404 and the following error:
+
+&gt; Error: post type from endpoints &quot;posts,pages,media&quot; with slug &quot;5000&quot; not found
+
+I attempted to set up a simple handler after reading: https://community.frontity.org/t/how-to-create-custom-pages/435 but no luck (for those curious my handler is below):
+
+    const listingHandler = {
+        pattern: &quot;/listings/&quot;,
+        func: ({ state }) =&gt; {
+            state.source.data[&quot;/listings/&quot;].isListing = true;
+        }
+    }
+
+I have a sneaking suspicion the handler is the key to this all working but I&#39;m not quite sure _what_ in the handler I should change to make this function.
+
+I&#39;m hoping someone could point me in the right direction, otherwise I&#39;ll have to resort back to good ol&#39; query parameters.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Thu, 14 Nov 2019 08:47:28 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Viewing page served via add_rewrite_rule</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/chris">@chris</a>! I’m glad you got it working. As you said, without <code>:id</code> it wasn’t matching the pattern. Looking forward to see what you are building <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"></p>
+          <p><a href="https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821/3</link>
+        <pubDate>Thu, 14 Nov 2019 08:47:28 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-821-3</guid>
+        <source url="https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821.rss">Viewing page served via add_rewrite_rule</source>
+      </item>
+      <item>
+        <title>Viewing page served via add_rewrite_rule</title>
+        <dc:creator><![CDATA[chris]]></dc:creator>
+        <description><![CDATA[
+            <p>Figured it out.</p>
+<p>For those curious, it was a handler problem. I had to add a regex pattern to check for the last part of the url. My handler ended up looking like this:</p>
+<blockquote>
+<pre><code>const listingsHandler = {
+  pattern: "/listings/:id",
+  func: ({ state , params}) =&gt; {
+    console.log(`The ID is: ${params.id}`);
+  }
+}</code></pre>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821/2</link>
+        <pubDate>Thu, 14 Nov 2019 02:26:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-821-2</guid>
+        <source url="https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821.rss">Viewing page served via add_rewrite_rule</source>
+      </item>
+      <item>
+        <title>Viewing page served via add_rewrite_rule</title>
+        <dc:creator><![CDATA[chris]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi All,</p>
+<p>Me again with probably a really simple question.</p>
+<p>We’re building a site and using Frontity to handle the front-end, we’re building a plugin for the site in question which registers custom rewrite rules to serve data (these pages will have a unique token appended to perform some simple checks)</p>
+<p>We’re adding the rewrite rules like this:</p>
+<pre><code>add_rewrite_tag('%listing%','([^/]*)');
+add_rewrite_rule(
+    '^listings/([^/]+)$',
+    'index.php?pagename=new-listings&amp;show=$matches[1]',
+    'top');
+</code></pre>
+<p>Now if we access the rewrite above via WP (<a href="http://example.com/listings/5000" rel="nofollow noopener">http://example.com/listings/5000</a>), it is working as expected and I can pull the page.<br>
+When I attempt to access the same URL via Frontity (<a href="http://localhost:3000/listings/5000" rel="nofollow noopener">http://localhost:3000/listings/5000</a>) I’m getting a 404 and the following error:</p>
+<blockquote>
+<p>Error: post type from endpoints “posts,pages,media” with slug “5000” not found</p>
+</blockquote>
+<p>I attempted to set up a simple handler after reading: <a href="https://community.frontity.org/t/how-to-create-custom-pages/435" class="inline-onebox">How to create Custom Pages?</a> but no luck (for those curious my handler is below):</p>
+<pre><code>const listingHandler = {
+    pattern: "/listings/",
+    func: ({ state }) =&gt; {
+        state.source.data["/listings/"].isListing = true;
+    }
+}
+</code></pre>
+<p>I have a sneaking suspicion the handler is the key to this all working but I’m not quite sure <em>what</em> in the handler I should change to make this function.</p>
+<p>I’m hoping someone could point me in the right direction, otherwise I’ll have to resort back to good ol’ query parameters.</p>
+          <p><a href="https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821/1</link>
+        <pubDate>Thu, 14 Nov 2019 02:18:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-821-1</guid>
+        <source url="https://community.frontity.org/t/viewing-page-served-via-add-rewrite-rule/821.rss">Viewing page served via add_rewrite_rule</source>
+      </item>
+  </channel>
+</rss>

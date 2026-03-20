@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Analysis: An Honest Review of Gatsby</title>
+    <link>https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136</link>
+    <description>Here&#39;s an article exposing several flaws of Gatsby as a framework, from the experience of applying it to a documentation site (using MDX)
+
+https://cra.mr/an-honest-review-of-gatsby/
+
+Annotated version → https://diigo.com/0iof0d
+
+Some key ideas from the article:
+
+### Gatsby builds are slow
+
+&gt;  At this point though it was becoming clear build times were a problem
+
+&gt; You’d spend  at least 5 minutes on image optimization alone, with no way to even disable that
+
+&gt; we were crippling our iteration speed as well, since the build cache would invalidate under a variety of situations in early development
+
+It seems build times is a real issue as it cannot be customized to fit different needs. For example, it seems you cannot disable Image optimization in the build (in case you have handled that by another method)
+
+### Deploy is not flexible
+
+&gt; We started off leveraging what we had already done: deploying Jekyll with Docker onto our own infrastructure - effectively just proxied via a CDN
+
+Also, it seems Gatsby is not flexible to adapt it to custom infrastructures
+
+PS: I don&#39;t fully understand why they couldn&#39;t re-use their Docker infrastructure
+
+### GraphQL is a real pain for some users
+
+&gt; trying to get objects modeled into a format that works in a semi-correct way in Gatsby is terrifying
+
+It seems GraphQL is not really massively used by developers and it&#39;s being a pain adopting it for some users. Besides this, it also seems is not fitting well for some use cases
+
+### GraphQL doesn&#39;t really make sense for a static site generator
+
+&gt; It’s a static website generator. It literally does not need GraphQL all over the place
+
+&gt; it shouldn’t require a GraphQL API to read objects that are already in memory
+
+I never thought of this but it&#39;s true. One of the advantages of GraphQL is that you can get a customized JSON with only the data you need, reducing a lot the size of the JSON requested to the server and improving the speed and developer experience (less transformations of data will be needed)
+
+But with a Static Site Generator this have less sense as most of the requests will be done in build time. Only those requests done in Client Side will fully benefit from the advantages of using GraphQL
+
+So, conclusion on this → Using GraphQL on a SSG seems to be over-engineering
+
+### MDX is not as flexible as it seems 
+
+MDX is supposed to ease the integration of JSX code in Markdown documents but when taken to real world problems it seems there are some limitations
+
+&gt; I don’t need JSX syntax in my markdown, I need a way to include JSX components. That might sound similar, but its quite a different thing.
+
+It seems MDX is not succeeding in: allowing the inclusion of JSX components in markdown components 
+
+----
+
+I share these ideas as a way to start a discussion and gather feedback from the team over these points, and maybe take these drawbacks into account for 
+- Marketing purposes: pushing messages where Frontity can be a solution over some of these issues: build times for example
+- Development purposes: Flexibility of the framework can a real asset for framework adoption</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 20 Oct 2020 07:24:20 +0000</lastBuildDate>
+    <category>👨‍👩‍👧‍👦 Community</category>
+    <atom:link href="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Analysis: An Honest Review of Gatsby</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="juanma" data-post="4" data-topic="3136">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>I understand that additional requests made from the Client Side doesn’t need to be cached or taken into account here, right?</p>
+</blockquote>
+</aside>
+<p>Those client-side-only requests won’t be cached until a user visits the page.</p>
+<p>But if you are trying to generate all the static assets by doing an HTTP request to the list of all the URLs, then no, these won’t be cached. That also happens in GatsbyJS by the way.</p>
+<p>To avoid that problem, you could either do those requests manually, or use a crawler that not only does the HTTP request but also loads the JavaScript and navigates the site.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="4" data-topic="3136">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>How would a list of used URLs could be extracted? Is this something that can be done from Wordpress?</p>
+</blockquote>
+</aside>
+<p>Yes, it could be done. You have the list of links in the sitemap, although some links can be missing. You could also get it from the REST API.</p>
+<p>I’m not sure exactly how services like Strattic do so, but when I talked with the guy that created <a href="https://web2static.com/">https://web2static.com/</a> he told me that it was a combination of everything (REST API, Sitemaps, Crawler).</p>
+<p>In Gatsby, is the user the one that needs to provide a query to get those links.</p>
+<aside class="quote group-community-team" data-username="juanma" data-post="4" data-topic="3136">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/juanma/40/729_2.png" class="avatar"> juanma:</div>
+<blockquote>
+<p>And another thing… is there a chance you kept the link of the diagram used in the video? <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"><br>
+I’d like to add it here → <a href="https://www.notion.so/frontity/2245c3ceff8f485e9eb38828f42c8aba?v=4cabf47cedb44246b2f78cb52204acea">https://www.notion.so/frontity/2245c3ceff8f485e9eb38828f42c8aba?v=4cabf47cedb44246b2f78cb52204acea</a></p>
+</blockquote>
+</aside>
+<p>Done! <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/5</link>
+        <pubDate>Tue, 20 Oct 2020 07:24:20 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3136-5</guid>
+        <source url="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136.rss">Analysis: An Honest Review of Gatsby</source>
+      </item>
+      <item>
+        <title>Analysis: An Honest Review of Gatsby</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="2" data-topic="3136">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>After all, if you generate static HTML files and are able to “observe” the data source, it should be easy to extract the list of used URLs and cache them individually, instead of “per page” like Gatsby does. I explain this a little further in this video I made yesterday for Strattic which will face the same problem if they ever want to integrate with Frontity: <a href="https://www.youtube.com/watch?v=tpheDFf37z4">https://www.youtube.com/watch?v=tpheDFf37z4 </a></p>
+</blockquote>
+</aside>
+<p>Very interesting! <img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"> If the REST API is also cached, just by running all the URL’s available, the JSON responses will also be cached, which will make it work completely from CDN servers</p>
+<p>I understand that additional requests made from the Client Side doesn’t need to be cached or taken into account here, right?</p>
+<p>How would a list of used URLs could be extracted? Is this something that can be done from Wordpress?</p>
+<p>And another thing… is there a chance you kept the link of the diagram used in the video? <img src="https://community.frontity.org/images/emoji/apple/blush.png?v=9" title=":blush:" class="emoji" alt=":blush:"><br>
+I’d like to add it here → <a href="https://www.notion.so/frontity/2245c3ceff8f485e9eb38828f42c8aba?v=4cabf47cedb44246b2f78cb52204acea">https://www.notion.so/frontity/2245c3ceff8f485e9eb38828f42c8aba?v=4cabf47cedb44246b2f78cb52204acea</a></p>
+          <p><a href="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/4</link>
+        <pubDate>Wed, 14 Oct 2020 14:35:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3136-4</guid>
+        <source url="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136.rss">Analysis: An Honest Review of Gatsby</source>
+      </item>
+      <item>
+        <title>Analysis: An Honest Review of Gatsby</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="2" data-topic="3136">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>the main benefit that Gatsby extracts from using GraphQL is that the developer has to clearly define the data needs for each page type, and those data needs can be the join of multiple sources.</p>
+</blockquote>
+</aside>
+<p>Regarding this, there are projects like this one</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/b/b2b93377fbd419df569e799a52093cae668a8748.png" class="site-icon" width="196" height="196">
+      <a href="https://www.krakend.io/" target="_blank" rel="noopener">KrakenD - Open source API Gateway</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/493;"><img src="https://community.frontity.org/uploads/default/optimized/2X/2/291c4402a2e7864b4b8104deda3e92d162133328_2_690x493.png" class="thumbnail" width="690" height="493" srcset="https://community.frontity.org/uploads/default/optimized/2X/2/291c4402a2e7864b4b8104deda3e92d162133328_2_690x493.png, https://community.frontity.org/uploads/default/original/2X/2/291c4402a2e7864b4b8104deda3e92d162133328.png 1.5x, https://community.frontity.org/uploads/default/original/2X/2/291c4402a2e7864b4b8104deda3e92d162133328.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/2/291c4402a2e7864b4b8104deda3e92d162133328_2_10x10.png"></div>
+
+<h3><a href="https://www.krakend.io/" target="_blank" rel="noopener">KrakenD - Open source API Gateway</a></h3>
+
+<p>Enterprise open source API Gateway built with Go lang</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>which allows the developer to create a gateway and create custom endpoints to join data from different endpoints or even joining data from different sources using REST API’s</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/a/a033c2a5a61cd06d08dfc6b427f4ad1b18fd7dc4.png" data-download-href="https://community.frontity.org/uploads/default/a033c2a5a61cd06d08dfc6b427f4ad1b18fd7dc4" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/a/a033c2a5a61cd06d08dfc6b427f4ad1b18fd7dc4_2_690x268.png" alt="image" data-base62-sha1="mRdi3Il9fFE0AvPlWIwECIL3WJu" width="690" height="268" srcset="https://community.frontity.org/uploads/default/optimized/2X/a/a033c2a5a61cd06d08dfc6b427f4ad1b18fd7dc4_2_690x268.png, https://community.frontity.org/uploads/default/original/2X/a/a033c2a5a61cd06d08dfc6b427f4ad1b18fd7dc4.png 1.5x, https://community.frontity.org/uploads/default/original/2X/a/a033c2a5a61cd06d08dfc6b427f4ad1b18fd7dc4.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/a/a033c2a5a61cd06d08dfc6b427f4ad1b18fd7dc4_2_10x10.png"></a></div><p></p>
+<p>so, for further references, in case someone argues a migration to GraphQL to do something like this.</p>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="2" data-topic="3136">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I think this makes sense for a SSG, where the main benefit is that you can shut down your data server.</p>
+</blockquote>
+</aside>
+<p>Yes, It makes sense. I didn’t think of this.</p>
+          <p><a href="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/3</link>
+        <pubDate>Wed, 14 Oct 2020 13:43:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3136-3</guid>
+        <source url="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136.rss">Analysis: An Honest Review of Gatsby</source>
+      </item>
+      <item>
+        <title>Analysis: An Honest Review of Gatsby</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I think the main benefit that Gatsby extracts from using GraphQL is that the developer has to clearly define the data needs for each page type, and those data needs can be the join of multiple sources. Then, Gatsby saves the returned data in a <code>page.json</code> which is linked to each URL and saved statically along with the HTML.</p>
+<p>I think this makes sense for a SSG, where the main benefit is that you can shut down your data server.</p>
+<p>In Frontity, the framework doesn’t know about the specific data needs of a page. The closer we get is the fetches inside our handlers. I guess we could bake something similar, but I don’t see the need for that yet.</p>
+<p>After all, if you generate static HTML files and are able to “observe” the data source, it should be easy to extract the list of used URLs and cache them individually, instead of “per page” like Gatsby does. I explain this a little further in this video I made yesterday for Strattic which will face the same problem if they ever want to integrate with Frontity: <a href="https://www.youtube.com/watch?v=tpheDFf37z4">https://www.youtube.com/watch?v=tpheDFf37z4</a></p>
+          <p><a href="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/2</link>
+        <pubDate>Tue, 13 Oct 2020 10:06:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3136-2</guid>
+        <source url="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136.rss">Analysis: An Honest Review of Gatsby</source>
+      </item>
+      <item>
+        <title>Analysis: An Honest Review of Gatsby</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Here’s an article exposing several flaws of Gatsby as a framework, from the experience of applying it to a documentation site (using MDX)</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/4/4a2ac3486f9ee8452bd3eca1b733286bd720c10e.png" class="site-icon" width="32" height="32">
+      <a href="https://cra.mr/an-honest-review-of-gatsby/" target="_blank" rel="noopener">cra.mr</a>
+  </header>
+  <article class="onebox-body">
+    <img src="" class="thumbnail" width="" height="">
+
+<h3><a href="https://cra.mr/an-honest-review-of-gatsby/" target="_blank" rel="noopener">An Honest Review of Gatsby</a></h3>
+
+<p>We decided to adopt Gatsby for Sentry’s customer-facing documentation - well, I should say that I decided. We were already using it successfully for a variety…</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>Annotated version → <a href="https://diigo.com/0iof0d">https://diigo.com/0iof0d</a></p>
+<p>Some key ideas from the article:</p>
+<h3>Gatsby builds are slow</h3>
+<blockquote>
+<p>At this point though it was becoming clear build times were a problem</p>
+</blockquote>
+<blockquote>
+<p>You’d spend  at least 5 minutes on image optimization alone, with no way to even disable that</p>
+</blockquote>
+<blockquote>
+<p>we were crippling our iteration speed as well, since the build cache would invalidate under a variety of situations in early development</p>
+</blockquote>
+<p>It seems build times is a real issue as it cannot be customized to fit different needs. For example, it seems you cannot disable Image optimization in the build (in case you have handled that by another method)</p>
+<h3>Deploy is not flexible</h3>
+<blockquote>
+<p>We started off leveraging what we had already done: deploying Jekyll with Docker onto our own infrastructure - effectively just proxied via a CDN</p>
+</blockquote>
+<p>Also, it seems Gatsby is not flexible to adapt it to custom infrastructures</p>
+<p>PS: I don’t fully understand why they couldn’t re-use their Docker infrastructure</p>
+<h3>GraphQL is a real pain for some users</h3>
+<blockquote>
+<p>trying to get objects modeled into a format that works in a semi-correct way in Gatsby is terrifying</p>
+</blockquote>
+<p>It seems GraphQL is not really massively used by developers and it’s being a pain adopting it for some users. Besides this, it also seems is not fitting well for some use cases</p>
+<h3>GraphQL doesn’t really make sense for a static site generator</h3>
+<blockquote>
+<p>It’s a static website generator. It literally does not need GraphQL all over the place</p>
+</blockquote>
+<blockquote>
+<p>it shouldn’t require a GraphQL API to read objects that are already in memory</p>
+</blockquote>
+<p>I never thought of this but it’s true. One of the advantages of GraphQL is that you can get a customized JSON with only the data you need, reducing a lot the size of the JSON requested to the server and improving the speed and developer experience (less transformations of data will be needed)</p>
+<p>But with a Static Site Generator this have less sense as most of the requests will be done in build time. Only those requests done in Client Side will fully benefit from the advantages of using GraphQL</p>
+<p>So, conclusion on this → Using GraphQL on a SSG seems to be over-engineering</p>
+<h3>MDX is not as flexible as it seems</h3>
+<p>MDX is supposed to ease the integration of JSX code in Markdown documents but when taken to real world problems it seems there are some limitations</p>
+<blockquote>
+<p>I don’t need JSX syntax in my markdown, I need a way to include JSX components. That might sound similar, but its quite a different thing.</p>
+</blockquote>
+<p>It seems MDX is not succeeding in: allowing the inclusion of JSX components in markdown components</p>
+<hr>
+<p>I share these ideas as a way to start a discussion and gather feedback from the team over these points, and maybe take these drawbacks into account for</p>
+<ul>
+<li>Marketing purposes: pushing messages where Frontity can be a solution over some of these issues: build times for example</li>
+<li>Development purposes: Flexibility of the framework can a real asset for framework adoption</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136/1</link>
+        <pubDate>Tue, 13 Oct 2020 09:53:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3136-1</guid>
+        <source url="https://community.frontity.org/t/analysis-an-honest-review-of-gatsby/3136.rss">Analysis: An Honest Review of Gatsby</source>
+      </item>
+  </channel>
+</rss>

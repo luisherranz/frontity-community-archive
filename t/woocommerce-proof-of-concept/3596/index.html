@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>WooCommerce Proof of Concept - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="We are going to investigate how a WooCommerce package for Frontity could look like. This proof of concept is going to be built on top of a new client-side API the WooCommerce has started working on for their Gutenberg bl&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="./" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;WooCommerce Proof of Concept&#39;" href="3596.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/woocommerce-proof-of-concept/3596" />
+<meta name="twitter:url" content="/t/woocommerce-proof-of-concept/3596" />
+<meta property="og:title" content="WooCommerce Proof of Concept" />
+<meta name="twitter:title" content="WooCommerce Proof of Concept" />
+<meta property="og:description" content="We are going to investigate how a WooCommerce package for Frontity could look like. This proof of concept is going to be built on top of a new client-side API the WooCommerce has started working on for their Gutenberg blocks, called Store API.  We did an intro meeting to talk about the first goals:  https://www.youtube.com/watch?v=E__1-DNilOQ   WooCommerce Gutenberg blocks: WooCommerce Blocks - WooCommerce Docs  WooCommerce Store API: woocommerce-gutenberg-products-block/src/StoreApi at trunk · ..." />
+<meta name="twitter:description" content="We are going to investigate how a WooCommerce package for Frontity could look like. This proof of concept is going to be built on top of a new client-side API the WooCommerce has started working on for their Gutenberg blocks, called Store API.  We did an intro meeting to talk about the first goals:  https://www.youtube.com/watch?v=E__1-DNilOQ   WooCommerce Gutenberg blocks: WooCommerce Blocks - WooCommerce Docs  WooCommerce Store API: woocommerce-gutenberg-products-block/src/StoreApi at trunk · ..." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta property="og:article:tag" content="woocommerce" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="7 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="57 ❤" />
+<meta property="article:published_time" content="2020-12-14T08:20:44+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/woocommerce-proof-of-concept/3596">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"WooCommerce Proof of Concept","mainEntity":{"@type":"Question","name":"WooCommerce Proof of Concept","text":"We are going to investigate how a WooCommerce package for Frontity could look like. This proof of concept is going to be built on top of a new client-side API the WooCommerce has started working on for their Gutenberg blocks, called Store API.\n\nWe did an intro meeting to talk about the first goals:\n\n&hellip;","upvoteCount":3,"answerCount":0,"dateCreated":"2020-12-14T08:20:44.182Z","author":{"@type":"Person","name":"Luis Herranz"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">WooCommerce Proof of Concept</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+      <div class="topic-category">
+        <div class='discourse-tags list-tags'>
+            <a href='/tag/woocommerce' class='discourse-tag' rel="tag">woocommerce</a>
+        </div>
+      </div>
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='WooCommerce Proof of Concept'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content='woocommerce'>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-14T08:20:44Z' class='post-time'>
+                    14 December 2020 08:20
+                  </time>
+                  <meta itemprop='dateModified' content='2021-04-05T08:47:37Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>We are going to investigate how a WooCommerce package for Frontity could look like. This proof of concept is going to be built on top of a new client-side API the WooCommerce has started working on for their Gutenberg blocks, called Store API.</p>
+<p>We did an intro meeting to talk about the first goals:<br>
+<a href="https://www.youtube.com/watch?v=E__1-DNilOQ" class="onebox" target="_blank" rel="noopener">https://www.youtube.com/watch?v=E__1-DNilOQ</a></p>
+<ul>
+<li>WooCommerce Gutenberg blocks: <a href="https://docs.woocommerce.com/document/woocommerce-blocks/" class="inline-onebox">WooCommerce Blocks - WooCommerce Docs</a>
+</li>
+<li>WooCommerce Store API: <a href="https://github.com/woocommerce/woocommerce-gutenberg-products-block/tree/trunk/src/StoreApi" class="inline-onebox">woocommerce-gutenberg-products-block/src/StoreApi at trunk · woocommerce/woocommerce-gutenberg-products-block · GitHub</a>
+</li>
+</ul>
+<p><strong>Disclaimer: This doesn’t mean that we are going to start working on the official WooCommerce package after this proof of concept yet.</strong> The WooCommerce team is not committed to releasing a v1 version of this Store API for public use yet. So please take this as it is: a proof of concept to start experimenting with Frontity and this new client-side API.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="3" />
+              <span class='post-likes'>3 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/use-frontity-with-woocommerce/3761">Use Frontity with WooCommerce</a>
+                        <meta itemprop='position' content='4'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/frontity-in-woocommerce/2732">Frontity in Woocommerce</a>
+                        <meta itemprop='position' content='5'>
+                      </div>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/need-frontity-cocart-package-developed/5097">Need Frontity CoCart package developed</a>
+                        <meta itemprop='position' content='6'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_2' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+                <link itemprop="image" href="../../../uploads/default/original/2X/b/b0de30312727b283f777abcc118e295ad57a5beb.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-14T09:58:27Z' class='post-time'>
+                    14 December 2020 09:58
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-14T09:58:27Z'>
+              <span itemprop='position'>2</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>We have done a follow-up meeting today to review <a class="mention" href="/u/david">@david</a>’s progress:</p>
+<div class="youtube-onebox lazy-video-container" data-video-id="XczhtcN4iKM" data-video-title="WooCommerce PoC - 2nd meeting" data-video-start-time="0" data-provider-name="youtube">
+  <a href="https://www.youtube.com/watch?v=XczhtcN4iKM" target="_blank" rel="noopener">
+    <img class="youtube-thumbnail" src="../../../uploads/default/original/2X/b/b0de30312727b283f777abcc118e295ad57a5beb.jpeg" title="WooCommerce PoC - 2nd meeting" data-dominant-color="413F39" width="480" height="360">
+  </a>
+</div>
+
+<p>Things that are already working:</p>
+<ul>
+<li>The shop page (archive of products).</li>
+<li>The products pages.</li>
+<li>The cart page.</li>
+<li>The add-to-cart buttons.</li>
+</ul>
+<p>Things missing for this proof of concept:</p>
+<ul>
+<li>Some cart actions (remove items, add coupons…).</li>
+<li>The checkout page.</li>
+</ul>
+<p>These are the changes that it seems we would need from the Store API:</p>
+<ul>
+<li>Adding the <code>slug</code> to the product schema.</li>
+<li>Adding the <code>slug</code> to the query filters: <code>/products?slug=my-product</code>
+</li>
+<li>Changing <code>permalink</code> to <code>link</code> to be consistent with the standard REST API.</li>
+<li>Either exposing the <code>product_categories</code> and <code>product_tags</code> in the standard REST API or in the Store API.</li>
+<li>An endpoint for the thanks page that can be queried using the <code>order_key</code>.</li>
+</ul>
+<hr>
+<p><a class="mention" href="/u/david">@david</a> is going to publish his work in a repo with instructions on how to install it for anyone that wants to check it out.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_3' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-14T11:33:10Z' class='post-time'>
+                    14 December 2020 11:33
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-14T11:33:10Z'>
+              <span itemprop='position'>3</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Here’s a link to the WooCommerce Proof of Concept repository:</p>
+<aside class="onebox githubfolder">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/frontity/woocommerce-proof-of-concept" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:400/400;"><img src="https://avatars2.githubusercontent.com/u/36308514?s=400&amp;amp;v=4" class="thumbnail" width="400" height="400"></div>
+
+<h3><a href="https://github.com/frontity/woocommerce-proof-of-concept" target="_blank" rel="noopener">frontity/woocommerce-proof-of-concept</a></h3>
+
+
+  <p><span class="label1">Proof of concept of a possible Frontity integration with WooCommerce.</span></p>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="4" />
+              <span class='post-likes'>4 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-15T11:56:35Z' class='post-time'>
+                    15 December 2020 11:56
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-15T14:45:08Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>A couple of things more I’ve found while working on this proof of concept:</p>
+<h3>Payment methods</h3>
+<p>Ideally, the available payment methods would be fetched from the <code>/wc/store/</code> API. Right now it is not possible, so a WooCommerce theme would have to obtain that information from somewhere else (the <code>frontity.settings.js</code> file, for example).</p>
+<h3>Product categories and tags</h3>
+<p>There are endpoints to fetch those entities:</p>
+<ul>
+<li><code>/wc/store/products/categories/</code></li>
+<li><code>/wc/store/products/tags/</code></li>
+</ul>
+<p>Currently, they don’t allow to filter the response by <code>slug</code>.</p>
+<p>To get products from a specific category you should use the <code>category</code> attribute, which only allows you to filter products by a category ID (with tags is similar):</p>
+<ul>
+<li><code>/wc/store/products?category=21</code></li>
+</ul>
+<p>Therefore, is really hard – even impossible – to write a <code>@frontity/wp-json</code> handler that, given a link like <code>/product-category/accessories/</code>, fetches the products belonging to the “Accessories” category from the REST API.</p>
+<p>The same happens with products. In that case, a workaround was implemented using the <code>/wp/v2/product</code> endpoint to get the ID of the product with the given slug (see <a href="https://github.com/frontity/woocommerce-proof-of-concept/blob/2771980c8389ec1df2575320e6fc8825fd816111/packages/woocommerce/src/handlers/product.ts#L19-L33">/packages/woocommerce/src/handlers/product.ts#L19-L33</a>). That cannot be done for product categories or tags because they are not regular categories/tags and so they don’t appear in any <code>/wp/v2/</code> endpoint.</p>
+<p>We would need to filter these entities by <code>slug</code> from the <code>/wc/store/</code> API directly.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-15T17:37:23Z' class='post-time'>
+                    15 December 2020 17:37
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-15T17:37:23Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="David" data-post="4" data-topic="3596">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Ideally, the available payment methods would be fetched from the <code>/wc/store/</code> API. Right now it is not possible</p>
+</blockquote>
+</aside>
+<p>That is actually expected. I am sorry I forgot to mention it before. This is what the WooCommerce team said about handling payment with the Store API:</p>
+<blockquote>
+<p>The Store API should start providing some access to payment methods, although exactly how we’ll handle something like e.g. offsite PayPal payment, I’m not sure yet.</p>
+</blockquote>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/nicholasio.oliveira'><span itemprop='name'>nicholasio.oliveira</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-16T04:14:43Z' class='post-time'>
+                    16 December 2020 04:14
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-16T04:14:43Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Nice to see this here. Glad to see the Woocommerce team finally working on the store API.</p>
+<p>I have built headless websites with WooCommerce before and the current public API makes things impossible without custom WP/PHP code.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="5" />
+              <span class='post-likes'>5 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-17T18:19:37Z' class='post-time'>
+                    17 December 2020 18:19
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-17T18:35:08Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I have set up a site so people can test this out in Decoupled mode without the need to start and configure a WordPress project locally.</p>
+<p>The URL is <a href="https://woocommerce.frontity.org/">https://woocommerce.frontity.org/</a>. Just add it to the <code>frontity.settings.js</code> file:</p>
+<pre><code class="lang-js">{
+  name: "@frontity/wp-source",
+  state: {
+    source: {
+      url: "https://woocommerce.frontity.org/",
+    },
+  },
+};
+</code></pre>
+<p><em>Feel free to use the cart and the checkout as many times as you want because the WordPress is restored each 24 hours.</em></p>
+<p>To be able to use this in Decoupled mode, I had to do a small change in the WooCommerce plugin to add a filter for <code>secure</code> and <code>samesite</code> in their <code>setcookie</code> function:</p>
+<pre><code class="lang-php">$cookie_options = array (
+  'expires' =&gt; $expire,
+  'path' =&gt; COOKIEPATH ? COOKIEPATH : '/',
+  'domain' =&gt; COOKIE_DOMAIN,
+  'secure' =&gt; apply_filters( 'woocommerce_cookie_secure', $httponly, $name, $value, $expire, $secure ),
+  'httponly' =&gt; apply_filters( 'woocommerce_cookie_httponly', $httponly, $name, $value, $expire, $secure ),
+  'samesite' =&gt; apply_filters( 'woocommerce_cookie_samesite', $httponly, $name, $value, $expire, $secure ),
+  );
+setcookie( $name, $value, $cookie_options );
+</code></pre>
+<p>The change is in this line: <a href="https://github.com/woocommerce/woocommerce/blob/master/includes/wc-core-functions.php#L1052">https://github.com/woocommerce/woocommerce/blob/master/includes/wc-core-functions.php#L1052</a>. I will do a PR later.</p>
+<p>Then, I added this snippet to the site:</p>
+<pre><code class="lang-php">add_action( 'rest_api_init', function () {
+  add_filter( 'woocommerce_store_api_disable_nonce_check', '__return_true' );
+  add_filter( 'woocommerce_cookie_secure', '__return_true' );
+  add_filter( 'woocommerce_cookie_samesite', function() { return "None"; } );
+} );
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+                <link itemprop="image" href="../../../uploads/default/original/2X/c/cc9390e6f95b4a827ebd0beac653d6a421dbfbb6.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-17T18:20:33Z' class='post-time'>
+                    17 December 2020 18:20
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-17T18:20:33Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This is the last meeting where <a class="mention" href="/u/david">@david</a> shared the latest progress with us <img src="../../../images/emoji/apple/slight_smile.png%3Fv=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+<div class="youtube-onebox lazy-video-container" data-video-id="Y-DGVcFelOY" data-video-title="WooCommerce PoC - 3rd meeting" data-video-start-time="0" data-provider-name="youtube">
+  <a href="https://www.youtube.com/watch?v=Y-DGVcFelOY" target="_blank" rel="noopener">
+    <img class="youtube-thumbnail" src="../../../uploads/default/original/2X/c/cc9390e6f95b4a827ebd0beac653d6a421dbfbb6.jpeg" title="WooCommerce PoC - 3rd meeting" data-dominant-color="665D56" width="690" height="388">
+  </a>
+</div>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-17T18:33:03Z' class='post-time'>
+                    17 December 2020 18:33
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-17T18:33:03Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h3>A note about <code>fetch()</code> and cookies <img src="../../../images/emoji/apple/cookie.png%3Fv=9" title=":cookie:" class="emoji" alt=":cookie:">
+</h3>
+<p>I first used the <a href="https://github.com/frontity/frontity-embedded-proof-of-concept">Frontity Embedded Mode - [Proof of Concept]</a> plugin to avoid any CORS problem regarding cookies. In fact, when I started doing tests with the WooCommerce Store API I saw that cookies were not sent back to the WordPress server, and I immediately assumed that it was not possible to make the request from a different domain.</p>
+<p>Well, I was not completely right.</p>
+<p>In order to receive cookies and send them back to the server, you would need to specify <code>credentials: "include"</code> in the <code>init</code> option of any fetch call (<a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters">1</a>).</p>
+<p>Also, the server should respond with these headers for cross-origin requests (<a href="https://javascript.info/fetch-crossorigin">2</a>):</p>
+<ul>
+<li>
+<code>Access-Control-Allow-Origin</code>, set to the same value as the <code>Origin</code> request header (the <code>*</code> wildcard cannot be returned here).</li>
+<li>
+<code>Access-Control-Allow-Credentials</code>, set to <code>true</code>.</li>
+</ul>
+<p>The <code>credentials</code> option was used and the <code>Access-Control</code> headers added, so everything fine here. However, the <code>Set-Cookie</code> header with the <code>wp_woocommerce_session</code> cookie, added by the WooCommerce plugin <a href="https://github.com/woocommerce/woocommerce/blob/ab4a46e32e338cbf33094ab26144744a021a21a9/includes/class-wc-session-handler.php#L135">here</a>, was missing the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite"><code>SameSite</code> attribute</a>, which should be set to <code>None</code> if we want to do cross-site requests including that cookie. That attribute also requires the <code>Secure</code> attribute.</p>
+<p>That was the reason why we modified the <a href="https://github.com/woocommerce/woocommerce/blob/686872a2372a71ed35b90a8ff790b046d0b40118/includes/wc-core-functions.php#L1041-L1057"><code>wc_setcookie()</code> function</a>, as <a class="mention" href="/u/luisherranz">@luisherranz</a> mentioned above. Doing those changes, it is possible to do requests to the WooCommerce Store API from a different domain, and maintain the customer session.</p>
+<p>Of course, using the <a href="https://github.com/frontity/frontity-embedded-proof-of-concept">Frontity Embedded Mode - [Proof of Concept]</a> plugin it works “out of the box”, as everything happens in the same domain.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-18T10:46:17Z' class='post-time'>
+                    18 December 2020 10:46
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-18T10:46:17Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve updated the <code>README.md</code> file in the repository with the changes we did yesterday.</p>
+<p>Check it out:</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/frontity/woocommerce-proof-of-concept/blob/main/README.md" target="_blank" rel="noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/frontity/woocommerce-proof-of-concept/blob/main/README.md" target="_blank" rel="noopener">frontity/woocommerce-proof-of-concept/blob/main/README.md</a></h4>
+<pre><code class="lang-md"># WooCommerce &amp; Frontity [Proof of Concept]
+
+&gt; ⚠️ This is only an experiment of a possible `@frontity/woocommerce` package using the [WooCommerce Store API](https://github.com/woocommerce/woocommerce-gutenberg-products-block/tree/trunk/src/StoreApi), which is not public yet. Don't use this in production. If you want to know more about this proof of concept -or participate in the conversation- you can go to [this thread](/t/woocommerce-proof-of-concept/3596) in the community.
+
+&gt; ℹ️ This repository is still a **Work In Progress** so some features may not work yet.
+
+## Summary
+
+This repository contains a Frontity project with two packages:
+
+**`woocommerce`**
+
+- Exposes state to be consumed by themes, including products, cart and checkout info.
+- Exposes actions to communicate with the [WooCommerce Store API](https://github.com/woocommerce/woocommerce-gutenberg-products-block/tree/trunk/src/StoreApi).
+- Adds some `@frontity/wp-source` handlers for the product pages and for the cart and checkout pages.
+- Also, it exports some types and type guards to be used by themes written in TypeScript.
+
+**`woocommerce-theme`**
+
+- Consumes the state populated and actions exposed by the `woocommerce` package
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/frontity/woocommerce-proof-of-concept/blob/main/README.md" target="_blank" rel="noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-18T11:57:15Z' class='post-time'>
+                    18 December 2020 11:57
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-18T11:57:15Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-dev-team" data-username="luisherranz" data-post="7" data-topic="3596">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I have set up a site so people can test this out in Decoupled mode without the need to start and configure a WordPress project locally.</p>
+<p>The URL is <a href="https://woocommerce.frontity.org/">https://woocommerce.frontity.org/</a>.</p>
+</blockquote>
+</aside>
+<p>Would it be possible to use the Embedded mode in <a href="http://woocommerce.frontity.org">woocommerce.frontity.org</a> and deploy the <a href="https://github.com/frontity/woocommerce-proof-of-concept/">GitHub repo</a> to Vercel? Or this would affect somehow the people using <a href="http://woocommerce.frontity.org">woocommerce.frontity.org</a> to test it in Decoupled?</p>
+<p>I ask because it could be nice that users can have a look at the status of the proof of concept directly in <a href="http://woocommerce.frontity.org">woocommerce.frontity.org</a>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-18T14:13:30Z' class='post-time'>
+                    18 December 2020 14:13
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-18T14:13:30Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>It should work the same, as Frontity in decoupled mode only interacts with the REST API.</p>
+<p>Just take in mind that the WordPress instance Luis deployed is restored every 24 hours so, if you want to add the embedded mode, you would have to talk first with him!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-22T16:54:33Z' class='post-time'>
+                    22 December 2020 16:54
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-23T17:02:07Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I have set it up in <a href="http://woocommerce.frontity.org">woocommerce.frontity.org</a> as well. It should be working fine now.</p>
+<p>I have also set up automatic deploys to Vercel and Changesets in that repo so we can have a changelog of the changes.</p>
+<p>I think the proof of concept is good enough at this point to get some external feedback about it.</p>
+<p>To be honest, we learned a lot and the Store API shows a lot of promise, so I think we can consider this research a success. Also, I think this opens an opportunity to collaborate more closely with the WooCommerce team <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<hr>
+<p>Apart from that, these are my impressions.</p>
+<h1>Store API</h1>
+<p>These are the fixes that would make Frontity integration with the Store API easier.</p>
+<h2>Adding the <code>slug</code> field to the products</h2>
+<p>The response of the Store API doesn’t include the <code>slug</code> yet, which is something we use in Frontity.</p>
+<p>For example: <a href="https://woocommerce.frontity.org/wp-json/wc/store/products/34">https://woocommerce.frontity.org/wp-json/wc/store/products/34</a></p>
+<h2>Filtering products by <code>slug</code>
+</h2>
+<p>The Store API has a lot of filters, but it doesn’t include a <code>slug</code> one yet. It would be great to have one as Frontity relies a lot on that to do the match between entities and frontend URLs.</p>
+<p>Current filters: <a href="https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/src/StoreApi/docs/products.md#list-products">https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/src/StoreApi/docs/products.md#list-products</a></p>
+<h2>Renaming <code>permalink</code> to <code>link</code>
+</h2>
+<p>The WordPress REST API uses <code>link</code> in all their endpoints, but the Store API is using <code>permalink</code>.</p>
+<p>For consistency with the regular REST API, and because Frontity does a transformation of those <code>link</code> fields to remove the domain so they can be used in decoupled mode, it would be great it the Store API would use <code>link</code> instead of <code>permalink</code>.</p>
+<h1>Remaining work in the package</h1>
+<p>This is non-exhaustive list of things we still need to do.</p>
+<h2>Prepare the package for optimistic updates</h2>
+<p>Right now we are copying everything that we get from the Store API into the state, but we should improve in this regard.</p>
+<p>We should prepare the package (<code>state</code> and <code>actions</code>) for optimistic updates. That means that:</p>
+<ul>
+<li>The information in the state should be only once. If some information can be derived from other parts of the state, it should be written as derived state. This is the “source of truth” principle.</li>
+<li>Actions should update the state first, then send the request, then revert the state if the request failed.</li>
+</ul>
+<p>For example, right now the total price is here:</p>
+<pre><code class="lang-js">const total = state.woocommerce.cart.totals.total_price;
+</code></pre>
+<p>But it can be derived from the sum of all the item totals. Something like this:</p>
+<pre><code class="lang-js">const total = ({ state }) =&gt;
+  state.woocommerce.cart.items.reduce(
+    (total, item) =&gt; totel + item.totals.line_total,
+    0
+  );
+</code></pre>
+<p>And actually, the total of each item should also be derived from the price of that item, multiplied by the quantity, and so on…</p>
+<p>The goal of having a single source of truth is that it simplifies state mutations a lot: if an action modifies a single part of the state, for example the quantity of a product, the rest of the fields will reflect that change immediatly in the UI.</p>
+<p>It also means that the application will be less prone to bugs because the derived state is managed by the state manager and nothing can get out of sync.</p>
+<h2>Handle errors</h2>
+<p>We should add a way to handle errors, both in the interface and in the <code>state</code>.</p>
+<p>Maybe for the interface this package could show some of the errors using toasts. As toasts are displayed on top of the theme, that would make things easier for theme developers. Of course that would need to be optional.</p>
+<h2>Support variable products</h2>
+<p>We should add support for variable products in the theme, to make sure there is no problem with that.</p>
+<h2>Create the <code>commerce</code> namespace</h2>
+<p>We should work on a common <code>commerce</code> package to allow people to use other implementations, like for example: <a href="https://github.com/wp-graphql/wp-graphql-woocommerce">https://github.com/wp-graphql/wp-graphql-woocommerce</a>.</p>
+<h2>Make it work with nonces</h2>
+<p>We should add a way to make this work with nonces. Right now they are disabled.</p>
+<p>We could use ajax. Actually, there is something in the WordPress Core already for that, I don’t know if we could use it: <a href="https://github.com/WordPress/wordpress-develop/blob/master/src/wp-admin/includes/ajax-actions.php#L5323-L5330">https://github.com/WordPress/wordpress-develop/blob/master/src/wp-admin/includes/ajax-actions.php#L5323-L5330</a></p>
+<h2>Handlers for the product taxonomies</h2>
+<p>We should add handlers for the product taxonomies: product categories and tags.</p>
+<h2>Handlers for the filtered products</h2>
+<p>We should add handlers for all the queries that WooCommerce supports. Thinkgs like <code>/shop/?orderby=price</code> and so on. That way, theme creators can add filters that simple use <code>actions.router.set</code> to render the new list.</p>
+<h2>Support all themes</h2>
+<p>For this proof of concept we made a “WooCommerce theme”, but this package should take care of adding the shop, product pages, cart, checkout and thank you pages with a default UI for themes that don’t have direct support for WooCommerce in the same way that you can use WooCommerce with a PHP theme that doesn’t have WooCommerce support.</p>
+<h2>Support WooCommerce Blocks</h2>
+<p>We should add support for the new WooCommerce Blocks. Things like capturing the “Add to cart” buttons with a processor and linking those buttons to our <code>actions.woocommerce.addToCart()</code> actions.</p>
+<p>For now it seems like these blocks are not writing HTML to the database and they rely on React for client-side rendering, but I guess that will change at some point. We should ask the WooCommerce team about their plans <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<h2>Release some ready-to-use components</h2>
+<p>To facilitate the creation of WooCommerce themes, we could include React components for that can be reused for the common UI elements, like:</p>
+<ul>
+<li>Filters for products: Price range, selectors…</li>
+<li>The Cart.</li>
+<li>The Checkout.</li>
+<li>An Image slider with augmentation tool.</li>
+<li>The Order info.</li>
+<li>And so on.</li>
+</ul>
+<h2>Product Post Previews</h2>
+<p>Right now the post previews are not working because the <code>Product</code> handler is not using the standard REST API and therefore doesn’t have an endpoint to get the last revisions. We should look for a solution for this.</p>
+<h2>Retrieval of orders by <code>order_key</code>
+</h2>
+<p>After a sucessful checkout we are showing the order information because it is stored in the <code>state</code>, but we don’t have access to it once the users refreshes the page. We need an endpoint where we can fetch the information of an order using the <code>order_key</code> to simulate what WooCommerce does in WordPress.</p>
+<h2>Support different payment methods</h2>
+<p>We should experiment with more realistic payment methods, like Stripe or Paypal.</p>
+<hr>
+<p>Last but not least, the main drawback I see with the Store API is that they are not using the standard REST API endpoints for the products and product taxonomies. I am not sure if they studied that option and discarded it. It would be another interesting point to talk with them <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="3" />
+              <span class='post-likes'>3 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+                <link itemprop="image" href="../../../uploads/default/original/2X/5/5eccddf33f22f3d86f81c16e2dca2b1464cfad81.jpeg">
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2020-12-29T08:12:10Z' class='post-time'>
+                    29 December 2020 08:12
+                  </time>
+                  <meta itemprop='dateModified' content='2020-12-29T08:12:10Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This is a demo and a bit of a summary as well of the current state of the proof-of-concept:</p>
+<div class="youtube-onebox lazy-video-container" data-video-id="8qlRxc1KL5s" data-video-title="WooCommerce PoC - First Summary" data-video-start-time="0" data-provider-name="youtube">
+  <a href="https://www.youtube.com/watch?v=8qlRxc1KL5s" target="_blank" rel="noopener">
+    <img class="youtube-thumbnail" src="../../../uploads/default/original/2X/5/5eccddf33f22f3d86f81c16e2dca2b1464cfad81.jpeg" title="WooCommerce PoC - First Summary" data-dominant-color="AFB5CA" width="690" height="388">
+  </a>
+</div>
+
+<p>Feel free to share it <img src="../../../images/emoji/apple/slight_smile.png%3Fv=12" title=":slight_smile:" class="emoji" alt=":slight_smile:" loading="lazy" width="20" height="20"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="5" />
+              <span class='post-likes'>5 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/Kent'><span itemprop='name'>Kent</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-01-30T19:04:01Z' class='post-time'>
+                    30 January 2021 19:04
+                  </time>
+                  <meta itemprop='dateModified' content='2021-01-30T19:04:01Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>WooCommerce has no ETA on the API shipping as stable…<br>
+And since we perhaps need to wait a long time before WooCommerce finish their own API. Perhaps even two years: <a href="https://github.com/woocommerce/woocommerce-gutenberg-products-block/tree/trunk/src/StoreApi" rel="noopener nofollow ugc">https://github.com/woocommerce/woocommerce-gutenberg-products-block/tree/trunk/src/StoreApi</a></p>
+<p>I think it’s smart to look at some alternatives…</p>
+<p>You cannot wait two years or more on WooCommerce before implementing support for this… ECommerce is important for any framework! This should be prioritized and be implemented with the Frontity WordPress plugin.</p>
+<p>I think it’s important for Frontity to add proper support for WooCommerce as soon as possible.</p>
+<p>Have you looked into which of these that can be the best approach and that gives the most features?</p>
+<aside class="onebox githubfolder">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/wp-graphql/wp-graphql-woocommerce" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:573/500;"><img src="../../../uploads/default/optimized/2X/9/956cf207714744c177dbf788ba270584a6fde23a_2_573x500.png" class="thumbnail" width="573" height="500" srcset="../../../uploads/default/optimized/2X/9/956cf207714744c177dbf788ba270584a6fde23a_2_573x500.png, ../../uploads/default/optimized/2X/9/956cf207714744c177dbf788ba270584a6fde23a_2_859x750.png 1.5x, ../../uploads/default/optimized/2X/9/956cf207714744c177dbf788ba270584a6fde23a_2_1146x1000.png 2x" data-small-upload="/uploads/default/optimized/2X/9/956cf207714744c177dbf788ba270584a6fde23a_2_10x10.png"></div>
+
+<h3><a href="https://github.com/wp-graphql/wp-graphql-woocommerce" target="_blank" rel="noopener nofollow ugc">wp-graphql/wp-graphql-woocommerce</a></h3>
+
+
+  <p><span class="label1">Add WooCommerce support and functionality to your WPGraphQL server</span></p>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>or</p>
+<aside class="onebox githubfolder">
+  <header class="source">
+      <img src="https://github.githubassets.com/favicons/favicon.svg" class="site-icon" width="32" height="32">
+      <a href="https://github.com/co-cart/co-cart" target="_blank" rel="noopener nofollow ugc">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:400/400;"><img src="https://avatars.githubusercontent.com/u/43911668?s=400&amp;amp;v=4" class="thumbnail" width="400" height="400"></div>
+
+<h3><a href="https://github.com/co-cart/co-cart" target="_blank" rel="noopener nofollow ugc">co-cart/co-cart</a></h3>
+
+
+  <p><span class="label1">🛒 CoCart is a flexible, open-source solution to enabling the shopping cart via the REST API for WooCommerce.</span></p>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/SantosGuillamot'><span itemprop='name'>SantosGuillamot</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-02-11T09:21:47Z' class='post-time'>
+                    11 February 2021 09:21
+                  </time>
+                  <meta itemprop='dateModified' content='2021-02-11T09:21:47Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Thanks a lot for the feedback <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"> I agree that we have to keep in mind other alternatives to ease the WooCommerce integration, and the ones you shared look pretty interesting. Right now, it’s possible to build an ecommerce using WooCommerce and Frontity, but we would like to work on a package to make it easier, that is what the proof of concept was about.</p>
+<p>As I said, you can still integrate WooCommerce yourself, just as you would do in a NextJS or Gatsby app, using whatever tools you prefer on top of Frontity and React.</p>
+<p>Some members of the community have already tried WooCommerce in their Frontity projects, and some of them were able to integrate it using the <a href="https://github.com/co-cart/co-cart">CoCart plugin</a> you suggest. Here you have some forum threads that might be useful → <a href="/tag/woocommerce">/tag/woocommerce </a>.</p>
+<p>In addition, this is another good article on creating a React front end for WooCommerce that may help you with your project: <a href="https://www.joshuaiz.com/words/no-woocommerce-cart-api-no-problem">https://www.joshuaiz.com/words/no-woocommerce-cart-api-no-problem</a>.</p>
+<p>If you try any of these alternatives, we would love to know your opinion <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="3" />
+              <span class='post-likes'>3 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-02-11T19:00:36Z' class='post-time'>
+                    11 February 2021 19:00
+                  </time>
+                  <meta itemprop='dateModified' content='2021-02-11T19:00:36Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>This was made with Frontity and CoCart and it is quite impressive: <a href="https://www.texasmattressmakers.com/">https://www.texasmattressmakers.com/</a></p>
+<hr>
+<p>There is another opportunity here: creating a <code>commerce</code> namespace.</p>
+<p>Packages that would implement the <code>commerce</code> namespace should be interchangeable. After all, they all should do the same, they simply use different APIs to communicate with the backend.</p>
+<p>The <code>state</code> and <code>actions</code> of that namespace would be things like:</p>
+<ul>
+<li><code>state.commerce.cart</code></li>
+<li><code>state.commerce.checkout</code></li>
+<li><code>actions.commerce.addItemToCart()</code></li>
+<li><code>actions.commerce.applyCoupon()</code></li>
+<li>…</li>
+</ul>
+<p>If there is someone willing to start working on a WooGraphQL or a CoCart package for Frontity, we could work with them on a standard <code>@frontity/commerce</code> namespace.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/CoCart'><span itemprop='name'>CoCart</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-04-09T19:04:55Z' class='post-time'>
+                    9 April 2021 19:04
+                  </time>
+                  <meta itemprop='dateModified' content='2021-04-09T19:04:55Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Hi Frontity. My name is Sébastien Dumont, creator of CoCart.</p>
+<p>Happy to answer any questions or help collaborate on building any tools you need to help make CoCart work better with Frontity. I already have a <a href="https://www.npmjs.com/package/@cocart/cocart-rest-api" rel="noopener nofollow ugc">JS library available</a></p>
+<p>I’m still new to React so let me know if this enough or not.</p>
+<p>I’m currently testing and fixing bugs in v3.0 of CoCart which will be out soon.</p>
+<p>I look forward to helping the Frontity community any way I can.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="4" />
+              <span class='post-likes'>4 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-04-12T15:15:45Z' class='post-time'>
+                    12 April 2021 15:15
+                  </time>
+                  <meta itemprop='dateModified' content='2021-04-12T15:15:45Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>That sounds awesome Sébastien! Thanks a lot for stopping by <img src="../../../images/emoji/apple/slightly_smiling_face.png%3Fv=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote no-group quote-modified" data-username="CoCart" data-post="18" data-topic="3596">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cocart/40/2484_2.png" class="avatar"> CoCart:</div>
+<blockquote>
+<p>I already have a <a href="https://www.npmjs.com/package/@cocart/cocart-rest-api">JS library available </a>. I’m still new to React so let me know if this enough or not.</p>
+</blockquote>
+</aside>
+<p>Yeah, I think so. It sounds like a <code>cocart</code> package for Frontity could be just a thin wrapper on top of that library to expose those actions and state in the Frontity store. Similar to what we did for the Store API proof of concept (this thread).</p>
+<aside class="quote no-group" data-username="CoCart" data-post="18" data-topic="3596">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="../../../user_avatar/community.frontity.org/cocart/40/2484_2.png" class="avatar"> CoCart:</div>
+<blockquote>
+<p>I’m currently testing and fixing bugs in v3.0 of CoCart which will be out soon.</p>
+</blockquote>
+</aside>
+<p>Awesome. Congratulations on CoCart by the way! <img src="../../../images/emoji/apple/grinning_face_with_smiling_eyes.png%3Fv=9" title=":grinning_face_with_smiling_eyes:" class="emoji" alt=":grinning_face_with_smiling_eyes:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="3" />
+              <span class='post-likes'>3 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/CoCart'><span itemprop='name'>CoCart</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2021-04-27T15:29:02Z' class='post-time'>
+                    27 April 2021 15:29
+                  </time>
+                  <meta itemprop='dateModified' content='2021-04-27T15:29:02Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>CoCart v3 is currently in testing stages and your all welcome to try it. Once testing is complete and v3 is released, I will be focusing on finishing the checkout and customers dashboard ability.</p>
+<p>Details about v3 of CoCart can be found here: <a href="https://cocart.xyz/cocart-v3-preview/" class="inline-onebox" rel="noopener nofollow ugc">CoCart v3 Preview - CoCart</a></p>
+<p>I look forward to your feedback.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="4" />
+              <span class='post-likes'>4 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/woocommerce-proof-of-concept/3596">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

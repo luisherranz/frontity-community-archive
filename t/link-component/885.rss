@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Link component</title>
+    <link>https://community.frontity.org/t/link-component/885</link>
+    <description>
+
+## Description
+`&lt;Link&gt;` is a component needed in all the themes. Even tho it&#39;s not complex to create one tailored to the developer needs, we can provide a default one.
+
+In my option, we need to make it super clear in the documentation that theme developers can create their own `&lt;Link&gt;` component with their own logic. We should provide examples of how to do so. **The usage of this component should always be optional.**
+
+## User Stories
+&gt; As a **theme developer**
+&gt; I want to **import a default Link component**
+&gt; so that **I don&#39;t have to create it myself**
+
+## Possible solution
+Where should it live:
+- In the `@frontity/components` package, imported like this:
+```javascript
+import Link from &quot;@frontity/components/link&quot;;
+
+const MyComp = () =&gt; {
+  return &lt;Link&gt;...&lt;/Link&gt;;
+}
+```
+- In the all the `router` packages, imported like this:
+```javascript
+const MyComp = ({ libraries }) =&gt; {
+  const Link = libraries.router.Link;
+  return &lt;Link&gt;...&lt;/Link&gt;;
+}
+```
+
+&lt;!-- ------------------------------------------------------------------------ --&gt;
+&lt;!-- This will be filled by the Frontity team, please do not remove it --&gt;
+&lt;!-- ------------------------------------------------------------------------
+
+
+## GitHub Issues
+ - [Issue](####)
+--&gt;</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 28 Sep 2020 08:17:50 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/link-component/885.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>,</p>
+<p>thanks for clarifying everything. I thought it was something on my side, so good to know to not spend more time debugging.</p>
+<p>I will look at the PR and see if I can help. I was already handling some of the cases myself because it was not working so maybe that helps as well.</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/27">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/27</link>
+        <pubDate>Mon, 28 Sep 2020 08:17:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-27</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <a class="mention" href="https://community.frontity.org/u/ni.bonev">@ni.bonev</a>! <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>I’m really sorry if this wasn’t transparent enough but what you are seeing is the expected behaviour at the moment! The links that are present in the content that you receive from WordPress are not being transformed right now.</p>
+<p>We are going to create a processor that replaces the absolute links with “client-aware” links but this feature is not available yet! We have been discussing the implementation in: <a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887/4" class="inline-onebox">Client routing for internal `content` links</a></p>
+<p>Luis has pointed this out above in this very thread <a href="https://community.frontity.org/t/link-component/885/22">here</a></p>
+<p><a class="mention" href="https://community.frontity.org/u/nicholasio.oliveira">@nicholasio.oliveira</a> has already started some work on the implementation in a pull request: <a href="https://github.com/frontity/frontity/pull/520">https://github.com/frontity/frontity/pull/520</a>. It would be awesome if you’d like to send more commits to that very same PR to get this feature finished quicker! <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"> I’d be happy to guide you and you’re welcome to ping me with questions <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/link-component/885/26">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/26</link>
+        <pubDate>Fri, 25 Sep 2020 16:07:34 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-26</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey everyone.</p>
+<p>When I started my project this didnt exist yet so I had it working in the old way. Now I am trying to change it and use the component but for some reason it is not replacing the absolute urls to relative so any link i click on my menus for example, makes a full http request.</p>
+<p>I suspect it is not replacing the correctly due to my settings and the url’s placed there and I tried any combination I could think of but couldnt make it work. So here is my component:</p>
+<pre><code class="lang-javascript">import React from "react";
+import { connect, styled, useConnect } from "frontity";
+import Link from "@frontity/components/link";
+
+const KhLink = ({
+  children, 
+  ...props
+}) =&gt; {
+
+  const {state, libraries} = useConnect()
+  const StyledAnchor = styled(Link)`
+    color: ${(props) =&gt; props.color};
+    font-weight: ${(props) =&gt; props.fontWeight || "bold"};
+    position: relative;
+    font-family: ${(props) =&gt; props.fontFamily};
+    font-size: ${(props) =&gt; props.fontSize};
+
+    &amp;:visited {
+      color: ${(props) =&gt; props.color};
+    }
+  `;
+
+  const onClick = (event) =&gt; {
+    if (state.shop.sidebarIsOpen) {
+      state.shop.sidebarIsOpen = false;
+    }
+  };
+
+
+  return (
+    &lt;StyledAnchor
+      fontFamily={libraries.theme.fonts[props.fontFamily] || libraries.theme.fonts.normal}
+      color={props.color || "white"}
+      fontSize={props.fontSize || "14px"}
+      {...props}
+      onClick={onClick}
+    &gt;
+      {children}
+    &lt;/StyledAnchor&gt;
+  );
+};
+
+export default connect(KhLink, { injectProps: false });
+</code></pre>
+<p>It is basically the same as the Link component in mars-theme, just with some extra styling. It is important to note that i tested the same with just the plain <code>Link</code>, component from frontity and it had the same issue. That is why I suspect it has something to do with the settings file.</p>
+<p>In my frontity settings i have the following:</p>
+<pre><code class="lang-javascript">const settings = {
+  name: "koenighaus-webshop",
+  state: {
+    frontity: {
+      url: "https://neu.koenighaus-heizsysteme.de",
+      title: "Koenighaus Heizsysteme",
+    },
+  },
+  packages: [
+    {
+      name: "@frontity/koenighaus-theme",
+    },
+    {
+      name: "@frontity/wp-source",
+      state: {
+        source: {
+          api: "https://api.koenighaus-heizsysteme.de/wp-json/",
+          params: {
+            per_page: 9,
+          },
+          homepage: "/home/",
+          postEndpoint: "product",
+          postTypes: [
+            {
+              type: "product",
+              endpoint: "product",
+              archive: "/webshop",
+            },
+          ],
+          taxonomies: [
+            {
+              taxonomy: "product_cat",
+              endpoint: "product_cat",
+              postTypeEndpoint: "product",
+            },
+          ],
+        },
+      },
+    },
+    "@frontity/tiny-router",
+    "@frontity/html2react",
+    "@frontity/head-tags",
+    "woocommerce-shop",
+  ],
+};
+
+export default settings;
+</code></pre>
+<p>And finally here is a screenshot of the url’s that are in my main menu. The urls are comping as absolute urls returned from the menu endpoint.</p>
+<p><img src="https://community.frontity.org/uploads/default/original/2X/7/7ccb2c1006a36896e6db376cc8ed6979420c880c.png" alt="Screenshot 2020-09-25 at 17.41.53" data-base62-sha1="hNYv2hCAOO5TBSyzEYVPmcLNvru" width="520" height="192"><br>
+This screenshot shows each URL, logged into the console by the link component.</p>
+<p>Issue persists both on live and on localhost. Here is a link from the dev/live site: <a href="https://koenighaus-webshop.donkoko.vercel.app/" rel="nofollow noopener">https://koenighaus-webshop.donkoko.vercel.app/</a>. If you hover the links in the main menu you will see that they are still showing the full absolute url to the API.</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/25">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/25</link>
+        <pubDate>Fri, 25 Sep 2020 15:45:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-25</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We are going to do that here: <a href="https://community.frontity.org/t/client-routing-for-internal-content-links/887" class="inline-onebox">Client routing for internal `content` links</a></p>
+<p>But the <code>post.link</code> fields need to also be correct in the <code>state</code>, or you’d have to be very careful not to use <code>post.link</code> directly anywhere else except inside <code>Link</code>. So I think that you still should transform them in your handlers.</p>
+<p><em>By the way, transforming these links is one of the things that will be easier to do once we introduce the hooks (filters) for the <code>state</code>.</em></p>
+          <p><a href="https://community.frontity.org/t/link-component/885/22">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/22</link>
+        <pubDate>Fri, 21 Aug 2020 10:38:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-22</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I was wondering, does it make sense to add a feature that fixes local links removing the domain from them?</p>
+<p>I’m thinking about something like: <code>link.replace(state.frontity.url, '')</code></p>
+<p>This replace is currently being done by the handlers of <code>@frontity/wp-source</code> but when users need to implement their own handlers, going through every possible link that needs to be fixed in every handler might be a pain.</p>
+<p>What do you think?</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/21">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/21</link>
+        <pubDate>Tue, 18 Aug 2020 01:40:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-21</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>This has been included in the latest release <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=9" title=":tada:" class="emoji" alt=":tada:"> : <a href="https://community.frontity.org/t/frontity-release-first-stable-version-of-google-analytics-google-tag-manager-and-comscores-packages/2293">Read the full Release Announcement</a>.</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/20">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/20</link>
+        <pubDate>Mon, 06 Jul 2020 07:57:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-20</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Summary of the current state:</p>
+<p>The link is implemented in <a href="https://github.com/frontity/frontity/pull/507">https://github.com/frontity/frontity/pull/507</a></p>
+<h2>User stories implemented</h2>
+<blockquote>
+<p>As a <strong>theme developer</strong><br>
+I want to <strong>import a default Link component</strong><br>
+so that <strong>I don’t have to create it myself</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>final reader</strong><br>
+I want to <strong>open links in new tabs when I cmd+click</strong><br>
+so that <strong>I can use the site without hassle</strong></p>
+</blockquote>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>get a warning if my links won’t render a href</strong><br>
+so that <strong>I can be sure that all my links work</strong></p>
+</blockquote>
+<h2>Future features</h2>
+<ul>
+<li>We should support autoprefetching with some sane default strategy according to <a href="https://community.frontity.org/t/auto-prefetch-data/886" class="inline-onebox">Auto Prefetch data</a>
+</li>
+<li>We could add an an ability to pass state to the page component that is being linked to. E.g:</li>
+</ul>
+<pre><code class="lang-js">  &lt;Link link="/posts/some-post-name" state={{ customState: "hello" }}&gt;
+</code></pre>
+<p>Then, whichever component is rendered by the <code>/posts/some-post-name</code> route, gets this state passed as prop.</p>
+<ul>
+<li>We could provide a variation of the <code>Link</code> component that is route-aware and allows passing optional styles if the current route matches the <code>link</code> of that component. This would be like the <code>NavLink</code> of the react-router.</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/link-component/885/19">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/19</link>
+        <pubDate>Tue, 30 Jun 2020 23:37:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-19</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a>.</p>
+<p>I’ve got a PR opened for this: <a href="https://github.com/frontity/frontity/pull/507" rel="nofollow noopener">https://github.com/frontity/frontity/pull/507</a></p>
+          <p><a href="https://community.frontity.org/t/link-component/885/17">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/17</link>
+        <pubDate>Mon, 29 Jun 2020 13:12:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-17</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>We don’t have a specific process right now for external contributors because we want to make contributing as easy as possible, at least in this phase of the project. So, as long as they contribute to the code, we take care of the rest.</p>
+<p>For the Link component, just go ahead with the PR as it seems like a pretty straight-forward implementation <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>We use the Feature Discussion as the main source of truth for a feature. So feel free to add a post here with your implementation ideas, the things you want to accomplish in the first PR, and then link here the PR (or other relevant links) and update your progress from time to time.</p>
+<p>The PR review conversation will happen in the PR and that is fine, but if during the development we feel like we need to make a serious change to the implementation, we try to have that conversation here, in the Feature Discussion.</p>
+<p>After the PR is finished, we do a final update here to inform about the Final Implementation. The idea is that anyone reading the Feature Discussion from start to end should have all the information available.</p>
+<hr>
+<p>Overtime, once we start receiveing more contributions, we will slowly introduce them to the processes we follow ourselves, which involve:</p>
+<ul>
+<li>Writing a Feature Discussion to start a conversation.</li>
+<li>Writing an Implementation Proposal when the work of that Feature is going to be started.</li>
+<li>Starting a PR with the code, that includes:
+<ul>
+<li>[ ] Working on the code</li>
+<li>[ ] Updating the TSDocs of any file modified</li>
+<li>[ ] Updating the types</li>
+<li>[ ] Adding or updating Unit tests</li>
+<li>[ ] Adding or updating End to end tests</li>
+<li>[ ] Adding or updating TypeScript tests</li>
+<li>[ ] Updating starter themes</li>
+<li>[ ] Updating other packages</li>
+<li>[ ] Adding new issue in the <a href="https://github.com/frontity/gitbook-docs/wiki/Code-Releases">docs repo</a>
+</li>
+<li>[ ] Updating the relevant Community discussions</li>
+<li>[ ] Adding a Changeset (with link to its <a href="https://community.frontity.org/c/33">Feature Discussion</a> if it exists)</li>
+</ul>
+</li>
+<li>Add the relevant docs for this feature, done in collaboration with our documentation team.</li>
+<li>Finally, update the Feature Discussion with the Final Implementation.</li>
+</ul>
+<p>Those tasks are already included in <a href="https://raw.githubusercontent.com/frontity/frontity/dev/.github/pull_request_template.md">our PR template</a>. But for external contributors, we will take care of the remaining tasks when something is missing.</p>
+<hr>
+<p>We have a small contribution guide that we need to improve:</p>
+<ul>
+<li><a href="https://docs.frontity.org/contributing/code-contribution-guide">https://docs.frontity.org/contributing/code-contribution-guide</a></li>
+</ul>
+<p>And a rather complete implementation proposal template for the most complex features:</p>
+<ul>
+<li><a href="https://community.frontity.org/t/read-before-adding-new-features/853/2">Implementation Proposal Template</a></li>
+</ul>
+<p>This is an example of a FD where we used the IP template:</p>
+<ul>
+<li><a href="https://community.frontity.org/t/amp-package/388/10" class="inline-onebox">AMP package</a></li>
+</ul>
+<p>We don’t want to impose such a large implementation proposal for all the features, some of them will do just fine with a small implementation proposal, like for example this <code>Link</code> component.</p>
+<p>Other things in our todo list are:</p>
+<ul>
+<li>Improve our <em>Contribution</em> guide.</li>
+<li>Add a <em>Coding Standard</em> guide.</li>
+<li>Add a <em>Design principles</em> guide.</li>
+</ul>
+<p>Probably more. And of course, any feedback is welcomed <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/link-component/885/16">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/16</link>
+        <pubDate>Mon, 29 Jun 2020 10:33:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-16</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I agree we should go with <code>@frontity/components/link</code>.</p>
+<p>I was also thinking about the auto prefetch stuff, but that should definitely be its own PR.</p>
+<p>So just so I’m clear, is the current user stories + possible implementation detail enough to get a PR up or do we feel we need to discuss this in more details in terms of what props the component should have?</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/12">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/12</link>
+        <pubDate>Fri, 26 Jun 2020 14:52:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-12</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>Yeah, feel free to cover as much <strong>User stories</strong> as you want, or even add more.</p>
+<p>Also the PR doesn’t need to contain all of them: there’s no problem on doing a smaller PR with the basic <code>&lt;Link&gt;</code> component. If that’s the case, we will mark this Feature Discussion as released and move the remaining user stories to new Feature Discussions to be addressed individually.</p>
+<p>Actually, there’s already a Feature Discussion related to the Link component about introducing a “standard setting for prefetching” in Frontity: <a href="https://community.frontity.org/t/auto-prefetch-data/886" class="inline-onebox">Auto Prefetch data</a></p>
+<p>Regarding the implementation, the only question was if we should expose the <code>Link</code> component in <code>@frontity/components/link</code> or in <code>libraries.router.Link</code> (to make it a responsibility of the <code>router</code> packages). My opinion is that we should go with the <code>@frontity/components/link</code> approach.</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/11</link>
+        <pubDate>Fri, 26 Jun 2020 11:18:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-11</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m glad to hear that you’d like to give this a shot <a class="mention" href="https://community.frontity.org/u/nicholasio.oliveira">@nicholasio.oliveira</a> <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<p>The way we usually work is using the Feature Discussion in the forum to discuss first which functionalities should be included in the first version and how it should work, until we end up with an Implementation Proposal (like <a href="https://community.frontity.org/t/smart-adserver/1586/2">this one</a>). From there, we start a Pull Request in GitHub for the code. We keep GitHub to talk about the code itself and the forum for the discussions related to the implementation.</p>
+<p>So I guess the first step should be to restart this conversation about which functionalities the <code>Link</code> component should include and where it should live, in <code>@frontity/components</code> or in the <code>router</code>. It’d be great to hear your opinion as well! Any feedback here <a class="mention-group notify" href="https://community.frontity.org/groups/dev-team">@dev-team</a> ?</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/9</link>
+        <pubDate>Fri, 26 Jun 2020 10:14:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-9</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[nicholasio.oliveira]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m planning on giving this one a shot, seems like a good first ticket.</p>
+<p>Do I need to create a issue on github? Or are we using this forum as the source of truth for tracking tickets/discussions?</p>
+          <p><a href="https://community.frontity.org/t/link-component/885/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/5</link>
+        <pubDate>Thu, 25 Jun 2020 19:24:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-5</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Another cool thing could be to add a warning if people forget to pass the <code>link</code> prop, like in this case: <a href="https://community.frontity.org/t/link-does-not-render-href-on-the-anchor-tag/1233" class="inline-onebox">Link does not render href on the anchor tag</a></p>
+<blockquote>
+<p>As a <strong>Frontity developer</strong><br>
+I want to <strong>get a warning if my links won’t render a href</strong><br>
+so that <strong>I can be sure that all my links work</strong></p>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/link-component/885/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/4</link>
+        <pubDate>Fri, 14 Feb 2020 15:32:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-4</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/orballo">@orballo</a>.</p>
+<p>Let’s add this user story for this:</p>
+<blockquote>
+<p>As a <strong>final reader</strong><br>
+I want to <strong>open links in new tabs when I cmd+click</strong><br>
+so that <strong>I can use the site without hassle</strong></p>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/link-component/885/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/3</link>
+        <pubDate>Fri, 13 Dec 2019 18:07:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-3</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>I noticed that in <code>@frontity/mars-theme</code> the current behavior of the Link component prevents the user from opening links in a new tab when using a shortcut such as <code>cmd + click</code>. This should be contemplated. An easy solution, even if not exhaustive, is described in this post:</p>
+<aside class="onebox stackexchange">
+  <header class="source">
+      <a href="https://stackoverflow.com/questions/20087368/how-to-detect-if-user-it-trying-to-open-a-link-in-a-new-tab/20087506#20087506" target="_blank">stackoverflow.com</a>
+  </header>
+  <article class="onebox-body">
+      <a href="https://stackoverflow.com/users/610573/chris-baker" target="_blank">
+    <img alt="Chris Baker" src="https://community.frontity.org/uploads/default/original/1X/0605e6f719bd478e540f70857546f0310bd7831f.png" class="thumbnail onebox-avatar" width="128" height="128">
+  </a>
+<h4>
+  <a href="https://stackoverflow.com/questions/20087368/how-to-detect-if-user-it-trying-to-open-a-link-in-a-new-tab/20087506#20087506" target="_blank">How to detect if user it trying to open a link in a new tab?</a>
+</h4>
+
+<div class="tags">
+  <strong>javascript</strong>
+</div>
+
+<div class="date">
+  
+  answered by
+  <a href="https://stackoverflow.com/users/610573/chris-baker" target="_blank">
+    Chris Baker
+  </a>
+  on <a href="https://stackoverflow.com/questions/20087368/how-to-detect-if-user-it-trying-to-open-a-link-in-a-new-tab/20087506#20087506" target="_blank">04:42AM - 20 Nov 13 UTC</a>
+</div>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+          <p><a href="https://community.frontity.org/t/link-component/885/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/2</link>
+        <pubDate>Fri, 13 Dec 2019 15:41:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-2</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+      <item>
+        <title>Link component</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <h2>Description</h2>
+<p><code>&lt;Link&gt;</code> is a component needed in all the themes. Even tho it’s not complex to create one tailored to the developer needs, we can provide a default one.</p>
+<p>In my option, we need to make it super clear in the documentation that theme developers can create their own <code>&lt;Link&gt;</code> component with their own logic. We should provide examples of how to do so. <strong>The usage of this component should always be optional.</strong></p>
+<h2>User Stories</h2>
+<blockquote>
+<p>As a <strong>theme developer</strong><br>
+I want to <strong>import a default Link component</strong><br>
+so that <strong>I don’t have to create it myself</strong></p>
+</blockquote>
+<h2>Possible solution</h2>
+<p>Where should it live:</p>
+<ul>
+<li>In the <code>@frontity/components</code> package, imported like this:</li>
+</ul>
+<pre><code class="lang-javascript">import Link from "@frontity/components/link";
+
+const MyComp = () =&gt; {
+  return &lt;Link&gt;...&lt;/Link&gt;;
+}
+</code></pre>
+<ul>
+<li>In the all the <code>router</code> packages, imported like this:</li>
+</ul>
+<pre><code class="lang-javascript">const MyComp = ({ libraries }) =&gt; {
+  const Link = libraries.router.Link;
+  return &lt;Link&gt;...&lt;/Link&gt;;
+}
+</code></pre>
+          <p><a href="https://community.frontity.org/t/link-component/885/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/link-component/885/1</link>
+        <pubDate>Fri, 29 Nov 2019 13:47:59 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-885-1</guid>
+        <source url="https://community.frontity.org/t/link-component/885.rss">Link component</source>
+      </item>
+  </channel>
+</rss>

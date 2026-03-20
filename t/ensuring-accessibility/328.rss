@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Ensuring Accessibility</title>
+    <link>https://community.frontity.org/t/ensuring-accessibility/328</link>
+    <description>I&#39;ve been studying different strategies to help Frontity users maintain accessibility and I think we can help in two ways:
+1. Add eslint to `npx frontity create`, including the [`eslint-plugin-jsx-a11y`](https://github.com/evcohen/eslint-plugin-jsx-a11y) plugin.
+1. Add [`react-axe`](https://github.com/dequelabs/react-axe) to Frontity.
+
+`jsx-a11y` is useful while in the editor. It alerts when you are forgetting something. For example, here I forgot the `alt` attribute of an `&lt;img&gt;` tag:
+![44|690x280,75%](upload://ccAn4mr248Aeyo8VYl7xfyTMbC6.png) 
+
+If we don&#39;t install it by default, `jsx-a11y` can be easily installed by the developers. We could help with instructions.
+
+`react-axe` analyzes the DOM instead of the React components, and outputs warnings in the Chrome console:
+![20|690x221](upload://nHCGk3UuclOWE5iepHfB9Myihrt.png) 
+
+It&#39;s smarter because it looks at the DOM. This is important because many accessibility issues exist at the intersection of the DOM and the CSS and unless you have a fully rendered DOM.
+
+There&#39;s a great Chrome extension that does pretty much the same although it is opt-in (you need to open its tab and click analyze, whereas with `react-axe` the warnings always appear in the console).
+https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd
+
+
+The questions here are:
+- Should we only have instructions on how to install `jsx-a11y` or add it by default?
+- Should we only have instructions on how to install the aXe extension or add `react-axe` by default?
+- If added, should they be opt-in or opt-out?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 26 Apr 2021 09:29:48 +0000</lastBuildDate>
+    <category>» Framework Design</category>
+    <atom:link href="https://community.frontity.org/t/ensuring-accessibility/328.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Ensuring Accessibility</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>hi <a class="mention" href="https://community.frontity.org/u/chrys3136">@chrys3136</a> <img src="https://community.frontity.org/images/emoji/apple/wave.png?v=9" title=":wave:" class="emoji" alt=":wave:"></p>
+<p>I think you should be able to configure both just fine.</p>
+<p>The eslint plugin has nothing to do with Frontity so you can just go ahead and install it.</p>
+<p><code>react-axe</code> is a bit different, but I think you can create a new Frontity package (<code>npx frontity create-package</code>) and add it to the <code>init</code> action (<code>actions.yourPackageName.init</code>), like this:</p>
+<p>code: <a href="https://www.npmjs.com/package/@axe-core/react" class="inline-onebox">@axe-core/react - npm</a></p>
+<pre><code class="lang-js">// packages/my-package-name/src/index.js
+import React from "react";
+import ReactDOM from "react-dom";
+
+const myPackageName = {
+  actions: {
+    myPackageName: {
+      init: () =&gt; {
+        if (process.env.NODE_ENV !== "production") {
+          const axe = require("@axe-core/react");
+          axe(React, ReactDOM, 1000);
+        }
+      },
+    },
+  },
+};
+
+export default myPackageName;
+</code></pre>
+<p>Let me know if that works for you <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/ensuring-accessibility/328/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ensuring-accessibility/328/4</link>
+        <pubDate>Mon, 26 Apr 2021 09:29:48 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-328-4</guid>
+        <source url="https://community.frontity.org/t/ensuring-accessibility/328.rss">Ensuring Accessibility</source>
+      </item>
+      <item>
+        <title>Ensuring Accessibility</title>
+        <dc:creator><![CDATA[chrys3136]]></dc:creator>
+        <description><![CDATA[
+            <p>I’m embarking on my first Frontity project to redevelop an existing WordPress site with and am excited at the potential! I wonder if <em>eslint</em>, <em>eslint-plugin-jsx-ally</em> and <em>react-axe</em> are included by default as you suggested they might be? If not, can I ask for your guidance in configuring them in my project?  I followed the Frontity tutorial for setting up a theme and the Frontity tutorial for retrieving a wp menu. Now, as I start to develop, I want to ensure that menu will be accessible. Looking at the <a href="https://github.com/jsx-eslint/eslint-plugin-jsx-a11y" rel="noopener nofollow ugc">eslint-plugin-jsx-ally</a> repo page, they recommend installing plugins and then including plugins in a .eslintrc configuration file.  Can I just add an .eslintrc file to my theme folder?  I am using Atom as my IDE… do you know if I need certain packages installed there too? Please forgive my ignorance, I am new to React as well as Frontity.</p>
+          <p><a href="https://community.frontity.org/t/ensuring-accessibility/328/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ensuring-accessibility/328/3</link>
+        <pubDate>Thu, 15 Apr 2021 18:47:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-328-3</guid>
+        <source url="https://community.frontity.org/t/ensuring-accessibility/328.rss">Ensuring Accessibility</source>
+      </item>
+      <item>
+        <title>Ensuring Accessibility</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Of course more ideas on how to help/ensure accessibility on Frontity themes are welcomed <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+          <p><a href="https://community.frontity.org/t/ensuring-accessibility/328/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ensuring-accessibility/328/2</link>
+        <pubDate>Wed, 26 Jun 2019 17:16:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-328-2</guid>
+        <source url="https://community.frontity.org/t/ensuring-accessibility/328.rss">Ensuring Accessibility</source>
+      </item>
+      <item>
+        <title>Ensuring Accessibility</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve been studying different strategies to help Frontity users maintain accessibility and I think we can help in two ways:</p>
+<ol>
+<li>Add eslint to <code>npx frontity create</code>, including the <a href="https://github.com/evcohen/eslint-plugin-jsx-a11y" rel="nofollow noopener"><code>eslint-plugin-jsx-a11y</code></a> plugin.</li>
+<li>Add <a href="https://github.com/dequelabs/react-axe" rel="nofollow noopener"><code>react-axe</code></a> to Frontity.</li>
+</ol>
+<p><code>jsx-a11y</code> is useful while in the editor. It alerts when you are forgetting something. For example, here I forgot the <code>alt</code> attribute of an <code>&lt;img&gt;</code> tag:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/558652db61c3c15cb39a2d9cf02fd4796b1c8456.png" data-download-href="https://community.frontity.org/uploads/default/558652db61c3c15cb39a2d9cf02fd4796b1c8456" title="Screen Shot 2019-06-26 at 18.54.44.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/558652db61c3c15cb39a2d9cf02fd4796b1c8456_2_517x210.png" alt="44" width="517" height="210" srcset="https://community.frontity.org/uploads/default/optimized/1X/558652db61c3c15cb39a2d9cf02fd4796b1c8456_2_517x210.png, https://community.frontity.org/uploads/default/optimized/1X/558652db61c3c15cb39a2d9cf02fd4796b1c8456_2_775x315.png 1.5x, https://community.frontity.org/uploads/default/optimized/1X/558652db61c3c15cb39a2d9cf02fd4796b1c8456_2_1034x420.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/558652db61c3c15cb39a2d9cf02fd4796b1c8456_2_10x10.png"></a></div><p></p>
+<p>If we don’t install it by default, <code>jsx-a11y</code> can be easily installed by the developers. We could help with instructions.</p>
+<p><code>react-axe</code> analyzes the DOM instead of the React components, and outputs warnings in the Chrome console:<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/a6206719c7e34b30c52b6e587d86b740af83843b.png" data-download-href="https://community.frontity.org/uploads/default/a6206719c7e34b30c52b6e587d86b740af83843b" title="Screen Shot 2019-06-26 at 18.56.20.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/a6206719c7e34b30c52b6e587d86b740af83843b_2_690x221.png" alt="20" width="690" height="221" srcset="https://community.frontity.org/uploads/default/optimized/1X/a6206719c7e34b30c52b6e587d86b740af83843b_2_690x221.png, https://community.frontity.org/uploads/default/optimized/1X/a6206719c7e34b30c52b6e587d86b740af83843b_2_1035x331.png 1.5x, https://community.frontity.org/uploads/default/original/1X/a6206719c7e34b30c52b6e587d86b740af83843b.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/a6206719c7e34b30c52b6e587d86b740af83843b_2_10x10.png"></a></div><p></p>
+<p>It’s smarter because it looks at the DOM. This is important because many accessibility issues exist at the intersection of the DOM and the CSS and unless you have a fully rendered DOM.</p>
+<p>There’s a great Chrome extension that does pretty much the same although it is opt-in (you need to open its tab and click analyze, whereas with <code>react-axe</code> the warnings always appear in the console).<br>
+</p><aside class="onebox whitelistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/1X/51502f93396c6b3d0a2909a8df00076c1a17b901.png" class="site-icon" width="32" height="32">
+      <a href="https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd" target="_blank" rel="nofollow noopener">chrome.google.com</a>
+  </header>
+  <article class="onebox-body">
+    <img src="https://community.frontity.org/uploads/default/original/1X/e69a20075efc1c80e1f65bd2823a94627dad8d6f.png" class="thumbnail onebox-avatar" width="128" height="128">
+
+<h3><a href="https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd" target="_blank" rel="nofollow noopener">axe</a></h3>
+
+<p>Accessibility testing in Chrome Developer Tools</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+<p></p>
+<p>The questions here are:</p>
+<ul>
+<li>Should we only have instructions on how to install <code>jsx-a11y</code> or add it by default?</li>
+<li>Should we only have instructions on how to install the aXe extension or add <code>react-axe</code> by default?</li>
+<li>If added, should they be opt-in or opt-out?</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/ensuring-accessibility/328/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/ensuring-accessibility/328/1</link>
+        <pubDate>Wed, 26 Jun 2019 17:03:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-328-1</guid>
+        <source url="https://community.frontity.org/t/ensuring-accessibility/328.rss">Ensuring Accessibility</source>
+      </item>
+  </channel>
+</rss>

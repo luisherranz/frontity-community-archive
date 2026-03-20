@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>The Settings API - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="Ok, the first thing we need is a package system for the settings. 
+There may be different packages in the future, depending on where the settings are stored: 
+
+
+file-settings: save settings in a setting.json file in your&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="../../../uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/the-settings-api/58" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="../../../opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="../../../stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="../../../stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="../../../stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="../../../stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="../../../stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="../../../stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="../../../stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="../../../stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="../../../stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="../../../stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="../../../stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="../../../stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="../../../stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="../../../stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="../../../stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="../../../stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="../../../stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="../../../stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="../../../stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="../../../stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="../../../stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="../../../stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css%3F__ws=community.frontity.org.css" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js%3F__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js%3F__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;The Settings API&#39;" href="58.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png" />
+<meta property="og:image" content="/uploads/default/original/1X/fe610bcdd172db0efd698f5aa701757948c13ca0.png" />
+<meta property="og:url" content="/t/the-settings-api/58?page=2" />
+<meta name="twitter:url" content="/t/the-settings-api/58?page=2" />
+<meta property="og:title" content="The Settings API" />
+<meta name="twitter:title" content="The Settings API" />
+<meta property="og:description" content="Haha, ok ok…" />
+<meta name="twitter:description" content="Haha, ok ok…" />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="9 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="4 ❤" />
+<meta property="article:published_time" content="2019-03-11T16:14:31+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="prev" href="./">
+
+    
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" as="script">
+<script defer="" src="../../../theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js%3F__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="./">The Settings API</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='The Settings API'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_21' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T16:14:31Z' class='post-time'>
+                    11 March 2019 16:14
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T16:14:31Z'>
+              <span itemprop='position'>21</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Haha, ok ok…</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_22' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-12T14:53:54Z' class='post-time'>
+                    12 March 2019 14:53
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-13T10:30:52Z'>
+              <span itemprop='position'>22</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Another summary of what we have discussed so far:</p>
+<h2>Schema</h2>
+<p>(Not sure if this types are correct, but the TypeScript docs are down right know, so bear with me)</p>
+<pre><code class="lang-auto">type MainSettings = {
+  url?: string; // Default: undefined 
+  title?: string; // Default: undefined
+  timezone?: number; // Default: 0
+  language?: string; // Default: "en"
+}
+
+type Package = {
+  name: string;
+  active?: boolean; // Default: true
+  namespaces?: string | string[]; // Default: ["all", "available", "namespaces"],
+  settings?: object;
+}
+
+type Settings = {
+  name?: string; // Default: undefined
+  match?: string | string[]; // Default: undefined
+  mode?: string; // Default: "html"
+  settings?: MainSettings;
+  packages: (string | Package)[];
+}
+
+type ExportedSettings = Settings | Settings[];
+</code></pre>
+<h2>Examples</h2>
+<h3>One site</h3>
+<pre><code class="lang-javascript">export default {
+  settings: {
+    url: "https://site.com",
+    title: "Site Title",
+    timezone: 1,
+    language: "en",
+  },
+  packages: [
+    {
+      name: "@frontity/theme",
+      namespaces: ["theme", "h2r"],
+      settings: {
+        theme: { ... },
+        h2r: { ... },
+        // Each key corresponds to one namespace.
+      }
+    }
+  ]
+}
+</code></pre>
+<h3>One site with AMP</h3>
+<pre><code class="lang-javascript">export default [
+  {
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        namespaces: ["theme", "h2r", "comments"],
+        settings: { ... },
+      }
+    ]
+  },
+  {
+    mode: "amp",
+    match: "\/amp\/?$",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        namespaces: ["theme", "h2r"],
+        settings: { ... }
+      }
+    ]
+  }
+]
+</code></pre>
+<h3>More than one site</h3>
+<pre><code class="lang-javascript">export default [
+  {
+    name: "site-one",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+  {
+    name: "site-one-amp",
+    match: "\/amp\/?",
+    mode: "amp",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+  {
+    name: "site-two",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+  {
+    name: "site-two-amp",
+    match: "\/amp\/?",
+    mode: "amp",
+    settings: { ... },
+    packages: [
+      {
+        name: "@frontity/theme",
+        settings: { ... }
+      }
+    ]
+  },
+]
+</code></pre>
+<p>I realised that if we use the <code>match</code> setting for both the site and the mode, we would end with more than one <code>match</code> matching the current url, and we’d need to set some kind of priority. In order to avoid that, to select some site settings we’ll use the <code>name</code> field, and to select some mode settings the <code>match</code> field. We can also use the <code>url</code> field instead of the <code>name</code> field.</p>
+<p>I don’t have a preference here, but if using one of them would reduce the schema surface, I’d go for that one.</p>
+<p>Also, I’d rather build a repetitive schema that looks clearer at first glance, than something more complicated to avoid duplicated settings. As the settings file is a JS file, the developer can always extract duplicated settings and reuse them when necessary:</p>
+<pre><code class="lang-javascript">const mainSettings = {
+  url: "https://site.com",
+  title: "Site Title",
+  timezone: 0,
+  language: "en"
+}
+
+export default [
+  {
+    settings: mainSettings,
+    packages: [ ... ]
+  },
+  {
+    match: "\/amp\/?$",
+    settings: mainSettings,
+    packages: [ ... ]
+  }
+]
+</code></pre>
+<h2>API</h2>
+<p>So far, unless something changes, the API remains as discussed before:</p>
+<ul>
+<li><code>getSettings({ name, url })</code></li>
+<li><code>getPackages({ name, url })</code></li>
+</ul>
+<h2>Ideas</h2>
+<p>The <code>frontity.settings.js</code> file should be in the root folder of the project, at the same level than <code>package.json</code>.</p>
+<p>The default settings will be defined in a <code>frontity.settings.js</code> file inside the <code>file-settings</code> package.</p>
+<p>The queries modifying the <code>url</code> or <code>name</code> fields shouldn’t affect the settings schema, they should be used in <code>core</code>, either to override the value in the store, or to be used with <code>getSettings</code> or <code>getPackages</code> to retrieve different settings.</p>
+<p>The <code>mode</code> defined in settings is defined only to be used within React, not to decide what settings to use.</p>
+<hr>
+<p>I think I covered pretty much everything we discussed. Let me know if I’m missing something.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_23' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-13T08:34:14Z' class='post-time'>
+                    13 March 2019 08:34
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-13T08:34:14Z'>
+              <span itemprop='position'>23</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="22" data-topic="58">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="../../../user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I realised that if we use the <code>match</code> setting to both the site and the mode, we would end with more than one <code>match</code> matching the current url, and we’d need to set some kind of priority.</p>
+</blockquote>
+</aside>
+<p>Yes, I think that’s the last problem we need to solve, at least for now.</p>
+<p>In my first designs, it worked because everything was an array and the user can order the items. That means things like “amp” must go before “html” which may not be very intuitive:</p>
+<p>This works:</p>
+<pre><code class="lang-auto">export default = [
+    {
+      mode: "amp",
+      match: "\/amp$",
+      ...
+    },
+    {
+      mode: "html",
+      // match: ".*" (the default)
+      ...
+    }
+];
+</code></pre>
+<p>This doesn’t, because the first match catches everything:</p>
+<pre><code class="lang-auto">export default = [
+    {
+      mode: "html",
+      // match: ".*" (the default)
+      ...
+    },
+    {
+      mode: "amp",
+      match: "\/amp$",
+      ...
+    }
+];
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_24' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-20T12:29:27Z' class='post-time'>
+                    20 March 2019 12:29
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-20T12:29:27Z'>
+              <span itemprop='position'>24</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The <code>getPackages()</code> should return an object with all the packages for each site:</p>
+<pre><code class="lang-auto">{
+  "my-site": [ ... ],
+  "my-blog": [ ... ],
+  "my-blog-amp": [ ... ],
+}
+</code></pre>
+<p>With that we can generate the client bundles and server bundle.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_25' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-28T11:53:03Z' class='post-time'>
+                    28 March 2019 11:53
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-28T11:53:03Z'>
+              <span itemprop='position'>25</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>The first version of <a href="https://github.com/frontity/frontity/tree/dev/packages/file-settings" rel="nofollow noopener"><code>file-settings</code></a> has been implemented. Here is the README info:</p>
+<h2>Usage</h2>
+<p>You can install it with  <code>npm</code> :</p>
+<pre><code class="lang-auto">npm i @frontity/file-settings
+</code></pre>
+<p>Here is a small example of how to use  <code>getSettings</code> :</p>
+<pre><code class="lang-auto">import { getSettings } from "@frontity/file-settings";
+
+const settings = await getSettings({ name: "example-name", url: "https://example.site" });
+</code></pre>
+<h2>API Reference</h2>
+<h3><code>async getSettings(options) =&gt; settings</code></h3>
+<p>Used to retrieve the settings from the  <code>frontity.settings.js</code>  file.</p>
+<h4>Parameters</h4>
+<p><strong><code>options</code></strong>  :  <code>{ name?: string; url: string; }</code></p>
+<p>Used to match the right set of settings when there is more than one.</p>
+<ul>
+<li>
+<strong><code>options.name</code></strong>  :  <code>string (optional)</code><br>
+The name of the set of settings you want to retrieve. When provided,  <code>getSettings</code>  won’t use  <code>options.url</code> .</li>
+<li>
+<strong><code>options.url</code></strong>  :  <code>string</code><br>
+The url of the site using Frontity. The  <code>matches</code>  field of each set of settings will be tested against this url to determine which set of settings should be used.</li>
+</ul>
+<h4>Return</h4>
+<p><strong><code>settings</code></strong>  :  <code>Settings</code><br>
+An object with type  <code>Settings</code>  containing a set of settings.</p>
+<h3><code>async getPackages() =&gt; packages</code></h3>
+<p>Used to retrieve a list of names of the packages used in each settings set.</p>
+<h4>Return</h4>
+<p><strong><code>packages</code></strong>  :  <code>{ [key: string]: string[] }</code><br>
+An object with a key for each set of settings populated with an array of packages names from that set.</p>
+<p>If the settings file exports only one set of settings (or  <em>mono settings</em> ),  <code>packages</code>  will have only one key named  <code>default</code> :</p>
+<pre><code class="lang-auto">{
+  default: [ "theme-package", "source-package" ] 
+}
+</code></pre>
+<p>If the settings file exports various sets of settings (or  <em>multi settings</em> ),  <code>packages</code>  will have one key per set of settings named like them.</p>
+<pre><code class="lang-auto">{ 
+  "settings-one": [ "theme-one", "source-one" ],
+  "settings-two": [ "theme-two", "source-one" ]
+}
+</code></pre>
+<h2>Settings File</h2>
+<p>The file must be located in the root directory of the project, it must be named  <code>frontity.settings.ts</code>  or  <code>frontity.settings.js</code> , and it needs to export a serializable object.</p>
+<p>The settings exported can be  <strong>mono settings</strong>  (only one):</p>
+<pre><code class="lang-auto">{
+  name?: string;
+  matches?: string[];
+  mode?: string; // Default: "html"
+  settings?: {
+    url?: string;
+    title?: string;
+    timezone?: number; // Default: 0
+    language?: string; // Default; "en"
+  },
+  packages: [
+    string,
+    {
+      name: string;
+      active?: boolean; // Default: true
+      namespaces?: string[];
+      settings?: object;
+    }
+  ]
+}
+</code></pre>
+<p>Or  <strong>multi settings</strong> :</p>
+<pre><code class="lang-auto">// An array of more than one set of settings.
+[
+  {
+    name: string; // This time the name is mandatory and must be unique.
+    matches?: string[];
+    mode?: string; // Default: "html"
+    settings?: { ... },
+    packages: [ ... ]
+  },
+  {
+    name: string; // This time the name is mandatory and must be unique.
+    matches?: string[];
+    mode?: string; // Default: "html"
+    settings?: { ... },
+    packages: [ ... ]
+  }
+]
+</code></pre>
+<h2>Typescript</h2>
+<p>Some <a href="https://github.com/frontity/frontity/blob/dev/packages/file-settings/src/types.ts" rel="nofollow noopener">TS types</a> are exposed to be used in development. They can be accessed like this:</p>
+<p>import { Settings } from “<a class="mention" href="/u/frontity">@frontity</a>/file-settings”; const settings: Settings = { … };</p>
+<p>The following are probably the only types you will need during development:</p>
+<h3><code>Settings&lt;T = Package&gt;</code></h3>
+<p>Types for the imported settings object from the settings file. You’ll want to use them on your  <code>frontity.settings.ts</code>  file.</p>
+<h3><code>Package</code></h3>
+<p>Types for each package within a settings object.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="2" />
+              <span class='post-likes'>2 Likes</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_26' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-30T18:07:52Z' class='post-time'>
+                    30 April 2019 18:07
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-30T18:07:52Z'>
+              <span itemprop='position'>26</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m going to reverse <code>namespace</code> and call it <code>excludedNamespaces</code>. Because it’s the only use it has and makes everything much simpler. The default which is an empty array makes sense this way.</p>
+<pre><code class="lang-javascript">{
+  name: string;
+  active?: boolean;
+  excludedNamespaces?: string[]; // Default []
+  settings?: object;
+}
+</code></pre>
+<p>With that change I think I will also be able to treat <code>settings</code> just like any other namespace.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_27' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="./">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-05-09T08:23:35Z' class='post-time'>
+                    9 May 2019 08:23
+                  </time>
+                  <meta itemprop='dateModified' content='2019-05-09T08:23:35Z'>
+              <span itemprop='position'>27</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Pushing our design principles even further, I’m going to get rid of settings and live only state.</p>
+<p>Once we finished the design of Connect, state and namespaces were not the same than in our previous framework.</p>
+<ul>
+<li>
+<strong>Old framework</strong>: each package lives in its own namespace.</li>
+<li>
+<strong>New framework</strong>: each package has the opportunity to use a shared state for whatever they want, namespaced or not.</li>
+</ul>
+<p>Regarding settings, this is the change I want to make</p>
+<ul>
+<li>
+<strong>From:</strong> frontity.settings.js can be used to overwrite a subset of the state named settings.</li>
+<li>
+<strong>To:</strong> frontity.settings.js can be used to overwrite any part of the state.</li>
+</ul>
+<p>These are the changes in code:</p>
+<ol>
+<li>Packages don’t use the <code>setting</code> namespace, just their own:</li>
+</ol>
+<pre><code class="lang-javascript">export default {
+  state: {
+    theme: {
+       mainColor: "#FFF",
+       linkColor: "#CCC",
+       featuredImage: true,
+    }
+  }
+}
+</code></pre>
+<ol start="2">
+<li>Users can overwrite any state using <code>frontity.settings.js</code>:</li>
+</ol>
+<pre><code class="lang-javascript">export default {
+  packages: [
+    {
+       name: "my-theme",
+       active: true,
+       state: {
+         theme: {
+           linkColor: "#AAA",
+           featuredImage: false,
+         }
+      }
+  ]
+}
+</code></pre>
+<p>That’s it. Everything gets merged together when the app starts.</p>
+<p>The pros for removing settings are:</p>
+<ul>
+<li>Settings are not different from state anymore, it’s just a small subset of it.</li>
+<li>Settings don’t provide any additional feature the state itself doesn’t.</li>
+<li>Settings is an extra concept (and we want to minimize concepts).</li>
+<li>If devs are able to work with state directly Frontity becomes more hackable.</li>
+<li>It’s easier to launch Frontity without settings and introduce them later on, rather than the opposite.</li>
+</ul>
+<p>The cons for removing settings are:</p>
+<ul>
+<li>Package providers won’t be able to select what part of the state is a setting and what not. Everything becomes a setting. And therefore, everything becomes hackable.</li>
+</ul>
+<p>Interesting things arise. For example, users will be able to add a non-existent urls to their sites:</p>
+<pre><code class="lang-javascript">export default {
+  packages: [
+    {
+       name: "@frontity/wp-source",
+       state: {
+         source: {
+           dataMap: {
+             "/about": {
+                type: "page",
+                id: 0,
+                isPage: true,
+             }
+           },
+           page: {
+             0: {
+                title: "About us",
+                content: "Yes, this is us!"
+             }
+           }
+         }
+      }
+  ]
+}
+</code></pre>
+<p>As an extra, I’m going to remove the concept of <strong>excluded namespaces</strong> as well. I think the API to do so (if it is needed at all) needs to be programmatic instead of something backed in the <code>frontity.settings.js</code> file.</p>
+<p>We will keep <code>state.frontity</code> for the general state, but now everything is explicitly namespaced:</p>
+<pre><code class="lang-javascript">export default {
+  name: "site-1",
+  mode: "html",
+  state: {
+    frontity: {
+      url: "https://site.com",
+      language: "en"
+    }
+  },
+  packages: [...]
+}
+</code></pre>
+<p>Actually, the concept of namespaces is abstract to Frontity, so users can overwrite any state they want in any place.</p>
+<pre><code class="lang-javascript">export default {
+  name: "site-1",
+  mode: "html",
+  state: {
+    frontity: {
+      url: "https://site.com",
+      language: "en"
+    },
+    source: {
+      api: "https://wp.site.com", // &lt;- this works but it's not recommended.
+  },
+  packages: [...]
+}
+</code></pre>
+<p>I’ll try to finish the refactor today.</p>
+<p><a class="mention-group" href="/groups/development-team">@development-team</a> if you feel I’m missing something, say it now <img src="../../../images/emoji/apple/slight_smile.png%3Fv=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><a rel="prev" itemprop="url" href="./">← previous page</a></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

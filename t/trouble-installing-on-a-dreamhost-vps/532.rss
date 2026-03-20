@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Trouble installing on a DreamHost VPS</title>
+    <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532</link>
+    <description>HI. I got Frontity working on my local machine and I wanted to set it up on a subdomain of my website but I have not been able to. Here is my last two attempts:
+
+```
+┌─ ~/hire-me.jackalope.tech                                                                                                       
+└─➤ npx frontity dev 
+npx: installed 146 in 11.926s 
+
+Error: Cannot find module &#39;@frontity/core&#39;
+
+Make sure that you are running frontity inside a Frontity project.   
+If so try installing @frontity/core again with npm i @frontity/core. 
+If you need help please visit https://community.frontity.org/.       
+
+
+┌─  ~/hire-me.jackalope.tech                                                                                                 
+└─➤  npm i @frontity/core 
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.9 (node_modules/fsevents): 
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.9: wanted {&quot;os&quot;:&quot;darwin&quot;,&quot;arch&quot;:&quot;any&quot;} (current: {&quot;os&quot;:&quot;linux&quot;,&quot;arch&quot;:&quot;x64&quot;})
+
++ @frontity/core@1.2.0
+added 4 packages from 1 contributor, removed 484 packages, updated 4 packages and audited 8316 packages in 20.174s
+found 0 vulnerabilities
+
+
+┌─  ~/hire-me.jackalope.tech                                                                                                       
+└─➤ npx frontity dev
+npx: installed 146 in 9.974s 
+
+Error: Cannot find module &#39;@frontity/core&#39;
+
+Make sure that you are running frontity inside a Frontity project.
+If so try installing @frontity/core again with npm i @frontity/core.
+If you need help please visit https://community.frontity.org/.
+```
+
+I&#39;m on a Dreamhost VPS server. I&#39;m running the lastest version of Node, NPX, and NPM through NVM.
+
+I realized that it was having trouble grabbing frontity from the node modules folder for some reasons o I tried the follow:
+
+```
+┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ node frontity dev 
+internal/modules/cjs/loader.js:605 
+    throw err;
+    ^
+
+Error: Cannot find module &#39;/home/jcklpe/hire-me.jackalope.tech/frontity&#39;
+    at Function.Module._resolveFilename (internal/modules/cjs/loader.js:603:15)
+    at Function.Module._load (internal/modules/cjs/loader.js:529:25)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:775:12)
+    at startup (internal/bootstrap/node.js:300:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:826:3)
+
+┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ node .node_modules/frontity dev 
+internal/modules/cjs/loader.js:605 
+    throw err;
+    ^
+
+Error: Cannot find module &#39;/home/jcklpe/hire-me.jackalope.tech/.node_modules/frontity&#39;
+    at Function.Module._resolveFilename (internal/modules/cjs/loader.js:603:15)
+    at Function.Module._load (internal/modules/cjs/loader.js:529:25)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:775:12)
+    at startup (internal/bootstrap/node.js:300:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:826:3)
+
+┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ ls 
+favicon.gif  favicon.ico  frontity.settings.js  node_modules/  old.index.html  package-lock.json  package.json  packages/
+
+┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ node ./node_modules/frontity dev 
+/home/jcklpe/hire-me.jackalope.tech/node_modules/@frontity/connect/src/index.js:1 
+(function (exports, require, module, __filename, __dirname) { export { observe, unobserve } from &quot;./observer&quot;;
+                                                              ^^^^^^
+
+SyntaxError: Unexpected token export
+    at new Script (vm.js:83:7)
+    at createScript (vm.js:267:10)
+    at Object.runInThisContext (vm.js:319:10)
+    at Module._compile (internal/modules/cjs/loader.js:685:28)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:733:10)
+    at Module.load (internal/modules/cjs/loader.js:620:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:560:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:552:3)
+    at Module.require (internal/modules/cjs/loader.js:658:17)
+    at require (internal/modules/cjs/helpers.js:22:18)
+```
+
+# *EDIT:*
+
+Okay I have got the thing installed and running but I can&#39;t access it from my url. I&#39;ve never set up any other kind of website than a wordpress and a static html website so maybe this is super basic but how do I get it to actually point to my frontity website?
+
+This shows some of my lack of knowledge here, as I don&#39;t really understand why frontity is structured the way it is. 
+
+I&#39;ve never put a react website up before but I think it wouldn&#39;t be that different from how I do things locally. I would have my index.html and then react would inject into that html with the app.js file etc etc. 
+
+But that&#39;s not how frontity is set up. How is frontity set up? I&#39;m not entirely sure. It seems to me that it&#39;s compiling html files and serving them using the javascript as an HTML engine instead of using the PHP engine that normally wordpress has. 
+
+I&#39;m not entirely even sure that&#39;s how I want things set up but looking at your docs it seems like there&#39;s def multiple ways to do things. 
+
+Regardless, it&#39;s clearly not set up like a default create-react-app style app. So how do I get this thing to appear?
+
+I&#39;m going to leave the node server running in case you want to check. My website should be appearing here: hire-me.jackalope.tech
+
+If you have any suggestions I&#39;d be super thankful! I&#39;m not really a full on dev, I&#39;m just a designer who knows enough code to get themselves in trouble 😅</description>
+    <language>en-GB</language>
+    <lastBuildDate>Tue, 03 Sep 2019 23:21:19 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>A post was split to a new topic: <a href="https://community.frontity.org/t/rename-mars-theme-to-a-new-name/543">Rename mars-theme to a new name</a></p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/9</link>
+        <pubDate>Wed, 04 Sep 2019 08:38:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-9</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Bingo! Got it working! Thanks so much! And I got to learn some cool Node stuff doing this too <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I never realized that it was as easy as just requiring the file and then using http.createServer . That’s great!</p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/8</link>
+        <pubDate>Tue, 03 Sep 2019 22:28:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-8</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank Luis for so much help!</p>
+<p>Okay so I have the latest version of node through nvm, the app.js in my root folder and I have my build folder up. It’s still showing that it’s useing nodeJS 0.12.0 though when I check the page so I think I need to add that htaccess to the public folder. Let me do that real quick.</p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/7">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/7</link>
+        <pubDate>Tue, 03 Sep 2019 21:47:43 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-7</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I got Frontity working using this <code>app.js</code> file:</p>
+<pre><code class="lang-javascript">var frontity = require("./build/server").default;
+var http = require("http");
+var server = http.createServer(frontity);
+server.listen();
+</code></pre>
+<p>then, doing <code>npx frontity build</code> in my local machine and once it finishes, uploading the <code>/build</code> folder to the FTP:</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/66458d05fff8a6a8013bc075ee9b1eabfd1f811a.png" alt="29" data-base62-sha1="eAJIgMzjxsMqZ4jJFBL0z1yFIca" width="343" height="252"></p>
+<p><a href="https://www.frontiti.com" class="onebox" target="_blank" rel="nofollow noopener">https://www.frontiti.com</a></p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/6</link>
+        <pubDate>Tue, 03 Sep 2019 13:53:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-6</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve figured it out. The <code>.htaccess</code> file should be on the public folder.</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/bfec41e4641f6797b24f0ae477ac6bfc19050d54.png" alt="49" data-base62-sha1="rnPnjh2bSGrjLVa6NlFsbSS3Nyc" width="393" height="157"></p>
+<p>The node version is now 10.16.3 <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/2011cc5fec9f0f252d3dc2c940bb987773705e38.png" alt="47" data-base62-sha1="4zHpx222tagA1fypkQSaXiNDgDK" width="356" height="147"></p>
+<p>I’ll try to make it work with a custom <code>app.js</code> file.</p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/5</link>
+        <pubDate>Tue, 03 Sep 2019 13:26:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-5</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Ok, so first, you need to add Node to your VPS. Edit the domain and check this boxes:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/39f10c5eed2041acb85f2bc343b083c1d7c8aeee.png" data-download-href="https://community.frontity.org/uploads/default/39f10c5eed2041acb85f2bc343b083c1d7c8aeee" title="2-enter-domain-and-use-passenger-and-node.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/39f10c5eed2041acb85f2bc343b083c1d7c8aeee_2_557x500.png" alt="2-enter-domain-and-use-passenger-and-node" data-base62-sha1="8gzESZoXRe5PNt7OfRCqgVPOgd8" width="557" height="500" srcset="https://community.frontity.org/uploads/default/optimized/1X/39f10c5eed2041acb85f2bc343b083c1d7c8aeee_2_557x500.png, https://community.frontity.org/uploads/default/original/1X/39f10c5eed2041acb85f2bc343b083c1d7c8aeee.png 1.5x, https://community.frontity.org/uploads/default/original/1X/39f10c5eed2041acb85f2bc343b083c1d7c8aeee.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/39f10c5eed2041acb85f2bc343b083c1d7c8aeee_2_10x10.png"></a></div><p></p>
+<p>It looks like it’s similar to cPanel. It needs an <code>app.js</code> file in the <code>your-domain.com</code> folder.</p>
+<p><img src="https://community.frontity.org/uploads/default/original/1X/441661616e4552249f84454b988e0a01a4e31046.png" alt="41" data-base62-sha1="9IkpTSco5QLf38gy1lPgFUXoxn0" width="338" height="261"></p>
+<p>I’ve added this hello-world file:</p>
+<pre><code class="lang-javascript">var http = require('http');
+var server = http.createServer(function(req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    var message = 'It works!\n',
+        version = 'NodeJS ' + process.versions.node + '\n',
+        response = [message, version].join('\n');
+    res.end(response);
+});
+server.listen();
+</code></pre>
+<p>And node seems to work just fine: <a href="http://www.frontiti.com" rel="nofollow noopener">http://www.frontiti.com</a>.</p>
+<p>But the default node version is 0.12 which is like 3 years old. To install node 10, you must ssh in the VPS. In order to do that, first edit the user associated with your domain:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/05aaa1e18a02b81099aa74c26ff3a6f2709340a5.png" data-download-href="https://community.frontity.org/uploads/default/05aaa1e18a02b81099aa74c26ff3a6f2709340a5" title="Screen Shot 2019-09-03 at 12.36.36.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/05aaa1e18a02b81099aa74c26ff3a6f2709340a5_2_690x166.png" alt="36" data-base62-sha1="O7XRgOr4QKVqkYHGVwQVw9XGgB" width="690" height="166" srcset="https://community.frontity.org/uploads/default/optimized/1X/05aaa1e18a02b81099aa74c26ff3a6f2709340a5_2_690x166.png, https://community.frontity.org/uploads/default/optimized/1X/05aaa1e18a02b81099aa74c26ff3a6f2709340a5_2_1035x249.png 1.5x, https://community.frontity.org/uploads/default/original/1X/05aaa1e18a02b81099aa74c26ff3a6f2709340a5.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/05aaa1e18a02b81099aa74c26ff3a6f2709340a5_2_10x10.png"></a></div><p></p>
+<p>Then, switch to SSH and add a password:</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/1X/934845fb4dfc2f8cdcb62aebc5d2968894c79a7b.png" data-download-href="https://community.frontity.org/uploads/default/934845fb4dfc2f8cdcb62aebc5d2968894c79a7b" title="Screen Shot 2019-09-03 at 12.40.06.png"><img src="https://community.frontity.org/uploads/default/optimized/1X/934845fb4dfc2f8cdcb62aebc5d2968894c79a7b_2_690x370.png" alt="06" data-base62-sha1="l0V23lnEDA4NrKqZQQk9yZseqi7" width="690" height="370" srcset="https://community.frontity.org/uploads/default/optimized/1X/934845fb4dfc2f8cdcb62aebc5d2968894c79a7b_2_690x370.png, https://community.frontity.org/uploads/default/original/1X/934845fb4dfc2f8cdcb62aebc5d2968894c79a7b.png 1.5x, https://community.frontity.org/uploads/default/original/1X/934845fb4dfc2f8cdcb62aebc5d2968894c79a7b.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/1X/934845fb4dfc2f8cdcb62aebc5d2968894c79a7b_2_10x10.png"></a></div><p></p>
+<p>Then ssh to your domain:</p>
+<pre><code class="lang-bash">&gt; ssh your_username@your-domain.com
+</code></pre>
+<p>Once you’re logged in your VPS, if you check your node version, it should be 0.12.0:</p>
+<pre><code class="lang-bash">&gt; node --version
+# v0.12.0
+</code></pre>
+<p>Run this command to install <code>nvm</code> (which stands for “node version manager”):</p>
+<pre><code class="lang-bash">&gt; curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+</code></pre>
+<p>And then add it to the path:</p>
+<pre><code class="lang-bash">&gt; export NVM_DIR="$HOME/.nvm"
+&gt; [ -s "$NVM_DIR/nvm.sh" ] &amp;&amp; \. "$NVM_DIR/nvm.sh"
+&gt; [ -s "$NVM_DIR/bash_completion" ] &amp;&amp; \. "$NVM_DIR/bash_completion"
+</code></pre>
+<p>If you check the nvm version, it should work:</p>
+<pre><code class="lang-bash">&gt; nvm --version
+# 0.34.0
+</code></pre>
+<p>Finally, install the latest node version using <code>nvm</code>:</p>
+<pre><code class="lang-bash">&gt; nvm install --lts
+</code></pre>
+<p>And check the node version again:</p>
+<pre><code class="lang-bash">&gt; node --version
+# v10.16.3
+</code></pre>
+<p>It should have updated both npm and npm as well:</p>
+<pre><code class="lang-bash">&gt; npm --version
+# 6.9.0
+&gt; npx --version
+# 6.9.0
+</code></pre>
+<p>This is where I got stuck. The node app is still using node 0.12: <a href="http://www.frontiti.com" rel="nofollow noopener">http://www.frontiti.com</a></p>
+<p>I’ve tried to do what they say at the bottom of their guide about adding a <code>.htaccess</code> without success: <a href="https://help.dreamhost.com/hc/en-us/articles/360029083351-Installing-a-custom-version-of-NVM-and-Node-js" rel="nofollow noopener">https://help.dreamhost.com/hc/en-us/articles/360029083351-Installing-a-custom-version-of-NVM-and-Node-js</a></p>
+<p><a class="mention" href="https://community.frontity.org/u/thedonquixotic">@thedonquixotic</a> could you please give it a try, add that <code>app.js</code> file and see if you can make it work with Node 10?</p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/3</link>
+        <pubDate>Tue, 03 Sep 2019 11:04:58 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-3</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-post="1" data-topic="532">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>This shows some of my lack of knowledge here, as I don’t really understand why frontity is structured the way it is.</p>
+</blockquote>
+</aside>
+<p>The only reason Frontity needs a node server (or serverless functions) is because if you want to use React to generate the HTML of you theme, you need to run JavaScript in the server. You cannot generate HTML with React in a PHP server.</p>
+<p><a class="mention" href="https://community.frontity.org/u/reyes">@Reyes</a> and I did a talk about that last on the JSforWP conference: <a href="https://www.youtube.com/watch?v=fjgmjyXT1kQ" rel="nofollow noopener">https://www.youtube.com/watch?v=fjgmjyXT1kQ</a></p>
+<aside class="quote no-group" data-post="1" data-topic="532">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>I’ve never put a react website up before but I think it wouldn’t be that different from how I do things locally. I would have my index.html and then react would inject into that html with the app.js file etc etc.</p>
+</blockquote>
+</aside>
+<p>That’s right, that is the way React works <strong>without server side rendering</strong>.  When you want to add server side rendering (SSR), the HTML is not index.html anymore, but a different HTML for each URL, generated by Frontity.</p>
+<p>Doing things the create-react-app way is really bad for SEO because the index.html is empty. It’s also bad for user experience because the user needs to wait until JavaScript is downloaded and executed to see the content.</p>
+<aside class="quote no-group" data-post="1" data-topic="532">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/thedonquixotic/40/340_2.png" class="avatar"> thedonquixotic:</div>
+<blockquote>
+<p>If you have any suggestions I’d be super thankful! I’m not really a full on dev, I’m just a designer who knows enough code to get themselves in trouble <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+</blockquote>
+</aside>
+<p>You’re almost there, don’t worry! <img src="https://community.frontity.org/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"></p>
+<p>I’ve signed up for a Dreamhost VPS to test it out. I’ll let you know what I find.</p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/2</link>
+        <pubDate>Tue, 03 Sep 2019 09:39:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-2</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+      <item>
+        <title>Trouble installing on a DreamHost VPS</title>
+        <dc:creator><![CDATA[thedonquixotic]]></dc:creator>
+        <description><![CDATA[
+            <p>HI. I got Frontity working on my local machine and I wanted to set it up on a subdomain of my website but I have not been able to. Here is my last two attempts:</p>
+<pre><code class="lang-auto">┌─ ~/hire-me.jackalope.tech                                                                                                       
+└─➤ npx frontity dev 
+npx: installed 146 in 11.926s 
+
+Error: Cannot find module '@frontity/core'
+
+Make sure that you are running frontity inside a Frontity project.   
+If so try installing @frontity/core again with npm i @frontity/core. 
+If you need help please visit https://community.frontity.org/.       
+
+
+┌─  ~/hire-me.jackalope.tech                                                                                                 
+└─➤  npm i @frontity/core 
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.9 (node_modules/fsevents): 
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.9: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})
+
++ @frontity/core@1.2.0
+added 4 packages from 1 contributor, removed 484 packages, updated 4 packages and audited 8316 packages in 20.174s
+found 0 vulnerabilities
+
+
+┌─  ~/hire-me.jackalope.tech                                                                                                       
+└─➤ npx frontity dev
+npx: installed 146 in 9.974s 
+
+Error: Cannot find module '@frontity/core'
+
+Make sure that you are running frontity inside a Frontity project.
+If so try installing @frontity/core again with npm i @frontity/core.
+If you need help please visit https://community.frontity.org/.
+</code></pre>
+<p>I’m on a Dreamhost VPS server. I’m running the lastest version of Node, NPX, and NPM through NVM.</p>
+<p>I realized that it was having trouble grabbing frontity from the node modules folder for some reasons o I tried the follow:</p>
+<pre><code class="lang-auto">┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ node frontity dev 
+internal/modules/cjs/loader.js:605 
+    throw err;
+    ^
+
+Error: Cannot find module '/home/jcklpe/hire-me.jackalope.tech/frontity'
+    at Function.Module._resolveFilename (internal/modules/cjs/loader.js:603:15)
+    at Function.Module._load (internal/modules/cjs/loader.js:529:25)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:775:12)
+    at startup (internal/bootstrap/node.js:300:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:826:3)
+
+┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ node .node_modules/frontity dev 
+internal/modules/cjs/loader.js:605 
+    throw err;
+    ^
+
+Error: Cannot find module '/home/jcklpe/hire-me.jackalope.tech/.node_modules/frontity'
+    at Function.Module._resolveFilename (internal/modules/cjs/loader.js:603:15)
+    at Function.Module._load (internal/modules/cjs/loader.js:529:25)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:775:12)
+    at startup (internal/bootstrap/node.js:300:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:826:3)
+
+┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ ls 
+favicon.gif  favicon.ico  frontity.settings.js  node_modules/  old.index.html  package-lock.json  package.json  packages/
+
+┌─    ~/hire-me.jackalope.tech                                                                                                         
+└─➤ node ./node_modules/frontity dev 
+/home/jcklpe/hire-me.jackalope.tech/node_modules/@frontity/connect/src/index.js:1 
+(function (exports, require, module, __filename, __dirname) { export { observe, unobserve } from "./observer";
+                                                              ^^^^^^
+
+SyntaxError: Unexpected token export
+    at new Script (vm.js:83:7)
+    at createScript (vm.js:267:10)
+    at Object.runInThisContext (vm.js:319:10)
+    at Module._compile (internal/modules/cjs/loader.js:685:28)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:733:10)
+    at Module.load (internal/modules/cjs/loader.js:620:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:560:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:552:3)
+    at Module.require (internal/modules/cjs/loader.js:658:17)
+    at require (internal/modules/cjs/helpers.js:22:18)
+</code></pre>
+<h1><em>EDIT:</em></h1>
+<p>Okay I have got the thing installed and running but I can’t access it from my url. I’ve never set up any other kind of website than a wordpress and a static html website so maybe this is super basic but how do I get it to actually point to my frontity website?</p>
+<p>This shows some of my lack of knowledge here, as I don’t really understand why frontity is structured the way it is.</p>
+<p>I’ve never put a react website up before but I think it wouldn’t be that different from how I do things locally. I would have my index.html and then react would inject into that html with the app.js file etc etc.</p>
+<p>But that’s not how frontity is set up. How is frontity set up? I’m not entirely sure. It seems to me that it’s compiling html files and serving them using the javascript as an HTML engine instead of using the PHP engine that normally wordpress has.</p>
+<p>I’m not entirely even sure that’s how I want things set up but looking at your docs it seems like there’s def multiple ways to do things.</p>
+<p>Regardless, it’s clearly not set up like a default create-react-app style app. So how do I get this thing to appear?</p>
+<p>I’m going to leave the node server running in case you want to check. My website should be appearing here: hire-me.jackalope.tech</p>
+<p>If you have any suggestions I’d be super thankful! I’m not really a full on dev, I’m just a designer who knows enough code to get themselves in trouble <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+          <p><a href="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532/1</link>
+        <pubDate>Sun, 01 Sep 2019 00:02:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-532-1</guid>
+        <source url="https://community.frontity.org/t/trouble-installing-on-a-dreamhost-vps/532.rss">Trouble installing on a DreamHost VPS</source>
+      </item>
+  </channel>
+</rss>

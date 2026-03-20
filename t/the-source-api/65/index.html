@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>The Source API - » Framework Design - Frontity Community Forum</title>
+    <meta name="description" content="It seems that it is possible to implement a single plugin for both kinds of WordPress as WordPress.com exposes WordPress.org REST API since 2016. They also encourage its use. :muscle: 
+They work exactly the same but with&amp;hellip;">
+    <meta name="generator" content="Discourse 3.1.0.beta4 - https://github.com/discourse/discourse version 6491be9f2bb8573c923ebb856903bbb214761f59">
+<link rel="icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="/uploads/default/optimized/1X/6421d86a0a34e03baae32aa5a44e3fd95fb2926d_2_180x180.png">
+<meta name="theme-color" media="all" content="#1f38c5">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="/t/the-source-api/65" />
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Frontity Community Forum Search">
+
+    <link href="/stylesheets/color_definitions_frontity_2_2_df3f37c16e6b39db8df98b84efb63e30c4a58732.css?__ws=community.frontity.org" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="/stylesheets/desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+
+  <link href="/stylesheets/discourse-assign_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-assign"  />
+  <link href="/stylesheets/discourse-canned-replies_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-canned-replies"  />
+  <link href="/stylesheets/discourse-data-explorer_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-data-explorer"  />
+  <link href="/stylesheets/discourse-details_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="/stylesheets/discourse-lazy-videos_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-lazy-videos"  />
+  <link href="/stylesheets/discourse-local-dates_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="/stylesheets/discourse-narrative-bot_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="/stylesheets/discourse-presence_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="/stylesheets/discourse-solved_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="/stylesheets/discourse-translator_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-translator"  />
+  <link href="/stylesheets/discourse-voting_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting"  />
+  <link href="/stylesheets/docker_manager_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="docker_manager"  />
+  <link href="/stylesheets/poll_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="/stylesheets/retort_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="retort"  />
+  <link href="/stylesheets/discourse-voting_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="discourse-voting_desktop"  />
+  <link href="/stylesheets/poll_desktop_bf2901969dd546388ecba7033d328e8dfdb29de8.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="/stylesheets/desktop_theme_19_4e99be12c2eff3bb362aff2437a8679efaf45ce4.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="19" data-theme-name="discotoc"/>
+<link href="/stylesheets/desktop_theme_20_4eb56af2f2e4349c09b80ce86c997ef8dc489057.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="20" data-theme-name="discourse kanban"/>
+<link href="/stylesheets/desktop_theme_23_b56557a95fbc063664a53e477d678d9a50a34b9e.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="23" data-theme-name="versatile banner"/>
+<link href="/stylesheets/desktop_theme_2_6425d5939287f3cf135e6039dfa32f160a7c6508.css?__ws=community.frontity.org" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/55f4be1c19ac371f8f42d9ea.js"></script>
+
+
+<!-- Add menu items for mobile and desktop -->
+
+
+<!-- Add status tag after the title (IT BREAKS MESSAGES RIGHT NOW)
+
+<script type="text/discourse-plugin" version="0.8">
+  api.decorateWidget('post-stream:before', helper => {
+    const container = Discourse.__container__;
+    const controller = container.lookup("controller:topic");
+    const tags = controller.get("target.currentRoute.parent.attributes.tags");
+    const regex = new RegExp('(status).+');
+    const status = tags.filter((item)=> item.match(regex))[0];
+    return helper.h('div.' + 'feature-status', 
+        [
+          helper.h(
+            'p',
+            status
+          )
+        ]
+    );
+  });
+</script>
+-->
+
+<!-- Add banner for Framework Features topics  -->
+
+
+<!-- Add banner for Framework Features category -->
+
+
+<!-- Add jsx highlighting  -->
+<link rel="preload" href="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/1dce69be04016ec2ac7b2eba7169f6da7a5c55f4.js?__ws=community.frontity.org" data-theme-id="2"></script>
+
+
+
+
+<link rel="preload" href="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/c8e1625f746d9d55c6f5a6c27be02c27c81ba8da.js?__ws=community.frontity.org" data-theme-id="23"></script>
+
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;The Source API&#39;" href="/t/the-source-api/65.rss" />
+    <meta property="og:site_name" content="Frontity Community Forum" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:image" content="/uploads/default/original/1X/1f932b665ea1b611ae68617d5507bff1036fe210.png" />
+<meta property="og:url" content="/t/the-source-api/65" />
+<meta name="twitter:url" content="/t/the-source-api/65" />
+<meta property="og:title" content="The Source API" />
+<meta name="twitter:title" content="The Source API" />
+<meta property="og:description" content="It seems that it is possible to implement a single plugin for both kinds of WordPress as WordPress.com exposes WordPress.org REST API since 2016. They also encourage its use. 💪  They work exactly the same but with some differences:   They use different base URL  WordPress com  https://public-api.wordpress.com/wp/v2/sites/myblog.wordpress.com  WordPress org  https://myblog.com/wp-json/wp/v2/    Retrieving media items from WordPress com requires authentication Retrieving user info from Word..." />
+<meta name="twitter:description" content="It seems that it is possible to implement a single plugin for both kinds of WordPress as WordPress.com exposes WordPress.org REST API since 2016. They also encourage its use. 💪  They work exactly the same but with some differences:   They use different base URL  WordPress com  https://public-api.wordpress.com/wp/v2/sites/myblog.wordpress.com  WordPress org  https://myblog.com/wp-json/wp/v2/    Retrieving media items from WordPress com requires authentication Retrieving user info from Word..." />
+<meta property="og:article:section" content="👨‍💻 Framework Development" />
+<meta property="og:article:section:color" content="0088CC" />
+<meta property="og:article:section" content="» Framework Design" />
+<meta property="og:article:section:color" content="92278F" />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="12 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="5 ❤" />
+<meta property="article:published_time" content="2019-03-05T18:20:35+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+        <link rel="next" href="/t/the-source-api/65">
+
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"QAPage","name":"The Source API","mainEntity":{"@type":"Question","name":"The Source API","text":"It seems that it is possible to implement a single plugin for both kinds of WordPress as <a href=\"https://developer.wordpress.com/2016/11/11/wordpress-rest-api-on-wordpress-com/\" rel=\"nofollow noopener\">WordPress.com exposes WordPress.org REST API<\/a> since 2016. They also encourage its use. :muscle:\n\nThey work exactly the same but with some differences:\n\nThey use different base URL\n\nWordPress com\n\n<a href=\"https://public-api.wordpress.com/wp/v2/sites/myblog.wordpress.com\" rel=\"nofollow noopener\">https://public-&hellip;<\/a>","upvoteCount":1,"answerCount":0,"dateCreated":"2019-03-05T18:20:35.245Z","author":{"@type":"Person","name":"David Arenas"}}}</script>
+  </head>
+  <body class="crawler ">
+    
+<link rel="preload" href="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" as="script">
+<script defer="" src="/theme-javascripts/7453a8147539bda802158001679efb239d75b19f.js?__ws=community.frontity.org" data-theme-id="19"></script>
+
+    <header>
+  <a href="/">
+    Frontity Community Forum
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="/t/the-source-api/65">The Source API</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/49" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>👨‍💻 Framework Development</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/c/framework-development/framework/5" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #92278F'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>» Framework Design</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+    <div itemscope itemtype='http://schema.org/DiscussionForumPosting'>
+      <meta itemprop='headline' content='The Source API'>
+        <meta itemprop='articleSection' content='» Framework Design'>
+      <meta itemprop='keywords' content=''>
+      <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop='name' content='Frontity Community Forum'>
+          <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+            <meta itemprop='url' content='/uploads/default/original/1X/4d733dd4cb16dc3322342f4c1f02a2052269a4b1.png'>
+          </div>
+      </div>
+
+          <div id='post_1'  class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-05T18:20:35Z' class='post-time'>
+                    5 March 2019 18:20
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-03T15:19:05Z'>
+              <span itemprop='position'>1</span>
+              </span>
+            </div>
+            <div class='post' itemprop='articleBody'>
+              <p>It seems that it is possible to implement a single plugin for both kinds of WordPress as <a href="https://developer.wordpress.com/2016/11/11/wordpress-rest-api-on-wordpress-com/" rel="nofollow noopener">WordPress.com exposes WordPress.org REST API</a> since 2016. They also encourage its use. <img src="/images/emoji/apple/muscle.png?v=9" title=":muscle:" class="emoji" alt=":muscle:"></p>
+<p>They work exactly the same but with some differences:</p>
+<ul>
+<li>They use different base URL
+<ul>
+<li>WordPress com<br>
+<a href="https://public-api.wordpress.com/wp/v2/sites/myblog.wordpress.com" rel="nofollow noopener">https://public-api.wordpress.com/wp/v2/sites/myblog.wordpress.com</a>
+</li>
+<li>WordPress org<br>
+<a>https://myblog.com/wp-json/wp/v2/</a>
+</li>
+</ul>
+</li>
+<li>Retrieving media items from WordPress com requires authentication</li>
+<li>Retrieving user info from WordPress com requires authentication</li>
+<li>Endpoints to create/edit/delete users are disabled in WordPress com</li>
+<li>Updating the email and URL settings via the settings endpoint is disabled</li>
+</ul>
+<p>Retrieving media items from the REST API can be a problem, but it can be avoided by using directly the URLs of media items that appear in the content, as they can be requested with a query to restrict the size.</p>
+<p>Apart from that, I was looking at <a href="https://overmindjs.org" rel="nofollow noopener">Overmind</a> and I’ll be playing around with it to see what proposal would make the most sense.</p>
+<p>I’ll extend a little more tomorrow. <img src="/images/emoji/apple/grin.png?v=9" title=":grin:" class="emoji" alt=":grin:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/type-packages/72">Typings and Versions</a>
+                        <meta itemprop='position' content='4'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_4' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-08T08:03:29Z' class='post-time'>
+                    8 March 2019 08:03
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-08T08:03:29Z'>
+              <span itemprop='position'>4</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’m changing the topic title from <strong>WordPress Source API</strong> to <strong>The Source API</strong>. The goal here is to decide on a general source API, not only for WordPress. If some developers want to create a source package for Ghost, for example, they would have to stick to this Source API or their package won’t work with the rest of the themes.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_5' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-08T08:35:25Z' class='post-time'>
+                    8 March 2019 08:35
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-08T10:58:26Z'>
+              <span itemprop='position'>5</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>When we thought that <a href="http://WP.com" rel="nofollow noopener">WP.com</a> and <a href="http://WP.org" rel="nofollow noopener">WP.org</a> APIs were different, it was clear that we needed to create some kind of abstraction on top of them, similar to what we had in our old framework.</p>
+<p>But now that we know the schema of both <a href="http://WP.com" rel="nofollow noopener">WP.com</a> and <a href="http://WP.org" rel="nofollow noopener">WP.org</a> APIs can be equal, I have a doubt:</p>
+<ul>
+<li>Should we leave that schema as it is?</li>
+<li>Should we create an abstraction on top of it?</li>
+</ul>
+<p>If we use the WP schema, people won’t have to learn a new schema. That’s good. They can look at the output of their APIs and use that schema in Frontity. But, if devs start creating other sources (Ghost, Contentful, Medium…) they have to convert them to the WP schema instead of a “more general one”.</p>
+<p>I think my vote goes for “stick to the WP schema”.</p>
+<hr>
+<p>Some constrains to get you started. I’m sure there are many more:</p>
+<h3>Constraints:</h3>
+<ul>
+<li>Frontity should be able to retrieve data from the API using:
+<ul>
+<li>A URL (permalink).<br>
+<em>This is needed to get the data in SSR when using the “direct to node” integration.</em>
+</li>
+<li>A URL that points to an endpoint, and some params.<br>
+<em>This is needed to make it “hackable”.</em>
+</li>
+<li>A <code>type</code> and an <code>id</code>.<br>
+<em>This is needed to get more content from the client once it has loaded.</em><br>
+<em>We could get rid of it if getting data using a permalink is as performant as this.</em>
+</li>
+</ul>
+</li>
+<li>Now Frontity doesn’t know if the data it is retrieving is a “list” or an “single”. <em>This is a very important constraint because it means we may have to get rid of the “list” and “single” concepts altogether.</em>
+</li>
+<li>We need APIs to make custom lists when:
+<ul>
+<li>Devs want to exclude certain list form other lists<br>
+<em>This is needed to create carrousels that don’t repeat the same items than the previous carrousel.</em>
+</li>
+<li>Devs want to exclude “read” items.</li>
+</ul>
+</li>
+<li>We probably need a place to “store” state of the items. Things like “read” for example.</li>
+</ul>
+<hr>
+<p>One final suggestion: <a class="mention" href="/u/david">@David</a>, why don’t you take a look at <code>saturn</code>? There are some really complex things there we had to do because of our old <code>connection</code> API and I’m sure we can come up with much better APIs for those patterns. Things like getting the next page of a list when infinite scrolling, dealing with swipe, the context router and so on.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_6' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T08:34:47Z' class='post-time'>
+                    11 March 2019 08:34
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T08:34:47Z'>
+              <span itemprop='position'>6</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I’ve been thinking about this and it’d be great to use only urls for the source and router APIs.</p>
+<p><a class="mention" href="/u/david">@David</a> Could you please investigate how urls are made in both <a href="http://WP.org" rel="nofollow noopener">WP.org</a> and <a href="http://WP.com" rel="nofollow noopener">WP.com</a>?</p>
+<p>For example:</p>
+<ul>
+<li>
+<strong>Taxonomies</strong>:
+<ul>
+<li><code>/taxonomy-type/taxonomy-slug</code></li>
+</ul>
+</li>
+<li>
+<strong>Pages</strong>:
+<ul>
+<li><code>/page-slug</code></li>
+<li><code>/parent-page-slug/page-slug</code></li>
+</ul>
+</li>
+</ul>
+<p>and so on… including of course custom taxonomies, custom post types, archives, everything…</p>
+<p>Once we have that information we can decide how to get the data from the APIs:</p>
+<ul>
+<li>
+<strong>With guesses</strong>:<br>
+Try one endpoint, if it fails try another… and so on.</li>
+<li>
+<strong>With some settings in the <code>wp-source</code> package</strong>:<br>
+The developer can enter the schema of its site. For example, with this config, <code>wp-source</code> can know that <code>/my-custom-taxonomy/something</code> goes to the <code>wp/v2/my-custom-taxonomy/?slug=something</code> endpoint:</li>
+</ul>
+<pre><code class="lang-auto">settings: {
+  taxonomies: ['category', 'tag', 'my-custom-taxonomy']
+}
+</code></pre>
+<ul>
+<li>
+<strong>With a discovery endpoint:</strong><br>
+A custom endpoint made by us where you enter a slug and it gives you the data: <code>frontity/v1/discovery?slug=/my-custom-taxonomy/something</code>. I’m now less in favor of this solution because it does not solve the <a href="http://WP.com" rel="nofollow noopener">WP.com</a> problem.</li>
+</ul>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_7' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T08:38:22Z' class='post-time'>
+                    11 March 2019 08:38
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T08:38:22Z'>
+              <span itemprop='position'>7</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>By the way, we don’t need to support the query urls of WP anymore (<code>?p=id</code>).</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_8' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-11T16:50:53Z' class='post-time'>
+                    11 March 2019 16:50
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-11T16:50:53Z'>
+              <span itemprop='position'>8</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="5" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>But now that we know the schema of both <a href="http://WP.com" rel="nofollow noopener">WP.com</a> and <a href="http://WP.org" rel="nofollow noopener">WP.org</a> APIs can be equal, I have a doubt:</p>
+<ul>
+<li>Should we leave that schema as it is?</li>
+<li>Should we create an abstraction on top of it?</li>
+</ul>
+</blockquote>
+</aside>
+<p><a class="mention-group" href="/groups/development-team">@development-team</a> <img src="/images/emoji/apple/point_up_2.png?v=6" title=":point_up_2:" class="emoji" alt=":point_up_2:"><img src="/images/emoji/apple/question.png?v=6" title=":question:" class="emoji" alt=":question:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_9' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-12T09:29:49Z' class='post-time'>
+                    12 March 2019 09:29
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-12T09:29:49Z'>
+              <span itemprop='position'>9</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>My vote goes for no schema.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_10' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-17T20:23:39Z' class='post-time'>
+                    17 March 2019 20:23
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-17T20:23:39Z'>
+              <span itemprop='position'>10</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>Source API</h1>
+<p>One of the key ideas of this API is to use only URLs to identify entities, so that it is not necessary to work with ids or types. For this way of identifying entities to work, these URLs must be translated into calls to a REST API (WordPress REST API in this case) in order to get the entities you need. This, in some cases, is not trivial, but it can be easily resolved using the following scheme in the <code>source</code> package configuration:</p>
+<h2>Settings Schema</h2>
+<pre><code class="lang-auto">type Routes = {
+  [pattern: string]: Call
+};
+
+type Call = {
+  "endpoint": string;
+  "params": { [key: string]: any } | string;
+  "props": { [key: string]: any } | string;
+  "type": "single" | "list";
+  "success"?: Call;
+  "error"?: Call;
+}
+
+</code></pre>
+<h3>Properties of <code>Routes</code> type:</h3>
+<h4><code>pattern</code></h4>
+<p>It is a pattern in string format that allows us to differentiate some URLs from others. Some examples could be:</p>
+<pre><code class="lang-auto">{
+  "/category/:slug": {},
+  "/tag/:slug": {},
+  "/:slug": {},
+  "/cars/:model": {},
+  "/products/:name": {},
+  // ...
+}
+
+</code></pre>
+<h3>Properties of <code>Call</code> type:</h3>
+<h4><code>endpoint</code></h4>
+<p>It can be a string or a function in string format. To differentiate this last case, we should put the identifier <code>"eval: ..."</code> at the beginning of the string. The <code>params</code> object that receives the function as an argument contains the variables obtained after matching the URL with <code>pattern</code>.</p>
+<pre><code class="lang-auto">{
+  "/category/:slug": {
+    "endpoint": "/wp/v2/categories",
+    // ...
+  }
+}
+
+{
+  "/category/:slug": {
+    "endpoint": "eval: ({ params }) =&amp;gt; `/wp/v2/posts/${params.slug}`",
+    // ...
+  }
+}
+</code></pre>
+<h4><code>params</code></h4>
+<p>Is an object with values that will be passed as the query string. The values of <code>params</code> can be strings or functions in string format, as in the previous case:</p>
+<pre><code class="lang-auto">{
+ "/category/:slug": {
+   "endpoint": "/wp/v2/categories",
+   "params": {
+     "slug": "eval: ({ params }) =&gt; params.slug"
+     // ...
+   },
+ }
+}
+
+</code></pre>
+<p>Or it can also be a function in string format that returns an object with values:</p>
+<pre><code class="lang-auto">{
+ "/category/:slug": {
+   "endpoint": "/wp/v2/categories",
+   "params": "eval: ({ params }) =&gt; ({ slug: params.slug })"
+     // ...
+ }
+}
+
+</code></pre>
+<h4><code>props</code></h4>
+<p>An object to store attributes of interest in relation to the entities returned by that URL. It works the same as <code>params</code>:</p>
+<pre><code class="lang-auto">{
+  "props": {
+    "isCategory": true,
+    // ...
+  },
+}
+
+</code></pre>
+<p>In addition to receiving <code>params</code>, it also receives <code>response</code> as an argument, which is the object with the call response. This allows you to assign properties after receiving the entity’s data.</p>
+<pre><code class="lang-auto">{
+  "props": "({ params, response }) =&gt; ({ slug: params.slug, type: response.type, id: response.id })"
+}
+
+</code></pre>
+<h4><code>type</code></h4>
+<p>It is the type of response we expect to receive from the REST API.<br>
+It can only take two values:</p>
+<ul>
+<li>
+<p><code>"single"</code> if we expect to obtain a single entity.</p>
+</li>
+<li>
+<p><code>"list"</code> if we expect to obtain a list of entities.</p>
+</li>
+</ul>
+<h4><code>success</code></h4>
+<p>It is an optional object of type <code>Call</code> that defines another call to the REST API. That call will be requested when the previous one has finished successfully. Useful when you want to chain calls to the REST API. For example, if you want to obtain a list of posts<br>
+that belong to a category:</p>
+<pre><code class="lang-auto">{
+  "/category/:slug": {
+    "type": "single",
+    "endpoint": "/wp/v2/categories",
+    "params": {
+      "slug": "eval: ({ params }) =&gt; params.slug"
+    },
+    "success": {
+      "type": "list",
+      "endpoint": "/wp/v2/post",
+      "params": {
+        "categories": "eval: ({ response }) =&gt; response.id"
+      },
+    }
+  }
+}
+</code></pre>
+<p>In this case, the functions in string format also receive a <code>response</code> argument, where you can access the response data of the previous call.</p>
+<h4><code>error</code></h4>
+<p>It works exactly the same as <code>success</code> but when the previous call has failed.</p>
+<h2>API calls</h2>
+<p>This part is less defined, but essentially it should be something like the following:</p>
+<h3>State</h3>
+<h4><code>source.data</code></h4>
+<p>It is the way to access the data that has been requested from the REST API using the <code>fetch</code> action (we will explain it later).</p>
+<pre><code class="lang-auto">state.source.data["/category/nature"].items.map(url =&gt; state.source.data[url])
+state.source.data["/category/nature"].pages.map()
+
+state.source.data["/category/nature"].props.isList // true
+state.source.data["/category/nature"].props.isSingle // false
+state.source.data["/category/nature"].props.isReady
+
+state.source.data["/category/nature"].items // =&gt; [...page1, ...page2]
+state.source.data["/category/nature"].pages // =&gt; [[...page1], [...page2]]
+state.source.data["/category/nature"].endpoint // =&gt; /wp/v2/posts
+state.source.data["/category/nature"].params // =&gt; { categories: 17 }
+state.source.data["/category/nature"].total // =&gt; 24
+state.source.data["/category/nature"].totalPages // =&gt; 3
+</code></pre>
+<pre><code class="lang-auto">// state.router.path = "/category/nature"
+state.source.data[state.router.path].props.isTag &amp;&amp; &lt;Tag /&gt;
+state.source.data[state.router.path].props.isHome &amp;&amp; &lt;Home /&gt;
+state.source.data[state.router.path].props.isCategory &amp;&amp; &lt;Category /&gt;
+state.source.data[state.router.path].props.isPost &amp;&amp; &lt;Post /&gt;
+state.source.data[state.router.path].props.isPage &amp;&amp; &lt;Page /&gt;
+</code></pre>
+<h3>Actions</h3>
+<h4><code>source.create</code></h4>
+<p>The <code>create</code> action allows you to define custom lists with a name as the identifier.</p>
+<pre><code class="lang-auto">actions.source.create({
+  name: "carrousel-/category/nature",
+  url: "/category/nature",
+  exclude: [...read, list1...], /* array of URLs or custom list's names */
+  perPage: 5
+})
+</code></pre>
+<h4><code>source.fetch</code></h4>
+<p>It makes calls to the API and populates the state. Receive two arguments, the URL and a number that indicates the requested page.</p>
+<pre><code class="lang-auto">actions.source.fetch("/category/nature")
+actions.source.fetch("/category/nature", 2)
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_11' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-25T17:01:52Z' class='post-time'>
+                    25 March 2019 17:01
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-26T08:39:23Z'>
+              <span itemprop='position'>11</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Another idea is to leave the “hacked” urls to JavaScript.</p>
+<p>For example, categories would be:</p>
+<pre><code class="lang-auto">souce.add("/categories/:slug", async ({ name, params, page }) =&gt; {
+    let category = data.category.find(category =&gt; category.slug === params.slug);
+    if (!category) {
+        const categories = await effects.api.get({
+            endpont: "/wp/v2/categories",
+            params: {
+                slug: params.slug
+            }
+        })
+        category = { id: categories[0].id };
+    }
+    const posts = await effects.api.get({
+        endpoint: "/wp/v2/posts",
+        params: {
+            categories: category.id,
+        }
+    }, page)
+    source.populate(name, posts, page);
+    source.data[name].isCategory = true;
+})
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_12' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-26T07:39:24Z' class='post-time'>
+                    26 March 2019 07:39
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-26T07:39:24Z'>
+              <span itemprop='position'>12</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>More things we were talking about yesterday:</p>
+<p>It seems that we cannot get rid of types and ids completely when accessing entities. If you fetch data from the WordPress API, related entities are specified with an id, like:</p>
+<pre><code class="lang-json">{
+  "id": 60,
+  "type": "post",
+  ...
+  "author": 4,
+  "featured_media": 62,
+  "categories": [57, 59, 56, 3, 8, 58],
+  "tags": [10, 9, 13, 11],
+}
+</code></pre>
+<p>It would be necessary to store the data to access it like showed below. This work could be done by the <code>populate</code> action.</p>
+<pre><code class="lang-javascript">data["/categories/nature"].page[1] 
+data["/categories/nature"].items 
+data.posts[1] 
+data["/post-1"] 
+data.posts[2] 
+data["/post-2"] 
+data.posts[3] 
+data["/post-3"] 
+data.author[4] 
+data["/author/luis"] 
+data.media[5] 
+data.media[6] 
+</code></pre>
+<p>Also, the <code>populate</code> action could normalize the data and change ids by <code>{ type, id, permalink }</code>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_13' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-26T08:59:18Z' class='post-time'>
+                    26 March 2019 08:59
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-26T09:08:01Z'>
+              <span itemprop='position'>13</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Another “what-if”…</p>
+<p>What if we use <code>source.data["name"]</code> to specify only the type and id but the real data is always stored under <code>source[type][id]</code>?</p>
+<pre><code class="lang-auto">// No entity, just type and id.
+source.data["/category/nature"] = {
+  type: "category",
+  id: 17,
+  items: [
+    { type: "post", id: 24 },
+    { type: "post", id: 28 },
+    { type: "post", id: 29 },
+  ],
+  isCategory: true,
+  isList: true
+}
+
+// Get the real data from state.source.type.id. 
+const { type, id, isList } = source.data["/category/nature"];
+const entity = source[type][id];
+
+source.data["/category/nature"].items.map(({ type, id }) =&gt; {
+  const entity = source[type][id];
+  if (type === "post") return &lt;Post entity={entity} /&gt;
+  if (type === "page") return &lt;Page entity={entity} /&gt;
+});
+</code></pre>
+<p>Maybe <code>source.data</code> is not the best name though…</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_14' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-03-26T11:00:10Z' class='post-time'>
+                    26 March 2019 11:00
+                  </time>
+                  <meta itemprop='dateModified' content='2019-03-26T11:00:10Z'>
+              <span itemprop='position'>14</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>More stuff:</p>
+<ul>
+<li><strong>We need a standard way to work with 404’s</strong></li>
+</ul>
+<pre><code class="lang-javascript">source.fetch(router.link) // &lt;- this url doesn't exist
+
+source.data[router.link] = {
+  is404: true
+}
+</code></pre>
+<ul>
+<li><strong>Developers need to access the real url for things like analytics</strong></li>
+</ul>
+<pre><code class="lang-javascript">// For internal use in source.data() and source.fetch()
+router.link = "/category/nature"
+router.page = 2
+
+// For analytics...
+router.path  = "/category/nature/page/2"
+router.url = "https://my-blog/category/nature/page/2"
+...
+</code></pre>
+<ul>
+<li><strong>Developers may need a way to fetch stuff without having to create names</strong></li>
+</ul>
+<pre><code class="lang-javascript">const entity = source.post[id];
+const media = entity.content_media; // &lt;- [{ type: media, id: 1 }], [1]
+
+// option 1, create name.
+source.add("my-media", async () =&gt; {
+  const media = effects.api.get({ endpoint: "/wp/v2/media", params: { include: media.join(',') } });
+  source.populate("my-media", media, 1);
+})
+source.fetch("my-media", 1)
+
+// option 2, fetch directly from endpoint.
+source.get({ endpoint: "/wp/v2/media", params: { include: media.join(',') } });
+</code></pre>
+<ul>
+<li>
+<strong>We need a way to work with the <a href="http://WP.org" rel="nofollow noopener">WP.org</a> endpoint and the <a href="http://WP.com" rel="nofollow noopener">WP.com</a> endpoint</strong><br>
+org: <a href="https://my-blog/wp-json" rel="nofollow noopener">https://my-blog/wp-json</a><br>
+com: <a href="https://public-api.wordpress.com/wp/v2/sites/en.blog.wordpress.com/" rel="nofollow noopener">https://public-api.wordpress.com/wp/v2/sites/en.blog.wordpress.com/</a><br>
+The problem here is that <code>/wp/v2/</code> is included in com but not in org.</li>
+</ul>
+<pre><code class="lang-javascript">// This is how it is right now:
+effects.api.get({ endpoint: "/wp/v2/posts" });
+
+// Maybe we can use this for /wp/v2.
+effects.api.get({ endpoint: "posts" });
+
+// And this for other endpoints: 
+effects.api.get({ endpoint: "/frontity/v1/discovery" });
+</code></pre>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_15' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-02T15:40:14Z' class='post-time'>
+                    2 April 2019 15:40
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-03T14:44:25Z'>
+              <span itemprop='position'>15</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <h1>Source API</h1>
+<h2>State</h2>
+<p>Let’s start by explaining how the state data is used and then how that data is requested and stored. The state works with two main concepts: <strong>paths</strong> and <strong>entities</strong>.</p>
+<p>The state is designed so that you can know which entities correspond to which path, and then access the data of these entities in a simple way.</p>
+<blockquote>
+<p><strong>NOTE:</strong> for the data to exist, it will be necessary to request them previously using the <a href="#action-fetch"><code>fetch</code> action</a>.</p>
+</blockquote>
+<p><strong>example</strong></p>
+<pre><code class="lang-auto">// Accessing path's data
+const data = source.data["/categories/nature"]
+
+// `data` value:
+({
+  
+  // Type &amp; id of the entity
+  type: "category",
+  id: 2,
+  
+  // Type &amp; id of the listed entities
+  // (when the path is an archive or similar)
+  items: [{ type: 'post', id: 60, path }, ...],   // all fetched entities
+  pages: [[{ type: 'post', id: 60, path }, ...]], // fetched entities per page
+  totalItems: // total number of entities
+  totalPages: // total number of pages
+
+  // Booleans to easily identify the type of path
+  // inside the WP hierarchy
+  isArchive: true,
+  isTaxonomy: true,
+  isCategory: true,
+
+})
+
+// Accessing the entity's properties
+const entity = source[d.type][d.id]
+
+// `entity` value:
+({
+  id: 2,
+  count: 23,
+  description: "Beautiful nature locations",
+  link: "https://myblog.com/category/nature/",
+  name: "Nature",
+  slug: "nature",
+  taxonomy: "category",
+})
+</code></pre>
+<p>The information to distinguish each type of path is based on the <a href="https://wphierarchy.com/" rel="nofollow noopener">WP Template Hierarchy</a> and is as follows:</p>
+<ul>
+<li>archives: <code>isArchive</code>
+<ul>
+<li>taxonomy: <code>isTaxonomy</code> (with <code>type</code>, <code>id</code> properties)
+<ul>
+<li>category: <code>isCategory</code>
+</li>
+<li>tag: <code>isTag</code>
+</li>
+<li>deal: <code>isDeal</code>
+</li>
+</ul>
+</li>
+<li>author: <code>isAuthor</code> (with <code>id</code> property)</li>
+<li>postTypeArchive: <code>isPostTypeArchive</code> (with <code>type</code> property)
+<ul>
+<li>post: <code>isHome</code>, <code>isPostArchive</code> (<code>isFrontPage</code> optional)</li>
+<li>product: <code>isProductArchive</code>
+</li>
+</ul>
+</li>
+<li>date: <code>isDate</code> (with <code>date</code>)</li>
+</ul>
+</li>
+<li>postTypes: <code>isPostType</code> (with <code>type</code>, <code>id</code> properties)
+<ul>
+<li>post: <code>isPost</code>
+</li>
+<li>page: <code>isPage</code> (<code>isFrontPage</code> optional)</li>
+<li>product: <code>isProduct</code>
+</li>
+<li>media: <code>isMedia</code>, <code>isAttachment</code>
+</li>
+</ul>
+</li>
+<li>404: <code>is404</code>
+</li>
+</ul>
+<hr>
+<h2>State API</h2>
+<h3><code>source.data[path]</code></h3>
+<p>Access data related to a path. The <code>path</code> parameter could be also a name that identifies custom lists. See <a href="#action-add">source.add</a> for more info.</p>
+<pre><code class="lang-auto">source.data["/the-beauties-of-gullfoss"]
+source.data["/category/nature"]
+source.data["gallery-post-60"]
+</code></pre>
+<h3><code>source.taxonomy[taxonomy]</code></h3>
+<p>Access taxonomy entities. <code>taxonomy</code> can be <code>"category"</code>, <code>"tag"</code> or any custom taxonomy slug. That value is stored in the <code>type</code> attribute of the <code>source.data[path]</code> object.</p>
+<pre><code class="lang-auto">source.taxonomy["category"]
+source.taxonomy["tag"]
+source.taxonomy["deal"] // custom taxonomy
+</code></pre>
+<h3><code>source[taxonomy][id]</code></h3>
+<p>Access category, tag, or custom taxonomy’s entities.</p>
+<pre><code class="lang-auto">source.category[2]
+source.tag[13]
+source.deal[3]
+</code></pre>
+<h3><code>source.type[type]</code></h3>
+<p>Access post types. <code>type</code> can be <code>"post"</code>, <code>"page"</code>, <code>"attachment"</code> or any custom post type.</p>
+<pre><code class="lang-auto">source.type["post"]
+source.type["page"]
+source.type["product"] // custom post type
+</code></pre>
+<h3><code>source[type][id]</code></h3>
+<p>Access posts, pages, attachments or custom post type’s entities.</p>
+<pre><code class="lang-auto">source.post[60]
+source.page[7]
+source.product[36]
+</code></pre>
+<h3><code>source.author[id]</code></h3>
+<p>Access author entities.</p>
+<pre><code class="lang-auto">source.author[4]
+</code></pre>
+<hr>
+<h2>Actions</h2>
+<h3><code>source.fetch(path, page)</code></h3>
+<p>Action that retrieves entities using a path or a name. <code>fetch</code> works using the corresponding fetch function defined with the <code>add</code> action. This action doesn’t return anything but ensures that the received data are correctly populated in the state.</p>
+<p><strong>arguments</strong></p>
+<ul>
+<li>
+<code>path</code>: string that contains a path or a custom list’s name</li>
+<li>
+<code>page</code>: page number (default is 1)</li>
+</ul>
+<p><strong>example</strong></p>
+<pre><code class="lang-auto">source.fetch("/category/nature")
+source.fetch("/category/nature", 2)
+source.fetch("/the-beauties-of-gullfoss")
+source.fetch("custom-list")
+</code></pre>
+<p>There are some URL patterns handled by default. Those are:</p>
+<pre><code class="lang-auto">postArchive: '/(?s=:search)'
+category:    '/category/:slug(/?s=:search)'
+tag:         '/tag/:slug(/?s=:search)'
+author:      '/author/:name(?=:search)'
+date:        '/:year/:month?/:day?(?s=:search)'
+postOrPage:  '/:slug'
+attachment:  '/:year/:postSlug/:attachmentSlug'
+</code></pre>
+<h3><code>source.add(pattern, callback)</code></h3>
+<p>Action that attaches a function to handle a specified name or route pattern, using a string or a regexp. That function should request data from the WP REST API and populate the store with it. For that purpose, you may use the <a href="#action-populate"><code>populate</code> action</a>.</p>
+<p><strong>arguments</strong></p>
+<ul>
+<li>
+<p><code>pattern</code>: string or regexp</p>
+</li>
+<li>
+<p><code>callback</code>: async function that will be executed if <code>path</code> matches <code>pattern</code> when calling <code>source.fetch(path)</code>. Its arguments are:</p>
+<ul>
+<li>
+<code>config</code>: Overmind config object (<code>{ state, actions, effects }</code>).</li>
+<li>
+<code>payload</code>: object with the following attributes:
+<ul>
+<li>
+<code>name</code>: the path or name that has matched the pattern</li>
+<li>
+<code>params</code>: params extracted from <code>name</code> after the match</li>
+<li>
+<code>page</code>: page number passed when calling <code>source.fetch(path, page)</code>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>example</strong></p>
+<pre><code class="lang-auto">source.add(
+  "/post/:slug",
+  async ({ state, actions, effects }, { name, params }) =&gt; {
+    // Get a post
+    const { body: post } = await effects.api.get(
+      {
+        endpoint: "/wp/v2/posts",
+        params: {
+          slug: params.slug
+        }
+      }
+    );
+
+    // Populate data response in the store
+    actions.source.populate(name, post);
+  }
+)
+</code></pre>
+<h3><code>source.populate(path, entities, page)</code></h3>
+<p>Action that stores entities in the state so you can find them using the API specified in the <a href="#state-api">State API</a> section. Also, it sets all info related to paths for each entity (based on the entity’s link). This action is intended to be used after request entities from the REST API (using <a href="#effect-get"><code>api.get</code> effect</a>).</p>
+<p><strong>arguments</strong></p>
+<ul>
+<li>
+<code>path</code>: path or name</li>
+<li>
+<code>entities</code>: array or a single entity, from a WP REST API request</li>
+<li>
+<code>page</code>: the requested page number</li>
+</ul>
+<p><strong>example</strong></p>
+<pre><code class="lang-auto">source.populate('/category/nature', posts, 1)
+
+// That action should populate all the state below
+source.data['/category/nature']
+source.data["/categories/nature"].page[1]
+source.data["/categories/nature"].items
+source.category[2]
+source.data['/the-beauties-of-gullfoss']
+source.post[60]
+source.data["/author/luis"]
+source.author[4]
+source.attachment[15]
+source.attachment[16]
+</code></pre>
+<blockquote>
+<p><strong>NOTE:</strong> when using a name instead of a path, any property to identify that name should be added explicitly:</p>
+</blockquote>
+<pre><code class="lang-auto">source.populate("gallery-1", attachments, 1)
+
+// That action should populate all the state below
+source.data["gallery-1"]
+source.data["gallery-1"].page[1]
+source.data["gallery-1"].items
+source.attachment[15]
+source.attachment[16]
+// ...
+
+// This should be added explicitly
+source.data["gallery-1"].isGallery = true
+</code></pre>
+<hr>
+<h2>Effects</h2>
+<h3><code>api.get({ endpoint, params })</code></h3>
+<p>Request entity to the WordPress REST API.</p>
+<p><strong>arguments</strong></p>
+<ul>
+<li>
+<code>endpoint</code>: name of the endpoint if is a <code>/wp/v2</code> endpoint (e.g. <code>posts</code>), or the full path of other REST endpoints (e.g. <code>/frontity/v1/discovery</code>)</li>
+<li>
+<code>params</code>: any parameter that will be included in the query params.</li>
+</ul>
+<p>For more info, visit the <a href="https://developer.wordpress.org/rest-api/reference" rel="nofollow noopener">WP REST API reference</a>.</p>
+<p><strong>example</strong></p>
+<pre><code class="lang-auto">// Get posts from categories 2, 3 and 4
+api.get({ endpoint: "posts", params: { _embed: true, categories: '2,3,4' } });
+
+// Get the page 14
+api.get({ endpoint: "pages", params: { _embed: true, include: '14' } });
+
+// Other endpoints: 
+api.get({ 
+  endpoint: "/frontity/v1/discovery",
+  params: { path: "/the-beauties-of-gullfoss" }
+});
+</code></pre>
+<hr>
+<h2>Settings</h2>
+<p>All the options that can be configured in the package settings, like if it is <a href="http://WordPress.org" rel="nofollow noopener">WordPress.org</a> or <a href="http://WordPress.com" rel="nofollow noopener">WordPress.com</a>, the REST base route, etc.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_16' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-02T15:57:00Z' class='post-time'>
+                    2 April 2019 15:57
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-02T15:57:00Z'>
+              <span itemprop='position'>16</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Two doubts I have:</p>
+<hr>
+<p>If we want to populate the attributes</p>
+<pre><code class="lang-javascript">totalItems
+totalPages
+</code></pre>
+<p>for a list, the action <code>source.populate</code> is ignoring that attributes, as the <code>entities</code> argument doesn’t contain them.</p>
+<pre><code class="lang-javascript">source.populate(path, entities, page)
+</code></pre>
+<p>How would it be better to pass those attributes?</p>
+<pre><code class="lang-javascript">// response = { headers, body: entities }
+source.populate(path, response, page)
+
+// other options
+const entities = response.body
+const totalItems = response.headers["X-WP-Total"]
+const totalPages = response.headers["X-WP-TotalPages"]
+
+source.populate(path, entities, page)
+
+source.data[path].totalItems = totalItems;
+source.data[path].totalPages = totalPages;
+
+</code></pre>
+<hr>
+<p>Perhaps, since <code>path</code> and <code>entity</code> are two clearly differentiated concepts, we could leave clearer the separation with</p>
+<pre><code class="lang-javascript">const { type, id } = source.path["/category/nature"]
+source.entity[type][id]
+</code></pre>
+<p>even changing <code>path</code> to <code>name</code> so that both things are included</p>
+<pre><code class="lang-javascript">const { type, id } = source.name["/category/nature"]
+source.entity[type][id]
+
+const { items, isGallery } = source.name["gallery-1"]
+const entities = items.map(({ type, id }) =&gt; source.entity[type][id])
+</code></pre>
+<p>would this change worth it?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="3" />
+              </div>
+
+          </div>
+          <div id='post_17' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/David'><span itemprop='name'>David</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-02T16:00:01Z' class='post-time'>
+                    2 April 2019 16:00
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-02T16:00:01Z'>
+              <span itemprop='position'>17</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>I hope that with all this I can start programming. <img src="/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"><img src="/images/emoji/apple/rocket.png?v=9" title=":rocket:" class="emoji" alt=":rocket:"></p>
+<p><a class="mention" href="/u/luisherranz">@luisherranz</a>, <a class="mention" href="/u/orballo">@orballo</a>, let me know what you think!</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="1" />
+              <span class='post-likes'>1 Like</span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_18' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-03T20:26:24Z' class='post-time'>
+                    3 April 2019 20:26
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-03T20:26:24Z'>
+              <span itemprop='position'>18</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>Amazing work <a class="mention" href="/u/david">@David</a>!!</p>
+<p>I think I’d leave things like <code>totalItems</code>, <code>totalPages</code>, <code>isCategory</code> and so on to the <code>source.fetch</code> instead of the <code>populate</code>. We can include <code>fetchedItems</code> and <code>fetchedPages</code>, even <code>isFetching</code> like we had in the old one.</p>
+<p>We also need to decide what is an <code>item</code>, what is an <code>entity</code> and if we need both.</p>
+<p>Oh and we need to decide if we call it <code>name</code> or <code>path</code>.</p>
+<aside class="quote group-development-team" data-post="16" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Perhaps, since <code>path</code> and <code>entity</code> are two clearly differentiated concepts, we could leave clearer the separation</p>
+</blockquote>
+</aside>
+<p>I don’t have a strong opinion about this right now. Are entities: taxonomies, authors and post types?</p>
+<aside class="quote group-development-team" data-post="17" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>I hope that with all this I can start programming. <img src="/images/emoji/apple/smile.png?v=9" title=":smile:" class="emoji" alt=":smile:"><img src="/images/emoji/apple/rocket.png?v=9" title=":rocket:" class="emoji" alt=":rocket:"></p>
+</blockquote>
+</aside>
+<p>Sure!! <img src="/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"><img src="/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_19' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/orballo'><span itemprop='name'>orballo</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-04T09:21:05Z' class='post-time'>
+                    4 April 2019 09:21
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-04T09:21:05Z'>
+              <span itemprop='position'>19</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>First of all, great work! <img src="/images/emoji/apple/muscle.png?v=9" title=":muscle:" class="emoji" alt=":muscle:"></p>
+<p>I have some doubts:</p>
+<ul>
+<li>In the case of <code>custom-list</code>, do we define what entities belong to it in a <code>source.add()</code> function?</li>
+<li>Does the developer need to define all <code>source.add()</code> functions or are some already part of <code>wp-source</code> code? If yes, can a developer override those paths with another <code>add()</code>?</li>
+<li>I find <code>source.add()</code> name a bit confusing… maybe is better to use something like <code>register</code> or <code>handle</code>?</li>
+</ul>
+<aside class="quote group-development-team" data-post="16" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Perhaps, since <code>path</code> and <code>entity</code> are two clearly differentiated concepts, we could leave clearer the separation with</p>
+<pre><code class="lang-auto">const { type, id } = source.path["/category/nature"]
+source.entity[type][id]
+</code></pre>
+<p>even changing <code>path</code> to <code>name</code> so that both things are included</p>
+<pre><code class="lang-auto">const { type, id } = source.name["/category/nature"]
+source.entity[type][id]
+
+const { items, isGallery } = source.name["gallery-1"]
+const entities = items.map(({ type, id }) =&gt; source.entity[type][id])
+</code></pre>
+</blockquote>
+</aside>
+<p>I like <code>source.path["/category/nature"]</code>, <code>source.name["gallery-one"]</code> and <code>source.entity[type][id]</code>.</p>
+<aside class="quote group-development-team" data-post="18" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/luisherranz/40/5_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>We also need to decide what is an <code>item</code> , what is an <code>entity</code> and if we need both.</p>
+</blockquote>
+</aside>
+<p>If I remember correctly, in the previous Frontity <code>items</code> was used only in the router, any data stored would be entities. Maybe we should use only <code>entities</code> in <code>wp-source</code>.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="1" />
+              </div>
+
+          </div>
+          <div id='post_20' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-04T10:19:16Z' class='post-time'>
+                    4 April 2019 10:19
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-04T10:19:16Z'>
+              <span itemprop='position'>20</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="19" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I find <code>source.add()</code> name a bit confusing… maybe is better to use something like <code>register</code> or <code>handle</code> ?</p>
+</blockquote>
+</aside>
+<p>I like <code>source.register</code> <img src="/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji" alt=":+1:"></p>
+<aside class="quote group-development-team" data-post="19" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>If yes, can a developer override those paths with another <code>add()</code> ?</p>
+</blockquote>
+</aside>
+<p>That’s a good point: how do we order all the <code>source.registers</code>? Maybe we need priorities or some clever way to sort them.</p>
+<aside class="quote group-development-team" data-post="19" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/orballo/40/14_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I like <code>source.path["/category/nature"]</code> , <code>source.name["gallery-one"]</code></p>
+</blockquote>
+</aside>
+<p>Hmm… the thing is that <code>path</code> is just a <code>name</code>. It just happens to start with <code>"/"</code> but otherwise, there’s no difference at all.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+                <div class='crawler-linkback-list' itemscope itemtype='http://schema.org/ItemList'>
+                      <div itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+                        <a itemprop='url' href="/t/development-micro-updates-or-whos-working-on-what/45">:white_check_mark: Beta Roadmap &amp; Progress</a>
+                        <meta itemprop='position' content='1'>
+                      </div>
+                </div>
+          </div>
+          <div id='post_21' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-25T10:37:23Z' class='post-time'>
+                    25 April 2019 10:37
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-25T10:37:23Z'>
+              <span itemprop='position'>21</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <aside class="quote group-development-team" data-post="15" data-topic="65">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt width="20" height="20" src="/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>archives: <code>isArchive</code></p>
+<ul>
+<li>taxonomy: <code>isTaxonomy</code> (with <code>type</code> , <code>id</code> properties)</li>
+</ul>
+</blockquote>
+</aside>
+<p>We are going to change <code>type</code> for <code>taxonomy</code> to match the API.</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+          <div id='post_22' itemprop='comment' itemscope itemtype='http://schema.org/Comment' class='topic-body crawler-post'>
+            <div class='crawler-post-meta'>
+              <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <a itemprop="url" href='/u/luisherranz'><span itemprop='name'>luisherranz</span></a>
+                
+              </span>
+
+              <link itemprop="mainEntityOfPage" href="/t/the-source-api/65">
+
+
+              <span class="crawler-post-infos">
+                  <time itemprop='datePublished' datetime='2019-04-26T17:19:05Z' class='post-time'>
+                    26 April 2019 17:19
+                  </time>
+                  <meta itemprop='dateModified' content='2019-04-26T17:19:05Z'>
+              <span itemprop='position'>22</span>
+              </span>
+            </div>
+            <div class='post' itemprop='text'>
+              <p>What about if we allow either a name or an object in the functions that accept a name and a page? Like <code>source.fetch</code>, <code>source.data</code> and <code>router.set</code>?</p>
+<pre><code class="lang-javascript">source.fetch("/category/nature");
+source.fetch({ name: "/category/nature", page: 2 });
+</code></pre>
+<p>We also need to decide if we call it name or path.</p>
+<p><a class="mention" href="/u/david">@David</a>, what do you think?</p>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+              <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+              <meta itemprop="userInteractionCount" content="0" />
+              <span class='post-likes'></span>
+            </div>
+
+            <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+                <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+                <meta itemprop="userInteractionCount" content="0" />
+              </div>
+
+          </div>
+    </div>
+
+    <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement' class="topic-body crawler-post">
+        <span itemprop='name'><b><a rel="next" itemprop="url" href="/t/the-source-api/65">next page →</a></b></span>
+    </div>
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/categories' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/tos' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='/privacy' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    <!-- Add menu items to the second navigation bar (categories, latest...) 
+<script>
+  Discourse.ExternalNavItem = Discourse.NavItem.extend({
+    href : function() {
+      return this.get('href');
+    }.property('href')
+  });
+
+  I18n.translations.en.js.filters.voted = { title: "Voted", help: "Voted topics" };
+  I18n.translations.en.js.filters.showcases = { title: "Showcases", help: "Showcases category" };
+  I18n.translations.en.js.filters.assigned = { title: "Assigned", help: "Assigned topics" };
+
+  Discourse.NavItem.reopenClass({
+    buildList : function(category, args) {
+      var list = this._super(category, args);
+      var usernameDiscourse = Discourse.User.currentProp('username');
+      if(!category) {
+        list.push(Discourse.ExternalNavItem.create({href: '/u/'+usernameDiscourse+'/activity/votes', name: 'voted'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/category/showcases', name: 'showcases'}));
+        list.push(Discourse.ExternalNavItem.create({href: '/latest?assigned='+usernameDiscourse, name: 'assigned'}));
+      }
+      return list;
+    }
+  });
+</script>
+-->
+  </body>
+  
+</html>

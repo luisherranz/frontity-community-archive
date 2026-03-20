@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Site with a subdirectory returns 404</title>
+    <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600</link>
+    <description>Hi,
+
+I&#39;ve set up my settings as you have here but having a few issues. 
+
+Firstly, all fetch requests when I&#39;m in the subdirectory return 404s, &#39;No handler has matched for the given link: &quot;/wp-rest-api-sidebars/v1/sidebars/sidebar-1/&quot;&#39; is an example of an error message I get.
+
+Adding a subdirectory to my main English site results in the same problem. Any ideas on how to fix this?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 21 Dec 2020 17:17:40 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/leogardner12">@leogardner12</a></p>
+<p>I don’t think you should need a custom post handler for what you are trying to achieve. Did you take a look at the solution shared in <a href="https://community.frontity.org/t/multilanguage-with-acf/2750/7" class="inline-onebox">Multilanguage with ACF</a>.</p>
+<p>Also, allow me to point out a couple of things that I would approach differently in the repo that you shared. It would be quite time consuming to give you a complete solution but I can offer some pointers to set you on the right path.</p>
+<ol>
+<li>
+<p>This completely unrelated to the project itself, but I’d really recommend that you create a <a href="https://git-scm.com/docs/gitignore"><code>.gitignore</code> file</a> with the following content:</p>
+<pre><code class="lang-javascript">node_modules
+build
+</code></pre>
+<p>This will prevent your dependencies and build files from being pushed to github. It’s really important so that someone sharing your repo installs and builds it from scratch sharing your repo and for cross-platform compatibility.</p>
+</li>
+<li>
+<p>In your custom handlers, you shouldn’t need to match e.g. the <code>/wp/v2/posts/:lang</code> like you do:</p>
+<pre><code class="lang-javascript">const postsHandler = {
+  name: "posts",
+  priority: 10,
+  pattern: "/wp/v2/posts/:lang", // &lt;-- not like that
+  func: async ({ route, params, state, libraries }) =&gt; {
+    ...
+  }
+</code></pre>
+<p>instead, you want to match the frontend pathname which would be just <code>/:lang</code>. Take a look at the <a href="https://docs.frontity.org/api-reference-1/wordpress-source#libraries-source-handlers">example in the docs</a>.</p>
+</li>
+<li>
+<p>The <code>endpoint</code> param in the <code>api.get()</code> does not need the whole path of the REST API like:</p>
+<pre><code class="lang-javascript">api.get({
+     endpoint: "/wp/v2/posts/",
+     params: {
+       lang: lang,
+       per_page: 10 // To make sure we get all elements
+     }
+   });
+
+You can just specify `posts` like in the [example in the docs](https://docs.frontity.org/api-reference-1/wordpress-source#libraries-source-api-get).
+
+</code></pre>
+</li>
+<li>
+<p>You should use the Frontity’s built in <code>&lt;Link/&gt;</code> component in order to implement the “Language switcher”. You’ll notice that in the current implementation, the link is just a plain anchor tag so clicking it forces the whole page to be reloaded!</p>
+</li>
+</ol>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/13">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/13</link>
+        <pubDate>Mon, 21 Dec 2020 17:17:40 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-13</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[leogardner12]]></dc:creator>
+        <description><![CDATA[
+            <p>Thank you for the in-depth explanation. I thought I knew the purpose of handlers, in my real project I have handlers for fetching the menus as well as the sidebars. Both of theses return 404s when I’m in the /cy subdirectory.</p>
+<p>I’ve pushed my language switcher and my menu handler to my test repo to help you better understand my problem.</p>
+<p>I’m trying to implement a language switcher so a user can look at an individual post click on the language switcher and be taken to the translated post and vice versa. However, because the fetch request returns a 404 in the /cy subdirectory I cannot access the link for the translated post.</p>
+<p>The response for my menu can be found at frontity.state.theme.menu. I have not bothered displaying the menu anywhere in this test site.</p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/11">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/11</link>
+        <pubDate>Fri, 18 Dec 2020 12:49:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-11</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve taken a look at the project and the error that you are seeing is coming from your custom post handler that you have defined in the <code>frontity.settings.js</code> file.</p>
+<p>I have removed the custom post handler and also removed the <code>beforeSSR()</code> action from your <code>frontity.settings.js</code> and the error goes away.</p>
+<p>Looking at the handler that you have created, I feel like we didn’t do a good job explaining their purpose:</p>
+<p>            <video title="Google Chrome - Blog Blaenllaw Prawf" width="695" height="434" style="max-width:100%" poster="https://cdn.loom.com/sessions/thumbnails/658e3cef60014b7b84a9e161bb05bdd8-00001.gif" controls="">
+              <source src="https://cdn.loom.com/sessions/transcoded/658e3cef60014b7b84a9e161bb05bdd8.mp4?Expires=2147472000&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4ubG9vbS5jb20vc2Vzc2lvbnMvdHJhbnNjb2RlZC82NThlM2NlZjYwMDE0YjdiODRhOWUxNjFiYjA1YmRkOC5tcDQiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjIxNDc0NzIwMDB9fX1dfQ__&amp;Signature=fKISQENCCQz0cRvlSkNEKG-UpYuZpcpbpYXnqdx9VWW~XbgevI2XDT-kjuPwC7Viw6zzW832G6mT3spowvthvrl-dXLCkxY6IgIy-zSJtbwWBIud6hoxuttZ9-6ZgcvPm9WamioNjI9~h4Gl4XL9JcD1fvK7VQaZu6qMFh3rvgnbO10TlLqauuMCTVtZMjvP1py0yVL~merIy0ReTLMqMUN-AtoV8OdK9fK5-TH9keWkUl0foYKn5jr6dpO~ovoLpIPs5pcmKdjMjCwMbFP6FJXpZtFFQIB7ctHP3BMHcHVJ5uz0wXZzObwASfgUCRc1HJzlwrgksOdfvQTgMm2kJw__&amp;Key-Pair-Id=APKAJQIC5BGSW7XXK7FQ">
+            </video>
+</p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/10">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/10</link>
+        <pubDate>Thu, 17 Dec 2020 18:13:17 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-10</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a>, can you help here?</p>
+<p>This is the error that appears in the terminal when accessing <a href="http://localhost:3000/cy/">http://localhost:3000/cy/</a></p>
+<pre><code class="lang-javascript">ServerError: No handler has matched for the given link: "/wp/v2/posts/"
+    at eval (webpack-internal:///./node_modules/@frontity/wp-source/src/actions.ts:23:19)
+    at Object.eval [as fetch] (webpack-internal:///./node_modules/@frontity/connect/src/create-store.js:8:725)
+    at eval (webpack-internal:///./packages/twentytwenty-theme/src/index.js:30:82)
+    at eval (webpack-internal:///./node_modules/@frontity/connect/src/create-store.js:8:725)
+    at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:63:88)
+    at Array.map (&lt;anonymous&gt;)
+    at eval (webpack-internal:///./node_modules/@frontity/core/src/server/index.tsx:63:48)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)
+    at eval (webpack-internal:///./node_modules/koa-mount/index.js:16:290) {
+  status: 404,
+  statusText: 'No handler has matched for the given link: "/wp/v2/posts/"'
+</code></pre>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/9">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/9</link>
+        <pubDate>Thu, 17 Dec 2020 11:00:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-9</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[leogardner12]]></dc:creator>
+        <description><![CDATA[
+            <p>My problem is the fetch requests returning 404.</p>
+<p>in the console type frontity.state.theme.posts to see the response from the fetch request.</p>
+<p>to see how I populate state.theme.posts go to lines 94/95 in src/index.js</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/7/7645c18818d8534be30d15e8273e0afbc7a734cb.jpeg" data-download-href="https://community.frontity.org/uploads/default/7645c18818d8534be30d15e8273e0afbc7a734cb" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/7/7645c18818d8534be30d15e8273e0afbc7a734cb_2_690x357.jpeg" alt="image" data-base62-sha1="gShNambMyWCAPKXyhfuRoQ4RmfV" width="690" height="357" srcset="https://community.frontity.org/uploads/default/optimized/2X/7/7645c18818d8534be30d15e8273e0afbc7a734cb_2_690x357.jpeg, https://community.frontity.org/uploads/default/optimized/2X/7/7645c18818d8534be30d15e8273e0afbc7a734cb_2_1035x535.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/2X/7/7645c18818d8534be30d15e8273e0afbc7a734cb_2_1380x714.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/7/7645c18818d8534be30d15e8273e0afbc7a734cb_2_10x10.png"></a></div><p></p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/b/bebe574bfb30fb6982503a0e48ba1b08993ba63d.jpeg" data-download-href="https://community.frontity.org/uploads/default/bebe574bfb30fb6982503a0e48ba1b08993ba63d" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/b/bebe574bfb30fb6982503a0e48ba1b08993ba63d_2_690x353.jpeg" alt="image" data-base62-sha1="rdowqOgTBJNULC3bicRbkfnDYTz" width="690" height="353" srcset="https://community.frontity.org/uploads/default/optimized/2X/b/bebe574bfb30fb6982503a0e48ba1b08993ba63d_2_690x353.jpeg, https://community.frontity.org/uploads/default/optimized/2X/b/bebe574bfb30fb6982503a0e48ba1b08993ba63d_2_1035x529.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/2X/b/bebe574bfb30fb6982503a0e48ba1b08993ba63d_2_1380x706.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/b/bebe574bfb30fb6982503a0e48ba1b08993ba63d_2_10x10.png"></a></div><p></p>
+<p>On this example site, there is only one fetch request for posts but on my actual site I have to fetch menus and sidebars which all return 404 errors in the /cy subdirectory.</p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/8">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/8</link>
+        <pubDate>Thu, 17 Dec 2020 10:54:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-8</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/leogardner12">@leogardner12</a>,</p>
+<p>I’ve cloned your repo and launched your project locally and it seems to be working properly</p>
+<p>This is what I get at  <a href="http://localhost:3000/">http://localhost:3000/</a><br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/2/24d10dc496101097f05133a1bc6084191f8fa2a7.jpeg" data-download-href="https://community.frontity.org/uploads/default/24d10dc496101097f05133a1bc6084191f8fa2a7" title="Captura de pantalla 2020-12-17 a las 10.54.27"><img src="https://community.frontity.org/uploads/default/optimized/2X/2/24d10dc496101097f05133a1bc6084191f8fa2a7_2_690x422.jpeg" alt="Captura de pantalla 2020-12-17 a las 10.54.27" data-base62-sha1="5fH5fbCw8Z6sn47SMe4V4CNuVsr" width="690" height="422" srcset="https://community.frontity.org/uploads/default/optimized/2X/2/24d10dc496101097f05133a1bc6084191f8fa2a7_2_690x422.jpeg, https://community.frontity.org/uploads/default/optimized/2X/2/24d10dc496101097f05133a1bc6084191f8fa2a7_2_1035x633.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/2X/2/24d10dc496101097f05133a1bc6084191f8fa2a7_2_1380x844.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/2/24d10dc496101097f05133a1bc6084191f8fa2a7_2_10x10.png"></a></div><p></p>
+<p>and this is what I get at <a href="http://localhost:3000/cy/">http://localhost:3000/cy/</a><br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/1/13bb926204a6841045665fcd37e4f2869a9d38a8.jpeg" data-download-href="https://community.frontity.org/uploads/default/13bb926204a6841045665fcd37e4f2869a9d38a8" title="Captura de pantalla 2020-12-17 a las 10.54.10"><img src="https://community.frontity.org/uploads/default/optimized/2X/1/13bb926204a6841045665fcd37e4f2869a9d38a8_2_690x427.jpeg" alt="Captura de pantalla 2020-12-17 a las 10.54.10" data-base62-sha1="2OyWrG0qi3JHPWu9lXggHJuA8Qg" width="690" height="427" srcset="https://community.frontity.org/uploads/default/optimized/2X/1/13bb926204a6841045665fcd37e4f2869a9d38a8_2_690x427.jpeg, https://community.frontity.org/uploads/default/optimized/2X/1/13bb926204a6841045665fcd37e4f2869a9d38a8_2_1035x640.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/2X/1/13bb926204a6841045665fcd37e4f2869a9d38a8_2_1380x854.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/1/13bb926204a6841045665fcd37e4f2869a9d38a8_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/6</link>
+        <pubDate>Thu, 17 Dec 2020 10:12:07 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-6</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[leogardner12]]></dc:creator>
+        <description><![CDATA[
+            <p>I’ve created a fresh project and added to frontity.settings.js and index.js to replicate the error.</p>
+<p>Heres the link to the repo: <a href="https://github.com/LeoGardner1/test-frontity-theme.git" rel="noopener nofollow ugc">https://github.com/LeoGardner1/test-frontity-theme.git</a></p>
+<p>If you go to <a href="http://localhost:3000/" rel="noopener nofollow ugc">http://localhost:3000/</a> and enter into the console frontity.state.theme.posts you should be able to see that the posts have been fetched fine.</p>
+<p>However, if you go to <a href="http://localhost:3000/cy/" rel="noopener nofollow ugc">http://localhost:3000/cy/</a> and enter frontity.state.theme.posts again you should be able to see the 404 error.</p>
+<p>Appreciate the help.</p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/4</link>
+        <pubDate>Tue, 15 Dec 2020 14:23:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-4</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/juanma">@juanma</a> I don’t have an idea. I think it’s not enough information to troubleshoot this.</p>
+<p><a class="mention" href="https://community.frontity.org/u/leogardner12">@leogardner12</a> Could you let us know in more details what you have tried?</p>
+<p>Would you be able to also provide:<br>
+✓ A repository or codesandbox with the code of your project<br>
+✓ A deployed version of your site<br>
+✓ The URL of your WP REST API</p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/3</link>
+        <pubDate>Mon, 14 Dec 2020 18:16:45 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-3</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[juanma]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="leogardner12" data-post="1" data-topic="3600">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/letter_avatar_proxy/v4/letter/l/839c29/40.png" class="avatar"> leogardner12:</div>
+<blockquote>
+<p>Firstly, all fetch requests when I’m in the subdirectory return 404s, ‘No handler has matched for the given link: “/wp-rest-api-sidebars/v1/sidebars/sidebar-1/”’ is an example of an error message I get.</p>
+<p>Adding a subdirectory to my main English site results in the same problem. Any ideas on how to fix this?</p>
+</blockquote>
+</aside>
+<p><a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> any ideas about what could be happening here?</p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/2</link>
+        <pubDate>Mon, 14 Dec 2020 10:15:22 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-2</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+      <item>
+        <title>Site with a subdirectory returns 404</title>
+        <dc:creator><![CDATA[leogardner12]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,</p>
+<p>I’ve set up my settings as you have here but having a few issues.</p>
+<p>Firstly, all fetch requests when I’m in the subdirectory return 404s, ‘No handler has matched for the given link: “/wp-rest-api-sidebars/v1/sidebars/sidebar-1/”’ is an example of an error message I get.</p>
+<p>Adding a subdirectory to my main English site results in the same problem. Any ideas on how to fix this?</p>
+          <p><a href="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600/1</link>
+        <pubDate>Fri, 11 Dec 2020 09:17:02 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3600-1</guid>
+        <source url="https://community.frontity.org/t/site-with-a-subdirectory-returns-404/3600.rss">Site with a subdirectory returns 404</source>
+      </item>
+  </channel>
+</rss>

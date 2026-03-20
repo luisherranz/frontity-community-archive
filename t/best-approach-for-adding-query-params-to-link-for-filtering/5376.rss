@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Best approach for adding query params to link for filtering</title>
+    <link>https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376</link>
+    <description>So I have been going back and forward with this but I still cant find a way that really works. 
+So what I am trying to do is filter the entries of my Custom post type based on some meta fields values. I have already made it possible to filter in my API with a few different fields such as `department`, `employment_type`, `required_education` &amp; `required_experience`.
+
+The API url with would look something like this: `api.com/wp-json/wp/v2/vacancies/?department=qu&amp;employment_type=something&amp;required_education=high_school`
+
+So I have been trying quite some different approaches, but I cant get some functions of Frontity to work as I expect them to so I wanted to ask for some advice, directions.
+
+So I have an object like this which I will use as an example in all the approaches I take.
+
+```js
+const filterBy = {
+  department: &quot;Qoqon&quot;,
+  employment_type: &quot;fulltime&quot;,
+  required_education: &quot;high_school&quot;,
+  required_experience: &quot;experienced&quot;,
+}
+```
+
+
+## Approach 1 - using: actions.router.set()
+
+So in this approach, I am following what the documentation says that using `actions.router.set()` will `autoFetch` (I have double checked, my `autoFetch` is set to `true`.
+
+```
+const searchParams = new URLSearchParams(filterBy).toString()
+actions.router.set(state.router.link + `?${searchParams}`)
+```
+
+So, I can see the url updating and adding the search params, however in the network tab the query I can see looks like this: 
+![Screenshot 2021-10-12 at 18.35.34|628x173](upload://dTG2gi1Dxf398PO4CID3tCYkYxd.png)
+
+So it seems like this is being completely ignored. I would expect `actions.router.set` to perform a fetch with all the query params I am sending. This doesnt seem to be the case.
+
+
+&lt;hr&gt;
+
+## Approach 2 - using: actions.source.fetch()
+
+So this feels very hacky from the get-go but here is what I am trying to do.
+
+```
+//Find the post type and update its `params` with my filterBy object
+state.source.postTypes.find(pt =&gt; pt.type === &#39;vacatures&#39;).params = state.vacancies.filterBy
+
+//Call fetch with the current link
+actions.source.fetch(state.router.link, { force: true });
+```
+
+So this kinda works: ![Screenshot 2021-10-12 at 18.42.03|619x214](upload://czU1SMkuuWtMscupJPnjNvwwwyv.png)
+
+But it requires me to customize the default handler for my custom post type and it feels not right. I will not share the whole handler, as its a copy/paste from the original `postTypeArchive` handler with 1 modification:
+
+```
+const response = await api.get({
+  endpoint: &#39;vacancies&#39;,
+  params: {
+    search: query.s,
+    filter_by: query.filter_by, //this is new
+    page,
+    _embed: true,
+    ...state.source.params,
+    ...state.source.postTypes.find(pt =&gt; pt.type === &#39;vacatures&#39;).params //this is new
+  },
+});
+```
+
+This approach has the following issues
+  - doesnt update the current link in `state.source.data`
+  - Next &amp; Prev wont work
+  - feels like lots of going around the way that frontity is meant to be used
+
+
+&lt;hr&gt;
+
+
+## Approach 3 - using: libraries.source.api.get
+
+So far this seems kinda the most legit approach but it has its own problems. It looks something like this:
+
+```
+const response = await libraries.source.api.get({
+  endpoint: &quot;vacancies&quot;,
+  params: {
+    ...state.vacancies.filterBy
+  },
+});
+const items = await libraries.source.populate({ response, state, force });
+
+Object.assign(state.source.data[state.router.link], {
+  isSavedVacancies: true,
+  items,
+});
+```
+
+- this gets the correct vacancies
+- Doesn&#39;t handle next/prev so pagination doesnt work properly. I would add the next/prev myself, but as explained above, adding url params to the next/prev links doesnt actually filter.
+
+
+Ideally it should work in the same way as the `search` parameter works.
+
+## Approach 4 - fully custom handler
+
+This might be the best approach in terms of flexibility, but the worse in terms of maintainability and efficiency.
+
+
+
+## Summary
+
+Working on filtering of index for a custom post type and trying to find the best way to make it work.
+I am sure some of you that are way more experienced could help and give some suggestions.
+
+Last but not least, I couldn&#39;t find even 1 topic related to filtering of custom post type entries on an index, and I think its a good place to discuss some ideas so new members of the community can have some help.</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 13 Oct 2021 07:49:14 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Best approach for adding query params to link for filtering</title>
+        <dc:creator><![CDATA[carlitos.virreira]]></dc:creator>
+        <description><![CDATA[
+            <p>I do not have an answer, but I am following this thread.</p>
+          <p><a href="https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376/2</link>
+        <pubDate>Wed, 13 Oct 2021 07:49:14 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5376-2</guid>
+        <source url="https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376.rss">Best approach for adding query params to link for filtering</source>
+      </item>
+      <item>
+        <title>Best approach for adding query params to link for filtering</title>
+        <dc:creator><![CDATA[ni.bonev]]></dc:creator>
+        <description><![CDATA[
+            <p>So I have been going back and forward with this but I still cant find a way that really works.<br>
+So what I am trying to do is filter the entries of my Custom post type based on some meta fields values. I have already made it possible to filter in my API with a few different fields such as <code>department</code>, <code>employment_type</code>, <code>required_education</code> &amp; <code>required_experience</code>.</p>
+<p>The API url with would look something like this: <code>api.com/wp-json/wp/v2/vacancies/?department=qu&amp;employment_type=something&amp;required_education=high_school</code></p>
+<p>So I have been trying quite some different approaches, but I cant get some functions of Frontity to work as I expect them to so I wanted to ask for some advice, directions.</p>
+<p>So I have an object like this which I will use as an example in all the approaches I take.</p>
+<pre><code class="lang-js">const filterBy = {
+  department: "Qoqon",
+  employment_type: "fulltime",
+  required_education: "high_school",
+  required_experience: "experienced",
+}
+</code></pre>
+<h2>
+<a name="approach-1-using-actionsrouterset-1" class="anchor" href="https://community.frontity.org#approach-1-using-actionsrouterset-1"></a>Approach 1 - using: actions.router.set()</h2>
+<p>So in this approach, I am following what the documentation says that using <code>actions.router.set()</code> will <code>autoFetch</code> (I have double checked, my <code>autoFetch</code> is set to <code>true</code>.</p>
+<pre><code class="lang-javascript">const searchParams = new URLSearchParams(filterBy).toString()
+actions.router.set(state.router.link + `?${searchParams}`)
+</code></pre>
+<p>So, I can see the url updating and adding the search params, however in the network tab the query I can see looks like this:<br>
+<img src="https://community.frontity.org/uploads/default/original/2X/6/61677ce8d400a91d7db84330c0d7fd6d7c0bcc1b.png" alt="Screenshot 2021-10-12 at 18.35.34" data-base62-sha1="dTG2gi1Dxf398PO4CID3tCYkYxd" width="628" height="173"></p>
+<p>So it seems like this is being completely ignored. I would expect <code>actions.router.set</code> to perform a fetch with all the query params I am sending. This doesnt seem to be the case.</p>
+<hr>
+<h2>
+<a name="approach-2-using-actionssourcefetch-2" class="anchor" href="https://community.frontity.org#approach-2-using-actionssourcefetch-2"></a>Approach 2 - using: actions.source.fetch()</h2>
+<p>So this feels very hacky from the get-go but here is what I am trying to do.</p>
+<pre><code class="lang-javascript">//Find the post type and update its `params` with my filterBy object
+state.source.postTypes.find(pt =&gt; pt.type === 'vacatures').params = state.vacancies.filterBy
+
+//Call fetch with the current link
+actions.source.fetch(state.router.link, { force: true });
+</code></pre>
+<p>So this kinda works: <img src="https://community.frontity.org/uploads/default/original/2X/5/5829146b28f8850afdf1faed63059308ea1a91bb.png" alt="Screenshot 2021-10-12 at 18.42.03" data-base62-sha1="czU1SMkuuWtMscupJPnjNvwwwyv" width="619" height="214"></p>
+<p>But it requires me to customize the default handler for my custom post type and it feels not right. I will not share the whole handler, as its a copy/paste from the original <code>postTypeArchive</code> handler with 1 modification:</p>
+<pre><code class="lang-javascript">const response = await api.get({
+  endpoint: 'vacancies',
+  params: {
+    search: query.s,
+    filter_by: query.filter_by, //this is new
+    page,
+    _embed: true,
+    ...state.source.params,
+    ...state.source.postTypes.find(pt =&gt; pt.type === 'vacatures').params //this is new
+  },
+});
+</code></pre>
+<p>This approach has the following issues</p>
+<ul>
+<li>doesnt update the current link in <code>state.source.data</code>
+</li>
+<li>Next &amp; Prev wont work</li>
+<li>feels like lots of going around the way that frontity is meant to be used</li>
+</ul>
+<hr>
+<h2>
+<a name="approach-3-using-librariessourceapiget-3" class="anchor" href="https://community.frontity.org#approach-3-using-librariessourceapiget-3"></a>Approach 3 - using: libraries.source.api.get</h2>
+<p>So far this seems kinda the most legit approach but it has its own problems. It looks something like this:</p>
+<pre><code class="lang-javascript">const response = await libraries.source.api.get({
+  endpoint: "vacancies",
+  params: {
+    ...state.vacancies.filterBy
+  },
+});
+const items = await libraries.source.populate({ response, state, force });
+
+Object.assign(state.source.data[state.router.link], {
+  isSavedVacancies: true,
+  items,
+});
+</code></pre>
+<ul>
+<li>this gets the correct vacancies</li>
+<li>Doesn’t handle next/prev so pagination doesnt work properly. I would add the next/prev myself, but as explained above, adding url params to the next/prev links doesnt actually filter.</li>
+</ul>
+<p>Ideally it should work in the same way as the <code>search</code> parameter works.</p>
+<h2>
+<a name="approach-4-fully-custom-handler-4" class="anchor" href="https://community.frontity.org#approach-4-fully-custom-handler-4"></a>Approach 4 - fully custom handler</h2>
+<p>This might be the best approach in terms of flexibility, but the worse in terms of maintainability and efficiency.</p>
+<h2>
+<a name="summary-5" class="anchor" href="https://community.frontity.org#summary-5"></a>Summary</h2>
+<p>Working on filtering of index for a custom post type and trying to find the best way to make it work.<br>
+I am sure some of you that are way more experienced could help and give some suggestions.</p>
+<p>Last but not least, I couldn’t find even 1 topic related to filtering of custom post type entries on an index, and I think its a good place to discuss some ideas so new members of the community can have some help.</p>
+          <p><a href="https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376/1</link>
+        <pubDate>Tue, 12 Oct 2021 17:06:05 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5376-1</guid>
+        <source url="https://community.frontity.org/t/best-approach-for-adding-query-params-to-link-for-filtering/5376.rss">Best approach for adding query params to link for filtering</source>
+      </item>
+  </channel>
+</rss>

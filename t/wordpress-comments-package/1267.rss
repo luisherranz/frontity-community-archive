@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>WordPress comments package</title>
+    <link>https://community.frontity.org/t/wordpress-comments-package/1267</link>
+    <description># OPENING POST
+---
+
+**— [npm package](https://www.npmjs.com/package/@frontity/wp-comments)**
+
+# Description
+Right now, if people want to show their WP comments they have to fetch the data themselves and build the logic, or use external services like Disqus. We could build a package to do this so users can use WordPress default comment system.
+
+# User Stories
+
+&gt; As a **Frontity user**
+&gt; I want to **be able to access my WordPress comments in the state**
+&gt; so that **I can consume them however I want**
+
+&gt; As a **Frontity user**
+&gt; I want to **be able to call an action to post a new comment**
+&gt; so that **I can integrate it in my Comments forms**
+
+&gt; &lt;s&gt;As a **Frontity user**&lt;/s&gt;
+&gt; &lt;s&gt;I want to **have a component to show my comments**&lt;/s&gt;
+&gt; &lt;s&gt;so that **I just have to adapt some styles and not build my own logic**&lt;/s&gt;
+
+&gt; &lt;s&gt;As a **Frontity user**&lt;/s&gt;
+&gt; &lt;s&gt;I want to **have a component with a form to submit new comments**&lt;/s&gt;
+&gt; &lt;s&gt;so that **I just have to adapt some styles and not build my own logic**&lt;/s&gt;
+
+&gt; &lt;s&gt;As a **Frontity user**&lt;/s&gt;
+&gt; &lt;s&gt;I want to **be able to break comments into pages, selecting the number of top level comments**&lt;/s&gt;
+&gt; &lt;s&gt;so that **I don’t have to load all comments from the beginning**&lt;/s&gt;
+
+&gt; &lt;s&gt;As a **Frontity user**&lt;/s&gt;
+&gt; &lt;s&gt;I want to **be able to order my comments from older to newer or newer to older**&lt;/s&gt;
+&gt; &lt;s&gt;so that **I can select depending on each specific case**&lt;/s&gt;
+
+# Possible solution
+As @luisherranz suggested, the comments fetch could be handled by wp-source via  `actions.source.fetch(&quot;@comments/1232&quot;)`, while we could work on a package to expose: 
+
+* `Comments` : a component that shows both the comments and the form to create a new one.
+* `CommentForm`  a component to create a new comment.
+* `actions.comments.create(...)` : an action for those themes that want to create the form themselves, but don’t want to implement the logic.
+
+Apart from that, we need to investigate a way to pass down styles to an external component:
+
+This could works, although we aren&#39;t 100% sure:
+
+```
+const commentsStyles = css`
+  margin: 0;
+
+  .commentItem {
+    color: red;
+  }
+`;
+
+const Post = ({ ... }) =&gt; {
+  return (
+    &lt;&gt;
+      ...
+      &lt;Comments className={commentsStyles} /&gt;
+    &lt;/&gt;
+  );
+}
+```
+
+---
+# SUMMARY
+---
+&gt; *:warning:  Please, bear in mind that this section wasn&#39;t part of the opening post. It has been added afterwards and its purpose is to keep a quick summary with the most relevant information about this FD at the top of the thread.*
+
+# Relevant information
+* [Video demo](https://www.youtube.com/watch?v=pG1532lStI8&amp;t=7s).
+* [CodeSandbox](https://codesandbox.io/s/frontity-wp-comments-4g2rd?file=%2Fpackages%2Fmars-theme%2Fsrc%2Fcomponents%2Fcomments%2Findex.js) of the video.
+* As explained in the video and in [this comment](https://community.frontity.org/t/wordpress-comments-package/1267/62?u=santosguillamot), users will need to add a filter in WordPress to allow anonymous comments. 
+* [Initial implementation](https://community.frontity.org/t/wordpress-comments-package/1267/50?u=david): There were some changes after that, but it&#39;s interesting to understand how it started.
+* [Summary of changes](https://community.frontity.org/t/wordpress-comments-package/1267/82?u=santosguillamot) made in the final implementation. Note that, at the end, we [reverted the removal of `query`, `route` &amp; `link`](https://community.frontity.org/t/wordpress-comments-package/1267/83?u=santosguillamot).
+* [Errors example](https://community.frontity.org/t/wordpress-comments-package/1267/69?u=santosguillamot).</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 07 Apr 2021 14:04:10 +0000</lastBuildDate>
+    <category>Released</category>
+    <atom:link href="https://community.frontity.org/t/wordpress-comments-package/1267.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote no-group" data-username="orballo" data-post="107" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>Also, in addition to this, I want to ask something else, would it be better if these types started with the type of data they are? Like <code>DataComment</code>, <code>EntityComment</code></p>
+</blockquote>
+</aside>
+<p>Definitely.</p>
+<aside class="quote no-group" data-username="orballo" data-post="108" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>One more idea that could be added in a future version could be a <code>Derived</code> state to get the total comments of a post</p>
+</blockquote>
+</aside>
+<p>Great idea.</p>
+<p>Feel free to open a PR for those two <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote no-group" data-username="orballo" data-post="107" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/orballo/40/477_2.png" class="avatar"> orballo:</div>
+<blockquote>
+<p>I noticed that the interface for a comment entity is called <code>WpComment</code> and I was wondering if in order to match better what already exists in <code>@frontity/source</code> this interface should be called <code>WpCommentEntity</code> or <code>CommentEntity</code>.</p>
+</blockquote>
+</aside>
+<p>This is also a good idea, but I am afraid it’s a bit late for the v1 now.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/109">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/109</link>
+        <pubDate>Wed, 07 Apr 2021 14:04:10 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-109</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>One more idea that could be added in a future version could be a <code>Derived</code> state to get the total comments of a post, as they might be nested inside each other and it is just not trivial as to use <code>data.items.length</code>, but we need to sum them up somehow.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/108">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/108</link>
+        <pubDate>Sun, 04 Apr 2021 10:17:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-108</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[orballo]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi! I was working with this package in a typescript theme and I noticed that the interface for a comment entity is called <code>WpComment</code> and I was wondering if in order to match better what already exists in <code>@frontity/source</code> this interface should be called <code>WpCommentEntity</code> or <code>CommentEntity</code>.</p>
+<p>Also, in addition to this, I want to ask something else, would it be better if these types started with the type of data they are? Like <code>DataComment</code>, <code>EntityComment</code>, so when trying to import them, if you are looking for an entity the first results in the autosuggest would be those starting for entity. I don’t know if it is worth the change, just thinking out loud.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/107">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/107</link>
+        <pubDate>Sun, 04 Apr 2021 09:44:09 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-107</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks, yes that fixes the problem!<br>
+I don’t remember why I had this type param!<br>
+Pfff I wrote this the other day, 5mn after your answer, and didn’t hit send <img src="https://community.frontity.org/images/emoji/apple/flushed.png?v=9" title=":flushed:" class="emoji" alt=":flushed:"></p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/102">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/102</link>
+        <pubDate>Wed, 30 Sep 2020 18:50:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-102</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> <img src="https://community.frontity.org/images/emoji/apple/wave/3.png?v=9" title=":wave:t3:" class="emoji" alt=":wave:t3:"></p>
+<p>Thanks so much for investigating these issues. Yes, this is very helpful and i will try to fix it.<br>
+Could you please let me know if you are able to reproduce the issues regarding tot the adblock / <code>adsbygoogle</code>.</p>
+<p>Many thanks.<br>
+Best,<br>
+Dejan</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/101">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/101</link>
+        <pubDate>Tue, 29 Sep 2020 18:48:15 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-101</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>I think it’s related to the <code>type</code> param you’re adding in the <a href="https://github.com/alexadark/javierlorrente/blob/master/frontity.settings.js#L50">frontity.setting.js file</a>. This is being added trying to fetch the comments as well and it’s returning an error. Could you check if that’s the problem? Is there any special reason why you’re adding that params?</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/100">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/100</link>
+        <pubDate>Tue, 29 Sep 2020 06:35:11 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-100</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[alexaspalato]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello,<br>
+I have implemented the new comments package, but it doesn’t display the comments (I have done it exactly like on the codesandbox <a href="https://javierlorrente.vercel.app/trenhotel-de-renfe" rel="nofollow noopener">https://javierlorrente.vercel.app/trenhotel-de-renfe</a><br>
+If I try to post a new comment, it appears, but disappears if I reload the page</p>
+<p>I have logged the data and it shows error </p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/8/8169d5a4c7d0f6152e98add3da87fafeeb1c7c2e.png" data-download-href="https://community.frontity.org/uploads/default/8169d5a4c7d0f6152e98add3da87fafeeb1c7c2e" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/8/8169d5a4c7d0f6152e98add3da87fafeeb1c7c2e_2_551x500.png" alt="image" data-base62-sha1="isQlh5I9mTGGUsJHzCdVxZpUO1U" width="551" height="500" srcset="https://community.frontity.org/uploads/default/optimized/2X/8/8169d5a4c7d0f6152e98add3da87fafeeb1c7c2e_2_551x500.png, https://community.frontity.org/uploads/default/optimized/2X/8/8169d5a4c7d0f6152e98add3da87fafeeb1c7c2e_2_826x750.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/8/8169d5a4c7d0f6152e98add3da87fafeeb1c7c2e_2_1102x1000.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/8/8169d5a4c7d0f6152e98add3da87fafeeb1c7c2e_2_10x10.png"></a></div><br>
+this is the repo : <a href="https://github.com/alexadark/javierlorrente" rel="nofollow noopener">https://github.com/alexadark/javierlorrente</a><p></p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/99">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/99</link>
+        <pubDate>Tue, 29 Sep 2020 06:21:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-99</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/dejangeorgiev">@dejangeorgiev</a></p>
+<p>It’s a bit hard to debug this as I’m looking at a few issues that are obscuring what is going on for me <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"></p>
+<ol>
+<li>
+<p>The comments form shows up correctly for me e.g. when I go to <code>localhost:3000/how-to-make-perfect-carrot-cupcakes/</code> directly.</p>
+</li>
+<li>
+<p>However, the “Recommendations” section does not actually show up at all!</p>
+</li>
+<li>
+<p>When I open up the console, I get the following error:</p>
+</li>
+</ol>
+<pre><code class="lang-javascript">ServerError: post type from endpoints "posts,pages,media" with slug "388" not found
+    at Object.eval (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:37:21)
+    at Generator.next (&lt;anonymous&gt;)
+    at asyncGeneratorStep (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:4:1069)
+    at _next (webpack-internal:///./node_modules/@frontity/wp-source/src/libraries/handlers/postType.ts:4:1383)
+    at eval (webpack-internal:///./node_modules/@frontity/connect/src/scheduler.js:7:128)
+    at batchedUpdates$1 (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:3683:146)
+    at batch (webpack-internal:///./node_modules/@frontity/connect/src/scheduler.js:7:113)
+    at batched (webpack-internal:///./node_modules/@frontity/connect/src/scheduler.js:10:261)
+</code></pre>
+<p>I think that you want to load the data from the <code>recipes</code> endpoint and not the <code>posts</code>, <code>pages</code> or <code>media</code>. Looks like you might have a misconfigured handler here, I’m not quite sure <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<ol start="4">
+<li>I’ve noticed that when I browse with adblock on (uBlock origin), the page loads and then goes blank because the <code>adsbygoogle</code> object is not present in the window. This might actually be an error on our side, but we’ll have to investigate!</li>
+</ol>
+<p>Are you able to reproduce the issues that I mention ?</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/98">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/98</link>
+        <pubDate>Fri, 25 Sep 2020 00:43:39 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-98</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks <a class="mention" href="https://community.frontity.org/u/dejangeorgiev">@dejangeorgiev</a>.</p>
+<p><a class="mention" href="https://community.frontity.org/u/mmczaplinski">@mmczaplinski</a> could you please check it out?</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/95">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/95</link>
+        <pubDate>Wed, 23 Sep 2020 09:59:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-95</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/luisherranz">@luisherranz</a> <img src="https://community.frontity.org/images/emoji/apple/wave/3.png?v=9" title=":wave:t3:" class="emoji" alt=":wave:t3:"></p>
+<p>Thank you very much! <img src="https://community.frontity.org/images/emoji/apple/nerd_face.png?v=9" title=":nerd_face:" class="emoji" alt=":nerd_face:"><br>
+Yes, here is the repo <img src="https://community.frontity.org/images/emoji/apple/point_right/2.png?v=9" title=":point_right:t2:" class="emoji" alt=":point_right:t2:"> <a href="https://github.com/dejangeorgiev/ruthgeorgiev-frontity" rel="nofollow noopener">https://github.com/dejangeorgiev/ruthgeorgiev-frontity</a></p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/94">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/94</link>
+        <pubDate>Tue, 22 Sep 2020 09:20:41 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-94</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p><a class="mention" href="https://community.frontity.org/u/dejangeorgiev">@dejangeorgiev</a> is the repo available to check if this is a bug in the comments package or the error is somewhere else?</p>
+<p>By the way, they look awesome <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/93">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/93</link>
+        <pubDate>Tue, 22 Sep 2020 08:56:13 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-93</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[dejangeorgiev]]></dc:creator>
+        <description><![CDATA[
+            <p>Hello Frontity team,</p>
+<p>Thank you so much for releasing this package which supports WordPress comments. <img src="https://community.frontity.org/images/emoji/apple/clap/2.png?v=9" title=":clap:t2:" class="emoji" alt=":clap:t2:"><br>
+I’ve implemented it and all worked fine. Please check it out here:</p>
+<aside class="onebox allowlistedgeneric">
+  <header class="source">
+      <img src="https://community.frontity.org/uploads/default/original/2X/c/cd16b6ecbbcf5534b5d6259d5d35a1ae89c47ce6.png" class="site-icon" width="400" height="400">
+      <a href="https://ruthgeorgiev.com/how-to-cook-shirataki-noodlesshirataki-pad-thai-recipe/" target="_blank" rel="nofollow noopener" title="09:42PM - 30 August 2020">Ruth Georgiev – 30 Aug 20</a>
+  </header>
+  <article class="onebox-body">
+    <div class="aspect-image" style="--aspect-ratio:690/460;"><img src="https://community.frontity.org/uploads/default/optimized/2X/b/bb4ac3af06d775b3462a86b731d31bb0f212cb7c_2_690x460.jpeg" class="thumbnail" width="690" height="460" srcset="https://community.frontity.org/uploads/default/optimized/2X/b/bb4ac3af06d775b3462a86b731d31bb0f212cb7c_2_690x460.jpeg, https://community.frontity.org/uploads/default/optimized/2X/b/bb4ac3af06d775b3462a86b731d31bb0f212cb7c_2_1035x690.jpeg 1.5x, https://community.frontity.org/uploads/default/optimized/2X/b/bb4ac3af06d775b3462a86b731d31bb0f212cb7c_2_1380x920.jpeg 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/b/bb4ac3af06d775b3462a86b731d31bb0f212cb7c_2_10x10.png"></div>
+
+<h3><a href="https://ruthgeorgiev.com/how-to-cook-shirataki-noodlesshirataki-pad-thai-recipe/" target="_blank" rel="nofollow noopener">How To Cook Shirataki Noodles &amp; Shirataki Pad Thai Recipe</a></h3>
+
+<p>Learn how to cook Shirataki Noodles &amp; Shirataki Pad Thai recipe. A light keto version of shirataki pad thai with grilled chicken.</p>
+
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>However, one thing i’ve noticed is that, when i navigate through the other posts, the comments section is not rendered.</p>
+<p><strong>Scenario:</strong></p>
+<ol>
+<li>Go to the Link i provided above</li>
+<li>Scroll down to “READ NEXT” section which is right after the comments section</li>
+<li>Click on some of the posts e.g.“How To Make Easy Homemade Pizza Dough”</li>
+</ol>
+<p>You’ll find out that the comments section is not appearing, but after reloading the page.</p>
+<p>Any advices on this?</p>
+<p>Thanks so much.<br>
+Best,<br>
+Dejan</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/92">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/92</link>
+        <pubDate>Tue, 22 Sep 2020 08:26:23 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-92</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>The only suggestion I have is to add a check before adding the comments to your theme so it works without a <code>comments</code> package.</p>
+<p>Maybe check <code>state.comments</code> before adding the main component:</p>
+<pre><code class="lang-jsx">state.comments &amp;&amp; &lt;Comments postId={post.id} /&gt;;
+</code></pre>
+<p>And maybe check <code>actions.comments?.submit</code> before adding the form:</p>
+<pre><code class="lang-jsx">actions.comments?.submit &amp;&amp; &lt;CommentsForm postId={postId} /&gt;;
+</code></pre>
+<p>Two other things:</p>
+<ul>
+<li>Should we open a FD for the <code>comments</code> namespace to start discussing it?</li>
+<li>Should we open FDs for other <code>wp-comments</code> features, like the <code>Comments</code> component, a setting to fetch comments in SSR and so on?</li>
+</ul>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/91">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/91</link>
+        <pubDate>Mon, 21 Sep 2020 08:20:36 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-91</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>I love the video <a class="mention" href="https://community.frontity.org/u/santosguillamot">@santosguillamot</a>! It’s really well explained <img src="https://community.frontity.org/images/emoji/apple/clap.png?v=9" title=":clap:" class="emoji" alt=":clap:"></p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/90">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/90</link>
+        <pubDate>Mon, 21 Sep 2020 08:08:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-90</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>This feature, the beta version, has been released <img src="https://community.frontity.org/images/emoji/apple/tada.png?v=12" title=":tada:" class="emoji" alt=":tada:" loading="lazy" width="20" height="20"> : <a href="https://community.frontity.org/t/frontity-release-wordpress-native-comments-support-and-new-yoast-package/2919">Read the full Release Announcement</a>.</p>
+<p>Following <a href="https://community.frontity.org/t/wordpress-comments-package/1267/82">@mmczaplinski 's code</a>, I created a <a href="https://codesandbox.io/s/frontity-wp-comments-4g2rd?file=/packages/mars-theme/src/components/comments/index.js">CodeSandbox</a> to show an example implementing it. I recommend you to point it to your own WordPress site, so you can test the different settings and submit new comments (it isn’t currently allowed in <a href="http://test.frontity.org/">test.frontity.org</a>).</p>
+<p>We also created a demo explaining a bit this example and how the package works:</p>
+<p><a href="https://www.youtube.com/watch?v=pG1532lStI8">WordPress Comments Package Demo</a></p>
+
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/89">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/89</link>
+        <pubDate>Fri, 18 Sep 2020 12:23:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-89</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks for the PR Michal.</p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="87" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>you can merge it before announcing the new release</p>
+</blockquote>
+</aside>
+<p>It’s not that this is that important, because the <code>@comments/:post-id</code> pattern introduced doesn’t use pagination or queries, but I think it’ll be important for future non-URL patterns made by us or the community <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/88">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/88</link>
+        <pubDate>Thu, 17 Sep 2020 08:36:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-88</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-community-team" data-username="SantosGuillamot" data-post="86" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/santosguillamot/40/3_2.png" class="avatar"> SantosGuillamot:</div>
+<blockquote>
+<p>it can’t wait until tomorrow if this change doesn’t take long.</p>
+</blockquote>
+</aside>
+<p>I ll PR to undo this so that you can merge it before announcing the new release.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/87">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/87</link>
+        <pubDate>Wed, 16 Sep 2020 19:27:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-87</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[SantosGuillamot]]></dc:creator>
+        <description><![CDATA[
+            <p>If it’s a small change I would do it now. I haven’t released this version yet, so if you think it’s something we have to do, I’d include it before announcing it. I was planning to release and announce it once the new <a href="https://github.com/frontity/frontity/pull/548">Yoast package</a> is merged, but it can wait until tomorrow if this change doesn’t take long.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/86">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/86</link>
+        <pubDate>Wed, 16 Sep 2020 09:06:52 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-86</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="mmczaplinski" data-post="84" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>I’m happy to undo that change now or we could wait for the next opportunity when we are doing further work on wp-comments.</p>
+</blockquote>
+</aside>
+<p><a class="mention" href="https://community.frontity.org/u/santosguillamot">@SantosGuillamot</a> what do you think?</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/85">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/85</link>
+        <pubDate>Tue, 15 Sep 2020 19:34:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-85</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="83" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>I have a comment about this, though. I think we are assuming how non-URL data objects are going to be used, and restricting their usage too early.</p>
+</blockquote>
+</aside>
+<p>Those are all really good points, Luis, thank you! <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I’m happy to undo that change now or we could wait for the next opportunity when we are doing further work on wp-comments.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/84">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/84</link>
+        <pubDate>Tue, 15 Sep 2020 15:55:01 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-84</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey <span class="mention">@mmczaplinksi</span>, amazing work <img src="https://community.frontity.org/images/emoji/apple/slightly_smiling_face.png?v=9" title=":slightly_smiling_face:" class="emoji" alt=":slightly_smiling_face:"></p>
+<aside class="quote group-dev-team" data-username="mmczaplinski" data-post="82" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/mmczaplinski/40/307_2.png" class="avatar"> mmczaplinski:</div>
+<blockquote>
+<p>Remove the <code>query</code> , <code>route</code> &amp; <code>link</code> from the non-URL entities (like the comments) that are fetched from the REST API. The link for those entities starts with a <code>@</code> , e.g. <code>@comments/42</code></p>
+</blockquote>
+</aside>
+<p>I have a comment about this, though. I think we are assuming how non-URL data objects are going to be used, and restricting their usage too early.</p>
+<p>As a general rule, I’d prefer trying not to restrict the APIs as much as we can.</p>
+<p>In this specific case, I also see possible uses for the removed fields.</p>
+<ul>
+<li>
+<p><code>link</code>: The goal of introducing this field was to make it easier to use it as a self-reference, useful when passing objects around.</p>
+<p>For example, imagine a function that receives the data object.</p>
+<pre><code class="lang-js">const sendSomeEvent = (data) =&gt; {
+  someAnalyticsLibrary.send({ name: data.link, payload: data });
+};
+
+sendSomeEvent(data);
+</code></pre>
+<p>I think that usage still applies for non-URL data objects.</p>
+</li>
+<li>
+<p><code>route</code>: This is required for pagination, the same way page is required.</p>
+<p>Imagine we introduce pagination in the comments, for example.</p>
+<pre><code class="lang-js">await actions.source.fetch("@comments/10/page/2");
+const data = state.souce.get("@comments/10/page/2");
+</code></pre>
+<p>It would make sense to have both <code>data.page</code> (<code>2</code>) and <code>data.route</code> (<code>"@comments/10"</code>) in the data object, just like in any other paginated data object.</p>
+</li>
+<li>
+<p><code>query</code>: This gives an opportunity to add options.</p>
+<p>We decided to use a string for the index of the data object. I think that’s a great choice because they are much simpler to query and identify than JavaScript objects. But these string indexes need to be very versatile.</p>
+<p>Thankfully, the URL-format is, in a sense, similar to a JavaScript object. For optional options, the <code>query</code> is ideal, and people are quite used to on the web, so it’s easy to understand.</p>
+<p>Imagine we want to introduce some options to the <code>@comments</code> requests.</p>
+<ul>
+<li>Possibility to filter by the author of the comments.</li>
+<li>Possibility to filter the nested level of the comments fetched.</li>
+</ul>
+<p>If we don’t have the query, we need to bake those in the path:</p>
+<pre><code class="lang-javascript">pattern: `@comments/:postId/:author/:nestedLevel`
+</code></pre>
+<p>But if those options are optional, maybe I don’t want to filter by an author, I only want to specify a nested level. I have no way to do so. It will also become quite convoluted when there are many options.</p>
+<p>With queries, it becomes much simpler. The pattern is back to:</p>
+<pre><code class="lang-javascript">pattern: `@comments/:postId`
+</code></pre>
+<p>And queries are handled inside the handler. If I want to use the nested level option but not the author one, I could do:</p>
+<pre><code class="lang-javascript">actions.source.fetch("@comments/60?nestedLevel=2")
+</code></pre>
+</li>
+</ul>
+<hr>
+<p>Sorry for the long explanation <img src="https://community.frontity.org/images/emoji/apple/sweat_smile.png?v=9" title=":sweat_smile:" class="emoji" alt=":sweat_smile:"> I was trying to make my point clear.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/83">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/83</link>
+        <pubDate>Tue, 15 Sep 2020 07:26:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-83</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <p>This has finally been implemented in <a href="https://github.com/frontity/frontity/pull/542">https://github.com/frontity/frontity/pull/542</a></p>
+<p>This is the recap of the changes:</p>
+<ul>
+<li>Update the <code>wp-comments</code> package to use the REST API directly</li>
+<li>Add the data returned by the REST API when POSTing a new comment directly to <code>state.source.data</code> and <code>state.source.comment</code> . This is handled inside of the <code>actions.comments.submit()</code> action.</li>
+<li>Store the validation errors returned from WordPress in the state. The REST API returns the validation errors for each of the fields in the comment. E.g. if you send a request with a malformed <code>author_email</code>
+</li>
+<li>Remove the <code>query</code> , <code>route</code> &amp; <code>link</code> from the non-URL entities (like the comments) that are fetched from the REST API. The link for those entities starts with a <code>@</code>, e.g. <code>@comments/42</code>
+</li>
+</ul>
+<p>You can now use the package to fetch and create new comments.</p>
+<p>A pretty full usage example (please note that it’s not tested, so it might contain typos):</p>
+<pre><code class="lang-js">const Comments = ({ actions, state, postId }) =&gt; {
+  useEffect(() =&gt; {
+    actions.source.fetch(`@comments/${postId}`);
+  }, []);
+
+  const data = state.source.get(`@comments/${postId}`);
+  const form = state.comments.forms[postId];
+
+  return data.isReady ? (
+    &lt;&gt;
+      &lt;form
+        onSubmit={(e) =&gt; {
+          e.preventDefault();
+
+          // Post the comment using that values present in
+          // state.comments.forms[postId].fields
+          //
+          // You can also pass the values as a parameter to `submit()`, like:
+          // submit(1, {content: '', authorName: "Mike", authorEmail: hi@test.com })
+          actions.comments.submit(postId);
+        }}
+      &gt;
+        {/* If the form is submitting, we can show some kind of a loading state */}
+        {form.isSubmitting &amp;&amp; &lt;Loading /&gt;}
+
+        &lt;input
+          name="content"
+          onChange={(e) =&gt;
+            actions.comments.updateFields(postId, { content: e.target.value })
+          }
+          value={state.comments.forms[postId]?.fields?.content || ""}
+        /&gt;
+
+        {/* Show the errors for the individual fields.
+            E.g. content of a comment cannot be empty and the email must be valid */}
+        {form.errors?.content}
+
+        &lt;input
+          name="author_name"
+          onChange={(e) =&gt;
+            actions.comments.updateFields(postId, {
+              authorName: e.target.value,
+            })
+          }
+          value={state.comments.forms[postId]?.fields?.authorName || ""}
+        /&gt;
+        {form.errors?.authorName}
+
+        &lt;input
+          name="author_email"
+          onChange={(e) =&gt;
+            actions.comments.updateFields(postId, {
+              authorEmail: e.target.value,
+            })
+          }
+          value={state.comments.forms[postId]?.fields?.authorEmail || ""}
+        /&gt;
+        {form.errors?.authorEmail}
+
+        {/* Show the REST API error messages.
+            E.g. "Sorry, you must be logged in to comment." */}
+        &lt;div&gt;ERROR: {form.errorMessage}&lt;/div&gt;
+
+        {/* If the form was submitted successfully we can show a confirmation */}
+        &lt;div&gt;{form.isSubmitted &amp;&amp; "The comment submitted successfully!"}&lt;/div&gt;
+
+        &lt;input type="submit" /&gt;
+      &lt;/form&gt;
+
+      {/* Display the list of comments */}
+      &lt;div&gt;
+        {data.items.map(({ id, children }) =&gt; {
+          if (children) {
+            // Iterate over the sub-comments jand render them...
+          }
+          return (
+            &lt;&gt;
+              &lt;div&gt; {state.source.comment[id].author_name} said: &lt;/div&gt;
+              &lt;div&gt; {state.source.comment[id].content} &lt;/div&gt;
+            &lt;/&gt;
+          );
+        })}
+      &lt;/div&gt;
+    &lt;/&gt;
+  ) : null;
+};
+</code></pre>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/82">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/82</link>
+        <pubDate>Mon, 14 Sep 2020 20:50:04 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-82</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[mmczaplinski]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="David" data-post="76" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>I’m not sure about it is better for that property to be an array. How are those errors going to be consumed? Just printing an enumeration of problems for the whole form? Or an error message in each field?</p>
+</blockquote>
+</aside>
+<p>Yeah, I think I will change it to an object. This way, yes you have to do a <code>Object.entries()</code> when enumerating errors, but I think normally you will want show an error individually for each field an it’s easier with an object.</p>
+<aside class="quote group-dev-team" data-username="David" data-post="76" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>As I said before, I would store the same error object received from WordPress so I would change the <code>status</code> property to have the following structure:</p>
+</blockquote>
+</aside>
+<p><img src="https://community.frontity.org/images/emoji/apple/+1.png?v=9" title=":+1:" class="emoji only-emoji" alt=":+1:"></p>
+<aside class="quote group-dev-team" data-username="David" data-post="78" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>The unapproved comments are returned by the REST API with the same format as accepted comments. The only difference is the value in the <code>status</code> field, that would be <code>hold</code> in that case.</p>
+</blockquote>
+</aside>
+<p>The unapproved comments are only returned by the REST API if you are authenticated though… If you are not authenticated, you cannot change the default <code>status=approve</code> :</p>
+<p></p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/7/753066e506e48df72f30beb06a6e342bc355b5dd.png" data-download-href="https://community.frontity.org/uploads/default/753066e506e48df72f30beb06a6e342bc355b5dd" title="Screenshot 2020-08-31 at 11.09.08"><img src="https://community.frontity.org/uploads/default/optimized/2X/7/753066e506e48df72f30beb06a6e342bc355b5dd_2_517x96.png" alt="Screenshot 2020-08-31 at 11.09.08" data-base62-sha1="gIHz0ILqTKaxwzsFPjIoC1PSdMF" width="517" height="96" srcset="https://community.frontity.org/uploads/default/optimized/2X/7/753066e506e48df72f30beb06a6e342bc355b5dd_2_517x96.png, https://community.frontity.org/uploads/default/optimized/2X/7/753066e506e48df72f30beb06a6e342bc355b5dd_2_775x144.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/7/753066e506e48df72f30beb06a6e342bc355b5dd_2_1034x192.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/7/753066e506e48df72f30beb06a6e342bc355b5dd_2_10x10.png"></a></div><p></p>
+<p>Would this be a problem? I think it’s fine:</p>
+<p>If the user is not authenticated then once they submit a comment we can add it to <code>state.source.comments</code>. This way, we can show a comment that is <code>on hold</code> at least temporarily. Then:</p>
+<ul>
+<li>The comment can get either approved or thrashed in the meantime but the user has to refresh the page to see the “updated” state.</li>
+<li>If the comment is still <code>on hold</code>, the user will not see it unless we store it in localstorage, but again I think that it’s fine.</li>
+</ul>
+<aside class="quote group-dev-team" data-username="luisherranz" data-post="79" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>By the way, what do you think about renaming <code>isPending</code> to <code>isSubmitting</code> because the action would be <code>actions.comments.submit</code> and I’d like to keep consistency with <code>isFetching</code> that relates to <code>actions.source.fetch</code> .</p>
+</blockquote>
+</aside>
+<p>That sounds fine to me, I agree that a more flat schema is better.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/81">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/81</link>
+        <pubDate>Mon, 31 Aug 2020 16:22:37 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-81</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[luisherranz]]></dc:creator>
+        <description><![CDATA[
+            <p>Awesome. Then I guess we don’t need an array of <code>submissions</code> anymore <img src="https://community.frontity.org/images/emoji/apple/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<hr>
+<p>By the way, what do you think about renaming <code>isPending</code> to <code>isSubmitting</code> because the action would be <code>actions.comments.submit</code> and I’d like to keep consistency with <code>isFetching</code> that relates to <code>actions.source.fetch</code>.</p>
+<aside class="quote group-dev-team" data-username="David" data-post="76" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/david/40/6_2.png" class="avatar"> David:</div>
+<blockquote>
+<p>Again, if you think it is better to not use the same structure WordPress is using for errors I have no problem with using our own schema.</p>
+</blockquote>
+</aside>
+<p>Yeah, I would also try to keep the errors schema in the <code>state</code> as close as possible to what is returned by WordPress.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/79">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/79</link>
+        <pubDate>Mon, 31 Aug 2020 08:05:47 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-79</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+      <item>
+        <title>WordPress comments package</title>
+        <dc:creator><![CDATA[David]]></dc:creator>
+        <description><![CDATA[
+            <aside class="quote group-dev-team" data-username="luisherranz" data-post="77" data-topic="1267">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.frontity.org/user_avatar/community.frontity.org/luisherranz/40/735_2.png" class="avatar"> luisherranz:</div>
+<blockquote>
+<p>One question: Can we add the unapproved comments to <code>state.source.comments</code> as well? Are they returned properly from the the REST API?</p>
+</blockquote>
+</aside>
+<p>The unapproved comments are returned by the REST API with the same format as accepted comments. The only difference is the value in the <code>status</code> field, that would be <code>hold</code> in that case.</p>
+          <p><a href="https://community.frontity.org/t/wordpress-comments-package/1267/78">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/wordpress-comments-package/1267/78</link>
+        <pubDate>Mon, 31 Aug 2020 08:01:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-1267-78</guid>
+        <source url="https://community.frontity.org/t/wordpress-comments-package/1267.rss">WordPress comments package</source>
+      </item>
+  </channel>
+</rss>

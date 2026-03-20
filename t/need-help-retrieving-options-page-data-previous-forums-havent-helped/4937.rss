@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Need help retrieving options page data, previous forums haven&#39;t helped</title>
+    <link>https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937</link>
+    <description>Hey all,
+
+I am attempting to retrieve the options page data for a theme i&#39;m building. I followed the previous threads like: 
+
+https://community.frontity.org/t/acf-options-page/767
+
+&amp; 
+
+https://community.frontity.org/t/how-to-access-acf-options-pages/2075
+
+but I am still finding no success.
+
+I am attempting to hit this endpoint:
+
+https://gatorworksfron.wpengine.com/wp-json/acf/v3/options/options
+
+to just see the data BUT the problem i&#39;m having is that the handler i&#39;m making isn&#39;t added to the frontity.libraries.source and I don&#39;t know why.
+
+Here is a link to clone my repo:
+
+git clone https://brian_tucker@bitbucket.org/brian_tucker/gatorworks-frontity-theme.git
+
+
+I just updated it and made it public. Any help would be greatly appreciated, thanks!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 12 Jul 2021 19:21:51 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Need help retrieving options page data, previous forums haven&#39;t helped</title>
+        <dc:creator><![CDATA[brian.tucker]]></dc:creator>
+        <description><![CDATA[
+            <p>I was able to get it to work, I had to combine my beforeSSR functions and use a Promise.all on the fetch calls. I am able to see the options now though. Thank you <a class="mention" href="https://community.frontity.org/u/mburridge">@mburridge</a> &amp; <a class="mention" href="https://community.frontity.org/u/johan">@Johan</a> for the help!</p>
+          <p><a href="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/6</link>
+        <pubDate>Mon, 12 Jul 2021 18:58:24 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4937-6</guid>
+        <source url="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937.rss">Need help retrieving options page data, previous forums haven&#39;t helped</source>
+      </item>
+      <item>
+        <title>Need help retrieving options page data, previous forums haven&#39;t helped</title>
+        <dc:creator><![CDATA[brian.tucker]]></dc:creator>
+        <description><![CDATA[
+            <p>I was able to get the file to work with this, thanks! I’m still struggling to fetch the data from the endpoint though</p>
+          <p><a href="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/5</link>
+        <pubDate>Mon, 12 Jul 2021 18:30:08 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4937-5</guid>
+        <source url="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937.rss">Need help retrieving options page data, previous forums haven&#39;t helped</source>
+      </item>
+      <item>
+        <title>Need help retrieving options page data, previous forums haven&#39;t helped</title>
+        <dc:creator><![CDATA[Johan]]></dc:creator>
+        <description><![CDATA[
+            <p>Making a handler isn’t that complex, although there’s a minor “feature” (aka issue) with patterns which look like regular URL’s.</p>
+<p>The following should work (not tested):</p>
+<pre><code class="lang-javascript">export const acfHandler = {
+    name: "acf-options",
+    priority: 10,
+    pattern: "@acf/options",
+    func: async ({ link, params, state, libraries }) =&gt; {
+      const { api } = libraries.source;
+      const { slug } = params;
+  
+      // 1. fetch   the data you want from the endpoint page
+      const response = await api.get({
+        endpoint: `/acf/v3/options/options`,
+      });
+  
+      // 2. get an array with each item in json format
+      const items = await response.json();
+  
+      // 3. add data to source
+      const currentPageData = state.source.data[link];
+      Object.assign(currentPageData, {
+        items: items,
+        isAcfOptions: true,
+      });
+    },
+  };
+  
+  export default acfHandler;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/4</link>
+        <pubDate>Mon, 12 Jul 2021 17:04:27 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4937-4</guid>
+        <source url="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937.rss">Need help retrieving options page data, previous forums haven&#39;t helped</source>
+      </item>
+      <item>
+        <title>Need help retrieving options page data, previous forums haven&#39;t helped</title>
+        <dc:creator><![CDATA[brian.tucker]]></dc:creator>
+        <description><![CDATA[
+            <p>Would i be attempting to use that in the beforeSSR? I was able to view the acfOptionsHandler in frontity.libaries.source now but the data for the options is not be fetched. I tried using ‘libraries.source.api.get’ and then populating, but i found no success.</p>
+<p>I followed your instructions on how to add the Wordpress menus and got a better understanding of handlers. But not able to replicate the addition of this handler using a seperate file, i get the error “cannot read property ‘startswith’ of undefined”</p>
+<p>When keeping the handler inside the root index, it adds to the frontity.libaries.source fine. Really not sure why the data isn’t fetching.</p>
+<p>Any other insight would appreciated, thank you for the help so far!</p>
+          <p><a href="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/3</link>
+        <pubDate>Mon, 12 Jul 2021 16:09:06 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4937-3</guid>
+        <source url="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937.rss">Need help retrieving options page data, previous forums haven&#39;t helped</source>
+      </item>
+      <item>
+        <title>Need help retrieving options page data, previous forums haven&#39;t helped</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/brian.tucker">@brian.tucker</a></p>
+<p>Welcome to the Frontity community.</p>
+<p>You may need to use <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-api-get"><code>libraries.source.api.get</code></a> to fetch the data from a specific endpoint such as <code>https://gatorworksfron.wpengine.com/wp-json/acf/v3/options/options</code>.</p>
+<p>You will then also need to add the fetched data into the state using <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#libraries-source-populate"><code>libraries.source.populate</code></a>, as <code>libraries.source.api.get</code> doesn’t automatically populate the state in the way that <a href="https://api.frontity.org/frontity-packages/features-packages/wp-source#actions-source-fetch"><code>actions.source.fetch</code></a> does.</p>
+          <p><a href="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/2</link>
+        <pubDate>Mon, 05 Jul 2021 15:39:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4937-2</guid>
+        <source url="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937.rss">Need help retrieving options page data, previous forums haven&#39;t helped</source>
+      </item>
+      <item>
+        <title>Need help retrieving options page data, previous forums haven&#39;t helped</title>
+        <dc:creator><![CDATA[brian.tucker]]></dc:creator>
+        <description><![CDATA[
+            <p>Hey all,</p>
+<p>I am attempting to retrieve the options page data for a theme i’m building. I followed the previous threads like:</p>
+<aside class="quote" data-post="1" data-topic="767">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/letter_avatar_proxy/v4/letter/c/ba9def/40.png" class="avatar">
+    <a href="https://community.frontity.org/t/acf-options-page/767">ACF Options page</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="The “Get Help” category is the place for asking generic technical questions about Frontity
+or about how to solve a specific issue you’re having in your Frontity project.
+You can contribute to the project by providing support to these current unanswered questions">🙋Get Help</span></a>
+  </div>
+  <blockquote>
+    Hi, 
+I just can’t figure it out: how can I access the ACF options page and the data inside? 
+I’m using the acf-to-rest-api plugin and the API endpoint is right there: /wp-json/acf/v3/options/options 
+But I just don’t know how to use it inside mars-theme. 
+Thank you!
+  </blockquote>
+</aside>
+
+<p>&amp;</p>
+<aside class="quote quote-modified" data-post="1" data-topic="2075">
+  <div class="title">
+    <div class="quote-controls"></div>
+    <img alt="" width="20" height="20" src="/user_avatar/community.frontity.org/dominique/40/1163_2.png" class="avatar">
+    <a href="https://community.frontity.org/t/how-to-access-acf-options-pages/2075">How to access ACF Options pages</a> <a class="badge-wrapper  box" href="https://community.frontity.org/c/dev-talk-questions/3"><span class="badge-category-bg" style="background-color: #3AB54A;"></span><span style="color: #FFFFFF" data-drop-close="true" class="badge-category clear-badge" title="The “Get Help” category is the place for asking generic technical questions about Frontity
+or about how to solve a specific issue you’re having in your Frontity project.
+You can contribute to the project by providing support to these current unanswered questions">🙋Get Help</span></a>
+  </div>
+  <blockquote>
+    Hi heroes of Frontity, 
+I started playing around with Frontity this week and am very excited about it! 
+Now, I want to try and rebuild our corporate site with Frontity. We use ACF to expand WordPress. I started trying to access an options page called ‘theme-identity-settings’, but it just won’t work. I want to use the content of this endpoint on multiple pages, so I figured it should be added in the beforeSSR? 
+I came across <a href="https://community.frontity.org/t/acf-options-page/767/7">this topic</a>, where it seems to work out for <a href="https://community.frontity.org/u/countfak">countfak</a>. Either I’m messing…
+  </blockquote>
+</aside>
+
+<p>but I am still finding no success.</p>
+<p>I am attempting to hit this endpoint:</p>
+<p><a href="https://gatorworksfron.wpengine.com/wp-json/acf/v3/options/options" class="onebox" target="_blank" rel="noopener nofollow ugc">https://gatorworksfron.wpengine.com/wp-json/acf/v3/options/options</a></p>
+<p>to just see the data BUT the problem i’m having is that the handler i’m making isn’t added to the frontity.libraries.source and I don’t know why.</p>
+<p>Here is a link to clone my repo:</p>
+<p>git clone <a href="https://brian_tucker@bitbucket.org/brian_tucker/gatorworks-frontity-theme.git" class="inline-onebox" rel="noopener nofollow ugc">Bitbucket</a></p>
+<p>I just updated it and made it public. Any help would be greatly appreciated, thanks!</p>
+          <p><a href="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937/1</link>
+        <pubDate>Fri, 02 Jul 2021 15:34:56 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-4937-1</guid>
+        <source url="https://community.frontity.org/t/need-help-retrieving-options-page-data-previous-forums-havent-helped/4937.rss">Need help retrieving options page data, previous forums haven&#39;t helped</source>
+      </item>
+  </channel>
+</rss>

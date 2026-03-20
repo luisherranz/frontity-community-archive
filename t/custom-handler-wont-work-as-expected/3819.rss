@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Custom handler won&#39;t work as expected</title>
+    <link>https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819</link>
+    <description>- Description of your issue
+  - I am trying to write a custom handler to handle specific routes such that &quot;testsite.com/en/about-us&quot; where &quot;en&quot; is the language code and &quot;about-us&quot; is the slug. If this path is given, English version of &quot;About Us&quot; page will be loaded. I already checked some community answers but I could not find the issue for my code. On the other hand, &quot;/blog&quot; and &quot;/&quot; paths are working properly. If I add another handler, it does not work as expected.
+
+**actions** in **index.js**
+
+      actions: {
+        theme: {
+          init: ({ libraries }) =&gt; {
+            libraries.source.handlers = libraries.source.handlers.filter(
+              (h) =&gt; ![&quot;post archive&quot;].includes(h.name)
+            );
+
+            libraries.source.handlers.push({
+              name: &quot;page with lang&quot;,
+              priority: 7,
+              pattern: &quot;/:lang/:slug/&quot;,
+              func: async (options) =&gt; {
+                await postTypeHandler({
+                  endpoints: [&quot;pages&quot;],
+                })({
+                  ...options,
+                  params: { ...options.params },
+                });
+              },
+            });
+
+            libraries.source.handlers.push({
+              name: &quot;page&quot;,
+              priority: 9,
+              pattern: &quot;/&quot;,
+              func: async (options) =&gt; {
+                await postTypeHandler({ endpoints: [&quot;pages&quot;] })({
+                  ...options,
+                  params: { ...options.params, slug: &quot;/&quot; },
+                });
+              },
+            });
+
+            libraries.source.handlers.push({
+              name: &quot;post archive&quot;,
+              priority: 8,
+              pattern: &quot;/blog/&quot;,
+              func: async (options) =&gt; {
+                await postTypeArchiveHandler({
+                  type: &quot;post&quot;,
+                  endpoint: &quot;posts&quot;,
+                })({
+                  ...options,
+                });
+              },
+            });
+          },
+          openMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = true;
+          },
+          closeMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = false;
+          },
+          toggleMobileMenu: ({ state }) =&gt; {
+            state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+          },
+          setLanguage: ({ state }) =&gt; value =&gt; {
+            state.theme.language = value;
+          }
+        },
+      },
+      libraries: {
+        html2react: {
+          /**
+           * Add a processor to `html2react` so it processes the `&lt;img&gt;` tags
+           * inside the content HTML. You can add your own processors too
+           */
+          processors: [image, LinkHandler],
+        },
+      },</description>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 20 Jan 2021 11:06:03 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Custom handler won&#39;t work as expected</title>
+        <dc:creator><![CDATA[mburridge]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi <a class="mention" href="https://community.frontity.org/u/rawsly">@rawsly</a></p>
+<p>Welcome to the Frontity community.</p>
+<p>What are your functions <code>postTypeHandler</code> and <code>postTypeArchiveHandler</code> doing. Could you provide a link to a repo so we can see your code and clone the project so we can run it if necessary, thanks. If your API is publicly available so we can see the data being fetched and run the project with your data that would be even more awesome.</p>
+<p>Please <a href="https://community.frontity.org/t/about-the-get-help-category/2/3">see here</a> for the information that you can provide which will best enable us to help you.</p>
+          <p><a href="https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819/2</link>
+        <pubDate>Wed, 20 Jan 2021 11:06:03 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3819-2</guid>
+        <source url="https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819.rss">Custom handler won&#39;t work as expected</source>
+      </item>
+      <item>
+        <title>Custom handler won&#39;t work as expected</title>
+        <dc:creator><![CDATA[rawsly]]></dc:creator>
+        <description><![CDATA[
+            <ul>
+<li>Description of your issue
+<ul>
+<li>I am trying to write a custom handler to handle specific routes such that “<a href="http://testsite.com/en/about-us" rel="noopener nofollow ugc">testsite.com/en/about-us</a>” where “en” is the language code and “about-us” is the slug. If this path is given, English version of “About Us” page will be loaded. I already checked some community answers but I could not find the issue for my code. On the other hand, “/blog” and “/” paths are working properly. If I add another handler, it does not work as expected.</li>
+</ul>
+</li>
+</ul>
+<p><strong>actions</strong> in <strong>index.js</strong></p>
+<pre><code>  actions: {
+    theme: {
+      init: ({ libraries }) =&gt; {
+        libraries.source.handlers = libraries.source.handlers.filter(
+          (h) =&gt; !["post archive"].includes(h.name)
+        );
+
+        libraries.source.handlers.push({
+          name: "page with lang",
+          priority: 7,
+          pattern: "/:lang/:slug/",
+          func: async (options) =&gt; {
+            await postTypeHandler({
+              endpoints: ["pages"],
+            })({
+              ...options,
+              params: { ...options.params },
+            });
+          },
+        });
+
+        libraries.source.handlers.push({
+          name: "page",
+          priority: 9,
+          pattern: "/",
+          func: async (options) =&gt; {
+            await postTypeHandler({ endpoints: ["pages"] })({
+              ...options,
+              params: { ...options.params, slug: "/" },
+            });
+          },
+        });
+
+        libraries.source.handlers.push({
+          name: "post archive",
+          priority: 8,
+          pattern: "/blog/",
+          func: async (options) =&gt; {
+            await postTypeArchiveHandler({
+              type: "post",
+              endpoint: "posts",
+            })({
+              ...options,
+            });
+          },
+        });
+      },
+      openMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = true;
+      },
+      closeMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = false;
+      },
+      toggleMobileMenu: ({ state }) =&gt; {
+        state.theme.isMobileMenuOpen = !state.theme.isMobileMenuOpen;
+      },
+      setLanguage: ({ state }) =&gt; value =&gt; {
+        state.theme.language = value;
+      }
+    },
+  },
+  libraries: {
+    html2react: {
+      /**
+       * Add a processor to `html2react` so it processes the `&lt;img&gt;` tags
+       * inside the content HTML. You can add your own processors too
+       */
+      processors: [image, LinkHandler],
+    },
+  },</code></pre>
+          <p><a href="https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819/1</link>
+        <pubDate>Mon, 18 Jan 2021 07:29:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-3819-1</guid>
+        <source url="https://community.frontity.org/t/custom-handler-wont-work-as-expected/3819.rss">Custom handler won&#39;t work as expected</source>
+      </item>
+  </channel>
+</rss>

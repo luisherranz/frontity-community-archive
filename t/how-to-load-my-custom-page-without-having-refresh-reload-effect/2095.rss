@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>How to Load My Custom Page without having refresh/reload effect?</title>
+    <link>https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095</link>
+    <description>Hi there, 
+&gt; **Working URL of website on which I am working on:** 
+&gt; http://app.moosaconsulting.com/
+
+I have added my custom page using the custom handler (code of that custom handler is pasted below)
+
+    const strategyHandler = {
+      name: &quot;strategy&quot;,
+      priority: 10,
+      pattern: &quot;/strategy/&quot;,
+      func: ({ state }) =&gt; {
+        state.source.data[&#39;/strategy/&#39;].isStrategy = true;    
+      }
+    } 
+And following code is added in `actions &gt; theme`:
+
+    init: ({ libraries }) =&gt; {
+            libraries.source.handlers.push(strategyHandler);
+          },
+
+
+&gt; **And it is connected on **Homepage** with an `&lt;a&gt;` tag under **What We Do** Section:**
+![image|690x284, 75%](upload://cGpixXq1lqAImqjHnrJHiZyuO0w.png)
+
+&gt; **On `components &gt; index.js` using the following command to load my strategy page by the  following `Switch`:**
+
+    &lt;Switch&gt;
+             &lt;Strategy when={data.isStrategy} /&gt;
+    &lt;/Switch&gt;
+
+&gt; **ISSUE IS:**
+When i click on Strategy I am experiencing a page refresh. How can i avoid it and make it similar like Menu Link i.e., when we click on Nav Menu its not reloading the page only content is changing and application is behaving like **SPA**. Is there any way to make it happen?</description>
+    <language>en-GB</language>
+    <lastBuildDate>Mon, 22 Jun 2020 12:53:29 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>How to Load My Custom Page without having refresh/reload effect?</title>
+        <dc:creator><![CDATA[hammad]]></dc:creator>
+        <description><![CDATA[
+            <p>I was using <code>a</code> tag. But Frontity gives <code>&lt;Link&gt;&lt;/Link&gt;</code> tag to solve this issue. In which the route e.g., <code>actions.router.set</code> has already been set.<br>
+For reference, I used the doc:<br>
+<a href="https://docs.frontity.org/api-reference-1/router" rel="nofollow noopener">https://docs.frontity.org/api-reference-1/router</a></p>
+          <p><a href="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/5</link>
+        <pubDate>Mon, 22 Jun 2020 12:53:29 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2095-5</guid>
+        <source url="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095.rss">How to Load My Custom Page without having refresh/reload effect?</source>
+      </item>
+      <item>
+        <title>How to Load My Custom Page without having refresh/reload effect?</title>
+        <dc:creator><![CDATA[hammad]]></dc:creator>
+        <description><![CDATA[
+            <blockquote>
+<p>Hi there,<br>
+Thanks for your response.<br>
+URL to website: <a href="http://app.moosaconsulting.com/" rel="nofollow noopener">Website URL</a><br>
+This is code for Strategy under the above service section &gt; Strategy Page:</p>
+</blockquote>
+<pre><code>import React from 'react';
+import {Global, css, connect} from "frontity";
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import servicesSectionsCss from "./servicesSectionsCss.css";
+
+const fetchedServicesData = (requestResponse) =&gt; {
+    var mainServicesArray = [];
+    const fetchedServicesArray = requestResponse.option;
+    var serviceDetailsFinal = {};
+    fetchedServicesArray.forEach(element =&gt; {
+        var titleService = element.acf.service_title;
+        var serviceDetails = {
+            "serviceTitle": element.acf.service_title,
+            "serviceIcon": element.acf.icon.url,
+            "serviceSliderIcon": element.acf.slidericon,
+            "serviceContent": element.acf.content,
+            "category": element.acf.category,
+            "slidertitle": element.acf.slidertitle,
+            "slidersubtitle": element.acf.slidersubtitle,
+        };
+
+        serviceDetailsFinal[titleService] = serviceDetails;
+
+    });
+
+    return serviceDetailsFinal;
+
+};
+
+const Strategy = ({state}) =&gt; {
+    const responseData = state.source.get("acf-services-page");
+    const servicesDataObject = fetchedServicesData(responseData);
+    const strategyObject = servicesDataObject.Strategy;
+    // console.log(responseData);
+    const cagtegoryName = strategyObject.category['name'];
+    console.log(strategyObject.serviceContent);
+    return(
+        &lt;&gt;
+        &lt;div className="wp-page-content"&gt;
+            &lt;Row className="services_section_top"&gt;
+                &lt;Col 
+                    className="container1" 
+                    sm={12} md={12} 
+                    css={css`
+                        background-image: url(${strategyObject.serviceSliderIcon});
+                    `}
+                &gt;
+                    &lt;div className="carousel-caption"&gt;
+                        &lt;h1&gt;{strategyObject.slidertitle}&lt;/h1&gt;
+                        &lt;p&gt;
+                            {strategyObject.slidersubtitle}
+                        &lt;/p&gt;
+                    &lt;/div&gt;
+                &lt;/Col&gt;            
+            &lt;/Row&gt;
+
+            &lt;Container&gt;
+                &lt;div className="page-headline"&gt;
+                    &lt;div className="service-summary-icon"&gt;
+                        &lt;img className="img-responsive" src={strategyObject.serviceIcon} alt="strategy" /&gt;
+                    &lt;/div&gt;
+                    &lt;div class="text-center"&gt;
+                        &lt;h4 class="text-pink text-uppercase"&gt;{cagtegoryName}&lt;/h4&gt;
+                        &lt;h1 class="xl"&gt;{strategyObject.serviceTitle}&lt;/h1&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/Container&gt;
+            &lt;Container className="single-post service-content"&gt;
+                &lt;Row&gt;
+                    &lt;Col sm={12} md={12} className="single-post-content theme-services" dangerouslySetInnerHTML={{__html: strategyObject.serviceContent}}&gt;
+                    &lt;/Col&gt;
+                &lt;/Row&gt;
+            &lt;/Container&gt;
+        &lt;/div&gt;
+        &lt;Global styles={css(servicesSectionsCss)} /&gt;
+        &lt;/&gt;
+    );
+};
+export default connect(Strategy);</code></pre>
+          <p><a href="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/4</link>
+        <pubDate>Sun, 21 Jun 2020 13:07:49 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2095-4</guid>
+        <source url="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095.rss">How to Load My Custom Page without having refresh/reload effect?</source>
+      </item>
+      <item>
+        <title>How to Load My Custom Page without having refresh/reload effect?</title>
+        <dc:creator><![CDATA[zaid_sameer]]></dc:creator>
+        <description><![CDATA[
+            <p><a href="https://community.frontity.org/uploads/default/original/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078.png">https://community.frontity.org/uploads/default/original/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078.png</a><br>
+Just show the code of this page.</p>
+          <p><a href="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/3</link>
+        <pubDate>Sun, 21 Jun 2020 11:59:53 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2095-3</guid>
+        <source url="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095.rss">How to Load My Custom Page without having refresh/reload effect?</source>
+      </item>
+      <item>
+        <title>How to Load My Custom Page without having refresh/reload effect?</title>
+        <dc:creator><![CDATA[hammad]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi there,</p>
+<blockquote>
+<p><strong>Working URL of website on which I am working on:</strong><br>
+<a href="http://app.moosaconsulting.com/" rel="nofollow noopener">http://app.moosaconsulting.com/</a></p>
+</blockquote>
+<p>I have added my custom page using the custom handler (code of that custom handler is pasted below)</p>
+<pre><code>const strategyHandler = {
+  name: "strategy",
+  priority: 10,
+  pattern: "/strategy/",
+  func: ({ state }) =&gt; {
+    state.source.data['/strategy/'].isStrategy = true;    
+  }
+} 
+</code></pre>
+<p>And following code is added in <code>actions &gt; theme</code>:</p>
+<pre><code>init: ({ libraries }) =&gt; {
+        libraries.source.handlers.push(strategyHandler);
+      },
+</code></pre>
+<blockquote>
+<p><strong>And it is connected on <strong>Homepage</strong> with an <code>&lt;a&gt;</code> tag under <strong>What We Do</strong> Section:</strong><br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078.png" data-download-href="https://community.frontity.org/uploads/default/58e54dd926f5801d29d18bd341d8eca21a434078" title="image"><img src="https://community.frontity.org/uploads/default/optimized/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078_2_517x213.png" alt="image" data-base62-sha1="cGpixXq1lqAImqjHnrJHiZyuO0w" width="517" height="213" srcset="https://community.frontity.org/uploads/default/optimized/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078_2_517x213.png, https://community.frontity.org/uploads/default/optimized/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078_2_775x319.png 1.5x, https://community.frontity.org/uploads/default/optimized/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078_2_1034x426.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/5/58e54dd926f5801d29d18bd341d8eca21a434078_2_10x10.png"></a></div><p></p>
+</blockquote>
+<blockquote>
+<p><strong>On <code>components &gt; index.js</code> using the following command to load my strategy page by the  following <code>Switch</code>:</strong></p>
+</blockquote>
+<pre><code>&lt;Switch&gt;
+         &lt;Strategy when={data.isStrategy} /&gt;
+&lt;/Switch&gt;
+</code></pre>
+<blockquote>
+<p><strong>ISSUE IS:</strong><br>
+When i click on Strategy I am experiencing a page refresh. How can i avoid it and make it similar like Menu Link i.e., when we click on Nav Menu its not reloading the page only content is changing and application is behaving like <strong>SPA</strong>. Is there any way to make it happen?</p>
+</blockquote>
+          <p><a href="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095/1</link>
+        <pubDate>Mon, 15 Jun 2020 08:52:32 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-2095-1</guid>
+        <source url="https://community.frontity.org/t/how-to-load-my-custom-page-without-having-refresh-reload-effect/2095.rss">How to Load My Custom Page without having refresh/reload effect?</source>
+      </item>
+  </channel>
+</rss>

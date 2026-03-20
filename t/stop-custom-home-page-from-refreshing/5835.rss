@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Stop custom home page from refreshing</title>
+    <link>https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835</link>
+    <description>I have created a custom home page and I am using the menu from WordPress admin. 
+The links work fine, but when I click on the link for the Home it refreshes the site. But the other pages do not refresh, and they come from WP.
+
+How do I stop it from refreshing? 
+Do I need to use tiny-router? In that case, where do I put the code?
+
+Thanks!</description>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 19 Mar 2022 08:44:50 +0000</lastBuildDate>
+    <category>🙋Get Help</category>
+    <atom:link href="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835.rss" rel="self" type="application/rss+xml" />
+      <item>
+        <title>Stop custom home page from refreshing</title>
+        <dc:creator><![CDATA[s74]]></dc:creator>
+        <description><![CDATA[
+            <p>Thanks! But now I tried putting a custom link in the WordPress admin menu and only giving the link “/”, and then it worked also :). </p><div class="lightbox-wrapper"><a class="lightbox" href="https://community.frontity.org/uploads/default/original/2X/c/c4eb07934909aaabb9ccba4ea31ee239fa7a19ed.png" data-download-href="https://community.frontity.org/uploads/default/c4eb07934909aaabb9ccba4ea31ee239fa7a19ed" title="Skärmavbild 2022-03-19 kl. 09.43.56"><img src="https://community.frontity.org/uploads/default/optimized/2X/c/c4eb07934909aaabb9ccba4ea31ee239fa7a19ed_2_690x423.png" alt="Skärmavbild 2022-03-19 kl. 09.43.56" data-base62-sha1="s618eqjnix7r7UsKmG1ZTolh2Zn" width="690" height="423" srcset="https://community.frontity.org/uploads/default/optimized/2X/c/c4eb07934909aaabb9ccba4ea31ee239fa7a19ed_2_690x423.png, https://community.frontity.org/uploads/default/original/2X/c/c4eb07934909aaabb9ccba4ea31ee239fa7a19ed.png 1.5x, https://community.frontity.org/uploads/default/original/2X/c/c4eb07934909aaabb9ccba4ea31ee239fa7a19ed.png 2x" data-small-upload="https://community.frontity.org/uploads/default/optimized/2X/c/c4eb07934909aaabb9ccba4ea31ee239fa7a19ed_2_10x10.png"></a></div><p></p>
+          <p><a href="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/6">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/6</link>
+        <pubDate>Sat, 19 Mar 2022 08:44:50 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5835-6</guid>
+        <source url="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835.rss">Stop custom home page from refreshing</source>
+      </item>
+      <item>
+        <title>Stop custom home page from refreshing</title>
+        <dc:creator><![CDATA[UnicornCoder]]></dc:creator>
+        <description><![CDATA[
+            <p>I believe it’s correct, the navigation component by default in mars-theme is configured this way looking for the name of the state:</p>
+<pre><code class="lang-javascript">const Nav = ({ state }) =&gt; (
+  &lt;NavContainer&gt;
+    {state.theme.menu.map(([name, link]) =&gt; {
+      // Check if the link matched the current page url
+      const data = state.source.get(state.router.link);
+      const isCurrentPage = data.route === link;
+
+      return (
+        &lt;NavItem key={name}&gt;
+          {/* If link url is the current page, add `aria-current` for a11y */}
+          &lt;Link link={link} aria-current={isCurrentPage ? "page" : undefined}&gt;
+            {name}
+          &lt;/Link&gt;
+        &lt;/NavItem&gt;
+      );
+    })}
+  &lt;/NavContainer&gt;
+);
+</code></pre>
+          <p><a href="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/5">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/5</link>
+        <pubDate>Sat, 19 Mar 2022 00:08:18 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5835-5</guid>
+        <source url="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835.rss">Stop custom home page from refreshing</source>
+      </item>
+      <item>
+        <title>Stop custom home page from refreshing</title>
+        <dc:creator><![CDATA[s74]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi again,<br>
+I think I solved it. But don’t know if it is the right thing to do. So that WP generates all but the link for Home.<br>
+Like this:</p>
+<pre><code class="lang-javascript"> &lt;Menu&gt;
+      &lt;Link
+        link="/"
+        css={css`
+          color: orange;
+          text-decoration: none;
+          margin-right: 1em;
+        `}
+      &gt;
+        Home
+      &lt;/Link&gt;
+      {items.map((item) =&gt; {
+        return (
+          &lt;nav key={item.ID}&gt;
+            &lt;Link
+              link={item.url}
+              css={css`
+                color: orange;
+                text-decoration: none;
+                margin-right: 1em;
+              `}
+            &gt;
+              {item.title}
+            &lt;/Link&gt;
+          &lt;/nav&gt;
+</code></pre>
+          <p><a href="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/4">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/4</link>
+        <pubDate>Fri, 18 Mar 2022 12:21:30 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5835-4</guid>
+        <source url="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835.rss">Stop custom home page from refreshing</source>
+      </item>
+      <item>
+        <title>Stop custom home page from refreshing</title>
+        <dc:creator><![CDATA[s74]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,<br>
+Thank you for your reply!<br>
+But I am getting the menu generated from WP, so where do I put the Link component?</p>
+          <p><a href="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/3">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/3</link>
+        <pubDate>Fri, 18 Mar 2022 12:14:42 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5835-3</guid>
+        <source url="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835.rss">Stop custom home page from refreshing</source>
+      </item>
+      <item>
+        <title>Stop custom home page from refreshing</title>
+        <dc:creator><![CDATA[MDS_N]]></dc:creator>
+        <description><![CDATA[
+            <p>Hi,<br>
+you should use the Link component.<br>
+I had the same “error” with “a” instead of Link.<br>
+Because the Link component routes it internal.</p>
+          <p><a href="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/2">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/2</link>
+        <pubDate>Fri, 18 Mar 2022 11:15:00 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5835-2</guid>
+        <source url="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835.rss">Stop custom home page from refreshing</source>
+      </item>
+      <item>
+        <title>Stop custom home page from refreshing</title>
+        <dc:creator><![CDATA[s74]]></dc:creator>
+        <description><![CDATA[
+            <p>I have created a custom home page and I am using the menu from WordPress admin.<br>
+The links work fine, but when I click on the link for the Home it refreshes the site. But the other pages do not refresh, and they come from WP.</p>
+<p>How do I stop it from refreshing?<br>
+Do I need to use tiny-router? In that case, where do I put the code?</p>
+<p>Thanks!</p>
+          <p><a href="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/1">Read full topic</a></p>
+        ]]></description>
+        <link>https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835/1</link>
+        <pubDate>Thu, 17 Mar 2022 16:01:44 +0000</pubDate>
+        <guid isPermaLink="false">community.frontity.org-post-5835-1</guid>
+        <source url="https://community.frontity.org/t/stop-custom-home-page-from-refreshing/5835.rss">Stop custom home page from refreshing</source>
+      </item>
+  </channel>
+</rss>
